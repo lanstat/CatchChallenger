@@ -27,6 +27,8 @@ public:
     bool isChecked() const;
     int width();
     int height();
+    int x();
+    int y();
 
     //event
     void mousePressEventXY(const QPointF &p, bool &pressValidated);

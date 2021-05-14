@@ -57,6 +57,16 @@ int CustomButton::height()
     return m_boundingRect.height();
 }
 
+int CustomButton::x()
+{
+    return m_boundingRect.x();
+}
+
+int CustomButton::y()
+{
+    return m_boundingRect.y();
+}
+
 CustomButton::~CustomButton()
 {
     if(textPath!=nullptr)

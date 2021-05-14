@@ -14,6 +14,15 @@ using namespace CatchChallenger;
 void generateTokenStatClient(TinyXMLSettings &settings,char * const data);
 #endif
 
+std::string read_property(
+    TinyXMLSettings *settings,
+    std::string localName,
+    const char* environmentName
+        )
+{
+    return std::getenv("DB_SERVER_TYPE")==NULL? settings->value(localName): std::getenv(environmentName);
+}
+
 void send_settings(
     #ifdef SERVERSSL
     EpollSslServer *server
@@ -34,6 +43,7 @@ void send_settings(
     (void)master_considerDownAfterNumberOfTry;
     #endif
     bool ok;
+    std::string dbType;
     GameServerSettings formatedServerSettings=server->getSettings();
     NormalServerSettings formatedServerNormalSettings=server->getNormalSettings();
 
@@ -200,11 +210,12 @@ void send_settings(
 
     #ifndef CATCHCHALLENGER_CLASS_ONLYGAMESERVER
     settings->beginGroup("db-login");
-    if(settings->value("type")=="mysql")
+    dbType = read_property(settings, "type", "DATABASE_LOGIN_TYPE");
+    if(dbType=="mysql")
         formatedServerSettings.database_login.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
-    else if(settings->value("type")=="sqlite")
+    else if(dbType=="sqlite")
         formatedServerSettings.database_login.tryOpenType					= DatabaseBase::DatabaseType::SQLite;
-    else if(settings->value("type")=="postgresql")
+    else if(dbType=="postgresql")
         formatedServerSettings.database_login.tryOpenType					= DatabaseBase::DatabaseType::PostgreSQL;
     else
         formatedServerSettings.database_login.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
@@ -213,13 +224,13 @@ void send_settings(
         default:
         case DatabaseBase::DatabaseType::PostgreSQL:
         case DatabaseBase::DatabaseType::Mysql:
-            formatedServerSettings.database_login.host				= settings->value("host");
-            formatedServerSettings.database_login.db				= settings->value("db");
-            formatedServerSettings.database_login.login				= settings->value("login");
-            formatedServerSettings.database_login.pass				= settings->value("pass");
+            formatedServerSettings.database_login.host				= read_property(settings, "host", "DATABASE_LOGIN_HOST");
+            formatedServerSettings.database_login.db				= read_property(settings, "db", "DATABASE_LOGIN_DB");
+            formatedServerSettings.database_login.login				= read_property(settings, "login", "DATABASE_LOGIN_LOGIN");
+            formatedServerSettings.database_login.pass				= read_property(settings, "pass", "DATABASE_LOGIN_PASS");
         break;
         case DatabaseBase::DatabaseType::SQLite:
-            formatedServerSettings.database_login.file				= settings->value("file");
+            formatedServerSettings.database_login.file				= read_property(settings, "file", "DATABASE_LOGIN_FILE");
         break;
     }
     formatedServerSettings.database_login.tryInterval       = stringtouint32(settings->value("tryInterval"));
@@ -227,11 +238,12 @@ void send_settings(
     settings->endGroup();
 
     settings->beginGroup("db-base");
-    if(settings->value("type")=="mysql")
+    dbType = read_property(settings, "type", "DATABASE_BASE_TYPE");
+    if(dbType=="mysql")
         formatedServerSettings.database_base.tryOpenType                   = DatabaseBase::DatabaseType::Mysql;
-    else if(settings->value("type")=="sqlite")
+    else if(dbType=="sqlite")
         formatedServerSettings.database_base.tryOpenType                   = DatabaseBase::DatabaseType::SQLite;
-    else if(settings->value("type")=="postgresql")
+    else if(dbType=="postgresql")
         formatedServerSettings.database_base.tryOpenType                   = DatabaseBase::DatabaseType::PostgreSQL;
     else
         formatedServerSettings.database_base.tryOpenType                   = DatabaseBase::DatabaseType::Mysql;
@@ -240,13 +252,13 @@ void send_settings(
         default:
         case DatabaseBase::DatabaseType::PostgreSQL:
         case DatabaseBase::DatabaseType::Mysql:
-            formatedServerSettings.database_base.host              = settings->value("host");
-            formatedServerSettings.database_base.db                = settings->value("db");
-            formatedServerSettings.database_base.login             = settings->value("login");
-            formatedServerSettings.database_base.pass              = settings->value("pass");
+            formatedServerSettings.database_base.host              = read_property(settings, "host", "DATABASE_BASE_HOST");
+            formatedServerSettings.database_base.db                = read_property(settings, "db", "DATABASE_BASE_DB");
+            formatedServerSettings.database_base.login             = read_property(settings, "login", "DATABASE_BASE_LOGIN");
+            formatedServerSettings.database_base.pass              = read_property(settings, "pass", "DATABASE_BASE_PASS");
         break;
         case DatabaseBase::DatabaseType::SQLite:
-            formatedServerSettings.database_base.file              = settings->value("file");
+            formatedServerSettings.database_base.file              = read_property(settings, "file", "DATABASE_BASE_FILE");
         break;
     }
     formatedServerSettings.database_base.tryInterval       = stringtouint32(settings->value("tryInterval"));
@@ -255,11 +267,12 @@ void send_settings(
     #endif
 
     settings->beginGroup("db-common");
-    if(settings->value("type")=="mysql")
+    dbType = read_property(settings, "type", "DATABASE_COMMON_TYPE");
+    if(dbType=="mysql")
         formatedServerSettings.database_common.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
-    else if(settings->value("type")=="sqlite")
+    else if(dbType=="sqlite")
         formatedServerSettings.database_common.tryOpenType					= DatabaseBase::DatabaseType::SQLite;
-    else if(settings->value("type")=="postgresql")
+    else if(dbType=="postgresql")
         formatedServerSettings.database_common.tryOpenType					= DatabaseBase::DatabaseType::PostgreSQL;
     else
         formatedServerSettings.database_common.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
@@ -268,13 +281,13 @@ void send_settings(
         default:
         case DatabaseBase::DatabaseType::PostgreSQL:
         case DatabaseBase::DatabaseType::Mysql:
-            formatedServerSettings.database_common.host				= settings->value("host");
-            formatedServerSettings.database_common.db				= settings->value("db");
-            formatedServerSettings.database_common.login				= settings->value("login");
-            formatedServerSettings.database_common.pass				= settings->value("pass");
+            formatedServerSettings.database_common.host				= read_property(settings, "host", "DATABASE_COMMON_HOST");
+            formatedServerSettings.database_common.db				= read_property(settings, "db", "DATABASE_COMMON_DB");
+            formatedServerSettings.database_common.login				= read_property(settings, "login", "DATABASE_COMMON_LOGIN");
+            formatedServerSettings.database_common.pass				= read_property(settings, "pass", "DATABASE_COMMON_PASS");
         break;
         case DatabaseBase::DatabaseType::SQLite:
-            formatedServerSettings.database_common.file				= settings->value("file");
+            formatedServerSettings.database_common.file				= read_property(settings, "file", "DATABASE_COMMON_FILE");
         break;
     }
     formatedServerSettings.database_common.tryInterval       = stringtouint32(settings->value("tryInterval"));
@@ -282,11 +295,12 @@ void send_settings(
     settings->endGroup();
 
     settings->beginGroup("db-server");
-    if(settings->value("type")=="mysql")
+    dbType = read_property(settings, "type", "DATABASE_SERVER_TYPE");
+    if(dbType=="mysql")
         formatedServerSettings.database_server.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
-    else if(settings->value("type")=="sqlite")
+    else if(dbType=="sqlite")
         formatedServerSettings.database_server.tryOpenType					= DatabaseBase::DatabaseType::SQLite;
-    else if(settings->value("type")=="postgresql")
+    else if(dbType=="postgresql")
         formatedServerSettings.database_server.tryOpenType					= DatabaseBase::DatabaseType::PostgreSQL;
     else
         formatedServerSettings.database_server.tryOpenType					= DatabaseBase::DatabaseType::Mysql;
@@ -295,13 +309,13 @@ void send_settings(
         default:
         case DatabaseBase::DatabaseType::PostgreSQL:
         case DatabaseBase::DatabaseType::Mysql:
-            formatedServerSettings.database_server.host				= settings->value("host");
-            formatedServerSettings.database_server.db				= settings->value("db");
-            formatedServerSettings.database_server.login				= settings->value("login");
-            formatedServerSettings.database_server.pass				= settings->value("pass");
+            formatedServerSettings.database_server.host				= read_property(settings, "host", "DATABASE_SERVER_HOST");
+            formatedServerSettings.database_server.db				= read_property(settings, "db", "DATABASE_SERVER_DB");
+            formatedServerSettings.database_server.login				= read_property(settings, "login", "DATABASE_SERVER_LOGIN");
+            formatedServerSettings.database_server.pass				= read_property(settings, "pass", "DATABASE_SERVER_PASS");
         break;
         case DatabaseBase::DatabaseType::SQLite:
-            formatedServerSettings.database_server.file				= settings->value("file");
+            formatedServerSettings.database_server.file				= read_property(settings, "file", "DATABASE_SERVER_FILE");
         break;
     }
     formatedServerSettings.database_server.tryInterval       = stringtouint32(settings->value("tryInterval"));

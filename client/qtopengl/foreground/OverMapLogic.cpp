@@ -1584,6 +1584,7 @@ void OverMapLogic::wildFightCollision(CatchChallenger::Map_client *map, const ui
 
     if(Battle::battle==nullptr)
         Battle::battle=new Battle();
+    Battle::battle->setVar(connexionManager);
     emit setForeground(Battle::battle);
 }
 
