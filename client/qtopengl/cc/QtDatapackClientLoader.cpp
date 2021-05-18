@@ -911,6 +911,7 @@ const QtDatapackClientLoader::QtMonsterExtra &QtDatapackClientLoader::getMonster
         {
             const ImageMonsterExtra &i=ImagemonsterExtra.at(id);
             QtMonsterExtra n;
+
             n.front=QPixmap::fromImage(i.front);
             n.back=QPixmap::fromImage(i.back);
             n.thumb=QPixmap::fromImage(i.thumb);

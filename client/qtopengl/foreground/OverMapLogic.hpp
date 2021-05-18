@@ -223,6 +223,8 @@ public slots:
     void botFight(const uint16_t &fightId);
     void wildFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
     void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
+    void BattleFinished();
+
 signals:
     void error(const std::string &error);
     //plant, can do action only if the previous is finish

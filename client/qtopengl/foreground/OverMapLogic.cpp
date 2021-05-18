@@ -1577,14 +1577,13 @@ void OverMapLogic::botFight(const uint16_t &fightId)
 
 void OverMapLogic::wildFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y)
 {
-    (void)map;
-    (void)x;
-    (void)y;
     std::cerr << "OverMapLogic::wildFightCollision" << std::endl;
 
-    if(Battle::battle==nullptr)
+    if(Battle::battle==nullptr) {
         Battle::battle=new Battle();
-    Battle::battle->setVar(connexionManager);
+        connect(Battle::battle, &Battle::Finished, this, &OverMapLogic::BattleFinished);
+    }
+    Battle::battle->WildFightInitialize(connexionManager, map, x, y);
     emit setForeground(Battle::battle);
 }
 
@@ -1598,6 +1597,11 @@ void OverMapLogic::botFightCollision(CatchChallenger::Map_client *map, const uin
     if(Battle::battle==nullptr)
         Battle::battle=new Battle();
     emit setForeground(Battle::battle);
+}
+
+void OverMapLogic::BattleFinished() {
+    // TODO(lanstat): revisar porque el mapa queda atascado;
+    emit setForeground(this);
 }
 
 void OverMapLogic::cityCapture(const uint32_t &remainingTime,const uint8_t &type)

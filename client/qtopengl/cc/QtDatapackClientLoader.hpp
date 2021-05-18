@@ -82,6 +82,8 @@ public:
 
     std::string getSkinPath(const std::string &skinName,const std::string &type) const;
     std::string getFrontSkinPath(const uint32_t &skinId) const;
+
+    std::unordered_map<uint16_t,QtMonsterExtra> QtmonsterExtra;
 protected:
     #ifndef NOTHREADS
     void run() override;
@@ -105,7 +107,6 @@ private:
     std::string getLanguage() override;
 
     std::unordered_map<uint16_t,QtItemExtra> QtitemsExtra;
-    std::unordered_map<uint16_t,QtMonsterExtra> QtmonsterExtra;
     std::unordered_set<QtDatapackClientLoaderThread *> threads;
     QtItemExtra emptyItem;
     QtMonsterExtra emptyMonster;
