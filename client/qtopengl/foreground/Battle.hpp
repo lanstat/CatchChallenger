@@ -10,6 +10,7 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../ConnexionManager.hpp"
 #include "../Map_client.hpp"
+#include "../above/MessageDialog.hpp"
 #include "../ScreenInput.hpp"
 #include "../cc/ClientFightEngine.hpp"
 class CCprogressbar;
@@ -82,13 +83,12 @@ class Battle : public ScreenInput {
  public slots:
   void on_pushButtonFightEnterNext_clicked();
   void on_toolButtonFightQuit_clicked();
-  /*
-      void on_pushButtonFightAttack_clicked();
-      void on_pushButtonFightMonster_clicked();
-      void on_pushButtonFightAttackConfirmed_clicked();
-      void on_pushButtonFightReturn_clicked();
-      void on_listWidgetFightAttack_itemSelectionChanged();
-      void on_listWidgetFightAttack_itemActivated(QListWidgetItem *item);*/
+  void on_pushButtonFightAttack_clicked();
+  //void on_pushButtonFightMonster_clicked();
+  void on_pushButtonFightAttackConfirmed_clicked();
+  void on_pushButtonFightReturn_clicked();
+  void on_listWidgetFightAttack_itemSelectionChanged();
+  void on_listWidgetFightAttack_itemActivated(QListWidgetItem *item);
  signals:
   void Finished();
 
@@ -139,6 +139,7 @@ class Battle : public ScreenInput {
   CustomButton *pushButtonFightBag;
   CustomButton *pushButtonFightMonster;
   CustomButton *toolButtonFightQuit;
+  MessageDialog *message_dialog_;
 
   CustomButton *pushButtonFightAttackConfirmed;
   CustomButton *pushButtonFightReturn;
@@ -150,6 +151,7 @@ class Battle : public ScreenInput {
   uint32_t mLastGivenXP = 0;
   uint8_t currentMonsterLevel;
   int displayAttackProgression;
+  int32_t attack_quantity_changed;
 
   bool escape;
   bool escapeSuccess;
@@ -192,12 +194,15 @@ class Battle : public ScreenInput {
   void LoadPlayerData();
   QPixmap GetBackSkin(const uint32_t &skinId);
   void load_monsters();
+  void checkEvolution();
 
   void init_environement_display(CatchChallenger::Map_client *map,
                                  const uint8_t &x, const uint8_t &y);
   void init_current_monster_display(
       CatchChallenger::PlayerMonster *fightMonster);
   void init_other_monster_display();
+  void ShowMessageDialog(const QString &text);
+  void CloseMessageDialog();
  private slots:
   void error(std::string error);
 

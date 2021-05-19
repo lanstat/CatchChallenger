@@ -11,6 +11,7 @@
 #include "../CCprogressbar.hpp"
 #include "../CustomButton.hpp"
 #include "../ImagesStrechMiddle.hpp"
+#include "../above/MessageDialog.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 
@@ -83,18 +84,23 @@ Battle::Battle() {
   if (!connect(toolButtonFightQuit, &CustomButton::clicked, this,
                &Battle::on_toolButtonFightQuit_clicked))
     abort();
-  /*if(!connect(pushButtonFightAttack,&CustomButton::clicked,this,&Battle::on_pushButtonFightAttack_clicked))
-      abort();
-  if(!connect(pushButtonFightMonster,&CustomButton::clicked,this,&Battle::on_pushButtonFightMonster_clicked))
-      abort();
-  if(!connect(pushButtonFightAttackConfirmed,&CustomButton::clicked,this,&Battle::on_pushButtonFightAttackConfirmed_clicked))
-      abort();
-  if(!connect(pushButtonFightReturn,&CustomButton::clicked,this,&Battle::on_pushButtonFightReturn_clicked))
-      abort();
-  if(!connect(listWidgetFightAttack,&QListWidget::itemSelectionChanged,this,&Battle::on_listWidgetFightAttack_itemSelectionChanged))
-      abort();
-  if(!connect(listWidgetFightAttack,&QListWidget::itemActivated,this,&Battle::on_listWidgetFightAttack_itemActivated))
+  if (!connect(pushButtonFightAttack, &CustomButton::clicked, this,
+               &Battle::on_pushButtonFightAttack_clicked))
+    abort();
+  /*if(!connect(pushButtonFightMonster,&CustomButton::clicked,this,&Battle::on_pushButtonFightMonster_clicked))
       abort();*/
+  if (!connect(pushButtonFightAttackConfirmed, &CustomButton::clicked, this,
+               &Battle::on_pushButtonFightAttackConfirmed_clicked))
+    abort();
+  if (!connect(pushButtonFightReturn, &CustomButton::clicked, this,
+               &Battle::on_pushButtonFightReturn_clicked))
+    abort();
+  if (!connect(listWidgetFightAttack, &QListWidget::itemSelectionChanged, this,
+               &Battle::on_listWidgetFightAttack_itemSelectionChanged))
+    abort();
+  if (!connect(listWidgetFightAttack, &QListWidget::itemActivated, this,
+               &Battle::on_listWidgetFightAttack_itemActivated))
+    abort();
   moveFightMonsterBottomTimer.setSingleShot(true);
   moveFightMonsterBottomTimer.setInterval(20);
   doNextActionTimer.setSingleShot(true);
@@ -115,6 +121,7 @@ Battle::Battle() {
   initializeText(labelFightEnter);
 
   stackedWidgetFightBottomBarsetCurrentWidget(0);
+  message_dialog_ = nullptr;
 }
 
 Battle::~Battle() {}
@@ -269,14 +276,17 @@ void Battle::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   labelFightForeground->setPos(finalX, finalY);
 
   frameFightBottom->setPos(w->width() * 0.63, w->height() * 0.6);
-  frameFightBottom->setSize(w->width() * 0.3, w->height() * 0.2);
-  // labelFightBottomName->setSize(10,10);
-  progressBarFightBottomHP->setSize(10, 10 + 24 + 10);
+  frameFightBottom->setSize(w->width() * 0.3, w->height() * 0.15);
+  labelFightBottomName->setPos(20, 20);
+  progressBarFightBottomHP->setPos(20, 60);
+  progressBarFightBottomHP->setSize(frameFightBottom->width() - 40, 44);
 
   frameFightTop->setPos(w->width() * 0.06, w->height() * 0.1);
-  frameFightTop->setSize(w->width() * 0.3, w->height() * 0.2);
+  frameFightTop->setSize(w->width() * 0.3, w->height() * 0.15);
   // labelFightTopName->setSize(10,10);
-  progressBarFightTopHP->setSize(10, 10 + 24 + 10);
+  labelFightTopName->setPos(20, 20);
+  progressBarFightTopHP->setPos(20, 60);
+  progressBarFightTopHP->setSize(frameFightBottom->width() - 40, 44);
 
   labelFightMonsterAttackBottom->setPos(finalX + 60 * minRatio,
                                         finalY + 280 * minRatio);
@@ -330,11 +340,9 @@ void Battle::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
                                         space -
                                         pushButtonFightReturn->height());
       pushButtonFightAttackConfirmed->setPos(
-          stackedWidgetFightBottomBar->width() - space -
-              pushButtonFightAttackConfirmed->width(),
-          stackedWidgetFightBottomBar->height() - space -
-              pushButtonFightReturn->height() - space -
-              pushButtonFightAttackConfirmed->height());
+          pushButtonFightReturn->x() - pushButtonFightAttackConfirmed->width() -
+              space,
+          pushButtonFightReturn->y());
       labelFightAttackDetails->setPos(
           stackedWidgetFightBottomBar->width() / 2 + space / 2, space);
       listWidgetFightAttackProxy->setPos(space, space);
@@ -627,198 +635,198 @@ bool Battle::check_monsters() {
   return true;
 }
 
-void Battle::load_monsters() {/*
-  const std::vector<CatchChallenger::PlayerMonster> &playerMonsters =
-      connexionManager->client->getPlayerMonster();
-  monsterList->clear();
-  monsterspos_items_graphical.clear();
-  if (playerMonsters.empty()) return;
-  const uint8_t &currentMonsterPosition =
-      connexionManager->client->getCurrentSelectedMonsterNumber();
-  unsigned int index = 0;
-  while (index < playerMonsters.size()) {
-    const CatchChallenger::PlayerMonster &monster = playerMonsters.at(index);
-    if (inSelection) {
-      if (waitedObjectType == ObjectType_MonsterToFight &&
-          index == currentMonsterPosition) {
-        index++;
-        continue;
-      }
-      switch (waitedObjectType) {
-        case ObjectType_ItemEvolutionOnMonster:
-          if (monster.hp == 0 || monster.egg_step > 0) {
-            index++;
-            continue;
-          }
-          if (CatchChallenger::CommonDatapack::commonDatapack.items
-                  .evolutionItem.find(objectInUsing.back()) ==
-              CatchChallenger::CommonDatapack::commonDatapack.items
-                  .evolutionItem.cend()) {
-            index++;
-            continue;
-          }
-          if (CatchChallenger::CommonDatapack::commonDatapack.items
-                  .evolutionItem.at(objectInUsing.back())
-                  .find(monster.monster) ==
-              CatchChallenger::CommonDatapack::commonDatapack.items
-                  .evolutionItem.at(objectInUsing.back())
-                  .cend()) {
-            index++;
-            continue;
-          }
-          break;
-        case ObjectType_ItemLearnOnMonster:
-          if (CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
-                  .find(objectInUsing.back()) ==
-              CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
-                  .cend()) {
-            index++;
-            continue;
-          }
-          if (CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
-                  .at(objectInUsing.back())
-                  .find(monster.monster) ==
-              CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
-                  .at(objectInUsing.back())
-                  .cend()) {
-            index++;
-            continue;
-          }
-          break;
-        case ObjectType_MonsterToFight:
-        case ObjectType_MonsterToFightKO:
-        case ObjectType_ItemOnMonster:
-          if (monster.hp == 0 || monster.egg_step > 0) {
-            index++;
-            continue;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-    if (CatchChallenger::CommonDatapack::commonDatapack.monsters.find(
-            monster.monster) !=
-        CatchChallenger::CommonDatapack::commonDatapack.monsters.cend()) {
-      Monster::Stat stat = CatchChallenger::ClientFightEngine::getStat(
-          CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
-              monster.monster),
-          monster.level);
+void Battle::load_monsters() { /*
+   const std::vector<CatchChallenger::PlayerMonster> &playerMonsters =
+       connexionManager->client->getPlayerMonster();
+   monsterList->clear();
+   monsterspos_items_graphical.clear();
+   if (playerMonsters.empty()) return;
+   const uint8_t &currentMonsterPosition =
+       connexionManager->client->getCurrentSelectedMonsterNumber();
+   unsigned int index = 0;
+   while (index < playerMonsters.size()) {
+     const CatchChallenger::PlayerMonster &monster = playerMonsters.at(index);
+     if (inSelection) {
+       if (waitedObjectType == ObjectType_MonsterToFight &&
+           index == currentMonsterPosition) {
+         index++;
+         continue;
+       }
+       switch (waitedObjectType) {
+         case ObjectType_ItemEvolutionOnMonster:
+           if (monster.hp == 0 || monster.egg_step > 0) {
+             index++;
+             continue;
+           }
+           if (CatchChallenger::CommonDatapack::commonDatapack.items
+                   .evolutionItem.find(objectInUsing.back()) ==
+               CatchChallenger::CommonDatapack::commonDatapack.items
+                   .evolutionItem.cend()) {
+             index++;
+             continue;
+           }
+           if (CatchChallenger::CommonDatapack::commonDatapack.items
+                   .evolutionItem.at(objectInUsing.back())
+                   .find(monster.monster) ==
+               CatchChallenger::CommonDatapack::commonDatapack.items
+                   .evolutionItem.at(objectInUsing.back())
+                   .cend()) {
+             index++;
+             continue;
+           }
+           break;
+         case ObjectType_ItemLearnOnMonster:
+           if (CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
+                   .find(objectInUsing.back()) ==
+               CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
+                   .cend()) {
+             index++;
+             continue;
+           }
+           if (CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
+                   .at(objectInUsing.back())
+                   .find(monster.monster) ==
+               CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn
+                   .at(objectInUsing.back())
+                   .cend()) {
+             index++;
+             continue;
+           }
+           break;
+         case ObjectType_MonsterToFight:
+         case ObjectType_MonsterToFightKO:
+         case ObjectType_ItemOnMonster:
+           if (monster.hp == 0 || monster.egg_step > 0) {
+             index++;
+             continue;
+           }
+           break;
+         default:
+           break;
+       }
+     }
+     if (CatchChallenger::CommonDatapack::commonDatapack.monsters.find(
+             monster.monster) !=
+         CatchChallenger::CommonDatapack::commonDatapack.monsters.cend()) {
+       Monster::Stat stat = CatchChallenger::ClientFightEngine::getStat(
+           CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
+               monster.monster),
+           monster.level);
 
-      QListWidgetItem *item = new QListWidgetItem();
-      item->setToolTip(QString::fromStdString(
-          QtDatapackClientLoader::datapackLoader->monsterExtra
-              .at(monster.monster)
-              .description));
-      if (!QtDatapackClientLoader::datapackLoader->QtmonsterExtra
+       QListWidgetItem *item = new QListWidgetItem();
+       item->setToolTip(QString::fromStdString(
+           QtDatapackClientLoader::datapackLoader->monsterExtra
                .at(monster.monster)
-               .thumb.isNull())
-        item->setIcon(QtDatapackClientLoader::datapackLoader->QtmonsterExtra
-                          .at(monster.monster)
-                          .thumb);
-      else
-        item->setIcon(QtDatapackClientLoader::datapackLoader->QtmonsterExtra
-                          .at(monster.monster)
-                          .front);
+               .description));
+       if (!QtDatapackClientLoader::datapackLoader->QtmonsterExtra
+                .at(monster.monster)
+                .thumb.isNull())
+         item->setIcon(QtDatapackClientLoader::datapackLoader->QtmonsterExtra
+                           .at(monster.monster)
+                           .thumb);
+       else
+         item->setIcon(QtDatapackClientLoader::datapackLoader->QtmonsterExtra
+                           .at(monster.monster)
+                           .front);
 
-      if (waitedObjectType == ObjectType_MonsterToLearn && inSelection) {
-        QHash<uint32_t, uint8_t> skillToDisplay;
-        unsigned int sub_index = 0;
-        while (sub_index <
+       if (waitedObjectType == ObjectType_MonsterToLearn && inSelection) {
+         QHash<uint32_t, uint8_t> skillToDisplay;
+         unsigned int sub_index = 0;
+         while (sub_index <
+                CatchChallenger::CommonDatapack::commonDatapack.monsters
+                    .at(monster.monster)
+                    .learn.size()) {
+           Monster::AttackToLearn learn =
                CatchChallenger::CommonDatapack::commonDatapack.monsters
                    .at(monster.monster)
-                   .learn.size()) {
-          Monster::AttackToLearn learn =
-              CatchChallenger::CommonDatapack::commonDatapack.monsters
-                  .at(monster.monster)
-                  .learn.at(sub_index);
-          if (learn.learnAtLevel <= monster.level) {
-            unsigned int sub_index2 = 0;
-            while (sub_index2 < monster.skills.size()) {
-              const PlayerMonster::PlayerSkill &skill =
-                  monster.skills.at(sub_index2);
-              if (skill.skill == learn.learnSkill) break;
-              sub_index2++;
-            }
-            if (
-                // if skill not found
-                (sub_index2 == monster.skills.size() &&
-                 learn.learnSkillLevel == 1) ||
-                // if skill already found and need level up
-                (sub_index2 < monster.skills.size() &&
-                 (monster.skills.at(sub_index2).level + 1) ==
-                     learn.learnSkillLevel)) {
-              if (skillToDisplay.contains(learn.learnSkill)) {
-                if (skillToDisplay.value(learn.learnSkill) >
-                    learn.learnSkillLevel)
-                  skillToDisplay[learn.learnSkill] = learn.learnSkillLevel;
-              } else
-                skillToDisplay[learn.learnSkill] = learn.learnSkillLevel;
-            }
-          }
-          sub_index++;
-        }
-        if (skillToDisplay.isEmpty())
-          item->setText(
-              tr("%1, level: %2\nHP: %3/%4\n%5")
-                  .arg(QString::fromStdString(
-                      QtDatapackClientLoader::datapackLoader->monsterExtra
-                          .at(monster.monster)
-                          .name))
-                  .arg(monster.level)
-                  .arg(monster.hp)
-                  .arg(stat.hp)
-                  .arg(tr("No skill to learn")));
-        else
-          item->setText(
-              tr("%1, level: %2\nHP: %3/%4\n%5")
-                  .arg(QString::fromStdString(
-                      QtDatapackClientLoader::datapackLoader->monsterExtra
-                          .at(monster.monster)
-                          .name))
-                  .arg(monster.level)
-                  .arg(monster.hp)
-                  .arg(stat.hp)
-                  .arg(tr("%n skill(s) to learn", "", skillToDisplay.size())));
-      } else {
-        item->setText(
-            tr("%1, level: %2\nHP: %3/%4")
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterExtra
-                        .at(monster.monster)
-                        .name))
-                .arg(monster.level)
-                .arg(monster.hp)
-                .arg(stat.hp));
-      }
-      if (monster.hp == 0) {
-        item->setBackgroundColor(QColor(255, 220, 220, 255));
-      } else if (index == currentMonsterPosition) {
-        if (!connexionManager->client->isInFight())
-          item->setBackgroundColor(QColor(200, 255, 255, 255));
-      }
-      monsterList->addItem(item);
-      monsterspos_items_graphical[item] = static_cast<uint8_t>(index);
-    } else {
-      error(QStringLiteral("Unknown monster: %1")
-                .arg(monster.monster)
-                .toStdString());
-      return;
-    }
-    index++;
-  }
-  if (inSelection) {
-    monsterListMoveUp->setVisible(false);
-    monsterListMoveDown->setVisible(false);
-    toolButton_monster_list_quit->setVisible(waitedObjectType !=
-                                             ObjectType_MonsterToFightKO);
-  } else {
-    monsterListMoveUp->setVisible(true);
-    monsterListMoveDown->setVisible(true);
-    toolButton_monster_list_quit->setVisible(true);
-    on_monsterList_itemSelectionChanged();
-  }
-  selectMonster->setVisible(true);*/
+                   .learn.at(sub_index);
+           if (learn.learnAtLevel <= monster.level) {
+             unsigned int sub_index2 = 0;
+             while (sub_index2 < monster.skills.size()) {
+               const PlayerMonster::PlayerSkill &skill =
+                   monster.skills.at(sub_index2);
+               if (skill.skill == learn.learnSkill) break;
+               sub_index2++;
+             }
+             if (
+                 // if skill not found
+                 (sub_index2 == monster.skills.size() &&
+                  learn.learnSkillLevel == 1) ||
+                 // if skill already found and need level up
+                 (sub_index2 < monster.skills.size() &&
+                  (monster.skills.at(sub_index2).level + 1) ==
+                      learn.learnSkillLevel)) {
+               if (skillToDisplay.contains(learn.learnSkill)) {
+                 if (skillToDisplay.value(learn.learnSkill) >
+                     learn.learnSkillLevel)
+                   skillToDisplay[learn.learnSkill] = learn.learnSkillLevel;
+               } else
+                 skillToDisplay[learn.learnSkill] = learn.learnSkillLevel;
+             }
+           }
+           sub_index++;
+         }
+         if (skillToDisplay.isEmpty())
+           item->setText(
+               tr("%1, level: %2\nHP: %3/%4\n%5")
+                   .arg(QString::fromStdString(
+                       QtDatapackClientLoader::datapackLoader->monsterExtra
+                           .at(monster.monster)
+                           .name))
+                   .arg(monster.level)
+                   .arg(monster.hp)
+                   .arg(stat.hp)
+                   .arg(tr("No skill to learn")));
+         else
+           item->setText(
+               tr("%1, level: %2\nHP: %3/%4\n%5")
+                   .arg(QString::fromStdString(
+                       QtDatapackClientLoader::datapackLoader->monsterExtra
+                           .at(monster.monster)
+                           .name))
+                   .arg(monster.level)
+                   .arg(monster.hp)
+                   .arg(stat.hp)
+                   .arg(tr("%n skill(s) to learn", "", skillToDisplay.size())));
+       } else {
+         item->setText(
+             tr("%1, level: %2\nHP: %3/%4")
+                 .arg(QString::fromStdString(
+                     QtDatapackClientLoader::datapackLoader->monsterExtra
+                         .at(monster.monster)
+                         .name))
+                 .arg(monster.level)
+                 .arg(monster.hp)
+                 .arg(stat.hp));
+       }
+       if (monster.hp == 0) {
+         item->setBackgroundColor(QColor(255, 220, 220, 255));
+       } else if (index == currentMonsterPosition) {
+         if (!connexionManager->client->isInFight())
+           item->setBackgroundColor(QColor(200, 255, 255, 255));
+       }
+       monsterList->addItem(item);
+       monsterspos_items_graphical[item] = static_cast<uint8_t>(index);
+     } else {
+       error(QStringLiteral("Unknown monster: %1")
+                 .arg(monster.monster)
+                 .toStdString());
+       return;
+     }
+     index++;
+   }
+   if (inSelection) {
+     monsterListMoveUp->setVisible(false);
+     monsterListMoveDown->setVisible(false);
+     toolButton_monster_list_quit->setVisible(waitedObjectType !=
+                                              ObjectType_MonsterToFightKO);
+   } else {
+     monsterListMoveUp->setVisible(true);
+     monsterListMoveDown->setVisible(true);
+     toolButton_monster_list_quit->setVisible(true);
+     on_monsterList_itemSelectionChanged();
+   }
+   selectMonster->setVisible(true);*/
 }
 
 /*void Battle::botFight(const uint16_t &fightId)
@@ -1771,231 +1779,236 @@ void Battle::on_toolButtonFightQuit_clicked() {
   // haveDisplayOtherAttackSuccess = false;
   doNextAction();
 }
-/*
-void Battle::on_pushButtonFightAttack_clicked()
-{
-    stackedWidgetFightBottomBarsetCurrentWidget(stackedWidgetFightBottomBarPageAttack);
-}
 
+void Battle::on_pushButtonFightAttack_clicked() {
+  stackedWidgetFightBottomBarsetCurrentWidget(2);
+}
+/*
 void Battle::on_pushButtonFightMonster_clicked()
 {
     selectObject(ObjectType_MonsterToFight);
+}*/
+
+void Battle::on_pushButtonFightAttackConfirmed_clicked() {
+  if (!client_->canDoFightAction()) {
+    // QMessageBox::warning(this,"Communication problem",tr("Sorry but the
+    // client wait more data from the server to do it"));
+    return;
+  }
+  QList<QListWidgetItem *> itemsList = listWidgetFightAttack->selectedItems();
+  if (itemsList.size() != 1) {
+    // QMessageBox::warning(this,tr("Selection error"),tr("You need select an
+    // attack"));
+    return;
+  }
+  const uint8_t skillEndurance =
+      static_cast<uint8_t>(itemsList.first()->data(99).toUInt());
+  const uint16_t skillUsed = fight_attacks_graphical.at(itemsList.first());
+  if (skillEndurance <= 0 && !useTheRescueSkill) {
+    // QMessageBox::warning(this,tr("No endurance"),tr("You have no more
+    // endurance to use this skill"));
+    return;
+  }
+  doNextActionStep = DoNextActionStep_Start;
+  escape = false;
+  // haveDisplayCurrentAttackSuccess = false;
+  // haveDisplayOtherAttackSuccess = false;
+  CatchChallenger::PlayerMonster *monster = client_->getCurrentMonster();
+  if (monster == NULL) {
+    newError(tr("Internal error").toStdString() + ", file: " +
+                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
+             "NULL pointer at updateCurrentMonsterInformation()");
+    return;
+  }
+  if (useTheRescueSkill)
+    connexionManager->client->useSkill(0);
+  else
+    connexionManager->client->useSkill(skillUsed);
+  updateAttackList();
+  displayAttackProgression = 0;
+  attack_quantity_changed = 0;
+  if (battleType != BattleType_OtherPlayer)
+    doNextAction();
+  else {
+    stackedWidgetFightBottomBarsetCurrentWidget(0);
+    labelFightEnter->setPlainText(tr("In waiting of the other player action"));
+    pushButtonFightEnterNext->hide();
+  }
 }
 
-void Battle::on_pushButtonFightAttackConfirmed_clicked()
-{
-    if(!connexionManager->client->canDoFightAction())
-    {
-        QMessageBox::warning(this,"Communication problem",tr("Sorry but the
-client wait more data from the server to do it")); return;
-    }
-    QList<QListWidgetItem *> itemsList=listWidgetFightAttack->selectedItems();
-    if(itemsList.size()!=1)
-    {
-        QMessageBox::warning(this,tr("Selection error"),tr("You need select an
-attack")); return;
-    }
-    const uint8_t
-skillEndurance=static_cast<uint8_t>(itemsList.first()->data(99).toUInt()); const
-uint16_t skillUsed=fight_attacks_graphical.at(itemsList.first());
-    if(skillEndurance<=0 && !useTheRescueSkill)
-    {
-        QMessageBox::warning(this,tr("No endurance"),tr("You have no more
-endurance to use this skill")); return;
-    }
-    doNextActionStep=DoNextActionStep_Start;
-    escape=false;
-    haveDisplayCurrentAttackSuccess=false;
-    haveDisplayOtherAttackSuccess=false;
-    PlayerMonster *monster=connexionManager->client->getCurrentMonster();
-    if(monster==NULL)
-    {
-        newError(tr("Internal error").toStdString()+", file:
-"+std::string(__FILE__)+":"+std::to_string(__LINE__),"NULL pointer at
-updateCurrentMonsterInformation()"); return;
-    }
-    if(useTheRescueSkill)
-        connexionManager->client->useSkill(0);
-    else
-        connexionManager->client->useSkill(skillUsed);
-    updateAttackList();
-    displayAttackProgression=0;
-    attack_quantity_changed=0;
-    if(battleType!=BattleType_OtherPlayer)
-        doNextAction();
-    else
-    {
-        stackedWidgetFightBottomBarsetCurrentWidget(stackedWidgetFightBottomBarPageEnter);
-        labelFightEnter->setText(tr("In waiting of the other player action"));
-        pushButtonFightEnterNext->hide();
-    }
+void Battle::on_pushButtonFightReturn_clicked() {
+  listWidgetFightAttack->reset();
+  on_listWidgetFightAttack_itemSelectionChanged();
+  stackedWidgetFightBottomBarsetCurrentWidget(1);
+  ShowMessageDialog(tr("qiiiqiiiqii"));
 }
 
-void Battle::on_pushButtonFightReturn_clicked()
-{
-    listWidgetFightAttack->reset();
-    on_listWidgetFightAttack_itemSelectionChanged();
-    stackedWidgetFightBottomBarsetCurrentWidget(stackedWidgetFightBottomBarPageMain);
+void Battle::on_listWidgetFightAttack_itemSelectionChanged() {
+  QList<QListWidgetItem *> itemsList = listWidgetFightAttack->selectedItems();
+  if (itemsList.size() != 1) {
+    labelFightAttackDetails->setPlainText(tr("Select an attack"));
+    return;
+  }
+  uint16_t skillId = fight_attacks_graphical.at(itemsList.first());
+  labelFightAttackDetails->setPlainText(QString::fromStdString(
+      QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.at(skillId)
+          .description));
 }
 
-void Battle::on_listWidgetFightAttack_itemSelectionChanged()
-{
-    QList<QListWidgetItem *> itemsList=listWidgetFightAttack->selectedItems();
-    if(itemsList.size()!=1)
-    {
-        labelFightAttackDetails->setText(tr("Select an attack"));
+void Battle::checkEvolution() {
+  /*
+  CatchChallenger::PlayerMonster *monster =
+      connexionManager->client->evolutionByLevelUp();
+  if (monster != NULL) {
+    const CatchChallenger::Monster &monsterInformations =
+        CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
+            monster->monster);
+    const QtDatapackClientLoader::MonsterExtra &monsterInformationsExtra =
+        QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+            monster->monster);
+    unsigned int index = 0;
+    while (index < monsterInformations.evolutions.size()) {
+      const CatchChallenger::Monster::Evolution &evolution =
+          monsterInformations.evolutions.at(index);
+      if (evolution.type == CatchChallenger::Monster::EvolutionType_Level &&
+          evolution.data.level == monster->level) {
+        monsterEvolutionPostion =
+            connexionManager->client->getPlayerMonsterPosition(monster);
+        const CatchChallenger::Monster &monsterInformationsEvolution =
+            CommonDatapack::commonDatapack.monsters.at(evolution.evolveTo);
+        const QtDatapackClientLoader::MonsterExtra
+            &monsterInformationsEvolutionExtra =
+                QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+                    evolution.evolveTo);
+        // create animation widget
+        if (animationWidget != NULL) delete animationWidget;
+        if (qQuickViewContainer != NULL) delete qQuickViewContainer;
+        animationWidget = new QQuickView();
+        qQuickViewContainer = QWidget::createWindowContainer(animationWidget);
+        qQuickViewContainer->setMinimumSize(QSize(width(), height()));
+        qQuickViewContainer->setMaximumSize(QSize(width(), height()));
+        qQuickViewContainer->setFocusPolicy(Qt::TabFocus);
+        verticalLayoutPageAnimation->addWidget(qQuickViewContainer);
+        // show the animation
+        stackedWidget->setCurrentWidget(page_animation);
+        previousAnimationWidget = page_map;
+        if (baseMonsterEvolution != NULL) delete baseMonsterEvolution;
+        if (targetMonsterEvolution != NULL) delete targetMonsterEvolution;
+        baseMonsterEvolution = new QmlMonsterGeneralInformations(
+            monsterInformations, monsterInformationsExtra);
+        targetMonsterEvolution = new QmlMonsterGeneralInformations(
+            monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+        if (evolutionControl != NULL) delete evolutionControl;
+        evolutionControl = new EvolutionControl(
+            monsterInformations, monsterInformationsExtra,
+            monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+        if (!connect(evolutionControl, &EvolutionControl::cancel, this,
+                     &Battle::evolutionCanceled, Qt::QueuedConnection))
+          abort();
+        animationWidget->rootContext()->setContextProperty("animationControl",
+                                                           &animationControl);
+        animationWidget->rootContext()->setContextProperty("evolutionControl",
+                                                           evolutionControl);
+        animationWidget->rootContext()->setContextProperty("canBeCanceled",
+                                                           QVariant(true));
+        animationWidget->rootContext()->setContextProperty("itemEvolution",
+                                                           QString());
+        animationWidget->rootContext()->setContextProperty(
+            "baseMonsterEvolution", baseMonsterEvolution);
+        animationWidget->rootContext()->setContextProperty(
+            "targetMonsterEvolution", targetMonsterEvolution);
+        const QString datapackQmlFile =
+            QString::fromStdString(client->datapackPathBase()) +
+            "qml/evolution-animation.qml";
+        if (QFile(datapackQmlFile).exists())
+          animationWidget->setSource(QUrl::fromLocalFile(datapackQmlFile));
+        else
+          animationWidget->setSource(
+              QStringLiteral("qrc:/qml/evolution-animation.qml"));
         return;
+      }
+      index++;
     }
-    uint16_t skillId=fight_attacks_graphical.at(itemsList.first());
-    labelFightAttackDetails->setText(QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.at(skillId).description));
-}
-
-void Battle::checkEvolution()
-{
-    PlayerMonster *monster=connexionManager->client->evolutionByLevelUp();
-    if(monster!=NULL)
-    {
-        const Monster
-&monsterInformations=CommonDatapack::commonDatapack.monsters.at(monster->monster);
-        const QtDatapackClientLoader::MonsterExtra
-&monsterInformationsExtra=QtDatapackClientLoader::datapackLoader->monsterExtra.at(monster->monster);
-        unsigned int index=0;
-        while(index<monsterInformations.evolutions.size())
-        {
-            const Monster::Evolution
-&evolution=monsterInformations.evolutions.at(index);
-            if(evolution.type==Monster::EvolutionType_Level &&
-evolution.data.level==monster->level)
-            {
-                monsterEvolutionPostion=connexionManager->client->getPlayerMonsterPosition(monster);
-                const Monster
-&monsterInformationsEvolution=CommonDatapack::commonDatapack.monsters.at(evolution.evolveTo);
-                const QtDatapackClientLoader::MonsterExtra
-&monsterInformationsEvolutionExtra=QtDatapackClientLoader::datapackLoader->monsterExtra.at(
-                            evolution.evolveTo);
-                //create animation widget
-                if(animationWidget!=NULL)
-                    delete animationWidget;
-                if(qQuickViewContainer!=NULL)
-                    delete qQuickViewContainer;
-                animationWidget=new QQuickView();
-                qQuickViewContainer =
-QWidget::createWindowContainer(animationWidget);
-                qQuickViewContainer->setMinimumSize(QSize(width(),height()));
-                qQuickViewContainer->setMaximumSize(QSize(width(),height()));
-                qQuickViewContainer->setFocusPolicy(Qt::TabFocus);
-                verticalLayoutPageAnimation->addWidget(qQuickViewContainer);
-                //show the animation
-                stackedWidget->setCurrentWidget(page_animation);
-                previousAnimationWidget=page_map;
-                if(baseMonsterEvolution!=NULL)
-                    delete baseMonsterEvolution;
-                if(targetMonsterEvolution!=NULL)
-                    delete targetMonsterEvolution;
-                baseMonsterEvolution=new
-QmlMonsterGeneralInformations(monsterInformations,monsterInformationsExtra);
-                targetMonsterEvolution=new
-QmlMonsterGeneralInformations(monsterInformationsEvolution,monsterInformationsEvolutionExtra);
-                if(evolutionControl!=NULL)
-                    delete evolutionControl;
-                evolutionControl=new
-EvolutionControl(monsterInformations,monsterInformationsExtra,monsterInformationsEvolution,monsterInformationsEvolutionExtra);
-                if(!connect(evolutionControl,&EvolutionControl::cancel,this,&Battle::evolutionCanceled,Qt::QueuedConnection))
-                    abort();
-                animationWidget->rootContext()->setContextProperty("animationControl",&animationControl);
-                animationWidget->rootContext()->setContextProperty("evolutionControl",evolutionControl);
-                animationWidget->rootContext()->setContextProperty("canBeCanceled",QVariant(true));
-                animationWidget->rootContext()->setContextProperty("itemEvolution",QString());
-                animationWidget->rootContext()->setContextProperty("baseMonsterEvolution",baseMonsterEvolution);
-                animationWidget->rootContext()->setContextProperty("targetMonsterEvolution",targetMonsterEvolution);
-                const QString
-datapackQmlFile=QString::fromStdString(client->datapackPathBase())+"qml/evolution-animation.qml";
-                if(QFile(datapackQmlFile).exists())
-                    animationWidget->setSource(QUrl::fromLocalFile(datapackQmlFile));
-                else
-                    animationWidget->setSource(QStringLiteral("qrc:/qml/evolution-animation.qml"));
-                return;
-            }
-            index++;
-        }
+  }
+  while (!tradeEvolutionMonsters.empty()) {
+    const uint8_t monsterPosition = tradeEvolutionMonsters.at(0);
+    PlayerMonster *const playerMonster =
+        connexionManager->client->monsterByPosition(monsterPosition);
+    if (playerMonster == NULL) {
+      tradeEvolutionMonsters.erase(tradeEvolutionMonsters.begin());
+      continue;
     }
-    while(!tradeEvolutionMonsters.empty())
-    {
-        const uint8_t monsterPosition=tradeEvolutionMonsters.at(0);
-        PlayerMonster * const
-playerMonster=connexionManager->client->monsterByPosition(monsterPosition);
-        if(playerMonster==NULL)
-        {
-            tradeEvolutionMonsters.erase(tradeEvolutionMonsters.begin());
-            continue;
-        }
-        const Monster
-&monsterInformations=CommonDatapack::commonDatapack.monsters.at(playerMonster->monster);
+    const Monster &monsterInformations =
+        CommonDatapack::commonDatapack.monsters.at(playerMonster->monster);
+    const QtDatapackClientLoader::MonsterExtra &monsterInformationsExtra =
+        QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+            playerMonster->monster);
+    unsigned int index = 0;
+    while (index < monsterInformations.evolutions.size()) {
+      const Monster::Evolution &evolution =
+          monsterInformations.evolutions.at(index);
+      if (evolution.type == Monster::EvolutionType_Trade) {
+        monsterEvolutionPostion = monsterPosition;
+        const Monster &monsterInformationsEvolution =
+            CommonDatapack::commonDatapack.monsters.at(evolution.evolveTo);
         const QtDatapackClientLoader::MonsterExtra
-&monsterInformationsExtra=QtDatapackClientLoader::datapackLoader->monsterExtra.at(playerMonster->monster);
-        unsigned int index=0;
-        while(index<monsterInformations.evolutions.size())
-        {
-            const Monster::Evolution
-&evolution=monsterInformations.evolutions.at(index);
-            if(evolution.type==Monster::EvolutionType_Trade)
-            {
-                monsterEvolutionPostion=monsterPosition;
-                const Monster
-&monsterInformationsEvolution=CommonDatapack::commonDatapack.monsters.at(evolution.evolveTo);
-                const QtDatapackClientLoader::MonsterExtra
-&monsterInformationsEvolutionExtra=QtDatapackClientLoader::datapackLoader->monsterExtra
-                        .at(evolution.evolveTo);
-                //create animation widget
-                if(animationWidget!=NULL)
-                    delete animationWidget;
-                if(qQuickViewContainer!=NULL)
-                    delete qQuickViewContainer;
-                animationWidget=new QQuickView();
-                qQuickViewContainer =
-QWidget::createWindowContainer(animationWidget);
-                qQuickViewContainer->setMinimumSize(QSize(800,600));
-                qQuickViewContainer->setMaximumSize(QSize(800,600));
-                qQuickViewContainer->setFocusPolicy(Qt::TabFocus);
-                verticalLayoutPageAnimation->addWidget(qQuickViewContainer);
-                //show the animation
-                stackedWidget->setCurrentWidget(page_animation);
-                previousAnimationWidget=page_map;
-                if(baseMonsterEvolution!=NULL)
-                    delete baseMonsterEvolution;
-                if(targetMonsterEvolution!=NULL)
-                    delete targetMonsterEvolution;
-                baseMonsterEvolution=new
-QmlMonsterGeneralInformations(monsterInformations,monsterInformationsExtra);
-                targetMonsterEvolution=new
-QmlMonsterGeneralInformations(monsterInformationsEvolution,monsterInformationsEvolutionExtra);
-                if(evolutionControl!=NULL)
-                    delete evolutionControl;
-                evolutionControl=new
-EvolutionControl(monsterInformations,monsterInformationsExtra,monsterInformationsEvolution,monsterInformationsEvolutionExtra);
-                if(!connect(evolutionControl,&EvolutionControl::cancel,this,&Battle::evolutionCanceled,Qt::QueuedConnection))
-                    abort();
-                animationWidget->rootContext()->setContextProperty("animationControl",&animationControl);
-                animationWidget->rootContext()->setContextProperty("evolutionControl",evolutionControl);
-                animationWidget->rootContext()->setContextProperty("canBeCanceled",QVariant(true));
-                animationWidget->rootContext()->setContextProperty("itemEvolution",QString());
-                animationWidget->rootContext()->setContextProperty("baseMonsterEvolution",baseMonsterEvolution);
-                animationWidget->rootContext()->setContextProperty("targetMonsterEvolution",targetMonsterEvolution);
-                const QString
-datapackQmlFile=QString::fromStdString(client->datapackPathBase())+"qml/evolution-animation.qml";
-                if(QFile(datapackQmlFile).exists())
-                    animationWidget->setSource(QUrl::fromLocalFile(datapackQmlFile));
-                else
-                    animationWidget->setSource(QStringLiteral("qrc:/qml/evolution-animation.qml"));
-                tradeEvolutionMonsters.erase(tradeEvolutionMonsters.begin());
-                return;
-            }
-            index++;
-        }
+            &monsterInformationsEvolutionExtra =
+                QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+                    evolution.evolveTo);
+        // create animation widget
+        if (animationWidget != NULL) delete animationWidget;
+        if (qQuickViewContainer != NULL) delete qQuickViewContainer;
+        animationWidget = new QQuickView();
+        qQuickViewContainer = QWidget::createWindowContainer(animationWidget);
+        qQuickViewContainer->setMinimumSize(QSize(800, 600));
+        qQuickViewContainer->setMaximumSize(QSize(800, 600));
+        qQuickViewContainer->setFocusPolicy(Qt::TabFocus);
+        verticalLayoutPageAnimation->addWidget(qQuickViewContainer);
+        // show the animation
+        stackedWidget->setCurrentWidget(page_animation);
+        previousAnimationWidget = page_map;
+        if (baseMonsterEvolution != NULL) delete baseMonsterEvolution;
+        if (targetMonsterEvolution != NULL) delete targetMonsterEvolution;
+        baseMonsterEvolution = new QmlMonsterGeneralInformations(
+            monsterInformations, monsterInformationsExtra);
+        targetMonsterEvolution = new QmlMonsterGeneralInformations(
+            monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+        if (evolutionControl != NULL) delete evolutionControl;
+        evolutionControl = new EvolutionControl(
+            monsterInformations, monsterInformationsExtra,
+            monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+        if (!connect(evolutionControl, &EvolutionControl::cancel, this,
+                     &Battle::evolutionCanceled, Qt::QueuedConnection))
+          abort();
+        animationWidget->rootContext()->setContextProperty("animationControl",
+                                                           &animationControl);
+        animationWidget->rootContext()->setContextProperty("evolutionControl",
+                                                           evolutionControl);
+        animationWidget->rootContext()->setContextProperty("canBeCanceled",
+                                                           QVariant(true));
+        animationWidget->rootContext()->setContextProperty("itemEvolution",
+                                                           QString());
+        animationWidget->rootContext()->setContextProperty(
+            "baseMonsterEvolution", baseMonsterEvolution);
+        animationWidget->rootContext()->setContextProperty(
+            "targetMonsterEvolution", targetMonsterEvolution);
+        const QString datapackQmlFile =
+            QString::fromStdString(client->datapackPathBase()) +
+            "qml/evolution-animation.qml";
+        if (QFile(datapackQmlFile).exists())
+          animationWidget->setSource(QUrl::fromLocalFile(datapackQmlFile));
+        else
+          animationWidget->setSource(
+              QStringLiteral("qrc:/qml/evolution-animation.qml"));
         tradeEvolutionMonsters.erase(tradeEvolutionMonsters.begin());
+        return;
+      }
+      index++;
     }
+    tradeEvolutionMonsters.erase(tradeEvolutionMonsters.begin());
+  }*/
 }
-
+/*
 void Battle::finalFightTextQuit()
 {
     stackedWidget->setCurrentWidget(page_map);
@@ -2127,7 +2140,7 @@ void Battle::win() {
   fightTimerFinish = false;
   escape = false;
   doNextActionStep = DoNextActionStep_Start;
-  //load_monsters();
+  load_monsters();
   switch (battleType) {
     case BattleType_Bot:
       /*if (!zonecatch) {
@@ -2170,8 +2183,8 @@ void Battle::win() {
     const uint16_t fightId = botFightList.front();
     botFightList.erase(botFightList.cbegin());
     botFight(fightId);
-  }
-  checkEvolution();*/
+  }*/
+  checkEvolution();
   emit Finished();
 }
 /*
@@ -2760,15 +2773,14 @@ otherMonster=connexionManager->client->getOtherMonster();
     }
     #endif
     doNextAction();
+}*/
+
+void Battle::on_listWidgetFightAttack_itemActivated(QListWidgetItem *item) {
+  Q_UNUSED(item);
+  on_pushButtonFightAttackConfirmed_clicked();
 }
 
-void Battle::on_listWidgetFightAttack_itemActivated(QListWidgetItem *item)
-{
-    Q_UNUSED(item);
-    on_pushButtonFightAttackConfirmed_clicked();
-}
-
-void Battle::useTrap(const uint16_t &itemId)
+/*void Battle::useTrap(const uint16_t &itemId)
 {
     updateTrapTime.restart();
     displayTrapProgression=0;
@@ -3855,4 +3867,19 @@ void Battle::
 
 void Battle::error(std::string error) {
   // emit newError(tr("Error with the protocol").toStdString(),error);
+}
+
+void Battle::ShowMessageDialog(const QString &text) {
+  if (message_dialog_ == nullptr) {
+    message_dialog_ = new MessageDialog();
+    if (!connect(message_dialog_, &MessageDialog::removeAbove, this,
+                 &Battle::CloseMessageDialog))
+      abort();
+  }
+  message_dialog_->SetMessage(text);
+  emit setAbove(message_dialog_);
+}
+
+void Battle::CloseMessageDialog() {
+  emit setAbove(nullptr);
 }

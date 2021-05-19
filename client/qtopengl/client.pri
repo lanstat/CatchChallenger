@@ -246,6 +246,7 @@ SOURCES += \
     $$PWD/ComboBox.cpp \
     $$PWD/SpinBox.cpp \
     $$PWD/above/AddOrEditServer.cpp \
+    $$PWD/above/MessageDialog.cpp \
     $$PWD/above/OptionsDialog.cpp \
     $$PWD/above/Login.cpp \
     $$PWD/CheckBox.cpp \
@@ -323,6 +324,7 @@ HEADERS  += \
     $$PWD/ComboBox.hpp \
     $$PWD/SpinBox.hpp \
     $$PWD/above/AddOrEditServer.hpp \
+    $$PWD/above/MessageDialog.hpp \
     $$PWD/above/OptionsDialog.hpp \
     $$PWD/above/Login.hpp \
     $$PWD/CheckBox.hpp \
