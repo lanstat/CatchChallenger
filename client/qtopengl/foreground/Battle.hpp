@@ -10,8 +10,8 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../ConnexionManager.hpp"
 #include "../Map_client.hpp"
-#include "../above/MessageDialog.hpp"
 #include "../ScreenInput.hpp"
+#include "../above/MessageDialog.hpp"
 #include "../cc/ClientFightEngine.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
@@ -84,11 +84,14 @@ class Battle : public ScreenInput {
   void on_pushButtonFightEnterNext_clicked();
   void on_toolButtonFightQuit_clicked();
   void on_pushButtonFightAttack_clicked();
-  //void on_pushButtonFightMonster_clicked();
+  // void on_pushButtonFightMonster_clicked();
   void on_pushButtonFightAttackConfirmed_clicked();
   void on_pushButtonFightReturn_clicked();
   void on_listWidgetFightAttack_itemSelectionChanged();
   void on_listWidgetFightAttack_itemActivated(QListWidgetItem *item);
+  void displayAttack();
+  void displayExperienceGain();
+  void botFightFullDiffered();
  signals:
   void Finished();
 
@@ -97,6 +100,7 @@ class Battle : public ScreenInput {
   QList<QListWidgetItem *> bottomBuff;
   QGraphicsTextItem *labelFightBottomName;
   CCprogressbar *progressBarFightBottomHP;
+  CCprogressbar *progressBarFightBottomExp;
 
   ImagesStrechMiddle *frameFightTop;
   QList<QListWidgetItem *> topBuff;
@@ -112,6 +116,7 @@ class Battle : public ScreenInput {
   QPixmap labelFightPlateformBottomPix;
   QGraphicsPixmapItem *labelFightPlateformTop;
   QPixmap labelFightPlateformTopPix;
+  CatchChallenger::Map_client *map;
 
   ObjectType waitedObjectType;
   // bot
@@ -119,7 +124,13 @@ class Battle : public ScreenInput {
 
   QTimer moveFightMonsterBottomTimer;
   QTimer moveFightMonsterTopTimer;
+  QTimer moveFightMonsterBothTimer;
   QTimer doNextActionTimer;
+  QTimer displayAttackTimer;
+  QTimer displayExpTimer;
+  QTime updateAttackTime;
+  QTimer botFightTimer;
+  QMovie *movie;
 
   QGraphicsPixmapItem *labelFightMonsterAttackBottom;
   QGraphicsPixmapItem *labelFightMonsterAttackTop;
@@ -152,6 +163,7 @@ class Battle : public ScreenInput {
   uint8_t currentMonsterLevel;
   int displayAttackProgression;
   int32_t attack_quantity_changed;
+  uint8_t monsterEvolutionPostion;
 
   bool escape;
   bool escapeSuccess;
@@ -172,6 +184,8 @@ class Battle : public ScreenInput {
   std::unordered_map<QListWidgetItem *, uint16_t> fight_attacks_graphical;
   std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemTop;
   std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemBottom;
+  std::vector<uint8_t> tradeEvolutionMonsters;
+  std::vector<QListWidgetItem> monsterList;
 
   void PrepareEngine();
   void moveFightMonsterBoth();
@@ -186,22 +200,25 @@ class Battle : public ScreenInput {
   void win();
   void loose();
   void displayText(const std::string &text);
-  void displayAttack();
-  void displayExperienceGain();
   void resetPosition(bool outOfScreen, bool topMonster, bool bottomMonster);
-  void botFightFullDiffered();
+  void botFight(const uint16_t &fightId);
+  void botFightFull(const uint16_t &fightId);
   void prepareFight();
   void LoadPlayerData();
   QPixmap GetBackSkin(const uint32_t &skinId);
+  QPixmap getFrontSkin(const std::string &skinName);
+  QPixmap getFrontSkin(const uint32_t &skinId);
   void load_monsters();
   void checkEvolution();
+  bool displayFirstAttackText(bool firstText);
 
   void init_environement_display(CatchChallenger::Map_client *map,
                                  const uint8_t &x, const uint8_t &y);
   void init_current_monster_display(
       CatchChallenger::PlayerMonster *fightMonster);
   void init_other_monster_display();
-  void ShowMessageDialog(const QString &text);
+  void battleAcceptedByOtherFull(const BattleInformations &battleInformations);
+  void ShowMessageDialog(const QString &title, const QString &message);
   void CloseMessageDialog();
  private slots:
   void error(std::string error);
