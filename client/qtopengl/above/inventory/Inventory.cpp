@@ -59,6 +59,8 @@ Inventory::Inventory() :
     if(!connect(inventoryDestroy,&CustomButton::clicked,this,&Inventory::inventoryDestroy_slot,Qt::QueuedConnection))
         abort();
 
+    parent_ = nullptr;
+
     newLanguage();
 }
 
@@ -71,7 +73,11 @@ Inventory::~Inventory()
 
 void Inventory::removeAbove()
 {
-    emit setAbove(nullptr);
+    if (parent_ == nullptr) {
+        emit setAbove(nullptr);
+    } else {
+        emit parent_->setAbove(nullptr);
+    }
 }
 
 QRectF Inventory::boundingRect() const
@@ -393,4 +399,8 @@ void Inventory::on_inventory_itemSelectionChanged()
                                  (CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn.find(item->data(99).toInt())!=
             CatchChallenger::CommonDatapack::commonDatapack.items.itemToLearn.cend() && !connexionManager->client->isInFight())
                                          );
+}
+
+void Inventory::SetParent(ScreenInput *parent) {
+    parent_ = parent;
 }

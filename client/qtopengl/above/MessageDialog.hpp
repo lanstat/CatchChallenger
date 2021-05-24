@@ -32,6 +32,7 @@ class MessageDialog : public ScreenInput {
   void OnCloseClicked();
   void RecalculateInnerElements(QWidget *widget);
   void SetMessage(const QString &text);
+  void SetParent(ScreenInput *parent);
  private slots:
   void newLanguage();
 
@@ -40,17 +41,15 @@ class MessageDialog : public ScreenInput {
   CustomButton *quit_;
   CustomText *title_;
   QGraphicsPixmapItem label_;
-
   QGraphicsTextItem *message_;
+
+  ScreenInput *parent_;
 
   int x_;
   int y_;
 
   int screen_width_;
   int screen_height_;
-
- signals:
-  void removeAbove();
 };
 
 #endif  // OPTIONSDIALOG_H

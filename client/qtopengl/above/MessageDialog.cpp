@@ -24,7 +24,6 @@ MessageDialog::MessageDialog()
   label_.setTransformationMode(Qt::SmoothTransformation);
   label_.setCacheMode(QGraphicsItem::DeviceCoordinateCache);
   quit_ = new CustomButton(":/CC/images/interface/cancel.png", this);
-  connect(quit_, &CustomButton::clicked, this, &MessageDialog::removeAbove);
   QLinearGradient gradient1(0, 0, 0, 100);
   gradient1.setColorAt(0.25, QColor(230, 153, 0));
   gradient1.setColorAt(0.75, QColor(255, 255, 255));
@@ -52,6 +51,8 @@ MessageDialog::MessageDialog()
                &MessageDialog::OnCloseClicked, Qt::QueuedConnection))
     abort();
 
+  parent_ = nullptr;
+
   newLanguage();
 }
 
@@ -60,6 +61,10 @@ MessageDialog::~MessageDialog() {
   delete quit_;
   delete title_;
   delete message_;
+}
+
+void MessageDialog::SetParent(ScreenInput *parent) {
+  parent_ = parent;
 }
 
 void MessageDialog::SetMessage(const QString &text) {
@@ -151,4 +156,10 @@ void MessageDialog::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
 
 void MessageDialog::newLanguage() { title_->setText(tr("Alert")); }
 
-void MessageDialog::OnCloseClicked() { emit removeAbove(); }
+void MessageDialog::OnCloseClicked() {
+  if (parent_ == nullptr) {
+    emit setAbove(nullptr);
+  } else {
+    emit parent_->setAbove(nullptr);
+  }
+}

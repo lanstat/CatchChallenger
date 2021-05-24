@@ -89,7 +89,7 @@ bool MapVisualiserPlayerWithFight::haveStopTileAction()
                     }
                     parseStop();
                     emit botFightCollision(static_cast<CatchChallenger::Map_client *>(&all_map.at(current_map)->logicalMap),
-                                           botFightRemotePointList.at(index).first,botFightRemotePointList.at(index).second);
+                                           botFightRemotePointList.at(index).first,botFightRemotePointList.at(index).second, fightId);
                     if(current_map_pointer->logicalMap.botsDisplay.find(botFightRemotePointList.at(index))!=
                             current_map_pointer->logicalMap.botsDisplay.cend())
                     {

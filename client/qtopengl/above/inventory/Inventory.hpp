@@ -53,6 +53,7 @@ public:
     void on_inventory_itemSelectionChanged();
     void inventoryUse_slot();
     void inventoryDestroy_slot();
+    void SetParent(ScreenInput *parent);
 private slots:
     void newLanguage();
     void updateInventory(uint8_t targetSize);
@@ -79,6 +80,8 @@ private:
     uint8_t lastItemSize;
     uint8_t itemCount;
     int lastItemSelected;
+
+    ScreenInput *parent_;
 signals:
     void setAbove(ScreenInput *widget);//first plan popup
     void sendNext();

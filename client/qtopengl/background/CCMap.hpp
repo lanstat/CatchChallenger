@@ -39,7 +39,7 @@ signals:
     void actionOnNothing();
     void blockedOn(const MapVisualiserPlayer::BlockedOn &blockOnVar);
     void wildFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
-    void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
+    void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y, const uint16_t &fightId);
     void error(const std::string &error);
     void errorWithTheCurrentMap();
     void currentMapLoaded();

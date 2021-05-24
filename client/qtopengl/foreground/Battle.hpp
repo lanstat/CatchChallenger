@@ -12,6 +12,7 @@
 #include "../Map_client.hpp"
 #include "../ScreenInput.hpp"
 #include "../above/MessageDialog.hpp"
+#include "../above/inventory/Inventory.hpp"
 #include "../cc/ClientFightEngine.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
@@ -40,9 +41,11 @@ class Battle : public ScreenInput {
 
   void on_monsterList_itemActivated(uint8_t monsterPosition);
   bool check_monsters();
-  bool WildFightInitialize(ConnexionManager *connexionManager,
-                           CatchChallenger::Map_client *map, const uint8_t &x,
+  bool WildFightInitialize(CatchChallenger::Map_client *map, const uint8_t &x,
                            const uint8_t &y);
+  void botFight(CatchChallenger::Map_client *map, const uint8_t &x,
+                const uint8_t &y, const uint16_t &fightId);
+  void setVar(ConnexionManager *connexionManager);
   enum BattleType { BattleType_Wild, BattleType_Bot, BattleType_OtherPlayer };
   enum BattleStep {
     BattleStep_Presentation,
@@ -55,23 +58,6 @@ class Battle : public ScreenInput {
     DoNextActionStep_Start,
     DoNextActionStep_Loose,
     DoNextActionStep_Win
-  };
-  enum ObjectType {
-    ObjectType_All,
-    ObjectType_Seed,
-    ObjectType_Sell,
-    ObjectType_SellToMarket,
-    ObjectType_Trade,
-    ObjectType_MonsterToTrade,
-    ObjectType_MonsterToTradeToMarket,
-    ObjectType_MonsterToLearn,
-    ObjectType_MonsterToFight,
-    ObjectType_MonsterToFightKO,
-    ObjectType_ItemOnMonsterOutOfFight,
-    ObjectType_ItemOnMonster,
-    ObjectType_ItemEvolutionOnMonster,
-    ObjectType_ItemLearnOnMonster,
-    ObjectType_UseInFight
   };
   struct BattleInformations {
     std::string pseudo;
@@ -92,6 +78,7 @@ class Battle : public ScreenInput {
   void displayAttack();
   void displayExperienceGain();
   void botFightFullDiffered();
+  void OnBagButtonClick();
  signals:
   void Finished();
 
@@ -118,7 +105,7 @@ class Battle : public ScreenInput {
   QPixmap labelFightPlateformTopPix;
   CatchChallenger::Map_client *map;
 
-  ObjectType waitedObjectType;
+  Inventory::ObjectType waitedObjectType;
   // bot
   CatchChallenger::Bot actualBot;
 
@@ -130,6 +117,8 @@ class Battle : public ScreenInput {
   QTimer displayExpTimer;
   QTime updateAttackTime;
   QTimer botFightTimer;
+  QTime updateTrapTime;
+  QTimer displayTrapTimer;
   QMovie *movie;
 
   QGraphicsPixmapItem *labelFightMonsterAttackBottom;
@@ -164,18 +153,25 @@ class Battle : public ScreenInput {
   int displayAttackProgression;
   int32_t attack_quantity_changed;
   uint8_t monsterEvolutionPostion;
+  uint32_t trapItemId;
 
   bool escape;
   bool escapeSuccess;
   bool useTheRescueSkill;
+  bool trapSuccess;
   ConnexionManager *connexionManager;
   bool fightTimerFinish;
   uint16_t fightId;
+  int displayTrapProgression;
+  uint16_t screen_width_;
+  uint16_t screen_height_;
 
   BattleStep battleStep;
   MoveType moveType;
   BattleType battleType;
   DoNextActionStep doNextActionStep;
+
+  Inventory *inventory_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
@@ -187,21 +183,19 @@ class Battle : public ScreenInput {
   std::vector<uint8_t> tradeEvolutionMonsters;
   std::vector<QListWidgetItem> monsterList;
 
-  void PrepareEngine();
   void moveFightMonsterBoth();
   void moveFightMonsterBottom();
+  void moveFightMonsterTop();
   void initializeText(QGraphicsTextItem *);
   void doNextAction();
   void updateCurrentMonsterInformation();
   void updateOtherMonsterInformation();
   void updateCurrentMonsterInformationXp();
   void updateAttackList();
-  void moveFightMonsterTop();
   void win();
   void loose();
   void displayText(const std::string &text);
   void resetPosition(bool outOfScreen, bool topMonster, bool bottomMonster);
-  void botFight(const uint16_t &fightId);
   void botFightFull(const uint16_t &fightId);
   void prepareFight();
   void LoadPlayerData();
@@ -219,7 +213,11 @@ class Battle : public ScreenInput {
   void init_other_monster_display();
   void battleAcceptedByOtherFull(const BattleInformations &battleInformations);
   void ShowMessageDialog(const QString &title, const QString &message);
-  void CloseMessageDialog();
+  void ShowBagDialog();
+  void UseBagItem(uint16_t);
+  void monsterCatch(const bool &success);
+  void displayTrap();
+  void useTrap(const uint16_t &itemId);
  private slots:
   void error(std::string error);
 

@@ -222,7 +222,7 @@ public slots:
     //fight
     void botFight(const uint16_t &fightId);
     void wildFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
-    void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y);
+    void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x, const uint8_t &y, const uint16_t &fightId);
     void BattleFinished();
 
 signals:

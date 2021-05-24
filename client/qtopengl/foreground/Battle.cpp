@@ -9,10 +9,12 @@
 #include <iostream>
 
 #include "../../../general/base/CommonDatapack.hpp"
+#include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../CCprogressbar.hpp"
 #include "../CustomButton.hpp"
 #include "../ImagesStrechMiddle.hpp"
 #include "../above/MessageDialog.hpp"
+#include "../above/inventory/Inventory.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 
@@ -25,6 +27,9 @@ const int BASE_HEIGHT = 110;
 Battle *Battle::battle = nullptr;
 
 Battle::Battle() {
+  screen_width_ = 1440;
+  screen_height_ = 840;
+
   labelFightBackground = new QGraphicsPixmapItem(this);
   labelFightBackgroundPix =
       QPixmap(QString::fromStdString(
@@ -106,6 +111,9 @@ Battle::Battle() {
   if (!connect(listWidgetFightAttack, &QListWidget::itemActivated, this,
                &Battle::on_listWidgetFightAttack_itemActivated))
     abort();
+  if (!connect(pushButtonFightBag, &CustomButton::clicked, this,
+               &Battle::OnBagButtonClick))
+    abort();
 
   moveFightMonsterBottomTimer.setSingleShot(true);
   moveFightMonsterBottomTimer.setInterval(20);
@@ -117,8 +125,12 @@ Battle::Battle() {
   displayExpTimer.setInterval(20);
   moveFightMonsterBothTimer.setSingleShot(true);
   moveFightMonsterBothTimer.setInterval(20);
+  moveFightMonsterTopTimer.setSingleShot(true);
+  moveFightMonsterTopTimer.setInterval(20);
   botFightTimer.setSingleShot(true);
   botFightTimer.setInterval(1000);
+  displayTrapTimer.setSingleShot(true);
+  displayTrapTimer.setInterval(50);
 
   if (!connect(&moveFightMonsterBottomTimer, &QTimer::timeout, this,
                &Battle::moveFightMonsterBottom))
@@ -135,8 +147,13 @@ Battle::Battle() {
   if (!connect(&moveFightMonsterBothTimer, &QTimer::timeout, this,
                &Battle::moveFightMonsterBoth))
     abort();
+  if (!connect(&moveFightMonsterTopTimer, &QTimer::timeout, this,
+               &Battle::moveFightMonsterTop))
+    abort();
   if (!connect(&botFightTimer, &QTimer::timeout, this,
                &Battle::botFightFullDiffered))
+    abort();
+  if (!connect(&displayTrapTimer, &QTimer::timeout, this, &Battle::displayTrap))
     abort();
 
   newLanguage();
@@ -150,6 +167,7 @@ Battle::Battle() {
 
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   message_dialog_ = nullptr;
+  inventory_ = nullptr;
 }
 
 Battle::~Battle() {}
@@ -170,7 +188,8 @@ void Battle::LoadPlayerData() {
   playerBackImage = playerBackImage.transformed(QTransform().scale(-1, 1));
 }
 
-void Battle::PrepareEngine() {
+void Battle::setVar(ConnexionManager *connexionManager) {
+  this->connexionManager = connexionManager;
   client_ = connexionManager->client;
   fightEngine = static_cast<CommonFightEngine *>(client_);
 }
@@ -202,7 +221,8 @@ void Battle::stackedWidgetFightBottomBarsetCurrentWidget(int index) {
   pushButtonFightAttack->setVisible(m_stackedWidgetFightBottomBarIndex == 1);
   pushButtonFightBag->setVisible(m_stackedWidgetFightBottomBarIndex == 1);
   pushButtonFightMonster->setVisible(m_stackedWidgetFightBottomBarIndex == 1);
-  toolButtonFightQuit->setVisible(m_stackedWidgetFightBottomBarIndex == 1);
+  toolButtonFightQuit->setVisible(m_stackedWidgetFightBottomBarIndex == 1 &&
+                                  battleType == BattleType_Wild);
 
   pushButtonFightAttackConfirmed->setVisible(
       m_stackedWidgetFightBottomBarIndex == 2);
@@ -408,6 +428,8 @@ void Battle::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
   pushButtonFightAttackConfirmed->mouseReleaseEventXY(p, pressValidated);
   pushButtonFightReturn->mouseReleaseEventXY(p, pressValidated);
 }
+
+void Battle::OnBagButtonClick() { ShowBagDialog(); }
 
 void Battle::on_monsterList_itemActivated(uint8_t monsterPosition) {
   (void)monsterPosition;
@@ -665,7 +687,7 @@ bool Battle::check_monsters() {
 
 void Battle::load_monsters() {
   /*
-  const std::vector<CatchChallenger::PlayerMonster> &playerMonsters =
+  const std::vector<PlayerMonster> &playerMonsters =
       client_->getPlayerMonster();
   monsterList.clear();
   monsterspos_items_graphical.clear();
@@ -856,16 +878,19 @@ void Battle::load_monsters() {
     toolButton_monster_list_quit->setVisible(true);
     on_monsterList_itemSelectionChanged();
   }
-  selectMonster->setVisible(true);*/
+  selectMonster->setVisible(true);
+  */
 }
 
-void Battle::botFight(const uint16_t &fightId) {
+void Battle::botFight(Map_client *map, const uint8_t &x, const uint8_t &y,
+                      const uint16_t &fightId) {
   if (CommonDatapackServerSpec::commonDatapackServerSpec.botFights.find(
           fightId) ==
       CommonDatapackServerSpec::commonDatapackServerSpec.botFights.cend()) {
     emit error("fight id not found at collision");
     return;
   }
+  init_environement_display(map, x, y);
   botFightList.push_back(fightId);
   if (botFightList.size() > 1 || !battleInformationsList.empty()) return;
   botFightFull(fightId);
@@ -882,34 +907,30 @@ void Battle::prepareFight() {
 }
 
 void Battle::botFightFullDiffered() {
-  /*
   prepareFight();
+  qDebug() << "aasdasd";
   frameFightTop->setVisible(false);
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   labelFightEnter->setPlainText(QString::fromStdString(
       QtDatapackClientLoader::datapackLoader->botFightsExtra.at(fightId)
           .start));
   pushButtonFightEnterNext->setVisible(false);
-  std::vector<CatchChallenger::PlayerMonster> botFightMonstersTransformed;
-  const std::vector<CatchChallenger::BotFight::BotFightMonster> &monsters =
-      CatchChallenger::CommonDatapackServerSpec::commonDatapackServerSpec
-          .botFights.at(fightId)
+  std::vector<PlayerMonster> botFightMonstersTransformed;
+  const std::vector<BotFight::BotFightMonster> &monsters =
+      CommonDatapackServerSpec::commonDatapackServerSpec.botFights.at(fightId)
           .monsters;
   unsigned int index = 0;
   while (index < monsters.size()) {
-    const CatchChallenger::BotFight::BotFightMonster &botFightMonster =
-        monsters.at(index);
+    const BotFight::BotFightMonster &botFightMonster = monsters.at(index);
     botFightMonstersTransformed.push_back(
-        CatchChallenger::FacilityLib::botFightMonsterToPlayerMonster(
+        FacilityLib::botFightMonsterToPlayerMonster(
             monsters.at(index),
-            CatchChallenger::ClientFightEngine::getStat(
-                CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
-                    botFightMonster.id),
+            ClientFightEngine::getStat(
+                CommonDatapack::commonDatapack.monsters.at(botFightMonster.id),
                 monsters.at(index).level)));
     index++;
   }
-  connexionManager->client->setBotMonster(botFightMonstersTransformed, fightId);
-  init_environement_display(map, 0, 0);
+  client_->setBotMonster(botFightMonstersTransformed, fightId);
   labelFightMonsterBottom->setPixmap(playerBackImage.scaled(160, 160));
   init_current_monster_display(nullptr);
   pushButtonFightEnterNext->setVisible(false);
@@ -920,23 +941,20 @@ void Battle::botFightFullDiffered() {
   } else {
     botImage = QPixmap(QStringLiteral(":/CC/images/player_default/front.png"));
   }
-  labelFightMonsterTop->setPixmap(botImage.scaled(160, 160));
+  labelFightMonsterTop->setPixmap(botImage.scaled(300, 300));
   qDebug() << QStringLiteral("The bot %1 is a front of you").arg(fightId);
   battleStep = BattleStep_Presentation;
   moveType = MoveType_Enter;
-  resetPosition(true, false, false);
+  resetPosition(true, true, true);
   battleStep = BattleStep_Presentation;
-  moveFightMonsterBoth();*/
+  moveFightMonsterBoth();
 }
 
 // Initialize the battle for wild encounter
-bool Battle::WildFightInitialize(ConnexionManager *connexionManager,
-                                 Map_client *map, const uint8_t &x,
+bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
                                  const uint8_t &y) {
-  this->connexionManager = connexionManager;
   this->map = map;
-  PrepareEngine();
-  if (!connexionManager->client->isInFight()) {
+  if (!client_->isInFight()) {
     emit error("is in fight but without monster");
     return false;
   }
@@ -945,13 +963,12 @@ bool Battle::WildFightInitialize(ConnexionManager *connexionManager,
   labelFightMonsterBottom->setPixmap(playerBackImage.scaled(400, 400));
   init_current_monster_display(nullptr);
   init_other_monster_display();
-  PublicPlayerMonster *otherMonster =
-      connexionManager->client->getOtherMonster();
+  PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster == NULL) {
     emit error("NULL pointer for other monster at wildFightCollision()");
     return false;
   }
-  resetPosition(true, true, true);
+  resetPosition(true, false, true);
   qDebug() << QStringLiteral(
                   "You are in front of monster id: %1 level: %2 with hp: %3")
                   .arg(otherMonster->monster)
@@ -1473,7 +1490,7 @@ void Battle::moveFightMonsterTop() {
     QPointF p = labelFightMonsterTop->pos();
     p.setX(p.rx() + 4);
     labelFightMonsterTop->setPos(p);
-    if (labelFightMonsterTop->pos().rx() < 800) {
+    if (labelFightMonsterTop->pos().rx() < screen_width_) {
       moveFightMonsterTopTimer.start();
     } else {
       updateOtherMonsterInformation();
@@ -1484,13 +1501,12 @@ void Battle::moveFightMonsterTop() {
     QPointF p = labelFightMonsterTop->pos();
     p.setX(p.rx() + 4);
     labelFightMonsterTop->setPos(p);
-    if (labelFightMonsterTop->pos().rx() < 800) {
+    if (labelFightMonsterTop->pos().rx() < screen_width_) {
       moveFightMonsterTopTimer.start();
     } else {
-      connexionManager->client->dropKOOtherMonster();
-      if (connexionManager->client->isInFight()) {
-        if (connexionManager->client->isInBattle() &&
-            !connexionManager->client->haveBattleOtherMonster()) {
+      client_->dropKOOtherMonster();
+      if (client_->isInFight()) {
+        if (client_->isInBattle() && !client_->haveBattleOtherMonster()) {
           pushButtonFightEnterNext->setVisible(false);
           stackedWidgetFightBottomBarsetCurrentWidget(0);
           labelFightEnter->setPlainText(
@@ -1503,8 +1519,7 @@ void Battle::moveFightMonsterTop() {
         updateOtherMonsterInformation();
 
         stackedWidgetFightBottomBarsetCurrentWidget(0);
-        PublicPlayerMonster *otherMonster =
-            connexionManager->client->getOtherMonster();
+        PublicPlayerMonster *otherMonster = client_->getOtherMonster();
         if (QtDatapackClientLoader::datapackLoader->monsterExtra.find(
                 otherMonster->monster) !=
             QtDatapackClientLoader::datapackLoader->monsterExtra.cend())
@@ -1556,18 +1571,19 @@ void Battle::moveFightMonsterBoth() {
     p = labelFightMonsterBottom->pos();
     p.setX(p.rx() + 3);
     labelFightMonsterBottom->setPos(p);
-    if (labelFightMonsterTop->pos().rx() > 510 ||
-        labelFightMonsterBottom->pos().rx() < (60)) {
+    if (labelFightMonsterTop->pos().rx() > 910 ||
+        labelFightMonsterBottom->pos().rx() < 60) {
       moveFightMonsterBothTimer.start();
     } else {
       if (battleStep == BattleStep_Presentation) {
-        resetPosition(true, true, true);
+        resetPosition(false, true, true);
         pushButtonFightEnterNext->show();
       } else if (battleStep == BattleStep_PresentationMonster) {
         doNextActionStep = DoNextActionStep_Start;
         doNextAction();
-      } else
+      } else {
         pushButtonFightEnterNext->show();
+      }
     }
   }
   if (moveType == MoveType_Leave) {
@@ -1665,7 +1681,7 @@ void Battle::updateOtherMonsterInformation() {
     return;
   }
   QPointF p;
-  p.setX(510);
+  p.setX(910);
   p.setY(90);
   labelFightMonsterTop->setPos(p);
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
@@ -2384,158 +2400,162 @@ void Battle::displayExperienceGain() {
   displayExpTimer.start();
   displayAttackProgression++;
 }
-/*
-void Battle::displayTrap()
-{
-    PublicPlayerMonster *
-otherMonster=connexionManager->client->getOtherMonster(); PublicPlayerMonster *
-currentMonster=connexionManager->client->getCurrentMonster();
-    if(otherMonster==NULL)
-    {
-        error("displayAttack(): crash: unable to get the other monster to use
-trap"); doNextAction(); return;
+
+void Battle::displayTrap() {
+  PublicPlayerMonster *otherMonster = client_->getOtherMonster();
+  PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
+  if (otherMonster == NULL) {
+    error(
+        "displayAttack(): crash: unable to get the other monster to use trap");
+    doNextAction();
+    return;
+  }
+  if (currentMonster == NULL) {
+    newError(tr("Internal error").toStdString() + ", file: " +
+                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
+             "displayAttack(): crash: unable to get the current monster");
+    doNextAction();
+    return;
+  }
+  // if start, display text
+  if (displayTrapProgression == 0) {
+    // TODO(lanstat): modificar cuando se tenga un mecanismo para gif
+    /* if (movie != NULL) {
+      movie->stop();
+      delete movie;
     }
-    if(currentMonster==NULL)
-    {
-        newError(tr("Internal error").toStdString()+", file:
-"+std::string(__FILE__)+":"+std::to_string(__LINE__),"displayAttack(): crash:
-unable to get the current monster"); doNextAction(); return;
-    }
-    //if start, display text
-    if(displayTrapProgression==0)
-    {
-        if(movie!=NULL)
-        {
-            movie->stop();
-            delete movie;
-        }
-        QString
-skillAnimation=QString::fromStdString(QtDatapackClientLoader::datapackLoader->getDatapackPath())+DATAPACK_BASE_PATH_ITEM;
-        QString
-fileAnimation=skillAnimation+QStringLiteral("%1.mng").arg(trapItemId);
-        if(QFile(fileAnimation).exists())
-        {
-            movie=new QMovie(fileAnimation,QByteArray(),labelFightTrap);
-            movie->setScaledSize(QSize(labelFightTrap->width(),labelFightTrap->height()));
-            if(movie->isValid())
-            {
-                labelFightTrap->setMovie(movie);
-                movie->start();
-            }
-            else
+    QString skillAnimation =
+        QString::fromStdString(
+            QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
+        DATAPACK_BASE_PATH_ITEM;
+    QString fileAnimation =
+        skillAnimation + QStringLiteral("%1.mng").arg(trapItemId);
+    if (QFile(fileAnimation).exists()) {
+      movie = new QMovie(fileAnimation, QByteArray(), labelFightTrap);
+      movie->setScaledSize(
+          QSize(labelFightTrap->width(), labelFightTrap->height()));
+      if (movie->isValid()) {
+        labelFightTrap->setMovie(movie);
+        movie->start();
+      } else
                 qDebug() << QStringLiteral("movie loaded is not valid for:
 %1").arg(fileAnimation);
-        }
+    } else {
+      fileAnimation = skillAnimation + QStringLiteral("%1.gif").arg(trapItemId);
+      if (QFile(fileAnimation).exists()) {
+        movie = new QMovie(fileAnimation, QByteArray(), labelFightTrap);
+        movie->setScaledSize(
+            QSize(labelFightTrap->width(), labelFightTrap->height()));
+        if (movie->isValid()) {
+          labelFightTrap->setMovie(movie);
+          movie->start();
+        } else
+                    qDebug() << QStringLiteral("movie loaded is not valid for:
+%1").arg(fileAnimation);
+      }
+    } */
+    labelFightEnter->setPlainText(
+        QStringLiteral("Try catch the wild %1")
+            .arg(QString::fromStdString(
+                QtDatapackClientLoader::datapackLoader->monsterExtra
+                    .at(otherMonster->monster)
+                    .name)));
+    stackedWidgetFightBottomBarsetCurrentWidget(0);
+    displayTrapProgression = 1;
+    labelFightTrap->show();
+  }
+  uint32_t animationTime;
+  if (displayTrapProgression == 1)
+    animationTime = 1500;
+  else
+    animationTime = 2000;
+  if (displayTrapProgression == 1 &&
+      (uint32_t)updateTrapTime.elapsed() < animationTime) {
+    labelFightTrap->setPos(labelFightMonsterBottom->pos().x() +
+                               (labelFightMonsterTop->pos().x() -
+                                labelFightMonsterBottom->pos().x()) *
+                                   updateTrapTime.elapsed() / animationTime,
+                           labelFightMonsterBottom->pos().y() -
+                               (labelFightMonsterBottom->pos().y() -
+                                labelFightMonsterTop->pos().y()) *
+                                   updateTrapTime.elapsed() / animationTime);
+  } else {
+    labelFightTrap->setPos(labelFightMonsterTop->pos().x(),
+                           labelFightMonsterTop->pos().y());
+  }
+  if (!client_->playerMonster_catchInProgress.empty()) return;
+  if ((uint32_t)updateTrapTime.elapsed() > animationTime) {
+    updateTrapTime.restart();
+    if (displayTrapProgression == 1) {
+      displayTrapProgression = 2;
+      /*if (movie != NULL) {
+        movie->stop();
+        delete movie;
+      }
+      QString skillAnimation =
+          QString::fromStdString(
+              QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
+          DATAPACK_BASE_PATH_ITEM;
+      QString fileAnimation;
+      if (trapSuccess)
+        fileAnimation =
+            skillAnimation + QStringLiteral("%1_success.mng").arg(trapItemId);
+      else
+        fileAnimation =
+            skillAnimation + QStringLiteral("%1_failed.mng").arg(trapItemId);
+      if (QFile(fileAnimation).exists()) {
+        movie = new QMovie(fileAnimation, QByteArray(), labelFightTrap);
+        movie->setScaledSize(
+            QSize(labelFightTrap->width(), labelFightTrap->height()));
+        if (movie->isValid()) {
+          labelFightTrap->setMovie(movie);
+          movie->start();
+        } else
+                    qDebug() << QStringLiteral("movie loaded is not valid for:
+%1").arg(fileAnimation);
+      } else {
+        if (trapSuccess)
+          fileAnimation =
+              skillAnimation + QStringLiteral("%1_success.gif").arg(trapItemId);
         else
-        {
-            fileAnimation=skillAnimation+QStringLiteral("%1.gif").arg(trapItemId);
-            if(QFile(fileAnimation).exists())
-            {
-                movie=new QMovie(fileAnimation,QByteArray(),labelFightTrap);
-                movie->setScaledSize(QSize(labelFightTrap->width(),labelFightTrap->height()));
-                if(movie->isValid())
-                {
-                    labelFightTrap->setMovie(movie);
-                    movie->start();
-                }
-                else
-                    qDebug() << QStringLiteral("movie loaded is not valid for:
-%1").arg(fileAnimation);
-            }
-        }
-        labelFightEnter->setText(QStringLiteral("Try catch the wild %1")
-                      .arg(QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterExtra.at(otherMonster->monster).name)));
-        stackedWidgetFightBottomBarsetCurrentWidget(stackedWidgetFightBottomBarPageEnter);
-        displayTrapProgression=1;
-        labelFightTrap->show();
-    }
-    uint32_t animationTime;
-    if(displayTrapProgression==1)
-        animationTime=1500;
-    else
-        animationTime=2000;
-    if(displayTrapProgression==1 &&
-(uint32_t)updateTrapTime.elapsed()<animationTime) labelFightTrap->move(
-                    labelFightMonsterBottom->pos().x()+(labelFightMonsterTop->pos().x()-labelFightMonsterBottom->pos().x())*updateTrapTime.elapsed()/animationTime,
-                    labelFightMonsterBottom->pos().y()-(labelFightMonsterBottom->pos().y()-labelFightMonsterTop->pos().y())*updateTrapTime.elapsed()/animationTime
-                    );
-    else
-        labelFightTrap->move(labelFightMonsterTop->pos().x(),labelFightMonsterTop->pos().y());
-    if(!connexionManager->client->playerMonster_catchInProgress.empty())
-        return;
-    if((uint32_t)updateTrapTime.elapsed()>animationTime)
-    {
-        updateTrapTime.restart();
-        if(displayTrapProgression==1)
-        {
-            displayTrapProgression=2;
-            if(movie!=NULL)
-            {
-                movie->stop();
-                delete movie;
-            }
-            QString
-skillAnimation=QString::fromStdString(QtDatapackClientLoader::datapackLoader->getDatapackPath())+DATAPACK_BASE_PATH_ITEM;
-            QString fileAnimation;
-            if(trapSuccess)
-                fileAnimation=skillAnimation+QStringLiteral("%1_success.mng").arg(trapItemId);
-            else
-                fileAnimation=skillAnimation+QStringLiteral("%1_failed.mng").arg(trapItemId);
-            if(QFile(fileAnimation).exists())
-            {
-                movie=new QMovie(fileAnimation,QByteArray(),labelFightTrap);
-                movie->setScaledSize(QSize(labelFightTrap->width(),labelFightTrap->height()));
-                if(movie->isValid())
-                {
-                    labelFightTrap->setMovie(movie);
-                    movie->start();
-                }
-                else
-                    qDebug() << QStringLiteral("movie loaded is not valid for:
-%1").arg(fileAnimation);
-            }
-            else
-            {
-                if(trapSuccess)
-                    fileAnimation=skillAnimation+QStringLiteral("%1_success.gif").arg(trapItemId);
-                else
-                    fileAnimation=skillAnimation+QStringLiteral("%1_failed.gif").arg(trapItemId);
-                if(QFile(fileAnimation).exists())
-                {
-                    movie=new QMovie(fileAnimation,QByteArray(),labelFightTrap);
-                    movie->setScaledSize(QSize(labelFightTrap->width(),labelFightTrap->height()));
-                    if(movie->isValid())
-                    {
-                        labelFightTrap->setMovie(movie);
-                        movie->start();
-                    }
-                    else
+          fileAnimation =
+              skillAnimation + QStringLiteral("%1_failed.gif").arg(trapItemId);
+        if (QFile(fileAnimation).exists()) {
+          movie = new QMovie(fileAnimation, QByteArray(), labelFightTrap);
+          movie->setScaledSize(
+              QSize(labelFightTrap->width(), labelFightTrap->height()));
+          if (movie->isValid()) {
+            labelFightTrap->setMovie(movie);
+            movie->start();
+          } else
                         qDebug() << QStringLiteral("movie loaded is not valid
 for: %1").arg(fileAnimation);
-                }
-            }
         }
-        else
-        {
-            if(trapSuccess)
-            {
-                connexionManager->client->catchIsDone();//why? do at the screen
-change to return on the map, not here! displayText(tr("You have catched the wild
-%1").arg(QString::fromStdString(
-                                                                       QtDatapackClientLoader::datapackLoader->monsterExtra.at(
-                                                                           otherMonster->monster).name)).toStdString());
-            }
-            else
-                displayText(tr("You have failed the catch of the wild
-%1").arg(QString::fromStdString(
-                                                                                   QtDatapackClientLoader::datapackLoader->monsterExtra.at(
-                                                                                       otherMonster->monster).name)).toStdString());
-            labelFightTrap->hide();
-            return;
-        }
+      }*/
+    } else {
+      if (trapSuccess) {
+        client_->catchIsDone();  // why? do at the screen change to return on
+                                 // the map, not here!
+        displayText(tr("You have catched the wild %1")
+                        .arg(QString::fromStdString(
+                            QtDatapackClientLoader::datapackLoader->monsterExtra
+                                .at(otherMonster->monster)
+                                .name))
+                        .toStdString());
+      } else {
+        displayText(tr("You have failed the catch of the wild %1")
+                        .arg(QString::fromStdString(
+                            QtDatapackClientLoader::datapackLoader->monsterExtra
+                                .at(otherMonster->monster)
+                                .name))
+                        .toStdString());
+      }
+      labelFightTrap->hide();
+      return;
     }
-    displayTrapTimer.start();
-}*/
+  }
+  displayTrapTimer.start();
+}
 
 void Battle::displayText(const std::string &text) {
   stackedWidgetFightBottomBarsetCurrentWidget(0);
@@ -2553,7 +2573,7 @@ void Battle::resetPosition(bool outOfScreen, bool topMonster,
       labelFightMonsterBottom->setPos(p);
     }
     if (topMonster) {
-      p.setX(800);
+      p.setX(1500);
       p.setY(90);
       labelFightMonsterTop->setPos(p);
     }
@@ -2564,7 +2584,7 @@ void Battle::resetPosition(bool outOfScreen, bool topMonster,
       labelFightMonsterBottom->setPos(p);
     }
     if (topMonster) {
-      p.setX(510);
+      p.setX(910);
       p.setY(90);
       labelFightMonsterTop->setPos(p);
     }
@@ -2750,63 +2770,58 @@ void Battle::on_listWidgetFightAttack_itemActivated(QListWidgetItem *item) {
   on_pushButtonFightAttackConfirmed_clicked();
 }
 
-/*void Battle::useTrap(const uint16_t &itemId)
-{
-    updateTrapTime.restart();
-    displayTrapProgression=0;
-    trapItemId=itemId;
-    if(!connexionManager->client->tryCatchClient(itemId))
-    {
-        std::cerr << "!connexionManager->client->tryCatchClient(itemId)" <<
-std::endl; abort();
-    }
-    displayTrap();
-    //need wait the server reply, monsterCatch(const bool &success)
+void Battle::useTrap(const uint16_t &itemId) {
+  updateTrapTime.restart();
+  displayTrapProgression = 0;
+  trapItemId = itemId;
+  if (!client_->tryCatchClient(itemId)) {
+    qDebug() << "!connexionManager->client->tryCatchClient(itemId)";
+    abort();
+  }
+  displayTrap();
+  // need wait the server reply, monsterCatch(const bool &success)
 }
 
-void Battle::monsterCatch(const bool &success)
-{
-    if(connexionManager->client->playerMonster_catchInProgress.empty())
-    {
-        emit error("Internal bug: cupture monster list is emtpy");
+void Battle::monsterCatch(const bool &success) {
+  if (client_->playerMonster_catchInProgress.empty()) {
+    emit error("Internal bug: cupture monster list is emtpy");
+    return;
+  }
+  if (!success) {
+    trapSuccess = false;
+#ifdef CATCHCHALLENGER_DEBUG_FIGHT
+    emit message(QStringLiteral("catch is failed"));
+#endif
+    client_->generateOtherAttack();
+  } else {
+    trapSuccess = true;
+#ifdef CATCHCHALLENGER_DEBUG_FIGHT
+    emit message(QStringLiteral("catch is success"));
+#endif
+    // connexionManager->client->playerMonster_catchInProgress.first().id=newMonsterId;
+    if (client_->getPlayerMonster().size() >=
+        CommonSettingsCommon::commonSettingsCommon.maxPlayerMonsters) {
+      Player_private_and_public_informations &playerInformations =
+          client_->get_player_informations();
+      if (playerInformations.warehouse_playerMonster.size() >=
+          CommonSettingsCommon::commonSettingsCommon
+              .maxWarehousePlayerMonsters) {
+        ShowMessageDialog(tr("Error"), tr("You have already the maximum number "
+                                          "of monster into you warehouse"));
         return;
+      }
+      playerInformations.warehouse_playerMonster.push_back(
+          client_->playerMonster_catchInProgress.front());
+    } else {
+      client_->addPlayerMonster(client_->playerMonster_catchInProgress.front());
+      load_monsters();
     }
-    if(!success)
-    {
-        trapSuccess=false;
-        #ifdef CATCHCHALLENGER_DEBUG_FIGHT
-        emit message(QStringLiteral("catch is failed"));
-        #endif
-        connexionManager->client->generateOtherAttack();
-    }
-    else
-    {
-        trapSuccess=true;
-        #ifdef CATCHCHALLENGER_DEBUG_FIGHT
-        emit message(QStringLiteral("catch is success"));
-        #endif
-        //connexionManager->client->playerMonster_catchInProgress.first().id=newMonsterId;
-        if(connexionManager->client->getPlayerMonster().size()>=CommonSettingsCommon::commonSettingsCommon.maxPlayerMonsters)
-        {
-            Player_private_and_public_informations
-&playerInformations=client->get_player_informations();
-            if(playerInformations.warehouse_playerMonster.size()>=CommonSettingsCommon::commonSettingsCommon.maxWarehousePlayerMonsters)
-            {
-                QMessageBox::warning(this,tr("Error"),tr("You have already the
-maximum number of monster into you warehouse")); return;
-            }
-            playerInformations.warehouse_playerMonster.push_back(connexionManager->client->playerMonster_catchInProgress.front());
-        }
-        else
-        {
-            connexionManager->client->addPlayerMonster(connexionManager->client->playerMonster_catchInProgress.front());
-            load_monsters();
-        }
-    }
-    connexionManager->client->playerMonster_catchInProgress.erase(connexionManager->client->playerMonster_catchInProgress.cbegin());
-    displayTrap();
+  }
+  client_->playerMonster_catchInProgress.erase(
+      client_->playerMonster_catchInProgress.cbegin());
+  displayTrap();
 }
-
+/*
 void Battle::battleAcceptedByOther(const std::string &pseudo,const uint8_t
 &skinId,const std::vector<uint8_t> &stat, const uint8_t &monsterPlace,const
 PublicPlayerMonster &publicPlayerMonster)
@@ -2963,16 +2978,15 @@ void Battle::doNextAction() {
 
   if (CommonDatapack::commonDatapack.monsters.empty()) return;
   // if the current monster is KO
-  if (connexionManager->client->currentMonsterIsKO()) {
+  if (client_->currentMonsterIsKO()) {
     if (CommonDatapack::commonDatapack.monsters.empty()) return;
-    if (!connexionManager->client->isInFight()) {
+    if (!client_->isInFight()) {
       if (CommonDatapack::commonDatapack.monsters.empty()) return;
       loose();
       return;
     }
     qDebug() << "doNextAction(): remplace KO current monster";
-    PublicPlayerMonster *currentMonster =
-        connexionManager->client->getCurrentMonster();
+    PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
     stackedWidgetFightBottomBarsetCurrentWidget(0);
     labelFightEnter->setPlainText(
         tr("Your %1 have lost!")
@@ -2987,8 +3001,8 @@ void Battle::doNextAction() {
   }
 
   // if the other monster is KO
-  if (connexionManager->client->otherMonsterIsKO()) {
-    uint32_t returnedLastGivenXP = connexionManager->client->lastGivenXP();
+  if (client_->otherMonsterIsKO()) {
+    uint32_t returnedLastGivenXP = client_->lastGivenXP();
     if (returnedLastGivenXP > 2 * 1000 * 1000) {
       newError(tr("Internal error").toStdString() + ", file: " +
                    std::string(__FILE__) + ":" + std::to_string(__LINE__),
@@ -3901,21 +3915,88 @@ void Battle::displayAttack() {
 }
 
 void Battle::error(std::string error) {
+  qDebug() << &error;
   // emit newError(tr("Error with the protocol").toStdString(),error);
 }
 
 void Battle::ShowMessageDialog(const QString &title, const QString &message) {
   if (message_dialog_ == nullptr) {
     message_dialog_ = new MessageDialog();
-    if (!connect(message_dialog_, &MessageDialog::removeAbove, this,
-                 &Battle::CloseMessageDialog))
-      abort();
+    message_dialog_->SetParent(this);
   }
   message_dialog_->SetMessage(message);
   emit setAbove(message_dialog_);
 }
 
-void Battle::CloseMessageDialog() { emit setAbove(nullptr); }
+void Battle::ShowBagDialog() {
+  if (inventory_ == nullptr) {
+    inventory_ = new Inventory();
+    inventory_->SetParent(this);
+    if (!connect(inventory_, &Inventory::useItem, this, &Battle::UseBagItem))
+      abort();
+  }
+  waitedObjectType = Inventory::ObjectType::ObjectType_UseInFight;
+  inventory_->setVar(connexionManager, waitedObjectType, true);
+  emit setAbove(inventory_);
+}
+
+void Battle::UseBagItem(uint16_t item) {
+  emit setAbove(nullptr);
+  const uint8_t monsterPosition = 0;
+  const PlayerMonster *const monster =
+      client_->monsterByPosition(monsterPosition);
+  const QtDatapackClientLoader::MonsterExtra &monsterInformationsExtra =
+      QtDatapackClientLoader::datapackLoader->monsterExtra.at(monster->monster);
+
+  // it's trap
+  if (CommonDatapack::commonDatapack.items.trap.find(item) !=
+          CommonDatapack::commonDatapack.items.trap.cend() &&
+      client_->isInFightWithWild()) {
+    // remove_to_inventory(itemId);
+    useTrap(item);
+    return;
+  } else {  // else it's to use on current monster
+    const uint8_t &monsterPosition = client_->getCurrentSelectedMonsterNumber();
+    if (client_->useObjectOnMonsterByPosition(item, monsterPosition)) {
+      // remove_to_inventory(itemId);
+      if (CommonDatapack::commonDatapack.items.monsterItemEffect.find(item) !=
+          CommonDatapack::commonDatapack.items.monsterItemEffect.cend()) {
+        client_->useObjectOnMonsterByPosition(item, monsterPosition);
+        updateAttackList();
+        displayAttackProgression = 0;
+        attack_quantity_changed = 0;
+        if (battleType != BattleType_OtherPlayer) {
+          doNextAction();
+        } else {
+          stackedWidgetFightBottomBarsetCurrentWidget(0);
+          labelFightEnter->setPlainText(
+              tr("In waiting of the other player action"));
+          pushButtonFightEnterNext->hide();
+        }
+      } else {
+        error(tr("You have selected a buggy object").toStdString());
+      }
+    } else {
+      ShowMessageDialog(tr("Warning"), tr("Can't be used now!"));
+    }
+  }
+  QString text;
+  if (client_->useObjectOnMonsterByPosition(item, monsterPosition)) {
+    text += tr("Using <b>%1</b> on <b>%2</b>")
+                .arg(QString::fromStdString(
+                    QtDatapackClientLoader::datapackLoader->itemsExtra.at(item)
+                        .name))
+                .arg(QString::fromStdString(monsterInformationsExtra.name));
+  } else {
+    text += tr("Failed to use <b>%1</b> on <b>%2</b>")
+                .arg(QString::fromStdString(
+                    QtDatapackClientLoader::datapackLoader->itemsExtra.at(item)
+                        .name))
+                .arg(QString::fromStdString(monsterInformationsExtra.name));
+  }
+
+  displayText(text.toStdString());
+}
 
 QPixmap Battle::getFrontSkin(const std::string &skinName) {
   /*
