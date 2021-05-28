@@ -978,8 +978,3 @@ const QtDatapackClientLoader::QtItemExtra &QtDatapackClientLoader::getImageExtra
     ImageitemsExtra.erase(id);
     return QtitemsExtra.at(id);
 }
-
-const QtDatapackClientLoader::QtMonsterExtra &QtDatapackClientLoader::getQtMonsterExtra(const uint16_t &id)
-{
-    return QtmonsterExtra.at(id);
-}

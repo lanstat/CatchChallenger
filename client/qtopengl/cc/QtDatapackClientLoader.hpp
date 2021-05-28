@@ -75,7 +75,6 @@ public:
     std::unordered_map<uint8_t,QtBuff> QtmonsterBuffsExtra;
     const QtMonsterExtra &getMonsterExtra(const uint16_t &id);
     const QtItemExtra &getImageExtra(const uint16_t &id);
-    const QtMonsterExtra &getQtMonsterExtra(const uint16_t &id);
 
     QPixmap defaultInventoryImage();
     void resetAll();
