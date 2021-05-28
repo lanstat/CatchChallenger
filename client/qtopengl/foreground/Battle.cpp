@@ -459,8 +459,7 @@ void Battle::on_monsterList_itemActivated(uint8_t monsterPosition) {
             .at(playerMonster->monster)
             .name)));
     labelFightMonsterBottom->setPixmap(
-        QtDatapackClientLoader::datapackLoader->QtmonsterExtra
-            .at(playerMonster->monster)
+        QtDatapackClientLoader::datapackLoader->getQtMonsterExtra(playerMonster->monster)
             .back.scaled(160, 160));
   } else {
     labelFightEnter->setPlainText(tr("You change of monster"));
@@ -1260,8 +1259,7 @@ void Battle::updateCurrentMonsterInformation() {
   p.setY(0);
   labelFightMonsterBottom->setPos(p);*/
   labelFightMonsterBottom->setPixmap(
-      QtDatapackClientLoader::datapackLoader->QtmonsterExtra
-          .at(monster->monster)
+      QtDatapackClientLoader::datapackLoader->getQtMonsterExtra(monster->monster)
           .back.scaled(400, 400));
   frameFightBottom->setVisible(true);
   frameFightBottom->show();

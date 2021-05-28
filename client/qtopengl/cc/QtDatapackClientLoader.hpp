@@ -75,6 +75,7 @@ public:
     std::unordered_map<uint8_t,QtBuff> QtmonsterBuffsExtra;
     const QtMonsterExtra &getMonsterExtra(const uint16_t &id);
     const QtItemExtra &getImageExtra(const uint16_t &id);
+    const QtMonsterExtra &getQtMonsterExtra(const uint16_t &id);
 
     QPixmap defaultInventoryImage();
     void resetAll();
@@ -82,8 +83,6 @@ public:
 
     std::string getSkinPath(const std::string &skinName,const std::string &type) const;
     std::string getFrontSkinPath(const uint32_t &skinId) const;
-
-    std::unordered_map<uint16_t,QtMonsterExtra> QtmonsterExtra;
 protected:
     #ifndef NOTHREADS
     void run() override;
@@ -106,6 +105,7 @@ private:
     QPixmap *mDefaultInventoryImage;
     std::string getLanguage() override;
 
+    std::unordered_map<uint16_t,QtMonsterExtra> QtmonsterExtra;
     std::unordered_map<uint16_t,QtItemExtra> QtitemsExtra;
     std::unordered_set<QtDatapackClientLoaderThread *> threads;
     QtItemExtra emptyItem;
