@@ -248,6 +248,7 @@ SOURCES += \
     $$PWD/above/AddOrEditServer.cpp \
     $$PWD/above/MessageDialog.cpp \
     $$PWD/above/OptionsDialog.cpp \
+    $$PWD/above/monster/MonsterBag.cpp \
     $$PWD/above/Login.cpp \
     $$PWD/CheckBox.cpp \
     $$PWD/foreground/Battle.cpp \
@@ -326,6 +327,7 @@ HEADERS  += \
     $$PWD/above/AddOrEditServer.hpp \
     $$PWD/above/MessageDialog.hpp \
     $$PWD/above/OptionsDialog.hpp \
+    $$PWD/above/monster/MonsterBag.hpp \
     $$PWD/above/Login.hpp \
     $$PWD/CheckBox.hpp \
     $$PWD/foreground/Battle.hpp \

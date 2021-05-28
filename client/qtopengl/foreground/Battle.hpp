@@ -13,6 +13,7 @@
 #include "../ScreenInput.hpp"
 #include "../above/MessageDialog.hpp"
 #include "../above/inventory/Inventory.hpp"
+#include "../above/monster/MonsterBag.hpp"
 #include "../cc/ClientFightEngine.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
@@ -39,7 +40,6 @@ class Battle : public ScreenInput {
                            bool &callParentClass) override;
   void stackedWidgetFightBottomBarsetCurrentWidget(int index);
 
-  void on_monsterList_itemActivated(uint8_t monsterPosition);
   bool check_monsters();
   bool WildFightInitialize(CatchChallenger::Map_client *map, const uint8_t &x,
                            const uint8_t &y);
@@ -70,7 +70,7 @@ class Battle : public ScreenInput {
   void on_pushButtonFightEnterNext_clicked();
   void on_toolButtonFightQuit_clicked();
   void on_pushButtonFightAttack_clicked();
-  // void on_pushButtonFightMonster_clicked();
+  void on_pushButtonFightMonster_clicked();
   void on_pushButtonFightAttackConfirmed_clicked();
   void on_pushButtonFightReturn_clicked();
   void on_listWidgetFightAttack_itemSelectionChanged();
@@ -172,6 +172,7 @@ class Battle : public ScreenInput {
   DoNextActionStep doNextActionStep;
 
   Inventory *inventory_;
+  MonsterBag *monsters_bag_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
@@ -214,7 +215,9 @@ class Battle : public ScreenInput {
   void battleAcceptedByOtherFull(const BattleInformations &battleInformations);
   void ShowMessageDialog(const QString &title, const QString &message);
   void ShowBagDialog();
+  void ShowMonsterDialog();
   void UseBagItem(uint16_t);
+  void on_monsterList_itemActivated(uint8_t monsterPosition);
   void monsterCatch(const bool &success);
   void displayTrap();
   void useTrap(const uint16_t &itemId);

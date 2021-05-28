@@ -1126,7 +1126,7 @@ bool Api_protocol_Qt::tryCatchClient(const uint16_t &item)
 {
     if(!playerMonster_catchInProgress.empty())
     {
-        error("Añready try catch in progress");
+        error("Already try catch in progress");
         return false;
     }
     if(wildMonsters.empty())

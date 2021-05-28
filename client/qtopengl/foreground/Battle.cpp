@@ -15,6 +15,7 @@
 #include "../ImagesStrechMiddle.hpp"
 #include "../above/MessageDialog.hpp"
 #include "../above/inventory/Inventory.hpp"
+#include "../above/monster/MonsterBag.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 
@@ -97,8 +98,9 @@ Battle::Battle() {
   if (!connect(pushButtonFightAttack, &CustomButton::clicked, this,
                &Battle::on_pushButtonFightAttack_clicked))
     abort();
-  /*if(!connect(pushButtonFightMonster,&CustomButton::clicked,this,&Battle::on_pushButtonFightMonster_clicked))
-      abort();*/
+  if (!connect(pushButtonFightMonster, &CustomButton::clicked, this,
+               &Battle::on_pushButtonFightMonster_clicked))
+    abort();
   if (!connect(pushButtonFightAttackConfirmed, &CustomButton::clicked, this,
                &Battle::on_pushButtonFightAttackConfirmed_clicked))
     abort();
@@ -168,6 +170,7 @@ Battle::Battle() {
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   message_dialog_ = nullptr;
   inventory_ = nullptr;
+  monsters_bag_ = nullptr;
 }
 
 Battle::~Battle() {}
@@ -432,180 +435,43 @@ void Battle::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
 void Battle::OnBagButtonClick() { ShowBagDialog(); }
 
 void Battle::on_monsterList_itemActivated(uint8_t monsterPosition) {
-  (void)monsterPosition;
-  /*if(monsterspos_items_graphical.find(item)==monsterspos_items_graphical.cend())
-      return;
-  uint8_t monsterPosition=monsterspos_items_graphical.at(item);*/
-  /*ObjectType tempWaitedObjectType=waitedObjectType;
-  waitedObjectType=ObjectType_All;
-  switch(tempWaitedObjectType)
-  {*/
-  /*        case ObjectType_ItemOnMonster:
-          {
-              const uint8_t monsterPosition=static_cast<uint8_t>(itemId);
-              const uint16_t item=objectInUsing.back();
-              objectInUsing.erase(objectInUsing.cbegin());
-              if(!ok)
-              {
-                  stackedWidget->setCurrentWidget(page_inventory);
-                  inventoryUse->setText(tr("Select"));
-                  if(CatchChallenger::CommonDatapack::commonDatapack.items.item.find(item)!=CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
-                      if(CatchChallenger::CommonDatapack::commonDatapack.items.item[item].consumeAtUse)
-                          add_to_inventory(item,1,false);
-                  break;
-              }
-              const PlayerMonster * const
-     monster=connexionManager->client->monsterByPosition(monsterPosition);
-              if(monster==NULL)
-              {
-                  if(CatchChallenger::CommonDatapack::commonDatapack.items.item.find(item)!=CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
-                      if(CatchChallenger::CommonDatapack::commonDatapack.items.item[item].consumeAtUse)
-                          add_to_inventory(item,1,false);
-                  break;
-              }
-              const Monster
-     &monsterInformations=CommonDatapack::commonDatapack.monsters.at(monster->monster);
-              const QtDatapackClientLoader::MonsterExtra
-     &monsterInformationsExtra=QtDatapackClientLoader::datapackLoader->monsterExtra.at(monster->monster);
-              stackedWidget->setCurrentWidget(page_inventory);
-              inventoryUse->setText(tr("Select"));
-              if(connexionManager->client->useObjectOnMonsterByPosition(item,monsterPosition))
-              {
-                  showTip(tr("Using <b>%1</b> on <b>%2</b>")
-                          .arg(QString::fromStdString(QtDatapackClientLoader::datapackLoader->itemsExtra.at(item).name))
-                          .arg(QString::fromStdString(monsterInformationsExtra.name))
-                          .toStdString());
-                  client->useObjectOnMonsterByPosition(item,monsterPosition);
-                  load_monsters();
-                  checkEvolution();
-              }
-              else
-              {
-                  showTip(tr("Failed to use <b>%1</b> on <b>%2</b>")
-                          .arg(QString::fromStdString(QtDatapackClientLoader::datapackLoader->itemsExtra.at(item).name))
-                          .arg(QString::fromStdString(monsterInformationsExtra.name))
-                          .toStdString());
-                  if(CatchChallenger::CommonDatapack::commonDatapack.items.item.find(item)!=
-                          CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
-                      if(CatchChallenger::CommonDatapack::commonDatapack.items.item[item].consumeAtUse)
-                          add_to_inventory(item,1,false);
-              }
-          }
-          break;*/
-  /*        case ObjectType_MonsterToFight:
-          case ObjectType_MonsterToFightKO:
-          {
-              inventoryUse->setText(tr("Select"));
-              stackedWidget->setCurrentWidget(page_battle);
-              load_monsters();
-              if(!ok)
-                  return;
-              resetPosition(true,false,true);
-              //do copie here because the call of changeOfMonsterInFight apply
-     the skill/buff effect const uint8_t
-     monsterPosition=static_cast<uint8_t>(itemId); const PlayerMonster
-     *tempMonster=connexionManager->client->monsterByPosition(monsterPosition);
-              if(tempMonster==NULL)
-              {
-                  qDebug() << "Monster not found";
-                  return;
-              }
-              PlayerMonster copiedMonster=*tempMonster;
-              if(!connexionManager->client->changeOfMonsterInFight(monsterPosition))
-                  return;
-              client->changeOfMonsterInFightByPosition(monsterPosition);
-              PlayerMonster *
-     playerMonster=connexionManager->client->getCurrentMonster();
-              init_current_monster_display(&copiedMonster);
-              stackedWidgetFightBottomBar->setCurrentWidget(stackedWidgetFightBottomBarPageEnter);
-              if(QtDatapackClientLoader::datapackLoader->monsterExtra.find(playerMonster->monster)!=
-                      QtDatapackClientLoader::datapackLoader->monsterExtra.cend())
-              {
-                  labelFightEnter->setText(tr("Go %1")
-                                               .arg(QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterExtra.at(playerMonster->monster).name)));
-                  labelFightMonsterBottom->setPixmap(QtDatapackClientLoader::datapackLoader->QtmonsterExtra.at(playerMonster->monster).back.scaled(160,160));
-              }
-              else
-              {
-                  labelFightEnter->setText(tr("You change of monster"));
-                  labelFightMonsterBottom->setPixmap(QPixmap(":/CC/images/monsters/default/back.png"));
-              }
-              pushButtonFightEnterNext->setVisible(false);
-              moveType=MoveType_Enter;
-              battleStep=BattleStep_Presentation;
-              monsterBeforeMoveForChangeInWaiting=true;
-              moveFightMonsterBottom();
-          }
-          break;*/
-  /*        case ObjectType_UseInFight:
-          {
-              inventoryUse->setText(tr("Select"));
-              stackedWidget->setCurrentWidget(page_battle);
-              load_inventory();
-              if(!ok)
-                  break;
-              const CatchChallenger::Player_private_and_public_informations
-     &playerInformations=connexionManager->client->get_player_informations_ro();
-              if(playerInformations.warehouse_playerMonster.size()>=CommonSettingsCommon::commonSettingsCommon.maxWarehousePlayerMonsters)
-              {
-                  QMessageBox::warning(this,tr("Error"),tr("You have already the
-     maximum number of monster into you warehouse")); break;
-              }
-              if(playerInformations.items.find(itemId)==playerInformations.items.cend())
-              {
-                  qDebug() << "item id is not into the inventory";
-                  break;
-              }
-              if(playerInformations.items.at(itemId)<quantity)
-              {
-                  qDebug() << "item id have not the quantity";
-                  break;
-              }
-              //it's trap
-              if(CommonDatapack::commonDatapack.items.trap.find(itemId)!=CommonDatapack::commonDatapack.items.trap.cend()
-     && connexionManager->client->isInFightWithWild())
-              {
-                  remove_to_inventory(itemId);
-                  useTrap(itemId);
-              }
-              else//else it's to use on current monster
-              {
-                  const uint8_t
-     &monsterPosition=connexionManager->client->getCurrentSelectedMonsterNumber();
-                  if(connexionManager->client->useObjectOnMonsterByPosition(itemId,monsterPosition))
-                  {
-                      remove_to_inventory(itemId);
-                      if(CommonDatapack::commonDatapack.items.monsterItemEffect.find(itemId)!=CommonDatapack::commonDatapack.items.monsterItemEffect.cend())
-                      {
-                          client->useObjectOnMonsterByPosition(itemId,monsterPosition);
-                          updateAttackList();
-                          displayAttackProgression=0;
-                          attack_quantity_changed=0;
-                          if(battleType!=BattleType_OtherPlayer)
-                              doNextAction();
-                          else
-                          {
-                              stackedWidgetFightBottomBar->setCurrentWidget(stackedWidgetFightBottomBarPageEnter);
-                              labelFightEnter->setText(tr("In waiting of the
-     other player action")); pushButtonFightEnterNext->hide();
-                          }
-                      }
-                      else
-                          error(tr("You have selected a buggy
-     object").toStdString());
-                  }
-                  else
-                      QMessageBox::warning(this,tr("Warning"),tr("Can't be used
-     now!"));
-              }
-
-          }
-          break;*/
-  /*default:
-  qDebug() << "waitedObjectType is unknow";
-  return;
-}
-waitedObjectType=ObjectType_All;*/
+  resetPosition(true, false, true);
+  // do copie here because the call of changeOfMonsterInFight apply the skill /
+  // buff effect
+  const PlayerMonster *tempMonster =
+      client_->monsterByPosition(monsterPosition);
+  if (tempMonster == NULL) {
+    qDebug() << "Monster not found";
+    return;
+  }
+  PlayerMonster copiedMonster = *tempMonster;
+  if (!client_->changeOfMonsterInFight(monsterPosition))
+    return;
+  client_->changeOfMonsterInFightByPosition(monsterPosition);
+  PlayerMonster *playerMonster = client_->getCurrentMonster();
+  init_current_monster_display(&copiedMonster);
+  stackedWidgetFightBottomBarsetCurrentWidget(0);
+  if (QtDatapackClientLoader::datapackLoader->monsterExtra.find(
+          playerMonster->monster) !=
+      QtDatapackClientLoader::datapackLoader->monsterExtra.cend()) {
+    labelFightEnter->setPlainText(tr("Go %1").arg(QString::fromStdString(
+        QtDatapackClientLoader::datapackLoader->monsterExtra
+            .at(playerMonster->monster)
+            .name)));
+    labelFightMonsterBottom->setPixmap(
+        QtDatapackClientLoader::datapackLoader->QtmonsterExtra
+            .at(playerMonster->monster)
+            .back.scaled(160, 160));
+  } else {
+    labelFightEnter->setPlainText(tr("You change of monster"));
+    labelFightMonsterBottom->setPixmap(
+        QPixmap(":/CC/images/monsters/default/back.png"));
+  }
+  pushButtonFightEnterNext->setVisible(false);
+  moveType = MoveType_Enter;
+  battleStep = BattleStep_Presentation;
+  // monsterBeforeMoveForChangeInWaiting = true;
+  moveFightMonsterBottom();
 }
 
 // need correct match, else tp to die can failed and do mistake
@@ -968,6 +834,7 @@ bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
     emit error("NULL pointer for other monster at wildFightCollision()");
     return false;
   }
+  battleType = BattleType_Wild;
   resetPosition(true, false, true);
   qDebug() << QStringLiteral(
                   "You are in front of monster id: %1 level: %2 with hp: %3")
@@ -1780,11 +1647,8 @@ void Battle::on_toolButtonFightQuit_clicked() {
 void Battle::on_pushButtonFightAttack_clicked() {
   stackedWidgetFightBottomBarsetCurrentWidget(2);
 }
-/*
-void Battle::on_pushButtonFightMonster_clicked()
-{
-    selectObject(ObjectType_MonsterToFight);
-}*/
+
+void Battle::on_pushButtonFightMonster_clicked() { ShowMonsterDialog(); }
 
 void Battle::on_pushButtonFightAttackConfirmed_clicked() {
   if (!client_->canDoFightAction()) {
@@ -2469,6 +2333,7 @@ void Battle::displayTrap() {
     animationTime = 1500;
   else
     animationTime = 2000;
+
   if (displayTrapProgression == 1 &&
       (uint32_t)updateTrapTime.elapsed() < animationTime) {
     labelFightTrap->setPos(labelFightMonsterBottom->pos().x() +
@@ -2483,7 +2348,7 @@ void Battle::displayTrap() {
     labelFightTrap->setPos(labelFightMonsterTop->pos().x(),
                            labelFightMonsterTop->pos().y());
   }
-  if (!client_->playerMonster_catchInProgress.empty()) return;
+  // if (!client_->playerMonster_catchInProgress.empty()) return;
   if ((uint32_t)updateTrapTime.elapsed() > animationTime) {
     updateTrapTime.restart();
     if (displayTrapProgression == 1) {
@@ -3926,6 +3791,18 @@ void Battle::ShowMessageDialog(const QString &title, const QString &message) {
   }
   message_dialog_->SetMessage(message);
   emit setAbove(message_dialog_);
+}
+
+void Battle::ShowMonsterDialog() {
+  if (monsters_bag_ == nullptr) {
+    monsters_bag_ = new MonsterBag();
+    monsters_bag_->setParent(this);
+    monsters_bag_->SetVar(connexionManager);
+    if (!connect(monsters_bag_, &MonsterBag::OnSelectMonster, this,
+                 &Battle::on_monsterList_itemActivated))
+      abort();
+  }
+  emit setAbove(monsters_bag_);
 }
 
 void Battle::ShowBagDialog() {
