@@ -15,6 +15,8 @@
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
 #include "../cc/ClientFightEngine.hpp"
+#include "../ui/Label.hpp"
+#include "../core/Sprite.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
 class CustomButton;
@@ -46,6 +48,7 @@ class Battle : public ScreenInput {
   void botFight(CatchChallenger::Map_client *map, const uint8_t &x,
                 const uint8_t &y, const uint16_t &fightId);
   void setVar(ConnexionManager *connexionManager);
+
   enum BattleType { BattleType_Wild, BattleType_Bot, BattleType_OtherPlayer };
   enum BattleStep {
     BattleStep_Presentation,
@@ -58,6 +61,15 @@ class Battle : public ScreenInput {
     DoNextActionStep_Start,
     DoNextActionStep_Loose,
     DoNextActionStep_Win
+  };
+  enum SpriteAction {
+    kEnter = 1,
+    kExit = 2,
+    kDead = 3
+  };
+  enum SpriteState {
+    kOutScreen = 0,
+    kReadyForBattle = 1
   };
   struct BattleInformations {
     std::string pseudo;
@@ -109,7 +121,6 @@ class Battle : public ScreenInput {
   // bot
   CatchChallenger::Bot actualBot;
 
-  QTimer moveFightMonsterBottomTimer;
   QTimer moveFightMonsterTopTimer;
   QTimer moveFightMonsterBothTimer;
   QTimer doNextActionTimer;
@@ -123,7 +134,6 @@ class Battle : public ScreenInput {
 
   QGraphicsPixmapItem *labelFightMonsterAttackBottom;
   QGraphicsPixmapItem *labelFightMonsterAttackTop;
-  QGraphicsPixmapItem *labelFightMonsterBottom;
   QGraphicsPixmapItem *labelFightMonsterTop;
   QGraphicsPixmapItem *labelFightTrap;
 
@@ -132,6 +142,7 @@ class Battle : public ScreenInput {
 
   ImagesStrechMiddle *stackedWidgetFightBottomBar;
 
+  UI::Label *testing_;
   QGraphicsTextItem *labelFightEnter;
   CustomButton *pushButtonFightEnterNext;
 
@@ -173,6 +184,8 @@ class Battle : public ScreenInput {
 
   Inventory *inventory_;
   MonsterBag *monsters_bag_;
+  Sprite *player_;
+  Sprite *enemy_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
@@ -184,8 +197,11 @@ class Battle : public ScreenInput {
   std::vector<uint8_t> tradeEvolutionMonsters;
   std::vector<QListWidgetItem> monsterList;
 
+  void ConfigurePlayer();
+  void ConfigureEnemy();
+  void OnPlayerActionDone(int action_id);
+  void OnEnemyActionDone(int action_id);
   void moveFightMonsterBoth();
-  void moveFightMonsterBottom();
   void moveFightMonsterTop();
   void initializeText(QGraphicsTextItem *);
   void doNextAction();
@@ -199,7 +215,6 @@ class Battle : public ScreenInput {
   void resetPosition(bool outOfScreen, bool topMonster, bool bottomMonster);
   void botFightFull(const uint16_t &fightId);
   void prepareFight();
-  void LoadPlayerData();
   QPixmap GetBackSkin(const uint32_t &skinId);
   QPixmap getFrontSkin(const std::string &skinName);
   QPixmap getFrontSkin(const uint32_t &skinId);

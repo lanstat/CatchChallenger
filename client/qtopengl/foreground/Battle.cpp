@@ -1,3 +1,4 @@
+// Copyright 2021 <CatchChallenger>
 #include "Battle.hpp"
 
 #include <QGraphicsProxyWidget>
@@ -16,10 +17,14 @@
 #include "../above/MessageDialog.hpp"
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
+#include "../action/MoveTo.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
+#include "../core/Sprite.hpp"
+#include "../ui/Label.hpp"
 
 using namespace CatchChallenger;
+using std::placeholders::_1;
 
 // Width/height base obtain from background resource
 const int BASE_WIDTH = 200;
@@ -56,11 +61,12 @@ Battle::Battle() {
 
   labelFightMonsterAttackBottom = new QGraphicsPixmapItem(this);
   labelFightMonsterAttackTop = new QGraphicsPixmapItem(this);
-  labelFightMonsterBottom = new QGraphicsPixmapItem(this);
   labelFightMonsterTop = new QGraphicsPixmapItem(this);
   labelFightPlateformBottom = new QGraphicsPixmapItem(this);
   labelFightPlateformTop = new QGraphicsPixmapItem(this);
   labelFightTrap = new QGraphicsPixmapItem(this);
+
+  player_ = Sprite::Create(this);
 
   stackedWidgetFightBottomBar =
       new ImagesStrechMiddle(46, ":/CC/images/interface/message.png", this);
@@ -117,8 +123,6 @@ Battle::Battle() {
                &Battle::OnBagButtonClick))
     abort();
 
-  moveFightMonsterBottomTimer.setSingleShot(true);
-  moveFightMonsterBottomTimer.setInterval(20);
   doNextActionTimer.setSingleShot(true);
   doNextActionTimer.setInterval(1500);
   displayAttackTimer.setSingleShot(true);
@@ -134,9 +138,6 @@ Battle::Battle() {
   displayTrapTimer.setSingleShot(true);
   displayTrapTimer.setInterval(50);
 
-  if (!connect(&moveFightMonsterBottomTimer, &QTimer::timeout, this,
-               &Battle::moveFightMonsterBottom))
-    abort();
   if (!connect(&doNextActionTimer, &QTimer::timeout, this,
                &Battle::doNextAction))
     abort();
@@ -167,13 +168,17 @@ Battle::Battle() {
 
   initializeText(labelFightEnter);
 
-  stackedWidgetFightBottomBarsetCurrentWidget(0);
   message_dialog_ = nullptr;
   inventory_ = nullptr;
   monsters_bag_ = nullptr;
+  stackedWidgetFightBottomBarsetCurrentWidget(0);
 }
 
-Battle::~Battle() {}
+Battle::~Battle() {
+  delete message_dialog_;
+  delete inventory_;
+  delete monsters_bag_;
+}
 
 void Battle::initializeText(QGraphicsTextItem *item) {
   QFont f;
@@ -181,14 +186,6 @@ void Battle::initializeText(QGraphicsTextItem *item) {
   f.setBold(true);
   item->setFont(f);
   item->setDefaultTextColor(QColor(33, 33, 33));
-}
-
-void Battle::LoadPlayerData() {
-  const Player_public_informations &informations =
-      connexionManager->client->player_informations.public_informations;
-  playerBackImage = GetBackSkin(informations.skinId);
-  playerBackImage = playerBackImage.scaled(400, 400);
-  playerBackImage = playerBackImage.transformed(QTransform().scale(-1, 1));
 }
 
 void Battle::setVar(ConnexionManager *connexionManager) {
@@ -201,7 +198,7 @@ QPixmap Battle::GetBackSkin(const uint32_t &skinId) {
   /*const QPixmap skin(QString::fromStdString(getBackSkinPath(skinId)));
   if(!skin.isNull())
       return skin;*/
-  return QPixmap(":/CC/images/player_default/back.png");
+  return QPixmap(":/CC/images/player_default/back2.png");
 }
 
 void Battle::stackedWidgetFightBottomBarsetCurrentWidget(int index) {
@@ -345,9 +342,6 @@ void Battle::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   labelFightMonsterAttackTop->setPos(finalX + 510 * minRatio,
                                      finalY + 90 * minRatio);
   // labelFightMonsterAttackTop->setSize(160*minRatio,160*minRatio);
-  // TODO(lanstat): verificar si debe ser modificada la ubicacion
-  // labelFightMonsterBottom->setPos(finalX + 60, finalY + 260);
-  // labelFightMonsterBottom->setSize(160*minRatio,160*minRatio);
   // labelFightMonsterTop->setPos(finalX + 850, finalY + 90);
   // labelFightMonsterTop->setSize(160*minRatio,160*minRatio);
   labelFightPlateformBottom->setPos(finalX + 30 * minRatio,
@@ -445,8 +439,7 @@ void Battle::on_monsterList_itemActivated(uint8_t monsterPosition) {
     return;
   }
   PlayerMonster copiedMonster = *tempMonster;
-  if (!client_->changeOfMonsterInFight(monsterPosition))
-    return;
+  if (!client_->changeOfMonsterInFight(monsterPosition)) return;
   client_->changeOfMonsterInFightByPosition(monsterPosition);
   PlayerMonster *playerMonster = client_->getCurrentMonster();
   init_current_monster_display(&copiedMonster);
@@ -458,19 +451,17 @@ void Battle::on_monsterList_itemActivated(uint8_t monsterPosition) {
         QtDatapackClientLoader::datapackLoader->monsterExtra
             .at(playerMonster->monster)
             .name)));
-    labelFightMonsterBottom->setPixmap(
-        QtDatapackClientLoader::datapackLoader->getMonsterExtra(playerMonster->monster)
-            .back.scaled(160, 160));
+    player_->SetPixmap(QtDatapackClientLoader::datapackLoader
+                           ->getMonsterExtra(playerMonster->monster)
+                           .back.scaled(160, 160));
   } else {
     labelFightEnter->setPlainText(tr("You change of monster"));
-    labelFightMonsterBottom->setPixmap(
-        QPixmap(":/CC/images/monsters/default/back.png"));
+    player_->SetPixmap(QPixmap(":/CC/images/monsters/default/back.png"));
   }
   pushButtonFightEnterNext->setVisible(false);
-  moveType = MoveType_Enter;
   battleStep = BattleStep_Presentation;
   // monsterBeforeMoveForChangeInWaiting = true;
-  moveFightMonsterBottom();
+  player_->GetAction(kEnter)->Start();
 }
 
 // need correct match, else tp to die can failed and do mistake
@@ -773,7 +764,6 @@ void Battle::prepareFight() {
 
 void Battle::botFightFullDiffered() {
   prepareFight();
-  qDebug() << "aasdasd";
   frameFightTop->setVisible(false);
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   labelFightEnter->setPlainText(QString::fromStdString(
@@ -796,7 +786,7 @@ void Battle::botFightFullDiffered() {
     index++;
   }
   client_->setBotMonster(botFightMonstersTransformed, fightId);
-  labelFightMonsterBottom->setPixmap(playerBackImage.scaled(160, 160));
+  player_->SetPixmap(playerBackImage.scaled(160, 160));
   init_current_monster_display(nullptr);
   pushButtonFightEnterNext->setVisible(false);
   battleType = BattleType_Bot;
@@ -818,15 +808,13 @@ void Battle::botFightFullDiffered() {
 // Initialize the battle for wild encounter
 bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
                                  const uint8_t &y) {
+  ConfigurePlayer();
   this->map = map;
   if (!client_->isInFight()) {
     emit error("is in fight but without monster");
     return false;
   }
-  LoadPlayerData();
   init_environement_display(map, x, y);
-  labelFightMonsterBottom->setPixmap(playerBackImage.scaled(400, 400));
-  init_current_monster_display(nullptr);
   init_other_monster_display();
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster == NULL) {
@@ -848,7 +836,7 @@ void Battle::init_other_monster_display() { updateOtherMonsterInformation(); }
 void Battle::init_environement_display(Map_client *map, const uint8_t &x,
                                        const uint8_t &y) {
   const Player_private_and_public_informations &playerInformations =
-      connexionManager->client->get_player_informations_ro();
+      client_->get_player_informations_ro();
   Q_UNUSED(x);
   Q_UNUSED(y);
   // map not located
@@ -1093,9 +1081,8 @@ void Battle::on_pushButtonFightEnterNext_clicked() {
   pushButtonFightEnterNext->setVisible(false);
   switch (battleStep) {
     case BattleStep_Presentation:
-      if (connexionManager->client->isInFightWithWild()) {
-        moveType = MoveType_Leave;
-        moveFightMonsterBottom();
+      if (client_->isInFightWithWild()) {
+        player_->GetAction(kExit)->Start();
       } else {
         moveType = MoveType_Leave;
         moveFightMonsterBoth();
@@ -1105,11 +1092,11 @@ void Battle::on_pushButtonFightEnterNext_clicked() {
     default:
       frameFightTop->show();
       frameFightBottom->show();
-      moveType = MoveType_Enter;
-      moveFightMonsterBottom();
+      player_->GetAction(kEnter)->Start();
       stackedWidgetFightBottomBarsetCurrentWidget(0);
-      PlayerMonster *monster = connexionManager->client->getCurrentMonster();
+      PlayerMonster *monster = client_->getCurrentMonster();
       if (monster != NULL) {
+        init_current_monster_display(nullptr);
         labelFightEnter->setPlainText(
             tr("Protect me %1!")
                 .arg(QString::fromStdString(
@@ -1126,78 +1113,6 @@ void Battle::on_pushButtonFightEnterNext_clicked() {
   }
 }
 
-void Battle::moveFightMonsterBottom() {
-  if (moveType == MoveType_Enter) {
-    QPointF p = labelFightMonsterBottom->pos();
-    labelFightMonsterBottom->setX(p.rx() + 4);
-    if (labelFightMonsterBottom->pos().rx() < 60) {
-      moveFightMonsterBottomTimer.start();
-    } else {
-      updateCurrentMonsterInformation();
-      doNextAction();
-    }
-  }
-  if (moveType == MoveType_Leave) {
-    QPointF p = labelFightMonsterBottom->pos();
-    p.setX(p.rx() - 4);
-    labelFightMonsterBottom->setOffset(p);
-    if (labelFightMonsterBottom->pos().rx() >
-        (-labelFightMonsterBottom->pixmap().width()))
-      moveFightMonsterBottomTimer.start();
-    else {
-      updateCurrentMonsterInformation();
-      updateCurrentMonsterInformationXp();
-      if (battleStep == BattleStep_Presentation) {
-        resetPosition(true, false, true);
-        battleStep = BattleStep_PresentationMonster;
-        moveType = MoveType_Enter;
-        PlayerMonster *monster = client_->getCurrentMonster();
-        if (monster == NULL) {
-          newError(tr("Internal error").toStdString() + ", file: " +
-                       std::string(__FILE__) + ":" + std::to_string(__LINE__),
-                   "NULL pointer at updateCurrentMonsterInformation()");
-          return;
-        }
-        labelFightEnter->setPlainText(tr("Go %1").arg(QString::fromStdString(
-            QtDatapackClientLoader::datapackLoader->monsterExtra
-                .at(monster->monster)
-                .name)));
-        moveFightMonsterBottom();
-      }
-    }
-  }
-  if (moveType == MoveType_Dead) {
-    QPointF p = labelFightMonsterBottom->pos();
-    p.setY(p.ry() + 4);
-    labelFightMonsterBottom->setPos(p);
-    if (labelFightMonsterBottom->pos().ry() < 440) {
-      moveFightMonsterBottomTimer.start();
-    } else {
-      client_->dropKOCurrentMonster();
-      if (client_->haveAnotherMonsterOnThePlayerToFight()) {
-        if (client_->isInFight()) {
-#ifdef DEBUG_CLIENT_BATTLE
-          qDebug() << "Your current monster is KO, select another";
-#endif
-          // TODO(lanstat): Verificar como llamar al overmaplogic
-          // selectObject(ObjectType_MonsterToFightKO);
-        } else {
-#ifdef DEBUG_CLIENT_BATTLE
-          qDebug() << "You win";
-#endif
-          displayText(tr("You win!").toStdString());
-          doNextActionStep = DoNextActionStep_Win;
-        }
-      } else {
-#ifdef DEBUG_CLIENT_BATTLE
-        qDebug() << "You lose";
-#endif
-        displayText(tr("You lose!").toStdString());
-        doNextActionStep = DoNextActionStep_Loose;
-      }
-    }
-  }
-}
 /*
 
 void Battle::teleportTo(const uint32_t &mapId,const uint16_t &x,const uint16_t
@@ -1254,11 +1169,7 @@ void Battle::updateCurrentMonsterInformation() {
 #ifdef CATCHCHALLENGER_DEBUG_FIGHT
   qDebug() << "Now visible monster have hp : " << monster->hp;
 #endif
-  /*QPointF p;
-  p.setX(0);
-  p.setY(0);
-  labelFightMonsterBottom->setPos(p);*/
-  labelFightMonsterBottom->setPixmap(
+  player_->SetPixmap(
       QtDatapackClientLoader::datapackLoader->getMonsterExtra(monster->monster)
           .back.scaled(400, 400));
   frameFightBottom->setVisible(true);
@@ -1429,7 +1340,7 @@ void Battle::moveFightMonsterTop() {
 }
 
 void Battle::moveFightMonsterBoth() {
-  if (moveType == MoveType_Enter) {
+  /*if (moveType == MoveType_Enter) {
     QPointF p = labelFightMonsterTop->pos();
     p.setX(p.rx() - 4);
     labelFightMonsterTop->setPos(p);
@@ -1535,7 +1446,7 @@ void Battle::moveFightMonsterBoth() {
         pushButtonFightEnterNext->show();
       }
     }
-  }
+  }*/
 }
 
 void Battle::updateOtherMonsterInformation() {
@@ -2334,14 +2245,14 @@ void Battle::displayTrap() {
 
   if (displayTrapProgression == 1 &&
       (uint32_t)updateTrapTime.elapsed() < animationTime) {
-    labelFightTrap->setPos(labelFightMonsterBottom->pos().x() +
+    /*labelFightTrap->setPos(labelFightMonsterBottom->pos().x() +
                                (labelFightMonsterTop->pos().x() -
                                 labelFightMonsterBottom->pos().x()) *
                                    updateTrapTime.elapsed() / animationTime,
                            labelFightMonsterBottom->pos().y() -
                                (labelFightMonsterBottom->pos().y() -
                                 labelFightMonsterTop->pos().y()) *
-                                   updateTrapTime.elapsed() / animationTime);
+                                   updateTrapTime.elapsed() / animationTime);*/
   } else {
     labelFightTrap->setPos(labelFightMonsterTop->pos().x(),
                            labelFightMonsterTop->pos().y());
@@ -2428,28 +2339,19 @@ void Battle::displayText(const std::string &text) {
 
 void Battle::resetPosition(bool outOfScreen, bool topMonster,
                            bool bottomMonster) {
-  QPointF p;
   if (outOfScreen) {
     if (bottomMonster) {
-      p.setX(-160);
-      p.setY(295);
-      labelFightMonsterBottom->setPos(p);
+      player_->UseState(kOutScreen);
     }
     if (topMonster) {
-      p.setX(1500);
-      p.setY(90);
-      labelFightMonsterTop->setPos(p);
+      // enemy_->Use(kOutScreen);
     }
   } else {
     if (bottomMonster) {
-      p.setX(60);
-      p.setY(295);
-      labelFightMonsterBottom->setPos(p);
+      player_->UseState(kReadyForBattle);
     }
     if (topMonster) {
-      p.setX(910);
-      p.setY(90);
-      labelFightMonsterTop->setPos(p);
+      // enemy_->GetAction(kEnter)->Start(false, false);
     }
   }
 }
@@ -2720,7 +2622,7 @@ void Battle::battleAcceptedByOtherFull(
   // battleOtherPseudo->setText(lastBattleQuery.first().first);
   frameFightTop->hide();
   frameFightBottom->hide();
-  labelFightMonsterBottom->setPixmap(playerBackImage.scaled(160, 160));
+  player_->SetPixmap(playerBackImage.scaled(160, 160));
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   labelFightEnter->setPlainText(
       tr("%1 wish fight with you")
@@ -2858,8 +2760,7 @@ void Battle::doNextAction() {
                     .at(currentMonster->monster)
                     .name)));
     doNextActionStep = DoNextActionStep_Start;
-    moveType = MoveType_Dead;
-    moveFightMonsterBottom();
+    player_->GetAction(kDead)->Start();
     return;
   }
 
@@ -3665,12 +3566,11 @@ void Battle::displayAttack() {
     } else {
       // 2000ms
       if (updateAttackTime.elapsed() < 2000)
-        labelFightMonsterBottom->setVisible(
-            !labelFightMonsterBottom->isVisible());
+        player_->setVisible(!player_->isVisible());
     }
   }
   if (updateAttackTime.elapsed() > 2000) {
-    labelFightMonsterBottom->setVisible(true);
+    player_->setVisible(true);
     labelFightMonsterTop->setVisible(true);
     // TODO(lanstat): verificar como mostrar gif
     /*
@@ -3709,15 +3609,9 @@ void Battle::displayAttack() {
         if (applyOnOtherMonster) {
           progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
                                           hp_to_change);
-          // progressBarFightTopHP->repaint();
         } else {
           progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
                                              hp_to_change);
-          // progressBarFightBottomHP->repaint();
-          /*labelFightBottomHP->setText(
-              QStringLiteral("%1/%2")
-                  .arg(progressBarFightBottomHP->value())
-                  .arg(progressBarFightBottomHP->maximum()));*/
         }
       }
     }
@@ -3760,16 +3654,9 @@ void Battle::displayAttack() {
       if (applyOnOtherMonster) {
         progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
                                         hp_to_change);
-        // progressBarFightTopHP->repaint();
       } else {
         progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
                                            hp_to_change);
-        // TODO(lanstat): Revisar si deberian mostrarse
-        // progressBarFightBottomHP->repaint();
-        /*labelFightBottomHP->setText(
-            QStringLiteral("%1/%2")
-                .arg(progressBarFightBottomHP->value())
-                .arg(progressBarFightBottomHP->maximum()));*/
       }
     }
     displayAttackTimer.start();
@@ -3827,13 +3714,11 @@ void Battle::UseBagItem(uint16_t item) {
   if (CommonDatapack::commonDatapack.items.trap.find(item) !=
           CommonDatapack::commonDatapack.items.trap.cend() &&
       client_->isInFightWithWild()) {
-    // remove_to_inventory(itemId);
     useTrap(item);
     return;
   } else {  // else it's to use on current monster
     const uint8_t &monsterPosition = client_->getCurrentSelectedMonsterNumber();
     if (client_->useObjectOnMonsterByPosition(item, monsterPosition)) {
-      // remove_to_inventory(itemId);
       if (CommonDatapack::commonDatapack.items.monsterItemEffect.find(item) !=
           CommonDatapack::commonDatapack.items.monsterItemEffect.cend()) {
         client_->useObjectOnMonsterByPosition(item, monsterPosition);
@@ -3894,3 +3779,86 @@ QPixmap Battle::getFrontSkin(const uint32_t &skinId) {
     return getFrontSkin(std::string());
   }
 }
+
+void Battle::ConfigurePlayer() {
+  const auto &informations = client_->player_informations.public_informations;
+  playerBackImage = GetBackSkin(informations.skinId);
+  playerBackImage = playerBackImage.transformed(QTransform().scale(-1, 1));
+  playerBackImage = playerBackImage.scaledToHeight(600);
+  player_->SetPixmap(playerBackImage);
+  player_->SetPos(-150, 290);
+  player_->StoreState(kOutScreen);
+
+  player_->SetPos(60, 290);
+  player_->StoreState(kReadyForBattle);
+
+  auto move_to = MoveTo::Create(1500, -150, 290);
+  move_to->SetTag(kExit);
+  player_->RunAction(move_to);
+
+  move_to = MoveTo::Create(1500, 60, 290);
+  move_to->SetTag(kEnter);
+  player_->RunAction(move_to);
+
+  move_to = MoveTo::Create(1500, -400, 290);
+  move_to->SetTag(kDead);
+  player_->RunAction(move_to);
+
+  player_->SetOnActionDone(std::bind(&Battle::OnPlayerActionDone, this, _1));
+}
+
+void Battle::ConfigureEnemy() {}
+
+void Battle::OnPlayerActionDone(int action_tag) {
+  qDebug() << action_tag;
+  if (action_tag == kEnter) {
+    updateCurrentMonsterInformation();
+    doNextAction();
+  } else if (action_tag == kExit) {
+    updateCurrentMonsterInformation();
+    updateCurrentMonsterInformationXp();
+    if (battleStep == BattleStep_Presentation) {
+      resetPosition(true, false, true);
+      battleStep = BattleStep_PresentationMonster;
+      PlayerMonster *monster = client_->getCurrentMonster();
+      if (monster == NULL) {
+        newError(tr("Internal error").toStdString() + ", file: " +
+                     std::string(__FILE__) + ":" + std::to_string(__LINE__),
+                 "NULL pointer at updateCurrentMonsterInformation()");
+        return;
+      }
+      displayText(tr("Go %1")
+                      .arg(QString::fromStdString(
+                          QtDatapackClientLoader::datapackLoader->monsterExtra
+                              .at(monster->monster)
+                              .name))
+                      .toStdString());
+      player_->GetAction(kEnter)->Start();
+    }
+  } else if (action_tag == kDead) {
+    client_->dropKOCurrentMonster();
+    if (client_->haveAnotherMonsterOnThePlayerToFight()) {
+      if (client_->isInFight()) {
+#ifdef DEBUG_CLIENT_BATTLE
+        qDebug() << "Your current monster is KO, select another";
+#endif
+        // TODO(lanstat): Verificar como llamar al overmaplogic
+        // selectObject(ObjectType_MonsterToFightKO);
+      } else {
+#ifdef DEBUG_CLIENT_BATTLE
+        qDebug() << "You win";
+#endif
+        displayText(tr("You win!").toStdString());
+        doNextActionStep = DoNextActionStep_Win;
+      }
+    } else {
+#ifdef DEBUG_CLIENT_BATTLE
+      qDebug() << "You lose";
+#endif
+      displayText(tr("You lose!").toStdString());
+      doNextActionStep = DoNextActionStep_Loose;
+    }
+  }
+}
+
+void Battle::OnEnemyActionDone(int action_id) {}

@@ -254,6 +254,12 @@ SOURCES += \
     $$PWD/foreground/Battle.cpp \
     $$PWD/foreground/MainScreen.cpp \
     $$PWD/foreground/Multi.cpp \
+    $$PWD/ui/Label.cpp \
+    $$PWD/core/Node.cpp \
+    $$PWD/core/Stateful.cpp \
+    $$PWD/core/Sprite.cpp \
+    $$PWD/action/Action.cpp \
+    $$PWD/action/MoveTo.cpp \
     $$PWD/../qt/BlacklistPassword.cpp \
     $$PWD/foreground/CharacterList.cpp \
     $$PWD/foreground/SubServer.cpp \
@@ -333,6 +339,12 @@ HEADERS  += \
     $$PWD/foreground/Battle.hpp \
     $$PWD/foreground/MainScreen.hpp \
     $$PWD/foreground/Multi.hpp \
+    $$PWD/ui/Label.hpp \
+    $$PWD/core/Node.hpp \
+    $$PWD/core/Stateful.hpp \
+    $$PWD/core/Sprite.hpp \
+    $$PWD/action/Action.hpp \
+    $$PWD/action/MoveTo.hpp \
     $$PWD/../qt/BlacklistPassword.hpp \
     $$PWD/foreground/CharacterList.hpp \
     $$PWD/foreground/SubServer.hpp \
