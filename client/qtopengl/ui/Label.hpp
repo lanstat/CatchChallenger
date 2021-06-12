@@ -4,11 +4,14 @@
 
 #include <QGraphicsWidget>
 
+#include "../core/Node.hpp"
+
 namespace UI {
-class Label : public QGraphicsItem {
+class Label : public Node {
  public:
-  explicit Label(QGraphicsItem *parent = nullptr);
+  static Label *Create(QGraphicsItem *parent = nullptr);
   ~Label();
+
   void SetText(const QString &text);
   void SetFont(const QFont &font);
   QFont GetFont() const;
@@ -18,7 +21,6 @@ class Label : public QGraphicsItem {
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;
-  QRectF boundingRect() const override;
 
  private:
   QPainterPath *text_path_;
@@ -27,7 +29,7 @@ class Label : public QGraphicsItem {
   QString text_;
   QColor *color_;
 
-  QRectF bounding_rect_;
+  explicit Label(QGraphicsItem *parent = nullptr);
 };
-}  // namespace Ui
+}  // namespace UI
 #endif  // CLIENT_QTOPENGL_UI_LABEL_HPP_

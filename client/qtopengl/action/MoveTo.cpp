@@ -25,10 +25,9 @@ MoveTo::MoveTo() : Action() {
 
 MoveTo::~MoveTo() { Action::~Action(); }
 
-void MoveTo::Start(bool animate, bool trigger_done) {
-  CalculateDelta(animate);
+void MoveTo::Start() {
+  CalculateDelta();
   done_ = true;
-  trigger_done_ = trigger_done;
 }
 
 void MoveTo::Stop() { done_ = false; }
@@ -52,21 +51,14 @@ void MoveTo::OnFinish() {
   done_ = false;
   delta_x_ = 0;
   delta_y_ = 0;
-  if (trigger_done_) {
-    auto callback = node_->GetOnActionDone();
-    if (callback) {
-      callback(Action::Tag());
-    }
+  auto callback = node_->GetOnActionDone();
+  if (callback) {
+    callback(Action::Tag());
   }
 }
 
-void MoveTo::CalculateDelta(bool animate) {
-  if (animate) {
-    double frames = milliseconds_ / 1000 * 60;
-    delta_x_ = (end_x_ - node_->X()) / frames;
-    delta_y_ = (end_y_ - node_->Y()) / frames;
-  } else {
-    delta_x_ = INT_MAX;
-    delta_y_ = INT_MAX;
-  }
+void MoveTo::CalculateDelta() {
+  double frames = milliseconds_ / 1000 * 30;
+  delta_x_ = (end_x_ - node_->X()) / frames;
+  delta_y_ = (end_y_ - node_->Y()) / frames;
 }

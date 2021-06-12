@@ -2,57 +2,27 @@
 #include "Node.hpp"
 
 #include <QPainter>
+#include <iostream>
 
 #include "../action/Action.hpp"
+#include "ActionManager.hpp"
 
-Node::Node(QGraphicsItem *parent)
-    : QGraphicsItem(parent), on_action_done_(nullptr) {}
+Node::Node(QGraphicsItem *parent) : QGraphicsItem(parent) {
+  on_action_done_ = nullptr;
+  on_click_ = nullptr;
+  bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
+  visible_ = true;
+  action_manager_ = ActionManager::GetInstance();
+}
 
 Node::~Node() {}
 
-Node *Node::Create(QGraphicsItem *parent) {
-  Node *instance = new (std::nothrow) Node(parent);
-  return instance;
-}
-
-void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-                 QWidget *) {
-  for (auto action : actions_) {
-    action.second->Step();
-  }
-  painter->drawPixmap(x_, y_, cache_);
-}
-
-QRectF Node::boundingRect() const { return QRectF(); }
-
-void Node::SetPixmap(const QString &fileName) {}
-
-void Node::SetPixmap(const QPixmap pixmap) { cache_ = pixmap; }
-
-void Node::SetSize(int width, int height) {
-  cache_ = cache_.scaled(width, height);
-}
-
-void Node::SetPos(int x, int y) {
-  x_ = x;
-  y_ = y;
-}
-
-void Node::SetX(int x) { x_ = x; }
-
-void Node::SetY(int y) { y_ = y; }
-
-int Node::X() { return x_; }
-
-int Node::Y() { return y_; }
-
 void Node::RunAction(Action *action) {
-  action->SetTarget(this);
-  actions_[action->Tag()] = action;
+  action_manager_->AddAction(action, this, false);
 }
 
-Action* Node::GetAction(int tag) {
-  return actions_[tag];
+Action *Node::GetAction(int tag) {
+  return action_manager_->GetActionByTag(tag, this);
 }
 
 void Node::SetOnActionDone(const std::function<void(int)> &callback) {
@@ -62,3 +32,75 @@ void Node::SetOnActionDone(const std::function<void(int)> &callback) {
 const std::function<void(int)> &Node::GetOnActionDone() const {
   return on_action_done_;
 }
+
+void Node::StartAllActions() {
+  auto actions = action_manager_->GetAllActionsByTarget(this);
+  auto length = actions->size();
+  uint index = 0;
+  while (index < length) {
+    Action *action = actions->at(index);
+    action->Start();
+    index++;
+  }
+}
+
+void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                 QWidget *widget) {}
+
+QRectF Node::boundingRect() const { return bounding_rect_; }
+
+void Node::SetPos(int x, int y) { bounding_rect_.moveTo(x, y); }
+
+void Node::SetX(int x) { bounding_rect_.moveLeft(x); }
+
+void Node::SetY(int y) { bounding_rect_.moveTop(y); }
+
+int Node::X() { return bounding_rect_.x(); }
+
+int Node::Y() { return bounding_rect_.y(); }
+
+void Node::SetSize(int w, int h) {
+  bounding_rect_.setWidth(w);
+  bounding_rect_.setHeight(h);
+}
+
+void Node::SetHeight(int h) { bounding_rect_.setHeight(h); }
+
+void Node::SetWidth(int w) { bounding_rect_.setWidth(w); }
+
+int Node::Height() { return bounding_rect_.height(); }
+
+int Node::Width() { return bounding_rect_.width(); }
+
+void Node::SetVisible(bool visible) { visible_ = visible; }
+
+bool Node::IsVisible() { return visible_; }
+
+void Node::SetOnClick(const std::function<void()> &callback) {
+  on_click_ = callback;
+}
+
+void Node::MousePressEventXY(const QPointF &point, bool &press_validated) {
+  if (press_validated) return;
+  const QRectF &b = boundingRect();
+  const QRectF &t = mapRectToScene(b);
+  if (t.contains(point)) {
+    press_validated = true;
+  }
+}
+
+void Node::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
+  if (prev_validated) return;
+
+  const QRectF &b = boundingRect();
+  const QRectF &t = mapRectToScene(b);
+  if (!prev_validated && IsVisible()) {
+    if (t.contains(point)) {
+      if (on_click_) {
+        on_click_();
+      }
+    }
+  }
+}
+
+void Node::MouseMoveEventXY(const QPointF &point) {}

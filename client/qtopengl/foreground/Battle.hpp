@@ -15,8 +15,10 @@
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
 #include "../cc/ClientFightEngine.hpp"
-#include "../ui/Label.hpp"
+#include "../core/ActionManager.hpp"
 #include "../core/Sprite.hpp"
+#include "../ui/Label.hpp"
+#include "../ui/ListView.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
 class CustomButton;
@@ -40,6 +42,8 @@ class Battle : public ScreenInput {
                          bool &callParentClass) override;
   void mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
                            bool &callParentClass) override;
+  void mouseMoveEventXY(const QPointF &p, bool &pressValidated,
+                        bool &callParentClass) override;
   void stackedWidgetFightBottomBarsetCurrentWidget(int index);
 
   bool check_monsters();
@@ -62,15 +66,8 @@ class Battle : public ScreenInput {
     DoNextActionStep_Loose,
     DoNextActionStep_Win
   };
-  enum SpriteAction {
-    kEnter = 1,
-    kExit = 2,
-    kDead = 3
-  };
-  enum SpriteState {
-    kOutScreen = 0,
-    kReadyForBattle = 1
-  };
+  enum SpriteAction { kEnter = 1, kExit = 2, kDead = 3 };
+  enum SpriteState { kOutScreen = 0, kReadyForBattle = 1 };
   struct BattleInformations {
     std::string pseudo;
     uint8_t skinId;
@@ -121,9 +118,7 @@ class Battle : public ScreenInput {
   // bot
   CatchChallenger::Bot actualBot;
 
-  QTimer moveFightMonsterTopTimer;
   QTimer moveFightMonsterBothTimer;
-  QTimer doNextActionTimer;
   QTimer displayAttackTimer;
   QTimer displayExpTimer;
   QTime updateAttackTime;
@@ -134,7 +129,6 @@ class Battle : public ScreenInput {
 
   QGraphicsPixmapItem *labelFightMonsterAttackBottom;
   QGraphicsPixmapItem *labelFightMonsterAttackTop;
-  QGraphicsPixmapItem *labelFightMonsterTop;
   QGraphicsPixmapItem *labelFightTrap;
 
   QPixmap playerBackImage;
@@ -142,8 +136,7 @@ class Battle : public ScreenInput {
 
   ImagesStrechMiddle *stackedWidgetFightBottomBar;
 
-  UI::Label *testing_;
-  QGraphicsTextItem *labelFightEnter;
+  UI::Label *status_label_;
   CustomButton *pushButtonFightEnterNext;
 
   CustomButton *pushButtonFightAttack;
@@ -186,6 +179,8 @@ class Battle : public ScreenInput {
   MonsterBag *monsters_bag_;
   Sprite *player_;
   Sprite *enemy_;
+  UI::ListView *player_skills_;
+  ActionManager *action_manager_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
@@ -199,11 +194,12 @@ class Battle : public ScreenInput {
 
   void ConfigurePlayer();
   void ConfigureEnemy();
+  void ConfigureStatusLabel();
   void OnPlayerActionDone(int action_id);
   void OnEnemyActionDone(int action_id);
+  void OnStatusActionDone(int action_id);
+
   void moveFightMonsterBoth();
-  void moveFightMonsterTop();
-  void initializeText(QGraphicsTextItem *);
   void doNextAction();
   void updateCurrentMonsterInformation();
   void updateOtherMonsterInformation();

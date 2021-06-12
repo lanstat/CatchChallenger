@@ -12,7 +12,7 @@ class MoveTo : public Action {
 
   virtual void Step();
   virtual void Stop();
-  virtual void Start(bool animate = true, bool trigger_done = true);
+  virtual void Start();
   virtual bool IsDone();
 
  private:
@@ -25,7 +25,7 @@ class MoveTo : public Action {
   int milliseconds_;
 
   MoveTo();
-  void CalculateDelta(bool animate);
+  void CalculateDelta();
   void OnFinish();
 };
 #endif  // CLIENT_QTOPENGL_ACTION_MOVETO_HPP_

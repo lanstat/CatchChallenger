@@ -3,9 +3,11 @@
 
 #include <QPainter>
 
+#include "../core/Node.hpp"
+
 using UI::Label;
 
-Label::Label(QGraphicsItem *parent) : QGraphicsItem(parent) {
+Label::Label(QGraphicsItem *parent) : Node(parent) {
   font_ = new QFont();
   font_->setFamily("Comic Sans MS");
   font_->setPixelSize(25);
@@ -20,14 +22,20 @@ Label::~Label() {
   delete color_;
 }
 
-void Label::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-                  QWidget *) {
-  painter->setPen(*color_);
-  painter->setFont(*font_);
-  painter->drawText(100, 100, text_);
+Label *Label::Create(QGraphicsItem *parent) {
+  Label *instance = new (std::nothrow) Label(parent);
+  return instance;
 }
 
-QRectF Label::boundingRect() const { return bounding_rect_; }
+void Label::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                  QWidget *widget) {
+  Node::paint(painter, option, widget);
+  if (visible_) {
+    painter->setPen(*color_);
+    painter->setFont(*font_);
+    painter->drawText(X(), Y(), text_);
+  }
+}
 
 void Label::SetText(const QString &text) {
   if (this->text_ == text) return;

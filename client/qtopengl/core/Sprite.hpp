@@ -3,7 +3,6 @@
 #define CLIENT_QTOPENGL_CORE_SPRITE_HPP_
 
 #include <QGraphicsWidget>
-#include <vector>
 
 #include "Node.hpp"
 #include "Stateful.hpp"
@@ -18,11 +17,19 @@ class Sprite : public Node, public Stateful {
     int y;
   };
 
+  void SetPixmap(const QString &file_name);
+  void SetPixmap(const QPixmap pixmap);
+  void SetSize(int width, int height);
+
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+             QWidget *) override;
+
  protected:
   virtual void* StoreInternal();
   virtual void UseInternal(void* data);
 
  private:
+  QPixmap cache_;
   explicit Sprite(QGraphicsItem* parent = nullptr);
 };
 #endif  // CLIENT_QTOPENGL_CORE_SPRITE_HPP_

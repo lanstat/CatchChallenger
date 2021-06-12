@@ -13,12 +13,11 @@ class Action {
   int Tag();
   virtual void Step() {}
   virtual void Stop() {}
-  virtual void Start(bool animate = true, bool trigger_done = true) = 0;
+  virtual void Start() = 0;
   virtual bool IsDone() = 0;
 
  protected:
   Node *node_;
-  bool trigger_done_;
 
   Action();
 
