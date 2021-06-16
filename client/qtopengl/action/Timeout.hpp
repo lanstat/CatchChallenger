@@ -12,16 +12,16 @@ class Timeout : public Action {
 
   static Timeout* Create(int milliseconds);
 
-  virtual void Step();
-  virtual void Stop();
-  virtual void Start();
-  virtual bool IsDone();
+  void Step() override;
+  void Stop() override;
+  void Start() override;
+  bool IsDone() override;
 
  private:
   bool done_;
 
   uint64_t ellapsed_;
-  int timeout_;
+  uint64_t timeout_;
 
   Timeout();
   void CalculateDelta();

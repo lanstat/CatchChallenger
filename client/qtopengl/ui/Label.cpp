@@ -29,7 +29,6 @@ Label *Label::Create(QGraphicsItem *parent) {
 
 void Label::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget) {
-  Node::paint(painter, option, widget);
   if (visible_) {
     painter->setPen(*color_);
     painter->setFont(*font_);
@@ -54,3 +53,10 @@ QFont Label::GetFont() const { return *font_; }
 void Label::SetColor(const QColor &color) { *color_ = color; }
 
 QColor Label::GetColor() const { return *color_; }
+
+void Label::MousePressEventXY(const QPointF &point, bool &press_validated) {}
+
+void Label::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
+}
+
+void Label::MouseMoveEventXY(const QPointF &point) {}

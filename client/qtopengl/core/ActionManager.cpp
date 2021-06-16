@@ -3,10 +3,15 @@
 
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include "../action/Action.hpp"
 #include "Node.hpp"
 #include "uthash.h"
+
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::system_clock;
 
 typedef struct HashElement {
   Node *target;

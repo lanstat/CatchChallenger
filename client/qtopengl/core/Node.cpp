@@ -2,6 +2,7 @@
 #include "Node.hpp"
 
 #include <QPainter>
+#include <QVariant>
 #include <iostream>
 
 #include "../action/Action.hpp"
@@ -44,9 +45,6 @@ void Node::StartAllActions() {
   }
 }
 
-void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                 QWidget *widget) {}
-
 QRectF Node::boundingRect() const { return bounding_rect_; }
 
 void Node::SetPos(int x, int y) { bounding_rect_.moveTo(x, y); }
@@ -76,31 +74,14 @@ void Node::SetVisible(bool visible) { visible_ = visible; }
 
 bool Node::IsVisible() { return visible_; }
 
-void Node::SetOnClick(const std::function<void()> &callback) {
+void Node::SetEnabled(bool enabled) { QGraphicsItem::setEnabled(enabled); }
+
+bool Node::IsEnabled() const { return QGraphicsItem::isEnabled(); }
+
+void Node::SetOnClick(const std::function<void(Node *)> &callback) {
   on_click_ = callback;
 }
 
-void Node::MousePressEventXY(const QPointF &point, bool &press_validated) {
-  if (press_validated) return;
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
-  if (t.contains(point)) {
-    press_validated = true;
-  }
-}
+void Node::SetData(int role, int value) { data_[role] = value; }
 
-void Node::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
-  if (prev_validated) return;
-
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
-  if (!prev_validated && IsVisible()) {
-    if (t.contains(point)) {
-      if (on_click_) {
-        on_click_();
-      }
-    }
-  }
-}
-
-void Node::MouseMoveEventXY(const QPointF &point) {}
+int Node::Data(int role) { return data_[role]; }

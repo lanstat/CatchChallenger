@@ -16,9 +16,12 @@
 #include "../above/monster/MonsterBag.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../core/ActionManager.hpp"
+#include "../core/Node.hpp"
 #include "../core/Sprite.hpp"
+#include "../ui/Button.hpp"
 #include "../ui/Label.hpp"
 #include "../ui/ListView.hpp"
+#include "../action/Animation.hpp"
 class CCprogressbar;
 class ImagesStrechMiddle;
 class CustomButton;
@@ -54,6 +57,7 @@ class Battle : public ScreenInput {
   void setVar(ConnexionManager *connexionManager);
 
   enum BattleType { BattleType_Wild, BattleType_Bot, BattleType_OtherPlayer };
+  enum SkillData { kSkillId = 0, kSkillEndurance = 1 };
   enum BattleStep {
     BattleStep_Presentation,
     BattleStep_PresentationMonster,
@@ -66,7 +70,7 @@ class Battle : public ScreenInput {
     DoNextActionStep_Loose,
     DoNextActionStep_Win
   };
-  enum SpriteAction { kEnter = 1, kExit = 2, kDead = 3 };
+  enum SpriteAction { kEnter = 1, kExit = 2, kDead = 3, kDamage = 4 };
   enum SpriteState { kOutScreen = 0, kReadyForBattle = 1 };
   struct BattleInformations {
     std::string pseudo;
@@ -80,10 +84,7 @@ class Battle : public ScreenInput {
   void on_toolButtonFightQuit_clicked();
   void on_pushButtonFightAttack_clicked();
   void on_pushButtonFightMonster_clicked();
-  void on_pushButtonFightAttackConfirmed_clicked();
   void on_pushButtonFightReturn_clicked();
-  void on_listWidgetFightAttack_itemSelectionChanged();
-  void on_listWidgetFightAttack_itemActivated(QListWidgetItem *item);
   void displayAttack();
   void displayExperienceGain();
   void botFightFullDiffered();
@@ -148,8 +149,6 @@ class Battle : public ScreenInput {
   CustomButton *pushButtonFightAttackConfirmed;
   CustomButton *pushButtonFightReturn;
   QGraphicsTextItem *labelFightAttackDetails;
-  QGraphicsProxyWidget *listWidgetFightAttackProxy;
-  QListWidget *listWidgetFightAttack;
 
   int m_stackedWidgetFightBottomBarIndex = 0;
   uint32_t mLastGivenXP = 0;
@@ -179,14 +178,16 @@ class Battle : public ScreenInput {
   MonsterBag *monsters_bag_;
   Sprite *player_;
   Sprite *enemy_;
+  Sprite *attack_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
+
+  Animation *attack_animation_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
   std::vector<uint16_t> botFightList;
   std::vector<BattleInformations> battleInformationsList;
-  std::unordered_map<QListWidgetItem *, uint16_t> fight_attacks_graphical;
   std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemTop;
   std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemBottom;
   std::vector<uint8_t> tradeEvolutionMonsters;
@@ -198,16 +199,26 @@ class Battle : public ScreenInput {
   void OnPlayerActionDone(int action_id);
   void OnEnemyActionDone(int action_id);
   void OnStatusActionDone(int action_id);
+  UI::Button *CreateSkillButton();
+  void OnSkillClick(Node *button);
+  void ShowStatusMessage(const std::string &text, bool show_next_btn = false,
+                         bool use_timeout = true);
+  void ShowStatusMessage(const QString &text, bool show_next_btn = false,
+                         bool use_timeout = true);
+  void UpdateAttackSkills();
+  void OnMonsterSelect(uint8_t monster_index);
+  void StartAttack();
+  void OnAttackDone(int tag);
+  bool IsEnemyBeingAttacked();
+  void OnDamageDone(bool apply_on_enemy);
 
   void moveFightMonsterBoth();
   void doNextAction();
   void updateCurrentMonsterInformation();
   void updateOtherMonsterInformation();
   void updateCurrentMonsterInformationXp();
-  void updateAttackList();
   void win();
   void loose();
-  void displayText(const std::string &text);
   void resetPosition(bool outOfScreen, bool topMonster, bool bottomMonster);
   void botFightFull(const uint16_t &fightId);
   void prepareFight();
@@ -228,7 +239,6 @@ class Battle : public ScreenInput {
   void ShowBagDialog();
   void ShowMonsterDialog();
   void UseBagItem(uint16_t);
-  void on_monsterList_itemActivated(uint8_t monsterPosition);
   void monsterCatch(const bool &success);
   void displayTrap();
   void useTrap(const uint16_t &itemId);

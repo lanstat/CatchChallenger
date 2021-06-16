@@ -11,8 +11,8 @@ class Action {
   Node *Target();
   void SetTag(int tag);
   int Tag();
-  virtual void Step() {}
-  virtual void Stop() {}
+  virtual void Step() = 0;
+  virtual void Stop() = 0;
   virtual void Start() = 0;
   virtual bool IsDone() = 0;
 

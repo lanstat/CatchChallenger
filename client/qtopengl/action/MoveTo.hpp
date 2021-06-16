@@ -10,10 +10,10 @@ class MoveTo : public Action {
 
   static MoveTo* Create(int milliseconds, int x, int y);
 
-  virtual void Step();
-  virtual void Stop();
-  virtual void Start();
-  virtual bool IsDone();
+  void Step() override;
+  void Stop() override;
+  void Start() override;
+  bool IsDone() override;
 
  private:
   bool done_;

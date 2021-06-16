@@ -13,14 +13,18 @@ class ListView : public Node {
   static ListView *Create(QGraphicsItem *parent = nullptr);
   ~ListView();
 
+  /** Add an item to the listview */
   void AddItem(Node *node);
   Node *GetItem(uint8_t index);
   void RemoveItem(uint8_t index);
   Node *GetSelectedItem();
   void SetSize(int width, int height);
-  void MousePressEventXY(const QPointF &point, bool &press_validated);
-  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated);
-  void MouseMoveEventXY(const QPointF &point);
+  /** Release all items in the list */
+  void Clear();
+
+  void MousePressEventXY(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
+  void MouseMoveEventXY(const QPointF &point) override;
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;

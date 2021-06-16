@@ -20,20 +20,20 @@ MoveTo* MoveTo::Create(int milliseconds, int x, int y) {
 MoveTo::MoveTo() : Action() {
   delta_x_ = 0;
   delta_y_ = 0;
-  done_ = false;
+  done_ = true;
 }
 
 MoveTo::~MoveTo() { Action::~Action(); }
 
 void MoveTo::Start() {
   CalculateDelta();
-  done_ = true;
+  done_ = false;
 }
 
-void MoveTo::Stop() { done_ = false; }
+void MoveTo::Stop() { done_ = true; }
 
 void MoveTo::Step() {
-  if (!done_ || node_ == nullptr) return;
+  if (done_ || node_ == nullptr) return;
 
   if (std::abs(node_->X() - end_x_) > std::abs(delta_x_) ||
       std::abs(node_->Y() - end_y_) > std::abs(delta_y_)) {
@@ -48,7 +48,7 @@ void MoveTo::Step() {
 bool MoveTo::IsDone() { return done_; }
 
 void MoveTo::OnFinish() {
-  done_ = false;
+  done_ = true;
   delta_x_ = 0;
   delta_y_ = 0;
   auto callback = node_->GetOnActionDone();

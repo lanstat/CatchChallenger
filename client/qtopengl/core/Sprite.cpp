@@ -29,7 +29,6 @@ void Sprite::UseInternal(void *data) {
 
 void Sprite::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                    QWidget *widget) {
-  Node::paint(painter, option, widget);
   if (visible_) {
     painter->drawPixmap(X(), Y(), cache_);
   }
@@ -46,3 +45,28 @@ void Sprite::SetSize(int width, int height) {
   cache_ = cache_.scaled(width, height);
   Node::SetSize(width, height);
 }
+
+void Sprite::MousePressEventXY(const QPointF &point, bool &press_validated) {
+  if (press_validated) return;
+  const QRectF &b = boundingRect();
+  const QRectF &t = mapRectToScene(b);
+  if (t.contains(point)) {
+    press_validated = true;
+  }
+}
+
+void Sprite::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
+  if (prev_validated) return;
+
+  const QRectF &b = boundingRect();
+  const QRectF &t = mapRectToScene(b);
+  if (!prev_validated && IsVisible()) {
+    if (t.contains(point)) {
+      if (on_click_) {
+        on_click_(this);
+      }
+    }
+  }
+}
+
+void Sprite::MouseMoveEventXY(const QPointF &point) {}
