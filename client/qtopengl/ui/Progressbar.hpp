@@ -5,6 +5,7 @@
 #include <QGraphicsWidget>
 
 #include "../core/Node.hpp"
+#include "../action/Tick.hpp"
 
 namespace UI {
 class Progressbar : public Node {
@@ -16,31 +17,42 @@ class Progressbar : public Node {
   void SetMaximum(const int &value);
   void SetMinimum(const int &value);
   void SetValue(const int &value);
+  void IncrementValue(const int &delta, const bool &animate);
   int Maximum();
   int Minimum();
   int Value();
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;
-  QRectF boundingRect() const override;
 
-  void MousePressEventXY(const QPointF &point,
-                                 bool &press_validated) override;
-  void MouseReleaseEventXY(const QPointF &point,
-                                   bool &prev_validated) override;
+  void MousePressEventXY(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
   void MouseMoveEventXY(const QPointF &point) override;
 
  private:
-  QPixmap backgroundLeft, backgroundMiddle, backgroundRight;
-  QPixmap barLeft, barMiddle, barRight;
-  QPainterPath *textPath;
-  QFont *font;
+  QPixmap background_left_;
+  QPixmap background_middle_;
+  QPixmap background_right_;
+  QPixmap bar_left_;
+  QPixmap bar_middle_;
+  QPixmap bar_right_;
+  QPainterPath *text_path_;
+  QFont *font_;
   QString oldText;
-  QPixmap *cache;
+  QPixmap *cache_;
 
-  int m_value, m_min, m_max;
+  int value_;
+  int min_;
+  int max_;
+  int delta_value_;
+  int internal_value_;
+  unsigned int increment_times_;
+
+  Tick *tick_;
 
   explicit Progressbar(QGraphicsItem *parent = nullptr);
+
+  bool OnTick();
 };
 }  // namespace UI
 

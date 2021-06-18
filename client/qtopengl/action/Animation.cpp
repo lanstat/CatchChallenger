@@ -2,15 +2,10 @@
 #include "Animation.hpp"
 
 #include <QPainter>
-#include <chrono>
 
 #include "../core/Node.hpp"
 #include "../core/Sprite.hpp"
 #include "Action.hpp"
-
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::system_clock;
 
 Animation* Animation::Create(std::vector<QPixmap> frames, int delay,
                              unsigned int loop) {
@@ -23,33 +18,30 @@ Animation* Animation::Create(std::vector<QPixmap> frames, int delay,
   return instance;
 }
 
-Animation::Animation() : Action() { done_ = false; }
+Animation::Animation() : Action() { done_ = true; }
 
 Animation::~Animation() { Action::~Action(); }
 
 void Animation::Start() {
-  ellapsed_ =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
+  ellapsed_ = 0;
   index_ = 0;
-  done_ = true;
+  done_ = false;
 }
 
-void Animation::Stop() { done_ = false; }
+void Animation::Stop() { done_ = true; }
 
-void Animation::Step() {
-  if (!done_ || node_ == nullptr) return;
-  uint64_t now =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
+void Animation::Step(unsigned int ellapsed) {
+  if (done_ || node_ == nullptr) return;
+  ellapsed_ += ellapsed;
 
-  if (now < ellapsed_ + delay_) return;
+  if (ellapsed_ < delay_) return;
 
-  ellapsed_ = now;
+  ellapsed_ -= delay_;
 
-  (static_cast<Sprite*>(node_))->SetPixmap(frames_.at(index_));
+  //(static_cast<Sprite*>(node_))->SetPixmap(frames_.at(index_));
   index_++;
-  if (frames_.size() == index_) {
+  //if (frames_.size() == index_) {
+  if (10 == index_) {
     OnFinish();
   }
 }
@@ -57,7 +49,7 @@ void Animation::Step() {
 bool Animation::IsDone() { return done_; }
 
 void Animation::OnFinish() {
-  done_ = false;
+  done_ = true;
   auto callback = node_->GetOnActionDone();
   if (callback) {
     callback(Action::Tag());

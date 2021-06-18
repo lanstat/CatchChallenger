@@ -35,7 +35,7 @@ void Sequence::Stop() {
   actions_.at(current_)->Stop();
 }
 
-void Sequence::Step() {
+void Sequence::Step(unsigned int ellapsed) {
   if (done_ || node_ == nullptr) return;
 
   if (actions_.at(current_)->IsDone()) {

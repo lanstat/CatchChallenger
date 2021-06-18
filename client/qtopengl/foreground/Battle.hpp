@@ -14,6 +14,10 @@
 #include "../above/MessageDialog.hpp"
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
+#include "../action/Animation.hpp"
+#include "../action/MoveTo.hpp"
+#include "../action/Timeout.hpp"
+#include "../action/Blink.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../core/ActionManager.hpp"
 #include "../core/Node.hpp"
@@ -21,7 +25,8 @@
 #include "../ui/Button.hpp"
 #include "../ui/Label.hpp"
 #include "../ui/ListView.hpp"
-#include "../action/Animation.hpp"
+#include "../ui/Progressbar.hpp"
+
 class CCprogressbar;
 class ImagesStrechMiddle;
 class CustomButton;
@@ -70,8 +75,14 @@ class Battle : public ScreenInput {
     DoNextActionStep_Loose,
     DoNextActionStep_Win
   };
-  enum SpriteAction { kEnter = 1, kExit = 2, kDead = 3, kDamage = 4 };
-  enum SpriteState { kOutScreen = 0, kReadyForBattle = 1 };
+
+  enum SpriteStatus {
+    kStatusEnter = 0,
+    kStatusExit = 1,
+    kStatusDead = 2,
+    kStatusDamage = 3
+  };
+  enum SpriteLocation { kOutScreen = 0, kReadyForBattle = 1 };
   struct BattleInformations {
     std::string pseudo;
     uint8_t skinId;
@@ -96,14 +107,11 @@ class Battle : public ScreenInput {
   ImagesStrechMiddle *frameFightBottom;
   QList<QListWidgetItem *> bottomBuff;
   QGraphicsTextItem *labelFightBottomName;
-  CCprogressbar *progressBarFightBottomHP;
-  CCprogressbar *progressBarFightBottomExp;
 
   ImagesStrechMiddle *frameFightTop;
   QList<QListWidgetItem *> topBuff;
   QGraphicsTextItem *labelFightTopName;
   QGraphicsTextItem *labelFightBottomLevel;
-  CCprogressbar *progressBarFightTopHP;
 
   QGraphicsPixmapItem *labelFightBackground;
   QPixmap labelFightBackgroundPix;
@@ -176,13 +184,31 @@ class Battle : public ScreenInput {
 
   Inventory *inventory_;
   MonsterBag *monsters_bag_;
-  Sprite *player_;
-  Sprite *enemy_;
-  Sprite *attack_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
 
+  // Player
+  Sprite *player_;
+  MoveTo *player_enter_;
+  MoveTo *player_exit_;
+  MoveTo *player_dead_;
+  CCprogressbar *progressBarFightBottomHP;
+  CCprogressbar *progressBarFightBottomExp;
+
+  // Enemy
+  Sprite *enemy_;
+  MoveTo *enemy_enter_;
+  MoveTo *enemy_exit_;
+  MoveTo *enemy_dead_;
+  UI::Progressbar *enemy_hp_bar_;
+
+  // Attack
+  Sprite *attack_;
   Animation *attack_animation_;
+
+  // Commons
+  Blink *sprite_damage_;
+  Timeout *status_timeout_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
@@ -195,7 +221,7 @@ class Battle : public ScreenInput {
 
   void ConfigurePlayer();
   void ConfigureEnemy();
-  void ConfigureStatusLabel();
+  void ConfigureCommons();
   void OnPlayerActionDone(int action_id);
   void OnEnemyActionDone(int action_id);
   void OnStatusActionDone(int action_id);
@@ -209,8 +235,7 @@ class Battle : public ScreenInput {
   void OnMonsterSelect(uint8_t monster_index);
   void StartAttack();
   void OnAttackDone(int tag);
-  bool IsEnemyBeingAttacked();
-  void OnDamageDone(bool apply_on_enemy);
+  void OnDamageDone();
 
   void moveFightMonsterBoth();
   void doNextAction();
@@ -242,10 +267,8 @@ class Battle : public ScreenInput {
   void monsterCatch(const bool &success);
   void displayTrap();
   void useTrap(const uint16_t &itemId);
+  void newError(std::string error, std::string detailedError);
  private slots:
   void error(std::string error);
-
- signals:
-  void newError(std::string error, std::string detailedError);
 };
 #endif  // MULTI_H

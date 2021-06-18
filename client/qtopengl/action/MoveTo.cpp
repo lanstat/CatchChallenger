@@ -32,7 +32,7 @@ void MoveTo::Start() {
 
 void MoveTo::Stop() { done_ = true; }
 
-void MoveTo::Step() {
+void MoveTo::Step(unsigned int ellapsed) {
   if (done_ || node_ == nullptr) return;
 
   if (std::abs(node_->X() - end_x_) > std::abs(delta_x_) ||

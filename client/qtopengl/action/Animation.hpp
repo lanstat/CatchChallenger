@@ -18,7 +18,7 @@ class Animation : public Action {
 
   void SetFrames(std::vector<QPixmap> frames);
 
-  void Step() override;
+  void Step(unsigned int ellapsed) override;
   void Stop() override;
   void Start() override;
   bool IsDone() override;

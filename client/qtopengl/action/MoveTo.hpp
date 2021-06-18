@@ -10,7 +10,7 @@ class MoveTo : public Action {
 
   static MoveTo* Create(int milliseconds, int x, int y);
 
-  void Step() override;
+  void Step(unsigned int ellapsed) override;
   void Stop() override;
   void Start() override;
   bool IsDone() override;

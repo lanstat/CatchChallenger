@@ -257,6 +257,7 @@ SOURCES += \
     $$PWD/ui/Label.cpp \
     $$PWD/ui/ListView.cpp \
     $$PWD/ui/Button.cpp \
+    $$PWD/ui/Progressbar.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -266,6 +267,8 @@ SOURCES += \
     $$PWD/action/Timeout.cpp \
     $$PWD/action/Animation.cpp \
     $$PWD/action/Sequence.cpp \
+    $$PWD/action/Tick.cpp \
+    $$PWD/action/Blink.cpp \
     $$PWD/../qt/BlacklistPassword.cpp \
     $$PWD/foreground/CharacterList.cpp \
     $$PWD/foreground/SubServer.cpp \
@@ -348,6 +351,7 @@ HEADERS  += \
     $$PWD/ui/Label.hpp \
     $$PWD/ui/ListView.hpp \
     $$PWD/ui/Button.hpp \
+    $$PWD/ui/Progressbar.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \
@@ -358,6 +362,8 @@ HEADERS  += \
     $$PWD/action/Timeout.hpp \
     $$PWD/action/Animation.hpp \
     $$PWD/action/Sequence.hpp \
+    $$PWD/action/Tick.hpp \
+    $$PWD/action/Blink.hpp \
     $$PWD/../qt/BlacklistPassword.hpp \
     $$PWD/foreground/CharacterList.hpp \
     $$PWD/foreground/SubServer.hpp \

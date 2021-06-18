@@ -14,7 +14,7 @@ class Sequence : public Action {
 
   static Sequence* Create(const vector<Action*>& actions);
 
-  void Step() override;
+  void Step(unsigned int ellapsed) override;
   void Stop() override;
   void Start() override;
   bool IsDone() override;

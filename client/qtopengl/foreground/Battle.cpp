@@ -21,6 +21,7 @@
 #include "../action/Animation.hpp"
 #include "../action/MoveTo.hpp"
 #include "../action/Timeout.hpp"
+#include "../action/Blink.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 #include "../core/ActionManager.hpp"
@@ -28,6 +29,7 @@
 #include "../ui/Button.hpp"
 #include "../ui/Label.hpp"
 #include "../ui/ListView.hpp"
+#include "../ui/Progressbar.hpp"
 
 using namespace CatchChallenger;
 using CatchChallenger::PublicPlayerMonster;
@@ -66,7 +68,7 @@ Battle::Battle() {
   frameFightTop =
       new ImagesStrechMiddle(28, ":/CC/images/interface/b1.png", this);
   labelFightTopName = new QGraphicsTextItem(frameFightTop);
-  progressBarFightTopHP = new CCprogressbar(frameFightTop);
+  enemy_hp_bar_ = UI::Progressbar::Create(frameFightTop);
 
   labelFightMonsterAttackBottom = new QGraphicsPixmapItem(this);
   labelFightMonsterAttackTop = new QGraphicsPixmapItem(this);
@@ -312,8 +314,8 @@ void Battle::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   frameFightTop->setSize(400, 170);
   labelFightTopName->setPos(20, 20);
   labelFightBottomLevel->setPos(300, 20);
-  progressBarFightTopHP->setPos(20, 60);
-  progressBarFightTopHP->setSize(frameFightTop->width() - 40, 44);
+  enemy_hp_bar_->SetPos(20, 60);
+  enemy_hp_bar_->SetSize(frameFightTop->width() - 40, 44);
 
   labelFightMonsterAttackBottom->setPos(finalX + 60 * minRatio,
                                         finalY + 280 * minRatio);
@@ -757,7 +759,7 @@ bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
                                  const uint8_t &y) {
   ConfigurePlayer();
   ConfigureEnemy();
-  ConfigureStatusLabel();
+  ConfigureCommons();
 
   this->map = map;
   if (!client_->isInFight()) {
@@ -1027,7 +1029,7 @@ void Battle::on_pushButtonFightEnterNext_clicked() {
   switch (battleStep) {
     case BattleStep_Presentation:
       if (client_->isInFightWithWild()) {
-        player_->GetAction(kExit)->Start();
+        player_->RunAction(player_exit_);
       } else {
         moveType = MoveType_Leave;
         moveFightMonsterBoth();
@@ -1038,7 +1040,7 @@ void Battle::on_pushButtonFightEnterNext_clicked() {
       init_current_monster_display(nullptr);
       frameFightTop->show();
       frameFightBottom->show();
-      player_->GetAction(kEnter)->Start();
+      player_->RunAction(player_enter_);
       PlayerMonster *monster = client_->getCurrentMonster();
       if (monster != NULL) {
         ShowStatusMessage(
@@ -1255,9 +1257,8 @@ void Battle::updateOtherMonsterInformation() {
     Monster::Stat otherStat = ClientFightEngine::getStat(
         CommonDatapack::commonDatapack.monsters.at(otherMonster->monster),
         otherMonster->level);
-    progressBarFightTopHP->setMaximum(otherStat.hp);
-    progressBarFightTopHP->setValue(otherMonster->hp);
-    // progressBarFightTopHP->repaint();
+    enemy_hp_bar_->SetMaximum(otherStat.hp);
+    enemy_hp_bar_->SetValue(otherMonster->hp);
     // do the buff
     {
       buffToGraphicalItemTop.clear();
@@ -1509,12 +1510,12 @@ void Battle::loose() {
   }
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster != NULL) {
-    if ((int)otherMonster->hp != progressBarFightTopHP->value()) {
+    if ((int)otherMonster->hp != enemy_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (loose && otherMonster): %1!=%2")
               .arg(otherMonster->hp)
-              .arg(progressBarFightTopHP->value())
+              .arg(enemy_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -1577,11 +1578,11 @@ void Battle::win() {
   }
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster != NULL)
-    if ((int)otherMonster->hp != progressBarFightTopHP->value()) {
+    if ((int)otherMonster->hp != enemy_hp_bar_->Value()) {
       emit error(QStringLiteral("Current monster damage don't match with the "
                                 "internal value (win && otherMonster): %1!=%2")
                      .arg(otherMonster->hp)
-                     .arg(progressBarFightTopHP->value())
+                     .arg(enemy_hp_bar_->Value())
                      .toStdString());
       return;
     }
@@ -2396,10 +2397,9 @@ void Battle::doNextAction() {
     PublicPlayerMonster *otherMonster = client_->getOtherMonster();
     if (otherMonster) {
       qDebug() << "doNextAction(): apply the effect and display it";
-      displayAttack();
-    }
-    // do the monster change
-    else if (returnAction.publicPlayerMonster.monster != 0) {
+      StartAttack();
+    } else if (returnAction.publicPlayerMonster.monster !=
+               0) {  // do the monster change
       if (!client_->addBattleMonster(returnAction.monsterPlace,
                                      returnAction.publicPlayerMonster))
         return;
@@ -2409,9 +2409,9 @@ void Battle::doNextAction() {
       updateOtherMonsterInformation();
       resetPosition(true, true, false);
       battleStep = BattleStep_Middle;
-      enemy_->GetAction(kEnter)->Start();
+      enemy_->RunAction(enemy_enter_);
     } else {
-      emit newError("Internal bug", "No other monster to display attack");
+      newError("Internal bug", "No other monster to display attack");
     }
     return;
   }
@@ -2448,7 +2448,7 @@ void Battle::doNextAction() {
                     .name)),
         false, false);
     doNextActionStep = DoNextActionStep_Start;
-    player_->GetAction(kDead)->Start();
+    player_->RunAction(player_dead_);
     return;
   }
 
@@ -2489,11 +2489,11 @@ void Battle::doNextAction() {
           return;
         }
       if (otherMonster != NULL)
-        if ((int)otherMonster->hp != progressBarFightTopHP->value()) {
+        if ((int)otherMonster->hp != enemy_hp_bar_->Value()) {
           emit error(QStringLiteral("Other monster hp don't match with the "
                                     "internal value (do next action): %1!=%2")
                          .arg(otherMonster->hp)
-                         .arg(progressBarFightTopHP->value())
+                         .arg(enemy_hp_bar_->Value())
                          .toStdString());
           return;
         }
@@ -2514,7 +2514,7 @@ void Battle::doNextAction() {
         false, false);
     doNextActionStep = DoNextActionStep_Start;
     // current player monster is KO
-    enemy_->GetAction(kDead)->Start();
+    enemy_->RunAction(enemy_dead_);
     return;
   }
 
@@ -2550,12 +2550,12 @@ void Battle::doNextAction() {
                      .toStdString());
       return;
     }
-    if ((int)otherMonster->hp != progressBarFightTopHP->value()) {
+    if ((int)otherMonster->hp != enemy_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Other monster damage don't match with the internal "
                          "value (doNextAction && otherMonster): %1!=%2")
               .arg(otherMonster->hp)
-              .arg(progressBarFightTopHP->value())
+              .arg(enemy_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -2567,6 +2567,7 @@ void Battle::doNextAction() {
 bool Battle::displayFirstAttackText(bool firstText) {
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
+  qDebug() << "aaaa";
   if (otherMonster == NULL) {
     error(
         "displayAttack(): crash: unable to get the other monster to display an "
@@ -2586,14 +2587,6 @@ bool Battle::displayFirstAttackText(bool firstText) {
     return false;
   }
   const Skill::AttackReturn currentAttack = client_->getFirstAttackReturn();
-  // TODO(lanstat): verificar como mostrar gif
-  /*
-    if (movie != NULL) {
-      movie->stop();
-      delete movie;
-    }
-    movie = NULL;
-    */
   qDebug()
       << QStringLiteral(
              "displayFirstAttackText(): before display text, "
@@ -2672,6 +2665,7 @@ bool Battle::displayFirstAttackText(bool firstText) {
                                 .name));
     }
   }
+
 
   // the life effect
   if (!currentAttack.lifeEffectMonster.empty()) {
@@ -2767,6 +2761,8 @@ bool Battle::displayFirstAttackText(bool firstText) {
                .arg(connexionManager->client->getAttackReturnList().size());
     return true;
   }
+
+  qDebug() << "llego aqui";
 
   // the add buff
   if (!currentAttack.addBuffEffectMonster.empty()) {
@@ -3269,7 +3265,7 @@ void Battle::displayAttack() {
   }
   int hp_to_change;
   if (applyOnOtherMonster)
-    hp_to_change = progressBarFightTopHP->maximum() / 200;  // 0.5%
+    hp_to_change = enemy_hp_bar_->Maximum() / 200;  // 0.5%
   else
     hp_to_change = progressBarFightBottomHP->maximum() / 200;  // 0.5%
   if (hp_to_change == 0) hp_to_change = 1;
@@ -3279,7 +3275,7 @@ void Battle::displayAttack() {
     {
       int hp_to_change;
       if (applyOnOtherMonster)
-        hp_to_change = progressBarFightTopHP->maximum();
+        hp_to_change = enemy_hp_bar_->Maximum();
       else
         hp_to_change = progressBarFightBottomHP->maximum();
       if (attackReturn.lifeEffectMonster.empty())
@@ -3291,7 +3287,7 @@ void Battle::displayAttack() {
       if (hp_to_change != 0) {
         client_->firstLifeEffectQuantityChange(-hp_to_change);
         if (applyOnOtherMonster) {
-          progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
+          enemy_hp_bar_->SetValue(enemy_hp_bar_->Value() +
                                           hp_to_change);
         } else {
           progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
@@ -3312,7 +3308,7 @@ void Battle::displayAttack() {
                  << progressBarFightBottomHP->value() << "and buff"
                  << bottomBuff->count();
         qDebug() << "after display attack: otherMonster have hp"
-                 << progressBarFightTopHP->value() << "and buff"
+                 << enemy_hp_bar_->value() << "and buff"
                  << topBuff->count();
       }
 #endif
@@ -3321,6 +3317,8 @@ void Battle::displayAttack() {
     // attack is finish
     doNextAction();
   } else {
+    qDebug() << "Effective: "
+             << attackReturn.lifeEffectMonster.front().quantity;
     if (attackReturn.lifeEffectMonster.empty()) {
       hp_to_change = 0;
     } else if (attackReturn.lifeEffectMonster.front().quantity < 0) {
@@ -3337,7 +3335,7 @@ void Battle::displayAttack() {
     if (hp_to_change != 0) {
       client_->firstLifeEffectQuantityChange(-hp_to_change);
       if (applyOnOtherMonster) {
-        progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
+        enemy_hp_bar_->SetValue(enemy_hp_bar_->Value() +
                                         hp_to_change);
       } else {
         progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
@@ -3442,6 +3440,7 @@ void Battle::UseBagItem(uint16_t item) {
 }
 
 QPixmap Battle::getFrontSkin(const std::string &skinName) {
+  (void)skinName;
   /*
     if(frontSkinCacheString.find(skinName)!=frontSkinCacheString.cend())
         return frontSkinCacheString.at(skinName);
@@ -3475,17 +3474,12 @@ void Battle::ConfigurePlayer() {
   player_->SetPos(60, 290);
   player_->StoreState(kReadyForBattle);
 
-  auto move_to = MoveTo::Create(1500, -150, 290);
-  move_to->SetTag(kExit);
-  player_->RunAction(move_to);
-
-  move_to = MoveTo::Create(2500, 60, 290);
-  move_to->SetTag(kEnter);
-  player_->RunAction(move_to);
-
-  move_to = MoveTo::Create(1500, -400, 290);
-  move_to->SetTag(kDead);
-  player_->RunAction(move_to);
+  player_exit_ = MoveTo::Create(1500, -400, 290);
+  player_exit_->SetTag(kStatusExit);
+  player_dead_ = MoveTo::Create(1500, -400, 290);
+  player_dead_->SetTag(kStatusDead);
+  player_enter_ = MoveTo::Create(2500, 60, 290);
+  player_enter_->SetTag(kStatusEnter);
 
   player_->SetOnActionDone(std::bind(&Battle::OnPlayerActionDone, this, _1));
 }
@@ -3497,33 +3491,37 @@ void Battle::ConfigureEnemy() {
   enemy_->SetPos(910, 90);
   enemy_->StoreState(kReadyForBattle);
 
-  auto move_to = MoveTo::Create(1500, 1500, 90);
-  move_to->SetTag(kExit);
-  enemy_->RunAction(move_to);
+  enemy_exit_ = MoveTo::Create(1500, 1500, 90);
+  enemy_exit_->SetTag(kStatusExit);
+  enemy_dead_ = MoveTo::Create(1500, 1500, 90);
+  enemy_dead_->SetTag(kStatusDead);
+  enemy_enter_ = MoveTo::Create(1500, 910, 90);
+  enemy_enter_->SetTag(kStatusEnter);
 
-  move_to = MoveTo::Create(1500, 910, 90);
-  move_to->SetTag(kEnter);
-  enemy_->RunAction(move_to);
-
-  move_to = MoveTo::Create(1500, 1500, 90);
-  move_to->SetTag(kDead);
-  enemy_->RunAction(move_to);
   enemy_->SetOnActionDone(std::bind(&Battle::OnEnemyActionDone, this, _1));
 }
 
-void Battle::ConfigureStatusLabel() {
-  auto timeout = Timeout::Create(1500);
-  status_label_->RunAction(timeout);
+void Battle::ConfigureCommons() {
+  status_timeout_ = Timeout::Create(1500);
 
   status_label_->SetOnActionDone(
       std::bind(&Battle::OnStatusActionDone, this, _1));
+
+  sprite_damage_ = Blink::Create(100, 10);
+  sprite_damage_->SetTag(kStatusDamage);
+
+  attack_ = Sprite::Create(this);
+  attack_->SetOnActionDone(std::bind(&Battle::OnAttackDone, this, _1));
+
+  std::vector<QPixmap> frames;
+  attack_animation_ = Animation::Create(frames, 100);
 }
 
-void Battle::OnPlayerActionDone(int action_tag) {
-  if (action_tag == kEnter) {
+void Battle::OnPlayerActionDone(int tag) {
+  if (tag == kStatusEnter) {
     updateCurrentMonsterInformation();
     doNextAction();
-  } else if (action_tag == kExit) {
+  } else if (tag == kStatusExit) {
     updateCurrentMonsterInformation();
     updateCurrentMonsterInformationXp();
     if (battleStep == BattleStep_Presentation) {
@@ -3540,9 +3538,9 @@ void Battle::OnPlayerActionDone(int action_tag) {
           QtDatapackClientLoader::datapackLoader->monsterExtra
               .at(monster->monster)
               .name)));
-      player_->GetAction(kEnter)->Start();
+      player_->RunAction(player_enter_);
     }
-  } else if (action_tag == kDead) {
+  } else if (tag == kStatusDead) {
     client_->dropKOCurrentMonster();
     if (client_->haveAnotherMonsterOnThePlayerToFight()) {
       if (client_->isInFight()) {
@@ -3555,30 +3553,31 @@ void Battle::OnPlayerActionDone(int action_tag) {
 #ifdef DEBUG_CLIENT_BATTLE
         qDebug() << "You win";
 #endif
-        ShowStatusMessage(tr("You win!"));
         doNextActionStep = DoNextActionStep_Win;
+        ShowStatusMessage(tr("You win!"), false, true);
       }
     } else {
 #ifdef DEBUG_CLIENT_BATTLE
       qDebug() << "You lose";
 #endif
-      ShowStatusMessage(tr("You lose!"));
       doNextActionStep = DoNextActionStep_Loose;
+      ShowStatusMessage(tr("You lose!"), false, true);
     }
+  } else if (tag == kStatusDamage) {
+    OnDamageDone();
   }
 }
 
-void Battle::OnEnemyActionDone(int action_id) {
-  if (action_id == kEnter) {
+void Battle::OnEnemyActionDone(int tag) {
+  if (tag == kStatusEnter) {
     updateOtherMonsterInformation();
     doNextAction();
-  } else if (action_id == kExit) {
+  } else if (tag == kStatusExit) {
     updateOtherMonsterInformation();
     doNextAction();
-  } else if (action_id == kDead) {
+  } else if (tag == kStatusDead) {
     client_->dropKOOtherMonster();
     if (client_->isInFight()) {
-      qDebug() << "asssqqqq";
       if (client_->isInBattle() && !client_->haveBattleOtherMonster()) {
         ShowStatusMessage(tr("In waiting of other monster selection"), false,
                           false);
@@ -3603,7 +3602,7 @@ void Battle::OnEnemyActionDone(int action_id) {
         status = tr("The other player call %1").arg(tr("(Unknown monster)"));
       ShowStatusMessage(status, false, false);
       resetPosition(true, true, false);
-      enemy_->GetAction(kEnter)->Start();
+      enemy_->RunAction(enemy_enter_);
     } else {
       qDebug() << "doNextAction(): you win";
       doNextActionStep = DoNextActionStep_Win;
@@ -3626,11 +3625,13 @@ void Battle::OnEnemyActionDone(int action_id) {
         doNextAction();
       }
     }
+  } else if (tag == kStatusDamage) {
+    OnDamageDone();
   }
 }
 
-void Battle::OnStatusActionDone(int action_tag) {
-  (void)action_tag;
+void Battle::OnStatusActionDone(int tag) {
+  (void)tag;
   doNextAction();
 }
 
@@ -3649,10 +3650,10 @@ void Battle::OnSkillClick(Node *button) {
         tr("Sorry but the client wait more data from the server to do it"));
     return;
   }
-  const uint8_t skillEndurance =
+  const uint8_t skill_endurance =
       static_cast<uint8_t>(button->Data(kSkillEndurance));
-  const uint16_t skillUsed = button->Data(kSkillId);
-  if (skillEndurance <= 0 && !useTheRescueSkill) {
+  const uint16_t skill_used = button->Data(kSkillId);
+  if (skill_endurance <= 0 && !useTheRescueSkill) {
     ShowMessageDialog(tr("No endurance"),
                       tr("You have no more endurance to use this skill"));
     return;
@@ -3669,7 +3670,7 @@ void Battle::OnSkillClick(Node *button) {
   if (useTheRescueSkill)
     client_->useSkill(0);
   else
-    client_->useSkill(skillUsed);
+    client_->useSkill(skill_used);
   UpdateAttackSkills();
   displayAttackProgression = 0;
   attack_quantity_changed = 0;
@@ -3691,7 +3692,7 @@ void Battle::ShowStatusMessage(const QString &text, bool show_next_btn,
   stackedWidgetFightBottomBarsetCurrentWidget(0);
   status_label_->SetText(text);
   if (use_timeout) {
-    status_label_->StartAllActions();
+    status_label_->RunAction(status_timeout_);
     pushButtonFightEnterNext->setVisible(false);
     return;
   }
@@ -3789,7 +3790,7 @@ void Battle::OnMonsterSelect(uint8_t monster_index) {
     player_->SetPixmap(QPixmap(":/CC/images/monsters/default/back.png"));
   }
   battleStep = BattleStep_Presentation;
-  player_->GetAction(kEnter)->Start();
+  player_->RunAction(player_enter_);
 }
 
 void Battle::StartAttack() {
@@ -3811,7 +3812,40 @@ void Battle::StartAttack() {
     return;
   }
 
-  bool apply_on_enemy = IsEnemyBeingAttacked();
+  const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
+  // get the life effect to display
+  Skill::LifeEffectReturn life_effect_return;
+  if (!attack_return.lifeEffectMonster.empty()) {
+    life_effect_return = attack_return.lifeEffectMonster.front();
+  } else if (!attack_return.buffLifeEffectMonster.empty()) {
+    life_effect_return = attack_return.buffLifeEffectMonster.front();
+  } else {
+    error(QStringLiteral(
+                 "displayAttack(): strange: nothing to display, "
+                 "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
+                 "%2, addBuffEffectMonster.size(): %3, "
+                 "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
+                 .arg(attack_return.lifeEffectMonster.size())
+                 .arg(attack_return.buffLifeEffectMonster.size())
+                 .arg(attack_return.addBuffEffectMonster.size())
+                 .arg(attack_return.removeBuffEffectMonster.size())
+                 .arg(client_->getAttackReturnList().size())
+                 .toStdString());
+    client_->removeTheFirstAttackReturn();
+    // doNextAction();
+    return;
+  }
+
+  bool apply_on_enemy = false;
+  if (attack_return.doByTheCurrentMonster) {
+    if ((life_effect_return.on == ApplyOn::ApplyOn_AloneEnemy) ||
+        (life_effect_return.on == ApplyOn::ApplyOn_AllEnemy))
+      apply_on_enemy = true;
+  } else {
+    if ((life_effect_return.on == ApplyOn::ApplyOn_Themself) ||
+        (life_effect_return.on == ApplyOn::ApplyOn_AllAlly))
+      apply_on_enemy = true;
+  }
   if (apply_on_enemy)
     attack_->SetPos(enemy_->X(), enemy_->Y());
   else
@@ -3831,13 +3865,17 @@ void Battle::StartAttack() {
       attack_animation_->SetFrames(frames);
     }
   }
+  qDebug() << "bless";
 
   displayFirstAttackText(true);
-  attack_->StartAllActions();
+
+  attack_->SetVisible(true);
+  attack_->RunAction(attack_animation_);
 }
 
 void Battle::OnAttackDone(int tag) {
   (void)tag;
+  attack_->SetVisible(false);
   if (client_->getAttackReturnList().empty()) {
     newError(tr("Internal error").toStdString() + ", file: " +
                  std::string(__FILE__) + ":" + std::to_string(__LINE__),
@@ -3868,48 +3906,6 @@ void Battle::OnAttackDone(int tag) {
     return;
   }
 
-  bool apply_on_enemy = IsEnemyBeingAttacked();
-  const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
-
-  if (apply_on_enemy) {
-    enemy_->GetAction(kDamage)->Start();
-  } else {
-    player_->GetAction(kDamage)->Start();
-  }
-  int hp_to_change;
-  if (apply_on_enemy)
-    hp_to_change = progressBarFightTopHP->maximum() / 200;  // 0.5%
-  else
-    hp_to_change = progressBarFightBottomHP->maximum() / 200;  // 0.5%
-  if (hp_to_change == 0) hp_to_change = 1;
-
-  // Verificar si este comportamiento lo hace por partes o de una
-  if (attack_return.lifeEffectMonster.empty()) {
-    hp_to_change = 0;
-  } else if (attack_return.lifeEffectMonster.front().quantity < 0) {
-    hp_to_change = -hp_to_change;
-    if (abs(hp_to_change) >
-        abs(attack_return.lifeEffectMonster.front().quantity))
-      hp_to_change = attack_return.lifeEffectMonster.front().quantity;
-  } else if (attack_return.lifeEffectMonster.front().quantity > 0) {
-    if (hp_to_change > attack_return.lifeEffectMonster.front().quantity)
-      hp_to_change = attack_return.lifeEffectMonster.front().quantity;
-  } else {
-    hp_to_change = 0;
-  }
-  if (hp_to_change != 0) {
-    client_->firstLifeEffectQuantityChange(-hp_to_change);
-    if (apply_on_enemy) {
-      progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
-                                      hp_to_change);
-    } else {
-      progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
-                                         hp_to_change);
-    }
-  }
-}
-
-bool Battle::IsEnemyBeingAttacked() {
   const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
   // get the life effect to display
   Skill::LifeEffectReturn life_effect_return;
@@ -3918,9 +3914,7 @@ bool Battle::IsEnemyBeingAttacked() {
   } else if (!attack_return.buffLifeEffectMonster.empty()) {
     life_effect_return = attack_return.buffLifeEffectMonster.front();
   } else {
-    newError(tr("Internal error").toStdString() + ", file: " +
-                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
-             QStringLiteral(
+    error(QStringLiteral(
                  "displayAttack(): strange: nothing to display, "
                  "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
                  "%2, addBuffEffectMonster.size(): %3, "
@@ -3933,6 +3927,7 @@ bool Battle::IsEnemyBeingAttacked() {
                  .toStdString());
     client_->removeTheFirstAttackReturn();
     // doNextAction();
+    return;
   }
 
   bool apply_on_enemy = false;
@@ -3945,36 +3940,27 @@ bool Battle::IsEnemyBeingAttacked() {
         (life_effect_return.on == ApplyOn::ApplyOn_AllAlly))
       apply_on_enemy = true;
   }
+  if (apply_on_enemy) {
+    enemy_->RunAction(sprite_damage_);
+  } else {
+    player_->RunAction(sprite_damage_);
+  }
 
-  return apply_on_enemy;
-}
-
-void Battle::OnDamageDone(bool apply_on_enemy) {
-  const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
-  // only if passe here before have updated all the stats
-  {
-    int hp_to_change;
-    if (apply_on_enemy)
-      hp_to_change = progressBarFightTopHP->maximum();
-    else
-      hp_to_change = progressBarFightBottomHP->maximum();
-    if (attack_return.lifeEffectMonster.empty())
-      hp_to_change = 0;
-    else if (attack_return.lifeEffectMonster.front().quantity != 0)
-      hp_to_change = attack_return.lifeEffectMonster.front().quantity;
-    else
-      hp_to_change = 0;
+  if (!attack_return.lifeEffectMonster.empty()) {
+    int hp_to_change = attack_return.lifeEffectMonster.front().quantity;
     if (hp_to_change != 0) {
       client_->firstLifeEffectQuantityChange(-hp_to_change);
       if (apply_on_enemy) {
-        progressBarFightTopHP->setValue(progressBarFightTopHP->value() +
-                                        hp_to_change);
+        enemy_hp_bar_->IncrementValue(hp_to_change, true);
       } else {
-        progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
-                                           hp_to_change);
+        // progressBarFightBottomHP->IncrementValue(-hp_to_change);
       }
     }
   }
+}
+
+void Battle::OnDamageDone() {
+  const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
   if (!attack_return.lifeEffectMonster.empty())
     client_->removeTheFirstLifeEffectAttackReturn();
   else
@@ -3986,7 +3972,7 @@ void Battle::OnDamageDone(bool apply_on_enemy) {
                << progressBarFightBottomHP->value() << "and buff"
                << bottomBuff->count();
       qDebug() << "after display attack: otherMonster have hp"
-               << progressBarFightTopHP->value() << "and buff"
+               << enemy_hp_bar_->value() << "and buff"
                << topBuff->count();
     }
 #endif
@@ -3994,4 +3980,8 @@ void Battle::OnDamageDone(bool apply_on_enemy) {
   }
   // attack is finish
   doNextAction();
+}
+
+void Battle::newError(std::string error, std::string detailedError) {
+  qDebug() << QString::fromStdString(error + ": " + detailedError);
 }

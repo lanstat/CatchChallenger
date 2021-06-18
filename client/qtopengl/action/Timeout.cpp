@@ -1,15 +1,10 @@
 // Copyright 2021 CatchChallenger
 #include "Timeout.hpp"
 
-#include <chrono>
-#include <cmath>
+#include <iostream>
 
 #include "../core/Node.hpp"
 #include "Action.hpp"
-
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::system_clock;
 
 Timeout* Timeout::Create(int milliseconds) {
   Timeout* instance = new Timeout();
@@ -19,28 +14,23 @@ Timeout* Timeout::Create(int milliseconds) {
   return instance;
 }
 
-Timeout::Timeout() : Action() { done_ = false; }
+Timeout::Timeout() : Action() { done_ = true; }
 
 Timeout::~Timeout() { Action::~Action(); }
 
 void Timeout::Start() {
-  uint64_t now =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
-  ellapsed_ = now + timeout_;
-  done_ = true;
+  ellapsed_ = 0;
+  done_ = false;
 }
 
-void Timeout::Stop() { done_ = false; }
+void Timeout::Stop() { done_ = true; }
 
-void Timeout::Step() {
-  if (!done_ || node_ == nullptr) return;
+void Timeout::Step(unsigned int ellapsed) {
+  if (done_ || node_ == nullptr) return;
 
-  uint64_t now =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
+  ellapsed_ += ellapsed;
 
-  if (now > timeout_) {
+  if (ellapsed_ >= timeout_) {
     OnFinish();
   }
 }
@@ -48,7 +38,7 @@ void Timeout::Step() {
 bool Timeout::IsDone() { return done_; }
 
 void Timeout::OnFinish() {
-  done_ = false;
+  done_ = true;
   ellapsed_ = 0;
   auto callback = node_->GetOnActionDone();
   if (callback) {

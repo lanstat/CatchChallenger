@@ -4,15 +4,13 @@
 
 #include "Action.hpp"
 
-#include <cstdint>
-
 class Timeout : public Action {
  public:
   ~Timeout();
 
   static Timeout* Create(int milliseconds);
 
-  void Step() override;
+  void Step(unsigned int ellapsed) override;
   void Stop() override;
   void Start() override;
   bool IsDone() override;
@@ -20,11 +18,10 @@ class Timeout : public Action {
  private:
   bool done_;
 
-  uint64_t ellapsed_;
-  uint64_t timeout_;
+  unsigned int ellapsed_;
+  unsigned int timeout_;
 
   Timeout();
-  void CalculateDelta();
   void OnFinish();
 };
 #endif  // CLIENT_QTOPENGL_ACTION_TIMEOUT_HPP_
