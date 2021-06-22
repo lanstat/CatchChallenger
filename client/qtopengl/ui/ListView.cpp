@@ -11,9 +11,9 @@ using UI::ListView;
 ListView::ListView(QGraphicsItem *parent) : Node(parent) {
   content_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   slider_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
-  show_vert_slider_ = false;
-  show_hor_slider_ = false;
+  show_slider_ = false;
   is_slider_pressed_ = false;
+  is_horizontal_ = false;
 }
 
 ListView::~ListView() {
@@ -29,6 +29,7 @@ ListView *ListView::Create(QGraphicsItem *parent) {
 
 void ListView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *widget) {
+  Node::paint(painter, option, widget);
   if (items_.size() == 0) return;
 
   if (visible_) {
@@ -49,9 +50,13 @@ void ListView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->drawPixmap(x1, y1, content_, content_rect_.x(), content_rect_.y(),
                         boundingRect().width(), boundingRect().height());
 
-    if (show_vert_slider_) {
-      painter->drawPixmap(x2 - 22, y1, slider_rail_v_);
-      painter->drawPixmap(slider_rect_.x(), slider_rect_.y(), slider_v_);
+    if (show_slider_) {
+      if (is_horizontal_) {
+        painter->drawPixmap(x2 - 22, y1, slider_rail_);
+      } else {
+        painter->drawPixmap(x1, y2 - 22, slider_rail_);
+      }
+      painter->drawPixmap(slider_rect_.x(), slider_rect_.y(), slider_);
     }
   }
 }
@@ -76,72 +81,143 @@ void ListView::SetSize(int width, int height) {
 }
 
 void ListView::ReCalculateSize() {
-  content_rect_ = QRectF(0.0, 0.0, Width() - 22, 0.0);
+  if (!is_horizontal_) {
+    content_rect_ = QRectF(0.0, 0.0, Width() - 22, 0.0);
 
-  if (items_.size() == 0) return;
-  int x = 0;
-  int y = 0;
-  for (auto item : items_) {
-    item->SetX(x);
-    item->SetY(y);
-    content_rect_.setHeight(item->Height() + y);
-    y = y + item->Height();
-  }
-
-  if (content_rect_.height() > Width())
-    show_vert_slider_ = content_rect_.height() > Width();
-
-  if (!show_vert_slider_) {
-    content_rect_.setWidth(Width());
-  }
-
-  content_ = QPixmap(content_rect_.width(), content_rect_.height());
-  content_scale_ = content_rect_.height() / boundingRect().height();
-
-  if (show_vert_slider_) {
-    int slider_height = (boundingRect().height() / content_rect_.height()) *
-                        boundingRect().height();
-
-    auto tmp = QPixmap(":/CC/images/interface/sliderBarV.png");
-    auto top = tmp.copy(0, 0, 22, 5);
-    auto bottom = tmp.copy(0, 38, 22, 5);
-    auto middle = tmp.copy(0, 5, 22, 5);
-    middle = middle.scaled(22, Height() - 10);
-
-    slider_rail_v_ = QPixmap(22, Height());
-    slider_rail_v_.fill(Qt::transparent);
-
-    auto painter = new QPainter(&slider_rail_v_);
-    painter->drawPixmap(0, 0, top);
-    painter->drawPixmap(0, 5, middle);
-    painter->drawPixmap(0, Height() - 5, bottom);
-    painter->end();
-    delete painter;
-
-    slider_rect_ = QRectF(boundingRect().x() + boundingRect().width() - 22,
-                          boundingRect().y(), 22, slider_height);
-
-    slider_v_ = QPixmap(22, slider_height);
-    slider_v_.fill(Qt::transparent);
-
-    painter = new QPainter(&slider_v_);
-
-    tmp = QPixmap(":/CC/images/interface/sliderV.png");
-    top = tmp.copy(0, 0, 22, 18);
-    bottom = tmp.copy(0, 19, 22, 18);
-    middle = tmp.copy(0, 18, 22, 1);
-
-    if (slider_height <= 36) {
-      painter->drawPixmap(0, 0, top.scaled(22, slider_height / 2));
-      painter->drawPixmap(0, slider_height / 2,
-                          bottom.scaled(22, slider_height / 2));
-    } else {
-      painter->drawPixmap(0, 0, top);
-      painter->drawPixmap(0, 18, middle.scaled(22, slider_height - 36));
-      painter->drawPixmap(0, slider_height - 18, bottom);
+    if (items_.size() == 0) return;
+    int x = 0;
+    int y = 0;
+    for (auto item : items_) {
+      item->SetX(x);
+      item->SetY(y);
+      content_rect_.setHeight(item->Height() + y);
+      y = y + item->Height();
     }
-    painter->end();
-    delete painter;
+
+    show_slider_ = content_rect_.height() > Height();
+
+    if (!show_slider_) {
+      content_rect_.setWidth(Width());
+    }
+
+    content_ = QPixmap(content_rect_.width(), content_rect_.height());
+    content_scale_ = content_rect_.height() / boundingRect().height();
+
+    if (show_slider_) {
+      int slider_height = (boundingRect().height() / content_rect_.height()) *
+                          boundingRect().height();
+
+      auto tmp = QPixmap(":/CC/images/interface/sliderBarV.png");
+      auto top = tmp.copy(0, 0, 22, 5);
+      auto bottom = tmp.copy(0, 38, 22, 5);
+      auto middle = tmp.copy(0, 5, 22, 5);
+      middle = middle.scaled(22, Height() - 10);
+
+      slider_rail_ = QPixmap(22, Height());
+      slider_rail_.fill(Qt::transparent);
+
+      auto painter = new QPainter(&slider_rail_);
+      painter->drawPixmap(0, 0, top);
+      painter->drawPixmap(0, 5, middle);
+      painter->drawPixmap(0, Height() - 5, bottom);
+      painter->end();
+      delete painter;
+
+      slider_rect_ = QRectF(boundingRect().x() + boundingRect().width() - 22,
+                            boundingRect().y(), 22, slider_height);
+
+      slider_ = QPixmap(22, slider_height);
+      slider_.fill(Qt::transparent);
+
+      painter = new QPainter(&slider_);
+
+      tmp = QPixmap(":/CC/images/interface/sliderV.png");
+      top = tmp.copy(0, 0, 22, 18);
+      bottom = tmp.copy(0, 19, 22, 18);
+      middle = tmp.copy(0, 18, 22, 1);
+
+      if (slider_height <= 36) {
+        painter->drawPixmap(0, 0, top.scaled(22, slider_height / 2));
+        painter->drawPixmap(0, slider_height / 2,
+                            bottom.scaled(22, slider_height / 2));
+      } else {
+        painter->drawPixmap(0, 0, top);
+        painter->drawPixmap(0, 18, middle.scaled(22, slider_height - 36));
+        painter->drawPixmap(0, slider_height - 18, bottom);
+      }
+      painter->end();
+      delete painter;
+    }
+  } else {
+    content_rect_ = QRectF(0.0, 0.0, 0.0, Height() - 22);
+
+    if (items_.size() == 0) return;
+    int x = 0;
+    int y = 0;
+    for (auto item : items_) {
+      item->SetX(x);
+      item->SetY(y);
+      content_rect_.setWidth(item->Width() + x);
+      x = x + item->Width();
+    }
+
+    show_slider_ = content_rect_.width() > Width();
+
+    if (!show_slider_) {
+      content_rect_.setWidth(Width());
+    }
+
+    content_ = QPixmap(content_rect_.width(), content_rect_.height());
+    content_scale_ = content_rect_.width() / boundingRect().width();
+
+    if (show_slider_) {
+      int slider_width = (boundingRect().width() / content_rect_.width()) *
+                         boundingRect().width();
+
+      auto tmp = QPixmap(":/CC/images/interface/sliderBarV.png");
+      auto top = tmp.copy(0, 0, 22, 5);
+      auto bottom = tmp.copy(0, 38, 22, 5);
+      auto middle = tmp.copy(0, 5, 22, 5);
+      middle = middle.scaled(22, Height() - 10);
+
+      slider_rail_ = QPixmap(22, Height());
+      slider_rail_.fill(Qt::transparent);
+
+      auto painter = new QPainter(&slider_rail_);
+      painter->drawPixmap(0, 0, top);
+      painter->drawPixmap(0, 5, middle);
+      painter->drawPixmap(0, Height() - 5, bottom);
+      painter->rotate(90);
+      painter->end();
+      delete painter;
+
+      slider_rect_ = QRectF(boundingRect().x(),
+                            boundingRect().y() + boundingRect().height() - 22,
+                            slider_width, 22);
+
+      slider_ = QPixmap(slider_width, 22);
+      slider_.fill(Qt::transparent);
+
+      painter = new QPainter(&slider_);
+
+      tmp = QPixmap(":/CC/images/interface/sliderV.png");
+      top = tmp.copy(0, 0, 22, 18);
+      bottom = tmp.copy(0, 19, 22, 18);
+      middle = tmp.copy(0, 18, 22, 1);
+
+      if (slider_width <= 36) {
+        painter->drawPixmap(0, 0, top.scaled(22, slider_width / 2));
+        painter->drawPixmap(0, slider_width / 2,
+                            bottom.scaled(22, slider_width / 2));
+      } else {
+        painter->drawPixmap(0, 0, top);
+        painter->drawPixmap(0, 18, middle.scaled(22, slider_width - 36));
+        painter->drawPixmap(0, slider_width - 18, bottom);
+      }
+      painter->rotate(90);
+      painter->end();
+      delete painter;
+    }
   }
 }
 
@@ -150,7 +226,7 @@ void ListView::MousePressEventXY(const QPointF &point, bool &press_validated) {
 
   const QRectF &b = slider_rect_;
   const QRectF &t = mapRectToScene(b);
-  if (show_vert_slider_ && t.contains(point)) {
+  if (show_slider_ && t.contains(point)) {
     press_validated = true;
     is_slider_pressed_ = true;
   } else {
@@ -184,6 +260,7 @@ void ListView::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
 }
 
 void ListView::MouseMoveEventXY(const QPointF &point) {
+  // TODO (lanstat): Verificar comportamiento cuando se use horizontal
   if (is_slider_pressed_) {
     const QRectF &b = boundingRect();
     const QRectF &t = mapRectToScene(b);
@@ -206,4 +283,14 @@ void ListView::Clear() {
     delete *it;
   }
   items_.clear();
+}
+
+void ListView::SetHorizontal(bool horizontal) {
+  if (is_horizontal_ == horizontal) return;
+  is_horizontal_ = horizontal;
+  ReCalculateSize();
+}
+
+uint8_t ListView::Count() {
+  return items_.size();
 }

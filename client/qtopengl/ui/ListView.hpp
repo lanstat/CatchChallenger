@@ -17,10 +17,12 @@ class ListView : public Node {
   void AddItem(Node *node);
   Node *GetItem(uint8_t index);
   void RemoveItem(uint8_t index);
+  uint8_t Count();
   Node *GetSelectedItem();
   void SetSize(int width, int height);
   /** Release all items in the list */
   void Clear();
+  void SetHorizontal(bool horizontal);
 
   void MousePressEventXY(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
@@ -30,20 +32,18 @@ class ListView : public Node {
              QWidget *) override;
 
  private:
-  QPixmap slider_rail_v_;
-  QPixmap slider_v_;
-  QPixmap slider_rail_h_;
-  QPixmap slider_h_;
+  QPixmap slider_rail_;
+  QPixmap slider_;
   QPixmap content_;
   QRectF content_rect_;
   QRectF slider_rect_;
-  bool show_vert_slider_;
-  bool show_hor_slider_;
+  bool show_slider_;
   bool is_slider_pressed_;
   qreal content_scale_;
 
   std::vector<Node *> items_;
   Node *selected_item_;
+  bool is_horizontal_;
 
   explicit ListView(QGraphicsItem *parent = nullptr);
 

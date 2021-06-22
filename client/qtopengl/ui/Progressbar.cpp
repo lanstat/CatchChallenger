@@ -5,8 +5,8 @@
 #include <cmath>
 #include <iostream>
 
-#include "../core/Node.hpp"
 #include "../action/Tick.hpp"
+#include "../core/Node.hpp"
 
 using UI::Progressbar;
 
@@ -27,7 +27,7 @@ Progressbar::Progressbar(QGraphicsItem *parent) : Node(parent) {
   min_ = 0;
   max_ = 0;
 
-  tick_ = Tick::Create(200, std::bind(&Progressbar::OnTick, this));
+  tick_ = Tick::Create(100, std::bind(&Progressbar::OnTick, this));
 }
 
 Progressbar::~Progressbar() {
@@ -172,9 +172,8 @@ void Progressbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
         paint.setRenderHint(QPainter::Antialiasing);
         int penWidth = 1;
         if (font_height > 16) penWidth = 2;
-        paint.setPen(QPen(QColor(14, 102, 0) /*penColor*/,
-                          penWidth /*penWidth*/, Qt::SolidLine, Qt::RoundCap,
-                          Qt::RoundJoin));
+        paint.setPen(QPen(QColor(14, 102, 0), penWidth, Qt::SolidLine,
+                          Qt::RoundCap, Qt::RoundJoin));
         paint.setBrush(Qt::white);
         paint.drawPath(*text_path_);
       }
@@ -222,9 +221,8 @@ void Progressbar::SetValue(const int &value) {
 void Progressbar::IncrementValue(const int &delta, const bool &animate) {
   SetValue(value_ + delta);
   if (animate) {
-    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< delta << std::endl;
     increment_times_ = 0;
-    delta_value_ = delta / 10;
+    delta_value_ = delta / 10.0f;
 
     RunAction(tick_);
   }
@@ -232,7 +230,7 @@ void Progressbar::IncrementValue(const int &delta, const bool &animate) {
 
 bool Progressbar::OnTick() {
   bool should_continue;
-  if (increment_times_ < 10) {
+  if (increment_times_ < 9) {
     internal_value_ += delta_value_;
     increment_times_++;
     should_continue = true;
@@ -265,17 +263,15 @@ void Progressbar::SetSize(int width, int height) {
 }
 
 void Progressbar::MousePressEventXY(const QPointF &point,
-    bool &press_validated) {
+                                    bool &press_validated) {
   (void)point;
   (void)press_validated;
 }
 
 void Progressbar::MouseReleaseEventXY(const QPointF &point,
-    bool &prev_validated) {
+                                      bool &prev_validated) {
   (void)point;
   (void)prev_validated;
 }
 
-void Progressbar::MouseMoveEventXY(const QPointF &point) {
-  (void)point;
-}
+void Progressbar::MouseMoveEventXY(const QPointF &point) { (void)point; }

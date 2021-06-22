@@ -44,8 +44,8 @@ class Progressbar : public Node {
   int value_;
   int min_;
   int max_;
-  int delta_value_;
-  int internal_value_;
+  float delta_value_;
+  float internal_value_;
   unsigned int increment_times_;
 
   Tick *tick_;

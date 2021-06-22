@@ -14,6 +14,7 @@ Node::Node(QGraphicsItem *parent) : QGraphicsItem(parent) {
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   visible_ = true;
   action_manager_ = ActionManager::GetInstance();
+  in_test_ = false;
 }
 
 Node::~Node() {}
@@ -85,3 +86,24 @@ void Node::SetOnClick(const std::function<void(Node *)> &callback) {
 void Node::SetData(int role, int value) { data_[role] = value; }
 
 int Node::Data(int role) { return data_[role]; }
+
+void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                     QWidget *widget) {
+  (void) option;
+  (void) widget;
+  if (in_test_) {
+    painter->fillRect(boundingRect(), Qt::green);
+  }
+}
+
+void Node::TestMode() {
+  in_test_ = true;
+}
+
+void Node::SetToolTip(QString text) {
+  tooltip_ = text;
+}
+
+QString Node::ToolTip() {
+  return tooltip_;
+}

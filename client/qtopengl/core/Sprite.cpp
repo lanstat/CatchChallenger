@@ -2,6 +2,7 @@
 #include "Sprite.hpp"
 
 #include <QPainter>
+#include <iostream>
 
 #include "Node.hpp"
 #include "Stateful.hpp"
@@ -29,6 +30,7 @@ void Sprite::UseInternal(void *data) {
 
 void Sprite::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                    QWidget *widget) {
+  Node::paint(painter, option, widget);
   if (visible_) {
     painter->drawPixmap(X(), Y(), cache_);
   }

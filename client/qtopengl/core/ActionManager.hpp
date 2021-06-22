@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <chrono>
 
 class Action;
 class HashElement;
@@ -32,6 +33,6 @@ class ActionManager {
   struct HashElement *targets_;
   struct HashElement *current_target_;
   bool current_target_salvaged_;
-  uint64_t last_execution_;
+  std::chrono::high_resolution_clock::time_point last_execution_;
 };
 #endif  // CLIENT_QTOPENGL_CORE_ACTIONMANAGER_HPP_

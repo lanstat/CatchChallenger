@@ -10,10 +10,6 @@
 #include "Node.hpp"
 #include "uthash.h"
 
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::system_clock;
-
 typedef struct HashElement {
   Node *target;
   std::vector<Action *> *actions;
@@ -26,7 +22,7 @@ typedef struct HashElement {
 ActionManager *ActionManager::instance_ = nullptr;
 
 ActionManager::ActionManager() : targets_(nullptr), current_target_(nullptr) {
-  last_execution_ = 0;
+  last_execution_ = std::chrono::high_resolution_clock::now();
 }
 
 ActionManager::~ActionManager() {}
@@ -170,10 +166,9 @@ void ActionManager::RemoveActionAtIndex(unsigned int index,
 }
 
 void ActionManager::Update() {
-  uint64_t now =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
-  unsigned int ellapsed = now - last_execution_;
+  auto now = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::milli> span = now - last_execution_;
+  unsigned int ellapsed = span.count();
   last_execution_ = now;
   for (HashElementType *elt = targets_; elt != nullptr;) {
     current_target_ = elt;

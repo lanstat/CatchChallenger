@@ -36,9 +36,12 @@ class Node : public QGraphicsItem {
   void SetOnActionDone(const std::function<void(int)> &callback);
   const std::function<void(int)> &GetOnActionDone() const;
   void SetOnClick(const std::function<void(Node *)> &callback);
+  void TestMode();
+  void SetToolTip(QString text);
+  QString ToolTip();
 
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                     QWidget *) = 0;
+                     QWidget *);
   QRectF boundingRect() const override;
 
   virtual void MousePressEventXY(const QPointF &point,
@@ -59,5 +62,7 @@ class Node : public QGraphicsItem {
   std::function<void(int)> on_action_done_;
   std::unordered_map<int, int> data_;
   uint unique_id_;
+  bool in_test_;
+  QString tooltip_;
 };
 #endif  // CLIENT_QTOPENGL_CORE_NODE_HPP_

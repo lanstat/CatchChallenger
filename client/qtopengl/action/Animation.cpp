@@ -2,6 +2,7 @@
 #include "Animation.hpp"
 
 #include <QPainter>
+#include <iostream>
 
 #include "../core/Node.hpp"
 #include "../core/Sprite.hpp"

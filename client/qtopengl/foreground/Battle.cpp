@@ -8,6 +8,7 @@
 #include <QListWidgetItem>
 #include <QPainter>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "../../../general/base/CommonDatapack.hpp"
@@ -19,9 +20,9 @@
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
 #include "../action/Animation.hpp"
+#include "../action/Blink.hpp"
 #include "../action/MoveTo.hpp"
 #include "../action/Timeout.hpp"
-#include "../action/Blink.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 #include "../core/ActionManager.hpp"
@@ -62,7 +63,7 @@ Battle::Battle() {
       new ImagesStrechMiddle(28, ":/CC/images/interface/b1.png", this);
   labelFightBottomName = new QGraphicsTextItem(frameFightBottom);
   labelFightBottomLevel = new QGraphicsTextItem(frameFightBottom);
-  progressBarFightBottomHP = new CCprogressbar(frameFightBottom);
+  player_hp_bar_ = UI::Progressbar::Create(frameFightBottom);
   progressBarFightBottomExp = new CCprogressbar(frameFightBottom);
 
   frameFightTop =
@@ -124,8 +125,6 @@ Battle::Battle() {
                &Battle::OnBagButtonClick))
     abort();
 
-  displayAttackTimer.setSingleShot(true);
-  displayAttackTimer.setInterval(50);
   displayExpTimer.setSingleShot(true);
   displayExpTimer.setInterval(20);
   moveFightMonsterBothTimer.setSingleShot(true);
@@ -135,9 +134,6 @@ Battle::Battle() {
   displayTrapTimer.setSingleShot(true);
   displayTrapTimer.setInterval(50);
 
-  if (!connect(&displayAttackTimer, &QTimer::timeout, this,
-               &Battle::displayAttack))
-    abort();
   if (!connect(&displayExpTimer, &QTimer::timeout, this,
                &Battle::displayExperienceGain))
     abort();
@@ -151,8 +147,6 @@ Battle::Battle() {
     abort();
 
   newLanguage();
-
-  movie = NULL;
 
   escape = false;
   escapeSuccess = false;
@@ -307,8 +301,8 @@ void Battle::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   labelFightBottomName->setPos(20, 20);
   progressBarFightBottomExp->setPos(20, 110);
   progressBarFightBottomExp->setSize(frameFightBottom->width() - 40, 44);
-  progressBarFightBottomHP->setPos(20, 60);
-  progressBarFightBottomHP->setSize(frameFightBottom->width() - 40, 44);
+  player_hp_bar_->SetPos(20, 60);
+  player_hp_bar_->SetSize(frameFightBottom->width() - 40, 44);
 
   frameFightTop->setPos(100, 100);
   frameFightTop->setSize(400, 170);
@@ -967,8 +961,8 @@ void Battle::init_current_monster_display(PlayerMonster *fightMonster) {
     Monster::Stat fightStat = ClientFightEngine::getStat(
         CommonDatapack::commonDatapack.monsters.at(fightMonster->monster),
         fightMonster->level);
-    progressBarFightBottomHP->setMaximum(fightStat.hp);
-    progressBarFightBottomHP->setValue(fightMonster->hp);
+    player_hp_bar_->SetMaximum(fightStat.hp);
+    player_hp_bar_->SetValue(fightMonster->hp);
     const Monster &monsterGenericInfo =
         CommonDatapack::commonDatapack.monsters.at(fightMonster->monster);
     int level_to_xp =
@@ -977,44 +971,46 @@ void Battle::init_current_monster_display(PlayerMonster *fightMonster) {
     progressBarFightBottomExp->setValue(fightMonster->remaining_xp);
     // do the buff, todo the remake
     {
-      buffToGraphicalItemBottom.clear();
-      bottomBuff.clear();
+      player_buff_->Clear();
       unsigned int index = 0;
       while (index < fightMonster->buffs.size()) {
         const PlayerBuff &buffEffect = fightMonster->buffs.at(index);
-        QListWidgetItem *item = new QListWidgetItem();
+        auto item = Sprite::Create();
         if (QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.find(
                 buffEffect.buff) ==
             QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.cend()) {
-          item->setToolTip(tr("Unknown buff"));
-          item->setIcon(QIcon(":/CC/images/interface/buff.png"));
+          item->SetToolTip(tr("Unknown buff"));
+          item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
         } else {
-          item->setIcon(
+          item->SetPixmap(
               QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra
                   .at(buffEffect.buff)
                   .icon);
           if (buffEffect.level <= 1) {
-            item->setToolTip(QString::fromStdString(
+            item->SetToolTip(QString::fromStdString(
                 QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                     .at(buffEffect.buff)
                     .name));
           } else {
-            /*
-            item->setToolTip(tr("%1 at level
-            %2").arg(QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(item->setToolTip(
-              item->toolTip() + "\n" +
+            item->SetToolTip(tr("%1 at level %2")
+                                 .arg(QString::fromStdString(
+                                     QtDatapackClientLoader::datapackLoader
+                                         ->monsterBuffsExtra.at(buffEffect.buff)
+                                         .name))
+                                 .arg(buffEffect.level));
+          }
+          item->SetToolTip(
+              item->ToolTip() + "\n" +
               QString::fromStdString(
                   QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                       .at(buffEffect.buff)
-                      .description)));*/
-          }
+                      .description));
         }
-        buffToGraphicalItemBottom[buffEffect.buff] = item;
-        item->setData(99,
+        item->SetData(99,
                       buffEffect.buff);  // to prevent duplicate buff, because
                                          // add can be to re-enable an already
                                          // enable buff (for larger period then)
-        bottomBuff.append(item);
+        player_buff_->AddItem(item);
         index++;
       }
     }
@@ -1261,47 +1257,45 @@ void Battle::updateOtherMonsterInformation() {
     enemy_hp_bar_->SetValue(otherMonster->hp);
     // do the buff
     {
-      buffToGraphicalItemTop.clear();
-      topBuff.clear();
+      enemy_buff_->Clear();
       unsigned int index = 0;
       while (index < otherMonster->buffs.size()) {
         const PlayerBuff &buffEffect = otherMonster->buffs.at(index);
-        QListWidgetItem *item = new QListWidgetItem();
+        auto item = Sprite::Create();
         if (QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.find(
                 buffEffect.buff) ==
             QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.cend()) {
-          item->setToolTip(tr("Unknown buff"));
-          item->setIcon(QIcon(":/CC/images/interface/buff.png"));
+          item->SetToolTip(tr("Unknown buff"));
+          item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
         } else {
-          item->setIcon(
+          item->SetPixmap(
               QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra
                   .at(buffEffect.buff)
                   .icon);
           if (buffEffect.level <= 1)
-            item->setToolTip(QString::fromStdString(
+            item->SetToolTip(QString::fromStdString(
                 QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                     .at(buffEffect.buff)
                     .name));
           else
-            item->setToolTip(tr("%1 at level %2")
+            item->SetToolTip(tr("%1 at level %2")
                                  .arg(QString::fromStdString(
                                      QtDatapackClientLoader::datapackLoader
                                          ->monsterBuffsExtra.at(buffEffect.buff)
                                          .name))
                                  .arg(buffEffect.level));
-          item->setToolTip(
-              item->toolTip() + "\n" +
+          item->SetToolTip(
+              item->ToolTip() + "\n" +
               QString::fromStdString(
                   QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                       .at(buffEffect.buff)
                       .description));
         }
-        buffToGraphicalItemTop[buffEffect.buff] = item;
-        item->setData(99,
+        item->SetData(99,
                       buffEffect.buff);  // to prevent duplicate buff, because
                                          // add can be to re-enable an already
                                          // enable buff (for larger period then)
-        topBuff.append(item);
+        enemy_buff_->AddItem(item);
         index++;
       }
     }
@@ -1498,12 +1492,12 @@ void Battle::loose() {
 #ifdef CATCHCHALLENGER_EXTRA_CHECK
   PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
   if (currentMonster != NULL) {
-    if ((int)currentMonster->hp != progressBarFightBottomHP->value()) {
+    if ((int)currentMonster->hp != player_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (loose && currentMonster): %1!=%2")
               .arg(currentMonster->hp)
-              .arg(progressBarFightBottomHP->value())
+              .arg(player_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -1566,12 +1560,12 @@ void Battle::win() {
 #ifdef CATCHCHALLENGER_EXTRA_CHECK
   PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
   if (currentMonster != NULL) {
-    if ((int)currentMonster->hp != progressBarFightBottomHP->value()) {
+    if ((int)currentMonster->hp != player_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (win && currentMonster): %1!=%2")
               .arg(currentMonster->hp)
-              .arg(progressBarFightBottomHP->value())
+              .arg(player_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -1590,12 +1584,12 @@ void Battle::win() {
   client_->fightFinished();
 #ifdef CATCHCHALLENGER_EXTRA_CHECK
   if (currentMonster != NULL)
-    if ((int)currentMonster->hp != progressBarFightBottomHP->value()) {
+    if ((int)currentMonster->hp != player_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (win end && currentMonster): %1!=%2")
               .arg(currentMonster->hp)
-              .arg(progressBarFightBottomHP->value())
+              .arg(player_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -1778,25 +1772,20 @@ void Battle::displayExperienceGain() {
       qDebug()
           << QStringLiteral(
                  "Now the old hp: %1/%2 increased of %3 for the old level %4")
-                 .arg(progressBarFightBottomHP->value())
-                 .arg(progressBarFightBottomHP->maximum())
+                 .arg(player_hp_bar_->Value())
+                 .arg(player_hp_bar_->Maximum())
                  .arg(newStat.hp - oldStat.hp)
                  .arg(currentMonsterLevel);
-      progressBarFightBottomHP->setMaximum(progressBarFightBottomHP->maximum() +
-                                           (newStat.hp - oldStat.hp));
-      progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
-                                         (newStat.hp - oldStat.hp));
-      // progressBarFightBottomHP->repaint();
-      /*labelFightBottomHP->setPlainText(
-          QStringLiteral("%1/%2")
-              .arg(progressBarFightBottomHP->value())
-              .arg(progressBarFightBottomHP->maximum()));*/
+      player_hp_bar_->SetMaximum(player_hp_bar_->Maximum() +
+                                 (newStat.hp - oldStat.hp));
+      player_hp_bar_->SetValue(player_hp_bar_->Value() +
+                               (newStat.hp - oldStat.hp));
     } else {
       qDebug() << QStringLiteral(
                       "The hp at level change is untouched: %1/%2 for the old "
                       "level %3")
-                      .arg(progressBarFightBottomHP->value())
-                      .arg(progressBarFightBottomHP->maximum())
+                      .arg(player_hp_bar_->Value())
+                      .arg(player_hp_bar_->Maximum())
                       .arg(currentMonsterLevel);
     }
     progressBarFightBottomExp->setMaximum(
@@ -2241,7 +2230,7 @@ void Battle::useTrap(const uint16_t &itemId) {
 
 void Battle::monsterCatch(const bool &success) {
   if (client_->playerMonster_catchInProgress.empty()) {
-    emit error("Internal bug: cupture monster list is emtpy");
+    error("Internal bug: cupture monster list is emtpy");
     return;
   }
   if (!success) {
@@ -2480,11 +2469,11 @@ void Battle::doNextAction() {
       PublicPlayerMonster *otherMonster = client_->getOtherMonster();
       PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
       if (currentMonster != NULL)
-        if ((int)currentMonster->hp != progressBarFightBottomHP->value()) {
+        if ((int)currentMonster->hp != player_hp_bar_->Value()) {
           emit error(QStringLiteral("Current monster hp don't match with the "
                                     "internal value (do next action): %1!=%2")
                          .arg(currentMonster->hp)
-                         .arg(progressBarFightBottomHP->value())
+                         .arg(player_hp_bar_->Value())
                          .toStdString());
           return;
         }
@@ -2531,12 +2520,12 @@ void Battle::doNextAction() {
                      .toStdString());
       return;
     }
-    if ((int)currentMonster->hp != progressBarFightBottomHP->value()) {
+    if ((int)currentMonster->hp != player_hp_bar_->Value()) {
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (doNextAction && currentMonster): %1!=%2")
               .arg(currentMonster->hp)
-              .arg(progressBarFightBottomHP->value())
+              .arg(player_hp_bar_->Value())
               .toStdString());
       return;
     }
@@ -2567,7 +2556,6 @@ void Battle::doNextAction() {
 bool Battle::displayFirstAttackText(bool firstText) {
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
-  qDebug() << "aaaa";
   if (otherMonster == NULL) {
     error(
         "displayAttack(): crash: unable to get the other monster to display an "
@@ -2666,7 +2654,6 @@ bool Battle::displayFirstAttackText(bool firstText) {
     }
   }
 
-
   // the life effect
   if (!currentAttack.lifeEffectMonster.empty()) {
     const Skill::LifeEffectReturn &lifeEffectReturn =
@@ -2758,186 +2745,20 @@ bool Battle::displayFirstAttackText(bool firstText) {
                .arg(currentAttack.buffLifeEffectMonster.size())
                .arg(currentAttack.addBuffEffectMonster.size())
                .arg(currentAttack.removeBuffEffectMonster.size())
-               .arg(connexionManager->client->getAttackReturnList().size());
+               .arg(client_->getAttackReturnList().size());
     return true;
   }
 
-  qDebug() << "llego aqui";
-
   // the add buff
   if (!currentAttack.addBuffEffectMonster.empty()) {
-    const Skill::BuffEffect &addBuffEffectMonster =
-        currentAttack.addBuffEffectMonster.front();
-    std::unordered_map<uint8_t, QListWidgetItem *>
-        *buffToGraphicalItemCurrentbar = NULL;
-    QList<QListWidgetItem *> listWidget;
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-    bool onBuffCurrentMonster = false;
-#endif
-    if (currentAttack.doByTheCurrentMonster) {
-      if ((addBuffEffectMonster.on & ApplyOn::ApplyOn_AllEnemy) ||
-          (addBuffEffectMonster.on & ApplyOn::ApplyOn_AloneEnemy)) {
-        attackOwner +=
-            tr("add the buff %2 on the other %1")
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterExtra
-                        .at(otherMonster->monster)
-                        .name))
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
-                        .at(addBuffEffectMonster.buff)
-                        .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemTop;
-        listWidget = topBuff;
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-        onBuffCurrentMonster = false;
-#endif
-      }
-      if ((addBuffEffectMonster.on & ApplyOn::ApplyOn_AllAlly) ||
-          (addBuffEffectMonster.on & ApplyOn::ApplyOn_Themself)) {
-        attackOwner +=
-            tr("add the buff %1 on themself")
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
-                        .at(addBuffEffectMonster.buff)
-                        .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemBottom;
-        listWidget = bottomBuff;
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-        onBuffCurrentMonster = true;
-#endif
-      }
-    } else {
-      if ((addBuffEffectMonster.on & ApplyOn::ApplyOn_AllEnemy) ||
-          (addBuffEffectMonster.on & ApplyOn::ApplyOn_AloneEnemy)) {
-        attackOwner +=
-            tr("add the buff %2 on your %1")
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterExtra
-                        .at(currentMonster->monster)
-                        .name))
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
-                        .at(addBuffEffectMonster.buff)
-                        .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemBottom;
-        listWidget = bottomBuff;
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-        onBuffCurrentMonster = true;
-#endif
-      }
-      if ((addBuffEffectMonster.on & ApplyOn::ApplyOn_AllAlly) ||
-          (addBuffEffectMonster.on & ApplyOn::ApplyOn_Themself)) {
-        attackOwner +=
-            tr("add the buff %1 on themself")
-                .arg(QString::fromStdString(
-                    QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
-                        .at(addBuffEffectMonster.buff)
-                        .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemTop;
-        listWidget = topBuff;
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-        onBuffCurrentMonster = false;
-#endif
-      }
-    }
-    ShowStatusMessage(attackOwner);
-    if (buffToGraphicalItemCurrentbar != NULL) {
-      // search the buff
-      QListWidgetItem *item = NULL;
-      int index = 0;
-      while (index < listWidget.count()) {
-        if (listWidget.at(index)->data(99).toUInt() ==
-            addBuffEffectMonster.buff) {
-          item = listWidget.at(index);
-          break;
-        }
-        index++;
-      }
-      // add new buff because don't exist
-      if (index == listWidget.count()) {
-        item = new QListWidgetItem();
-        item->setData(
-            99,
-            addBuffEffectMonster.buff);  // to prevent duplicate buff, because
-                                         // add can be to re-enable an already
-                                         // enable buff (for larger period then)
-      }
-      if (QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.find(
-              addBuffEffectMonster.buff) ==
-          QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.cend()) {
-        item->setToolTip(tr("Unknown buff"));
-        item->setIcon(QIcon(":/CC/images/interface/buff.png"));
-      } else {
-        const QtDatapackClientLoader::MonsterExtra::Buff &buffExtra =
-            QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(
-                addBuffEffectMonster.buff);
-        const QtDatapackClientLoader::QtBuff &QtbuffExtra =
-            QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra.at(
-                addBuffEffectMonster.buff);
-        if (!QtbuffExtra.icon.isNull()) {
-          item->setIcon(QtbuffExtra.icon);
-        } else {
-          item->setIcon(QIcon(":/CC/images/interface/buff.png"));
-        }
-        if (addBuffEffectMonster.level <= 1) {
-          item->setToolTip(QString::fromStdString(buffExtra.name));
-        } else {
-          item->setToolTip(tr("%1 at level %2")
-                               .arg(QString::fromStdString(buffExtra.name))
-                               .arg(addBuffEffectMonster.level));
-        }
-        item->setToolTip(item->toolTip() + "\n" +
-                         QString::fromStdString(buffExtra.description));
-      }
-      (*buffToGraphicalItemCurrentbar)[addBuffEffectMonster.buff] = item;
-      if (index == listWidget.count()) listWidget.append(item);
-    }
-    client_->removeTheFirstAddBuffEffectAttackReturn();
-    if (!client_->firstAttackReturnHaveMoreEffect())
-      client_->removeTheFirstAttackReturn();
-#ifdef CATCHCHALLENGER_EXTRA_CHECK
-    if (!onBuffCurrentMonster && otherMonster != NULL) {
-      if (otherMonster->buffs.size() != (uint32_t)listWidget.count()) {
-        error(
-            "displayFirstAttackText(): bug: buffs number displayed != than "
-            "real buff count on other monter");
-        doNextAction();
-        return false;
-      }
-    }
-    if (onBuffCurrentMonster && currentMonster != NULL) {
-      if (currentMonster->buffs.size() != (uint32_t)listWidget.count()) {
-        error(
-            "displayFirstAttackText(): bug: buffs number displayed != than "
-            "real buff count on current monter");
-        doNextAction();
-        return false;
-      }
-    }
-#endif
-    qDebug() << "display the add buff";
-    qDebug()
-        << QStringLiteral(
-               "displayFirstAttackText(): after display text, "
-               "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
-               "%2, addBuffEffectMonster.size(): %3, "
-               "removeBuffEffectMonster.size(): %4, attackReturnList.size(): "
-               "%5")
-               .arg(currentAttack.lifeEffectMonster.size())
-               .arg(currentAttack.buffLifeEffectMonster.size())
-               .arg(currentAttack.addBuffEffectMonster.size())
-               .arg(currentAttack.removeBuffEffectMonster.size())
-               .arg(client_->getAttackReturnList().size());
-    return false;
+    return ApplyBuffEffect(currentMonster, otherMonster, currentAttack);
   }
 
   // the remove buff
   if (!currentAttack.removeBuffEffectMonster.empty()) {
     const Skill::BuffEffect &removeBuffEffectMonster =
         currentAttack.removeBuffEffectMonster.front();
-    std::unordered_map<uint8_t, QListWidgetItem *>
-        *buffToGraphicalItemCurrentbar = NULL;
+    UI::ListView *buff_list = nullptr;
     if (currentAttack.doByTheCurrentMonster) {
       if ((removeBuffEffectMonster.on & ApplyOn::ApplyOn_AllEnemy) ||
           (removeBuffEffectMonster.on & ApplyOn::ApplyOn_AloneEnemy)) {
@@ -2951,7 +2772,7 @@ bool Battle::displayFirstAttackText(bool firstText) {
                     QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                         .at(removeBuffEffectMonster.buff)
                         .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemTop;
+        buff_list = enemy_buff_;
       }
       if ((removeBuffEffectMonster.on & ApplyOn::ApplyOn_AllAlly) ||
           (removeBuffEffectMonster.on & ApplyOn::ApplyOn_Themself)) {
@@ -2961,7 +2782,7 @@ bool Battle::displayFirstAttackText(bool firstText) {
                     QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                         .at(removeBuffEffectMonster.buff)
                         .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemBottom;
+        buff_list = player_buff_;
       }
     } else {
       if ((removeBuffEffectMonster.on & ApplyOn::ApplyOn_AllEnemy) ||
@@ -2976,7 +2797,7 @@ bool Battle::displayFirstAttackText(bool firstText) {
                     QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                         .at(removeBuffEffectMonster.buff)
                         .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemBottom;
+        buff_list = player_buff_;
       }
       if ((removeBuffEffectMonster.on & ApplyOn::ApplyOn_AllAlly) ||
           (removeBuffEffectMonster.on & ApplyOn::ApplyOn_Themself)) {
@@ -2986,16 +2807,19 @@ bool Battle::displayFirstAttackText(bool firstText) {
                     QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
                         .at(removeBuffEffectMonster.buff)
                         .name));
-        buffToGraphicalItemCurrentbar = &buffToGraphicalItemTop;
+        buff_list = enemy_buff_;
       }
     }
     ShowStatusMessage(attackOwner);
-    if (buffToGraphicalItemCurrentbar != NULL) {
-      if (buffToGraphicalItemTop.find(removeBuffEffectMonster.buff) !=
-          buffToGraphicalItemTop.cend()) {
-        delete buffToGraphicalItemTop.at(removeBuffEffectMonster.buff);
+    if (buff_list != nullptr) {
+      uint8_t index = 0;
+      while (index < buff_list->Count()) {
+        auto tmp = buff_list->GetItem(index);
+        if (tmp->Data(99) == removeBuffEffectMonster.buff) {
+          buff_list->RemoveItem(index);
+          delete tmp;
+        }
       }
-      buffToGraphicalItemTop.erase(removeBuffEffectMonster.buff);
     }
     client_->removeTheFirstRemoveBuffEffectAttackReturn();
     if (!client_->firstAttackReturnHaveMoreEffect())
@@ -3114,237 +2938,6 @@ bool Battle::displayFirstAttackText(bool firstText) {
   }
   emit error("Can't display text without effect");
   return false;
-}
-
-void Battle::displayAttack() {
-  PublicPlayerMonster *otherMonster = client_->getOtherMonster();
-  PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
-  if (otherMonster == NULL) {
-    error(
-        "displayAttack(): crash: unable to get the other monster to display "
-        "an "
-        "attack");
-    doNextAction();
-    return;
-  }
-  if (currentMonster == NULL) {
-    newError(tr("Internal error").toStdString() + ", file: " +
-                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
-             "displayAttack(): crash: unable to get the current monster");
-    doNextAction();
-    return;
-  }
-  if (client_->getAttackReturnList().empty()) {
-    newError(tr("Internal error").toStdString() + ", file: " +
-                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
-             "displayAttack(): crash: display an empty attack return");
-    doNextAction();
-    return;
-  }
-  if (client_->getAttackReturnList().front().lifeEffectMonster.empty() &&
-      client_->getAttackReturnList().front().buffLifeEffectMonster.empty() &&
-      client_->getAttackReturnList().front().addBuffEffectMonster.empty() &&
-      client_->getAttackReturnList().front().removeBuffEffectMonster.empty() &&
-      client_->getAttackReturnList().front().success) {
-    qDebug() << QStringLiteral(
-                    "displayAttack(): strange: display an empty lifeEffect "
-                    "list into attack return, attack: %1, "
-                    "doByTheCurrentMonster: %2, success: %3")
-                    .arg(connexionManager->client->getAttackReturnList()
-                             .front()
-                             .attack)
-                    .arg(connexionManager->client->getAttackReturnList()
-                             .front()
-                             .doByTheCurrentMonster)
-                    .arg(connexionManager->client->getAttackReturnList()
-                             .front()
-                             .success);
-    client_->removeTheFirstAttackReturn();
-    doNextAction();
-    return;
-  }
-
-  // if start, display text
-  if (displayAttackProgression == 0) {
-    updateAttackTime.restart();
-    if (!displayFirstAttackText(true)) return;
-  }
-
-  const Skill::AttackReturn &attackReturn = client_->getFirstAttackReturn();
-  // get the life effect to display
-  Skill::LifeEffectReturn lifeEffectReturn;
-  if (!attackReturn.lifeEffectMonster.empty()) {
-    lifeEffectReturn = attackReturn.lifeEffectMonster.front();
-  } else if (!attackReturn.buffLifeEffectMonster.empty()) {
-    lifeEffectReturn = attackReturn.buffLifeEffectMonster.front();
-  } else {
-    newError(tr("Internal error").toStdString() + ", file: " +
-                 std::string(__FILE__) + ":" + std::to_string(__LINE__),
-             QStringLiteral(
-                 "displayAttack(): strange: nothing to display, "
-                 "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
-                 "%2, addBuffEffectMonster.size(): %3, "
-                 "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
-                 .arg(attackReturn.lifeEffectMonster.size())
-                 .arg(attackReturn.buffLifeEffectMonster.size())
-                 .arg(attackReturn.addBuffEffectMonster.size())
-                 .arg(attackReturn.removeBuffEffectMonster.size())
-                 .arg(client_->getAttackReturnList().size())
-                 .toStdString());
-    client_->removeTheFirstAttackReturn();
-    // doNextAction();
-    return;
-  }
-
-  bool applyOnOtherMonster = false;
-  if (attackReturn.doByTheCurrentMonster) {
-    if ((lifeEffectReturn.on == ApplyOn::ApplyOn_AloneEnemy) ||
-        (lifeEffectReturn.on == ApplyOn::ApplyOn_AllEnemy))
-      applyOnOtherMonster = true;
-  } else {
-    if ((lifeEffectReturn.on == ApplyOn::ApplyOn_Themself) ||
-        (lifeEffectReturn.on == ApplyOn::ApplyOn_AllAlly))
-      applyOnOtherMonster = true;
-  }
-  // TODO(lanstat): verificar como mostrar gif
-  /*
-  QLabel *attackMovie;
-  if (applyOnOtherMonster)
-    attackMovie = labelFightMonsterAttackTop;
-  else
-    attackMovie = labelFightMonsterAttackBottom;
-
-  // attack animation
-  {
-    uint32_t attackId = attackReturn.attack;
-    QString skillAnimation =
-        QString::fromStdString(
-            QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
-        DATAPACK_BASE_PATH_SKILLANIMATION;
-    QString fileAnimation =
-        skillAnimation + QStringLiteral("%1.gif").arg(attackId);
-    if (QFile(fileAnimation).exists()) {
-      movie = new QMovie(fileAnimation, QByteArray(), attackMovie);
-      movie->setScaledSize(QSize(attackMovie->width(), attackMovie->height()));
-      if (movie->isValid()) {
-        attackMovie->setMovie(movie);
-        movie->start();
-      } else {
-        qDebug() << QStringLiteral("movie loaded is not valid for: %1")
-                        .arg(fileAnimation);
-      }
-    }
-  }
-  */
-
-  // each 400ms
-  if (displayAttackProgression % 100 && attack_quantity_changed < 0) {
-    if (applyOnOtherMonster) {
-      // 2000ms
-      if (updateAttackTime.elapsed() < 2000)
-        enemy_->SetVisible(!enemy_->IsVisible());
-    } else {
-      // 2000ms
-      if (updateAttackTime.elapsed() < 2000)
-        player_->SetVisible(!player_->IsVisible());
-    }
-  }
-  if (updateAttackTime.elapsed() > 2000) {
-    player_->SetVisible(true);
-    enemy_->SetVisible(true);
-    // TODO(lanstat): verificar como mostrar gif
-    /*
-    if (movie != NULL) {
-      movie->stop();
-      delete movie;
-    }
-    movie = NULL;
-    labelFightMonsterAttackTop->setMovie(NULL);
-    labelFightMonsterAttackBottom->setMovie(NULL);
-    */
-  }
-  int hp_to_change;
-  if (applyOnOtherMonster)
-    hp_to_change = enemy_hp_bar_->Maximum() / 200;  // 0.5%
-  else
-    hp_to_change = progressBarFightBottomHP->maximum() / 200;  // 0.5%
-  if (hp_to_change == 0) hp_to_change = 1;
-  // 3000ms
-  if (updateAttackTime.elapsed() > 3000) {
-    // only if passe here before have updated all the stats
-    {
-      int hp_to_change;
-      if (applyOnOtherMonster)
-        hp_to_change = enemy_hp_bar_->Maximum();
-      else
-        hp_to_change = progressBarFightBottomHP->maximum();
-      if (attackReturn.lifeEffectMonster.empty())
-        hp_to_change = 0;
-      else if (attackReturn.lifeEffectMonster.front().quantity != 0)
-        hp_to_change = attackReturn.lifeEffectMonster.front().quantity;
-      else
-        hp_to_change = 0;
-      if (hp_to_change != 0) {
-        client_->firstLifeEffectQuantityChange(-hp_to_change);
-        if (applyOnOtherMonster) {
-          enemy_hp_bar_->SetValue(enemy_hp_bar_->Value() +
-                                          hp_to_change);
-        } else {
-          progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
-                                             hp_to_change);
-        }
-      }
-    }
-    displayAttackProgression = 0;
-    attack_quantity_changed = 0;
-    if (!attackReturn.lifeEffectMonster.empty())
-      client_->removeTheFirstLifeEffectAttackReturn();
-    else
-      client_->removeTheFirstBuffEffectAttackReturn();
-    if (!client_->firstAttackReturnHaveMoreEffect()) {
-#ifdef CATCHCHALLENGER_DEBUG_FIGHT
-      {
-        qDebug() << "after display attack: currentMonster have hp "
-                 << progressBarFightBottomHP->value() << "and buff"
-                 << bottomBuff->count();
-        qDebug() << "after display attack: otherMonster have hp"
-                 << enemy_hp_bar_->value() << "and buff"
-                 << topBuff->count();
-      }
-#endif
-      client_->removeTheFirstAttackReturn();
-    }
-    // attack is finish
-    doNextAction();
-  } else {
-    qDebug() << "Effective: "
-             << attackReturn.lifeEffectMonster.front().quantity;
-    if (attackReturn.lifeEffectMonster.empty()) {
-      hp_to_change = 0;
-    } else if (attackReturn.lifeEffectMonster.front().quantity < 0) {
-      hp_to_change = -hp_to_change;
-      if (abs(hp_to_change) >
-          abs(attackReturn.lifeEffectMonster.front().quantity))
-        hp_to_change = attackReturn.lifeEffectMonster.front().quantity;
-    } else if (attackReturn.lifeEffectMonster.front().quantity > 0) {
-      if (hp_to_change > attackReturn.lifeEffectMonster.front().quantity)
-        hp_to_change = attackReturn.lifeEffectMonster.front().quantity;
-    } else {
-      hp_to_change = 0;
-    }
-    if (hp_to_change != 0) {
-      client_->firstLifeEffectQuantityChange(-hp_to_change);
-      if (applyOnOtherMonster) {
-        enemy_hp_bar_->SetValue(enemy_hp_bar_->Value() +
-                                        hp_to_change);
-      } else {
-        progressBarFightBottomHP->setValue(progressBarFightBottomHP->value() +
-                                           hp_to_change);
-      }
-    }
-    displayAttackTimer.start();
-    displayAttackProgression++;
-  }
 }
 
 void Battle::error(std::string error) {
@@ -3482,6 +3075,11 @@ void Battle::ConfigurePlayer() {
   player_enter_->SetTag(kStatusEnter);
 
   player_->SetOnActionDone(std::bind(&Battle::OnPlayerActionDone, this, _1));
+
+  player_buff_ = UI::ListView::Create(frameFightBottom);
+  // player_buff_->SetHorizontal(true);
+  player_buff_->SetPos(200, 25);
+  player_buff_->SetSize(180, 16);
 }
 
 void Battle::ConfigureEnemy() {
@@ -3499,6 +3097,11 @@ void Battle::ConfigureEnemy() {
   enemy_enter_->SetTag(kStatusEnter);
 
   enemy_->SetOnActionDone(std::bind(&Battle::OnEnemyActionDone, this, _1));
+
+  enemy_buff_ = UI::ListView::Create(frameFightTop);
+  // enemy_buff_->SetHorizontal(true);
+  enemy_buff_->SetPos(200, 20);
+  enemy_buff_->SetSize(180, 16);
 }
 
 void Battle::ConfigureCommons() {
@@ -3814,23 +3417,27 @@ void Battle::StartAttack() {
 
   const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
   // get the life effect to display
-  Skill::LifeEffectReturn life_effect_return;
+  CatchChallenger::ApplyOn apply_on;
   if (!attack_return.lifeEffectMonster.empty()) {
-    life_effect_return = attack_return.lifeEffectMonster.front();
+    apply_on = attack_return.lifeEffectMonster.front().on;
   } else if (!attack_return.buffLifeEffectMonster.empty()) {
-    life_effect_return = attack_return.buffLifeEffectMonster.front();
+    apply_on = attack_return.buffLifeEffectMonster.front().on;
+  } else if (!attack_return.addBuffEffectMonster.empty()) {
+    apply_on = attack_return.addBuffEffectMonster.front().on;
+  } else if (!attack_return.removeBuffEffectMonster.empty()) {
+    apply_on = attack_return.removeBuffEffectMonster.front().on;
   } else {
     error(QStringLiteral(
-                 "displayAttack(): strange: nothing to display, "
-                 "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
-                 "%2, addBuffEffectMonster.size(): %3, "
-                 "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
-                 .arg(attack_return.lifeEffectMonster.size())
-                 .arg(attack_return.buffLifeEffectMonster.size())
-                 .arg(attack_return.addBuffEffectMonster.size())
-                 .arg(attack_return.removeBuffEffectMonster.size())
-                 .arg(client_->getAttackReturnList().size())
-                 .toStdString());
+              "displayAttack(): strange: nothing to display, "
+              "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
+              "%2, addBuffEffectMonster.size(): %3, "
+              "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
+              .arg(attack_return.lifeEffectMonster.size())
+              .arg(attack_return.buffLifeEffectMonster.size())
+              .arg(attack_return.addBuffEffectMonster.size())
+              .arg(attack_return.removeBuffEffectMonster.size())
+              .arg(client_->getAttackReturnList().size())
+              .toStdString());
     client_->removeTheFirstAttackReturn();
     // doNextAction();
     return;
@@ -3838,12 +3445,12 @@ void Battle::StartAttack() {
 
   bool apply_on_enemy = false;
   if (attack_return.doByTheCurrentMonster) {
-    if ((life_effect_return.on == ApplyOn::ApplyOn_AloneEnemy) ||
-        (life_effect_return.on == ApplyOn::ApplyOn_AllEnemy))
+    if ((apply_on == ApplyOn::ApplyOn_AloneEnemy) ||
+        (apply_on == ApplyOn::ApplyOn_AllEnemy))
       apply_on_enemy = true;
   } else {
-    if ((life_effect_return.on == ApplyOn::ApplyOn_Themself) ||
-        (life_effect_return.on == ApplyOn::ApplyOn_AllAlly))
+    if ((apply_on == ApplyOn::ApplyOn_Themself) ||
+        (apply_on == ApplyOn::ApplyOn_AllAlly))
       apply_on_enemy = true;
   }
   if (apply_on_enemy)
@@ -3865,9 +3472,10 @@ void Battle::StartAttack() {
       attack_animation_->SetFrames(frames);
     }
   }
-  qDebug() << "bless";
 
-  displayFirstAttackText(true);
+  if (!displayFirstAttackText(true)) {
+    return;
+  }
 
   attack_->SetVisible(true);
   attack_->RunAction(attack_animation_);
@@ -3908,23 +3516,27 @@ void Battle::OnAttackDone(int tag) {
 
   const Skill::AttackReturn &attack_return = client_->getFirstAttackReturn();
   // get the life effect to display
-  Skill::LifeEffectReturn life_effect_return;
+  CatchChallenger::ApplyOn apply_on;
   if (!attack_return.lifeEffectMonster.empty()) {
-    life_effect_return = attack_return.lifeEffectMonster.front();
+    apply_on = attack_return.lifeEffectMonster.front().on;
   } else if (!attack_return.buffLifeEffectMonster.empty()) {
-    life_effect_return = attack_return.buffLifeEffectMonster.front();
+    apply_on = attack_return.buffLifeEffectMonster.front().on;
+  } else if (!attack_return.addBuffEffectMonster.empty()) {
+    apply_on = attack_return.addBuffEffectMonster.front().on;
+  } else if (!attack_return.removeBuffEffectMonster.empty()) {
+    apply_on = attack_return.removeBuffEffectMonster.front().on;
   } else {
     error(QStringLiteral(
-                 "displayAttack(): strange: nothing to display, "
-                 "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
-                 "%2, addBuffEffectMonster.size(): %3, "
-                 "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
-                 .arg(attack_return.lifeEffectMonster.size())
-                 .arg(attack_return.buffLifeEffectMonster.size())
-                 .arg(attack_return.addBuffEffectMonster.size())
-                 .arg(attack_return.removeBuffEffectMonster.size())
-                 .arg(client_->getAttackReturnList().size())
-                 .toStdString());
+              "displayAttack(): strange: nothing to display, "
+              "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
+              "%2, addBuffEffectMonster.size(): %3, "
+              "removeBuffEffectMonster.size(): %4, AttackReturnList: %5")
+              .arg(attack_return.lifeEffectMonster.size())
+              .arg(attack_return.buffLifeEffectMonster.size())
+              .arg(attack_return.addBuffEffectMonster.size())
+              .arg(attack_return.removeBuffEffectMonster.size())
+              .arg(client_->getAttackReturnList().size())
+              .toStdString());
     client_->removeTheFirstAttackReturn();
     // doNextAction();
     return;
@@ -3932,12 +3544,12 @@ void Battle::OnAttackDone(int tag) {
 
   bool apply_on_enemy = false;
   if (attack_return.doByTheCurrentMonster) {
-    if ((life_effect_return.on == ApplyOn::ApplyOn_AloneEnemy) ||
-        (life_effect_return.on == ApplyOn::ApplyOn_AllEnemy))
+    if ((apply_on == ApplyOn::ApplyOn_AloneEnemy) ||
+        (apply_on == ApplyOn::ApplyOn_AllEnemy))
       apply_on_enemy = true;
   } else {
-    if ((life_effect_return.on == ApplyOn::ApplyOn_Themself) ||
-        (life_effect_return.on == ApplyOn::ApplyOn_AllAlly))
+    if ((apply_on == ApplyOn::ApplyOn_Themself) ||
+        (apply_on == ApplyOn::ApplyOn_AllAlly))
       apply_on_enemy = true;
   }
   if (apply_on_enemy) {
@@ -3953,7 +3565,7 @@ void Battle::OnAttackDone(int tag) {
       if (apply_on_enemy) {
         enemy_hp_bar_->IncrementValue(hp_to_change, true);
       } else {
-        // progressBarFightBottomHP->IncrementValue(-hp_to_change);
+        player_hp_bar_->IncrementValue(hp_to_change, true);
       }
     }
   }
@@ -3969,11 +3581,9 @@ void Battle::OnDamageDone() {
 #ifdef CATCHCHALLENGER_DEBUG_FIGHT
     {
       qDebug() << "after display attack: currentMonster have hp "
-               << progressBarFightBottomHP->value() << "and buff"
-               << bottomBuff->count();
+               << player_hp_bar_->Value() << "and buff" << bottomBuff->count();
       qDebug() << "after display attack: otherMonster have hp"
-               << enemy_hp_bar_->value() << "and buff"
-               << topBuff->count();
+               << enemy_hp_bar_->value() << "and buff" << enemy_buff_->Count();
     }
 #endif
     client_->removeTheFirstAttackReturn();
@@ -3984,4 +3594,165 @@ void Battle::OnDamageDone() {
 
 void Battle::newError(std::string error, std::string detailedError) {
   qDebug() << QString::fromStdString(error + ": " + detailedError);
+}
+
+bool Battle::ApplyBuffEffect(PublicPlayerMonster *current_monster,
+                             PublicPlayerMonster *other_monster,
+                             const Skill::AttackReturn current_attack) {
+  QString attack_owner;
+  const auto &buff_effect = current_attack.addBuffEffectMonster.front();
+  UI::ListView *buff_list = nullptr;
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+  bool on_buff_current_monster = false;
+#endif
+  if (current_attack.doByTheCurrentMonster) {
+    if ((buff_effect.on & ApplyOn::ApplyOn_AllEnemy) ||
+        (buff_effect.on & ApplyOn::ApplyOn_AloneEnemy)) {
+      attack_owner +=
+          tr("add the buff %2 on the other %1")
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterExtra
+                      .at(other_monster->monster)
+                      .name))
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
+                      .at(buff_effect.buff)
+                      .name));
+      buff_list = enemy_buff_;
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+      on_buff_current_monster = false;
+#endif
+    }
+    if ((buff_effect.on & ApplyOn::ApplyOn_AllAlly) ||
+        (buff_effect.on & ApplyOn::ApplyOn_Themself)) {
+      attack_owner +=
+          tr("add the buff %1 on themself")
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
+                      .at(buff_effect.buff)
+                      .name));
+      buff_list = player_buff_;
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+      on_buff_current_monster = true;
+#endif
+    }
+  } else {
+    if ((buff_effect.on & ApplyOn::ApplyOn_AllEnemy) ||
+        (buff_effect.on & ApplyOn::ApplyOn_AloneEnemy)) {
+      attack_owner +=
+          tr("add the buff %2 on your %1")
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterExtra
+                      .at(current_monster->monster)
+                      .name))
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
+                      .at(buff_effect.buff)
+                      .name));
+      buff_list = player_buff_;
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+      on_buff_current_monster = true;
+#endif
+    }
+    if ((buff_effect.on & ApplyOn::ApplyOn_AllAlly) ||
+        (buff_effect.on & ApplyOn::ApplyOn_Themself)) {
+      attack_owner +=
+          tr("add the buff %1 on themself")
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
+                      .at(buff_effect.buff)
+                      .name));
+      buff_list = enemy_buff_;
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+      on_buff_current_monster = false;
+#endif
+    }
+  }
+  ShowStatusMessage(attack_owner);
+  if (buff_list != nullptr) {
+    // search the buff
+    Sprite *item = nullptr;
+    int index = 0;
+    while (index < buff_list->Count()) {
+      if (buff_list->GetItem(index)->Data(99) == buff_effect.buff) {
+        item = static_cast<Sprite *>(buff_list->GetItem(index));
+        break;
+      }
+      index++;
+    }
+    // add new buff because don't exist
+    if (index == buff_list->Count()) {
+      item = Sprite::Create();
+      item->SetData(99,
+                    buff_effect.buff);  // to prevent duplicate buff, because
+                                        // add can be to re-enable an already
+                                        // enable buff (for larger period then)
+    }
+    if (QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.find(
+            buff_effect.buff) ==
+        QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.cend()) {
+      item->SetToolTip(tr("Unknown buff"));
+      item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
+    } else {
+      const QtDatapackClientLoader::MonsterExtra::Buff &buff_extra =
+          QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(
+              buff_effect.buff);
+      const QtDatapackClientLoader::QtBuff &qt_buff_extra =
+          QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra.at(
+              buff_effect.buff);
+      if (!qt_buff_extra.icon.isNull()) {
+        item->SetPixmap(qt_buff_extra.icon);
+      } else {
+        item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
+      }
+      if (buff_effect.level <= 1) {
+        item->SetToolTip(QString::fromStdString(buff_extra.name));
+      } else {
+        item->SetToolTip(tr("%1 at level %2")
+                             .arg(QString::fromStdString(buff_extra.name))
+                             .arg(buff_effect.level));
+      }
+      item->SetToolTip(item->ToolTip() + "\n" +
+                       QString::fromStdString(buff_extra.description));
+    }
+    item->SetSize(16, 16);
+    if (index == buff_list->Count()) buff_list->AddItem(item);
+  }
+  client_->removeTheFirstAddBuffEffectAttackReturn();
+  if (!client_->firstAttackReturnHaveMoreEffect())
+    client_->removeTheFirstAttackReturn();
+#ifdef CATCHCHALLENGER_EXTRA_CHECK
+  if (!on_buff_current_monster && other_monster != NULL) {
+    if (other_monster->buffs.size() != buff_list->Count()) {
+      error(
+          "displayFirstAttackText(): bug: buffs number displayed != than "
+          "real buff count on other monter");
+      doNextAction();
+      return false;
+    }
+  }
+  if (on_buff_current_monster && current_monster != NULL) {
+    if (current_monster->buffs.size() != buff_list->Count()) {
+      error(
+          "displayFirstAttackText(): bug: buffs number displayed != than "
+          "real buff count on current monter");
+      doNextAction();
+      return false;
+    }
+  }
+#endif
+  qDebug() << "display the add buff";
+  qDebug()
+      << QStringLiteral(
+             "displayFirstAttackText(): after display text, "
+             "lifeEffectMonster.size(): %1, buffLifeEffectMonster.size(): "
+             "%2, buff_effect.size(): %3, "
+             "removeBuffEffectMonster.size(): %4, attackReturnList.size(): "
+             "%5")
+             .arg(current_attack.lifeEffectMonster.size())
+             .arg(current_attack.buffLifeEffectMonster.size())
+             .arg(current_attack.addBuffEffectMonster.size())
+             .arg(current_attack.removeBuffEffectMonster.size())
+             .arg(client_->getAttackReturnList().size());
+  return false;
 }

@@ -1,15 +1,10 @@
 // Copyright 2021 CatchChallenger
 #include "Tick.hpp"
 
-#include <chrono>
-#include <cmath>
+#include <iostream>
 
 #include "../core/Node.hpp"
 #include "Action.hpp"
-
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::chrono::system_clock;
 
 Tick* Tick::Create(int milliseconds, const std::function<bool()> &callback) {
   Tick* instance = new Tick();

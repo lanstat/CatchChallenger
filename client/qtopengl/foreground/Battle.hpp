@@ -15,9 +15,9 @@
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
 #include "../action/Animation.hpp"
+#include "../action/Blink.hpp"
 #include "../action/MoveTo.hpp"
 #include "../action/Timeout.hpp"
-#include "../action/Blink.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../core/ActionManager.hpp"
 #include "../core/Node.hpp"
@@ -96,7 +96,6 @@ class Battle : public ScreenInput {
   void on_pushButtonFightAttack_clicked();
   void on_pushButtonFightMonster_clicked();
   void on_pushButtonFightReturn_clicked();
-  void displayAttack();
   void displayExperienceGain();
   void botFightFullDiffered();
   void OnBagButtonClick();
@@ -105,11 +104,9 @@ class Battle : public ScreenInput {
 
  private:
   ImagesStrechMiddle *frameFightBottom;
-  QList<QListWidgetItem *> bottomBuff;
   QGraphicsTextItem *labelFightBottomName;
 
   ImagesStrechMiddle *frameFightTop;
-  QList<QListWidgetItem *> topBuff;
   QGraphicsTextItem *labelFightTopName;
   QGraphicsTextItem *labelFightBottomLevel;
 
@@ -128,13 +125,10 @@ class Battle : public ScreenInput {
   CatchChallenger::Bot actualBot;
 
   QTimer moveFightMonsterBothTimer;
-  QTimer displayAttackTimer;
   QTimer displayExpTimer;
-  QTime updateAttackTime;
   QTimer botFightTimer;
   QTime updateTrapTime;
   QTimer displayTrapTimer;
-  QMovie *movie;
 
   QGraphicsPixmapItem *labelFightMonsterAttackBottom;
   QGraphicsPixmapItem *labelFightMonsterAttackTop;
@@ -192,8 +186,9 @@ class Battle : public ScreenInput {
   MoveTo *player_enter_;
   MoveTo *player_exit_;
   MoveTo *player_dead_;
-  CCprogressbar *progressBarFightBottomHP;
+  UI::Progressbar *player_hp_bar_;
   CCprogressbar *progressBarFightBottomExp;
+  UI::ListView *player_buff_;
 
   // Enemy
   Sprite *enemy_;
@@ -201,6 +196,7 @@ class Battle : public ScreenInput {
   MoveTo *enemy_exit_;
   MoveTo *enemy_dead_;
   UI::Progressbar *enemy_hp_bar_;
+  UI::ListView *enemy_buff_;
 
   // Attack
   Sprite *attack_;
@@ -214,8 +210,6 @@ class Battle : public ScreenInput {
   CatchChallenger::Api_protocol_Qt *client_;
   std::vector<uint16_t> botFightList;
   std::vector<BattleInformations> battleInformationsList;
-  std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemTop;
-  std::unordered_map<uint8_t, QListWidgetItem *> buffToGraphicalItemBottom;
   std::vector<uint8_t> tradeEvolutionMonsters;
   std::vector<QListWidgetItem> monsterList;
 
@@ -236,6 +230,10 @@ class Battle : public ScreenInput {
   void StartAttack();
   void OnAttackDone(int tag);
   void OnDamageDone();
+  bool ApplyBuffEffect(
+      CatchChallenger::PublicPlayerMonster *current_monster,
+      CatchChallenger::PublicPlayerMonster *other_monster,
+      const CatchChallenger::Skill::AttackReturn current_attack);
 
   void moveFightMonsterBoth();
   void doNextAction();

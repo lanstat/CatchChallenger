@@ -225,6 +225,7 @@ void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
   if (!IsEnabled()) return;
   const QRectF &b = boundingRect();
   const QRectF &t = mapRectToScene(b);
+  SetPressed(false);
   if (!prev_validated && IsVisible()) {
     if (t.contains(p)) {
       if (on_click_) {
@@ -232,7 +233,6 @@ void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
       }
     }
   }
-  SetPressed(false);
 }
 
 void Button::MouseMoveEventXY(const QPointF &point) {}
