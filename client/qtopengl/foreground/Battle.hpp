@@ -2,64 +2,47 @@
 #define Battle_H
 
 #include <QObject>
-#include <QTimer>
 #include <unordered_map>
 
 #include "../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../general/base/FacilityLib.hpp"
 #include "../../../general/base/GeneralStructures.hpp"
+#include "../../../general/base/MoveOnTheMap.hpp"
 #include "../ConnexionManager.hpp"
 #include "../Map_client.hpp"
-#include "../ScreenInput.hpp"
 #include "../above/MessageDialog.hpp"
 #include "../above/inventory/Inventory.hpp"
 #include "../above/monster/MonsterBag.hpp"
 #include "../action/Animation.hpp"
-#include "../action/Blink.hpp"
-#include "../action/MoveTo.hpp"
-#include "../action/Timeout.hpp"
+#include "../action/Sequence.hpp"
 #include "../cc/ClientFightEngine.hpp"
 #include "../core/ActionManager.hpp"
 #include "../core/Node.hpp"
+#include "../core/Scene.hpp"
 #include "../core/Sprite.hpp"
 #include "../ui/Button.hpp"
 #include "../ui/Label.hpp"
 #include "../ui/ListView.hpp"
 #include "../ui/Progressbar.hpp"
 
-class CCprogressbar;
-class ImagesStrechMiddle;
-class CustomButton;
-class CustomText;
-class QGraphicsProxyWidget;
-class QListWidget;
-class QListWidgetItem;
+class MoveTo;
+class Delay;
 
-class Battle : public ScreenInput {
+class Battle : public Scene {
   Q_OBJECT
 
  public:
-  explicit Battle();
+  Battle();
   ~Battle();
   static Battle *battle;
-  void newLanguage();
-  QRectF boundingRect() const;
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *widget = nullptr) override;
-  void mousePressEventXY(const QPointF &p, bool &pressValidated,
-                         bool &callParentClass) override;
-  void mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
-                           bool &callParentClass) override;
-  void mouseMoveEventXY(const QPointF &p, bool &pressValidated,
-                        bool &callParentClass) override;
-  void stackedWidgetFightBottomBarsetCurrentWidget(int index);
+  void ChangeLanguage();
 
   bool check_monsters();
   bool WildFightInitialize(CatchChallenger::Map_client *map, const uint8_t &x,
                            const uint8_t &y);
-  void botFight(CatchChallenger::Map_client *map, const uint8_t &x,
+  void BotFightInitialize(CatchChallenger::Map_client *map, const uint8_t &x,
                 const uint8_t &y, const uint16_t &fightId);
-  void setVar(ConnexionManager *connexionManager);
+  void SetVariables(ConnexionManager *connection_manager);
 
   enum BattleType { BattleType_Wild, BattleType_Bot, BattleType_OtherPlayer };
   enum SkillData { kSkillId = 0, kSkillEndurance = 1 };
@@ -69,7 +52,6 @@ class Battle : public ScreenInput {
     BattleStep_Middle,
     BattleStep_Final
   };
-  enum MoveType { MoveType_Enter, MoveType_Leave, MoveType_Dead };
   enum DoNextActionStep {
     DoNextActionStep_Start,
     DoNextActionStep_Loose,
@@ -80,7 +62,8 @@ class Battle : public ScreenInput {
     kStatusEnter = 0,
     kStatusExit = 1,
     kStatusDead = 2,
-    kStatusDamage = 3
+    kStatusDamage = 3,
+    kExperienceGain = 4
   };
   enum SpriteLocation { kOutScreen = 0, kReadyForBattle = 1 };
   struct BattleInformations {
@@ -91,88 +74,34 @@ class Battle : public ScreenInput {
     CatchChallenger::PublicPlayerMonster publicPlayerMonster;
   };
  public slots:
-  void on_pushButtonFightEnterNext_clicked();
-  void on_toolButtonFightQuit_clicked();
-  void on_pushButtonFightAttack_clicked();
-  void on_pushButtonFightMonster_clicked();
-  void on_pushButtonFightReturn_clicked();
-  void displayExperienceGain();
-  void botFightFullDiffered();
-  void OnBagButtonClick();
  signals:
   void Finished();
 
  private:
-  ImagesStrechMiddle *frameFightBottom;
-  QGraphicsTextItem *labelFightBottomName;
-
-  ImagesStrechMiddle *frameFightTop;
-  QGraphicsTextItem *labelFightTopName;
-  QGraphicsTextItem *labelFightBottomLevel;
-
-  QGraphicsPixmapItem *labelFightBackground;
+  Sprite *labelFightBackground;
   QPixmap labelFightBackgroundPix;
-  QGraphicsPixmapItem *labelFightForeground;
+  Sprite *labelFightForeground;
   QPixmap labelFightForegroundPix;
   QGraphicsPixmapItem *labelFightPlateformBottom;
   QPixmap labelFightPlateformBottomPix;
   QGraphicsPixmapItem *labelFightPlateformTop;
-  QPixmap labelFightPlateformTopPix;
-  CatchChallenger::Map_client *map;
 
-  Inventory::ObjectType waitedObjectType;
   // bot
   CatchChallenger::Bot actualBot;
-
-  QTimer moveFightMonsterBothTimer;
-  QTimer displayExpTimer;
-  QTimer botFightTimer;
-  QTime updateTrapTime;
-  QTimer displayTrapTimer;
-
-  QGraphicsPixmapItem *labelFightMonsterAttackBottom;
-  QGraphicsPixmapItem *labelFightMonsterAttackTop;
-  QGraphicsPixmapItem *labelFightTrap;
 
   QPixmap playerBackImage;
   QPixmap playerFrontImage;
 
-  ImagesStrechMiddle *stackedWidgetFightBottomBar;
-
-  UI::Label *status_label_;
-  CustomButton *pushButtonFightEnterNext;
-
-  CustomButton *pushButtonFightAttack;
-  CustomButton *pushButtonFightBag;
-  CustomButton *pushButtonFightMonster;
-  CustomButton *toolButtonFightQuit;
-  MessageDialog *message_dialog_;
-
-  CustomButton *pushButtonFightAttackConfirmed;
-  CustomButton *pushButtonFightReturn;
-  QGraphicsTextItem *labelFightAttackDetails;
-
-  int m_stackedWidgetFightBottomBarIndex = 0;
-  uint32_t mLastGivenXP = 0;
-  uint8_t currentMonsterLevel;
-  int displayAttackProgression;
-  int32_t attack_quantity_changed;
   uint8_t monsterEvolutionPostion;
-  uint32_t trapItemId;
 
   bool escape;
   bool escapeSuccess;
   bool useTheRescueSkill;
-  bool trapSuccess;
   ConnexionManager *connexionManager;
   bool fightTimerFinish;
   uint16_t fightId;
-  int displayTrapProgression;
-  uint16_t screen_width_;
-  uint16_t screen_height_;
 
   BattleStep battleStep;
-  MoveType moveType;
   BattleType battleType;
   DoNextActionStep doNextActionStep;
 
@@ -180,45 +109,86 @@ class Battle : public ScreenInput {
   MonsterBag *monsters_bag_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
+  MessageDialog *message_dialog_;
+
+  bool waiting_server_reply_;
+
+  // Action bar
+  Sprite *action_background_;
+  UI::Label *status_label_;
+  UI::Button *action_next_;
+  UI::Button *action_attack_;
+  UI::Button *action_bag_;
+  UI::Button *action_monster_;
+  UI::Button *action_escape_;
+  UI::Button *action_return_;
 
   // Player
   Sprite *player_;
-  MoveTo *player_enter_;
-  MoveTo *player_exit_;
-  MoveTo *player_dead_;
+  Sequence *player_enter_;
+  Sequence *player_exit_;
+  Sequence *player_dead_;
   UI::Progressbar *player_hp_bar_;
-  CCprogressbar *progressBarFightBottomExp;
+  UI::Progressbar *player_exp_bar_;
   UI::ListView *player_buff_;
+  Sprite *player_background_;
+  UI::Label *player_name_;
 
   // Enemy
   Sprite *enemy_;
-  MoveTo *enemy_enter_;
-  MoveTo *enemy_exit_;
-  MoveTo *enemy_dead_;
+  Sequence *enemy_enter_;
+  Sequence *enemy_exit_;
+  Sequence *enemy_dead_;
+  // Pointer to use it in lambda function
+  MoveTo *enemy_move_enter_;
+  MoveTo *enemy_move_exit_;
+  MoveTo *enemy_move_dead_;
   UI::Progressbar *enemy_hp_bar_;
   UI::ListView *enemy_buff_;
+  Sprite *enemy_background_;
+  UI::Label *enemy_name_;
 
   // Attack
   Sprite *attack_;
-  Animation *attack_animation_;
+  Sequence *attack_animation_;
+
+  // Trap
+  Sprite *trap_;
+  Sequence *trap_throw_;
+  Sequence *trap_catch_;
+  bool is_trap_success_;
 
   // Commons
-  Blink *sprite_damage_;
-  Timeout *status_timeout_;
+  Sequence *sprite_damage_;
+  Sequence *status_timeout_;
+  CatchChallenger::MonstersCollisionValue zone_collision_;
+
+  // Both
+  Sequence *both_enter_;
+  Sequence *both_exit_;
+  Sequence *both_dead_;
+  Sequence *both_delay_;
+
+  // Experience
+  Sequence *experience_gain_;
+  uint32_t delta_given_xp_;
+  uint8_t player_monster_lvl_;
 
   CatchChallenger::CommonFightEngine *fightEngine;
   CatchChallenger::Api_protocol_Qt *client_;
   std::vector<uint16_t> botFightList;
   std::vector<BattleInformations> battleInformationsList;
   std::vector<uint8_t> tradeEvolutionMonsters;
-  std::vector<QListWidgetItem> monsterList;
 
-  void ConfigurePlayer();
-  void ConfigureEnemy();
+  void ConfigureFighters();
   void ConfigureCommons();
-  void OnPlayerActionDone(int action_id);
-  void OnEnemyActionDone(int action_id);
-  void OnStatusActionDone(int action_id);
+  void OnPlayerExitDone();
+  void OnPlayerEnterDone();
+  void OnPlayerDeadDone();
+  void OnEnemyExitDone();
+  void OnEnemyEnterDone();
+  void OnEnemyDeadDone();
+  void OnStatusActionDone();
   UI::Button *CreateSkillButton();
   void OnSkillClick(Node *button);
   void ShowStatusMessage(const std::string &text, bool show_next_btn = false,
@@ -228,19 +198,44 @@ class Battle : public ScreenInput {
   void UpdateAttackSkills();
   void OnMonsterSelect(uint8_t monster_index);
   void StartAttack();
-  void OnAttackDone(int tag);
+  void OnAttackDone();
   void OnDamageDone();
-  bool ApplyBuffEffect(
+  bool AddBuffEffect(CatchChallenger::PublicPlayerMonster *current_monster,
+                     CatchChallenger::PublicPlayerMonster *other_monster,
+                     const CatchChallenger::Skill::AttackReturn current_attack,
+                     QString attack_owner);
+  bool RemoveBuffEffect(
       CatchChallenger::PublicPlayerMonster *current_monster,
       CatchChallenger::PublicPlayerMonster *other_monster,
-      const CatchChallenger::Skill::AttackReturn current_attack);
+      const CatchChallenger::Skill::AttackReturn current_attack,
+      QString attack_owner);
+  bool ProcessAttack();
+  void UseTrap(const uint16_t &item_id);
+  void OnTrapThrowDone();
+  void OnTrapCatchDone();
+  void MonsterCatch(const bool &success);
+  void OnActionNextClick(Node *);
+  void OnActionAttackClick(Node *);
+  void OnActionBagClick(Node *);
+  void OnActionMonsterClick(Node *);
+  void OnActionEscapeClick(Node *);
+  void OnActionReturnClick(Node *);
+  void ShowActionBarTab(int index);
+  void ConfigureBattleground();
+  void Win();
+  void CheckEvolution();
+  void OnExperienceGainDone();
+  void ProcessEnemyMonsterKO();
+  void OnExperienceIncrementDone();
+  void OnBothActionDone(int8_t type);
+  void BotFightFullDiffered();
+  void PlayerMonsterInitialize(
+      CatchChallenger::PlayerMonster *fight_monster);
 
-  void moveFightMonsterBoth();
   void doNextAction();
   void updateCurrentMonsterInformation();
   void updateOtherMonsterInformation();
   void updateCurrentMonsterInformationXp();
-  void win();
   void loose();
   void resetPosition(bool outOfScreen, bool topMonster, bool bottomMonster);
   void botFightFull(const uint16_t &fightId);
@@ -249,24 +244,20 @@ class Battle : public ScreenInput {
   QPixmap getFrontSkin(const std::string &skinName);
   QPixmap getFrontSkin(const uint32_t &skinId);
   void load_monsters();
-  void checkEvolution();
-  bool displayFirstAttackText(bool firstText);
 
-  void init_environement_display(CatchChallenger::Map_client *map,
-                                 const uint8_t &x, const uint8_t &y);
-  void init_current_monster_display(
-      CatchChallenger::PlayerMonster *fightMonster);
   void init_other_monster_display();
   void battleAcceptedByOtherFull(const BattleInformations &battleInformations);
   void ShowMessageDialog(const QString &title, const QString &message);
   void ShowBagDialog();
   void ShowMonsterDialog();
   void UseBagItem(uint16_t);
-  void monsterCatch(const bool &success);
-  void displayTrap();
-  void useTrap(const uint16_t &itemId);
   void newError(std::string error, std::string detailedError);
  private slots:
   void error(std::string error);
+
+ protected:
+  void OnScreenSD() override;
+  void OnScreenHD() override;
+  void OnScreenHDR() override;
 };
 #endif  // MULTI_H

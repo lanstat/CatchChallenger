@@ -10,7 +10,7 @@
 
 using UI::Button;
 
-Button::Button(QString pix, QGraphicsItem *parent) : Node(parent) {
+Button::Button(QString pix, Node *parent) : Node(parent) {
   text_path_ = nullptr;
 
   font_ = new QFont();
@@ -31,7 +31,7 @@ Button::Button(QString pix, QGraphicsItem *parent) : Node(parent) {
   bounding_rect_ = QRectF(0.0, 0.0, 223.0, 92.0);
 }
 
-Button *Button::Create(QString pix, QGraphicsItem *parent) {
+Button *Button::Create(QString pix, Node *parent) {
   Button *instance = new (std::nothrow) Button(pix, parent);
   return instance;
 }
@@ -64,8 +64,8 @@ Button::~Button() {
   }
 }
 
-void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-                   QWidget *) {
+void Button::Draw(QPainter *painter) {
+  if (!IsVisible()) return;
   if (cache_ != nullptr) {
     painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y(),
                         bounding_rect_.width(), bounding_rect_.height(),
@@ -84,7 +84,7 @@ void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   QPixmap scaled_background;
   QPixmap temp(*GameLoader::gameLoader->getImage(background_));
   if (temp.isNull()) abort();
-  if (!isEnabled())
+  if (!IsEnabled())
     scaled_background =
         temp.copy(0, temp.height() * 2 / 3, temp.width(), temp.height() / 3);
   else if (checked_)
@@ -102,7 +102,7 @@ void Button::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   if (text_path_ != nullptr && paint.isActive()) {
     paint.setRenderHint(QPainter::Antialiasing);
     qreal pen_width = font_->pixelSize() * 0.057;
-    if (isEnabled())
+    if (IsEnabled())
       paint.setPen(QPen(outline_color_, pen_width, Qt::SolidLine, Qt::RoundCap,
                         Qt::RoundJoin));
     else
@@ -170,7 +170,7 @@ bool Button::UpdateTextPercent(uint8_t percent) {
   if (percent > 100) return false;
   percent_ = percent;
   UpdateTextPath();
-  update();
+  // update();
   return true;
 }
 
@@ -208,8 +208,8 @@ void Button::MousePressEventXY(const QPointF &p, bool &press_validated) {
   if (!IsVisible()) return;
   if (!IsEnabled()) return;
 
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
   if (t.contains(p)) {
     press_validated = true;
     SetPressed(true);
@@ -223,8 +223,8 @@ void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
   }
   if (!pressed_) return;
   if (!IsEnabled()) return;
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
   SetPressed(false);
   if (!prev_validated && IsVisible()) {
     if (t.contains(p)) {
@@ -235,7 +235,7 @@ void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
   }
 }
 
-void Button::MouseMoveEventXY(const QPointF &point) {}
+void Button::MouseMoveEventXY(const QPointF &point) { (void)point; }
 
 void Button::SetEnabled(bool enabled) {
   if (enabled == IsEnabled()) return;

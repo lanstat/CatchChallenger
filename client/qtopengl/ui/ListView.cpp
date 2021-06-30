@@ -8,7 +8,7 @@
 
 using UI::ListView;
 
-ListView::ListView(QGraphicsItem *parent) : Node(parent) {
+ListView::ListView(Node *parent) : Node(parent) {
   content_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   slider_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   show_slider_ = false;
@@ -22,14 +22,12 @@ ListView::~ListView() {
   }
 }
 
-ListView *ListView::Create(QGraphicsItem *parent) {
+ListView *ListView::Create(Node *parent) {
   ListView *instance = new (std::nothrow) ListView(parent);
   return instance;
 }
 
-void ListView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                     QWidget *widget) {
-  Node::paint(painter, option, widget);
+void ListView::Draw(QPainter *painter) {
   if (items_.size() == 0) return;
 
   if (visible_) {
@@ -42,13 +40,13 @@ void ListView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     QPainter painter_c(&content_);
     if (painter_c.isActive()) {
       for (auto item : items_) {
-        item->paint(&painter_c, nullptr, nullptr);
+        item->Paint(&painter_c, nullptr, nullptr);
       }
       painter_c.end();
     }
 
     painter->drawPixmap(x1, y1, content_, content_rect_.x(), content_rect_.y(),
-                        boundingRect().width(), boundingRect().height());
+                        BoundingRect().width(), BoundingRect().height());
 
     if (show_slider_) {
       if (is_horizontal_) {
@@ -62,7 +60,7 @@ void ListView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 }
 
 void ListView::AddItem(Node *node) {
-  node->setParentItem(nullptr);
+  node->SetParent(nullptr);
   items_.push_back(node);
   ReCalculateSize();
 }
@@ -101,11 +99,11 @@ void ListView::ReCalculateSize() {
     }
 
     content_ = QPixmap(content_rect_.width(), content_rect_.height());
-    content_scale_ = content_rect_.height() / boundingRect().height();
+    content_scale_ = content_rect_.height() / BoundingRect().height();
 
     if (show_slider_) {
-      int slider_height = (boundingRect().height() / content_rect_.height()) *
-                          boundingRect().height();
+      int slider_height = (BoundingRect().height() / content_rect_.height()) *
+                          BoundingRect().height();
 
       auto tmp = QPixmap(":/CC/images/interface/sliderBarV.png");
       auto top = tmp.copy(0, 0, 22, 5);
@@ -123,8 +121,8 @@ void ListView::ReCalculateSize() {
       painter->end();
       delete painter;
 
-      slider_rect_ = QRectF(boundingRect().x() + boundingRect().width() - 22,
-                            boundingRect().y(), 22, slider_height);
+      slider_rect_ = QRectF(BoundingRect().x() + BoundingRect().width() - 22,
+                            BoundingRect().y(), 22, slider_height);
 
       slider_ = QPixmap(22, slider_height);
       slider_.fill(Qt::transparent);
@@ -168,11 +166,11 @@ void ListView::ReCalculateSize() {
     }
 
     content_ = QPixmap(content_rect_.width(), content_rect_.height());
-    content_scale_ = content_rect_.width() / boundingRect().width();
+    content_scale_ = content_rect_.width() / BoundingRect().width();
 
     if (show_slider_) {
-      int slider_width = (boundingRect().width() / content_rect_.width()) *
-                         boundingRect().width();
+      int slider_width = (BoundingRect().width() / content_rect_.width()) *
+                         BoundingRect().width();
 
       auto tmp = QPixmap(":/CC/images/interface/sliderBarV.png");
       auto top = tmp.copy(0, 0, 22, 5);
@@ -191,8 +189,8 @@ void ListView::ReCalculateSize() {
       painter->end();
       delete painter;
 
-      slider_rect_ = QRectF(boundingRect().x(),
-                            boundingRect().y() + boundingRect().height() - 22,
+      slider_rect_ = QRectF(BoundingRect().x(),
+                            BoundingRect().y() + BoundingRect().height() - 22,
                             slider_width, 22);
 
       slider_ = QPixmap(slider_width, 22);
@@ -225,15 +223,15 @@ void ListView::MousePressEventXY(const QPointF &point, bool &press_validated) {
   if (press_validated) return;
 
   const QRectF &b = slider_rect_;
-  const QRectF &t = mapRectToScene(b);
+  const QRectF &t = MapRectToScene(b);
   if (show_slider_ && t.contains(point)) {
     press_validated = true;
     is_slider_pressed_ = true;
   } else {
     // Verify if point is in listview, if true calculate the relative position
     // of the point in the content
-    const QRectF &b2 = boundingRect();
-    const QRectF &t2 = mapRectToScene(b2);
+    const QRectF &b2 = BoundingRect();
+    const QRectF &t2 = MapRectToScene(b2);
     if (t2.contains(point)) {
       QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                  content_rect_.y() + point.y() - t2.y());
@@ -248,8 +246,8 @@ void ListView::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
   is_slider_pressed_ = false;
   // Verify if point is in listview, if true calculate the relative position
   // of the point in the content
-  const QRectF &b2 = boundingRect();
-  const QRectF &t2 = mapRectToScene(b2);
+  const QRectF &b2 = BoundingRect();
+  const QRectF &t2 = MapRectToScene(b2);
   if (t2.contains(point)) {
     QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                content_rect_.y() + point.y() - t2.y());
@@ -260,19 +258,19 @@ void ListView::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
 }
 
 void ListView::MouseMoveEventXY(const QPointF &point) {
-  // TODO (lanstat): Verificar comportamiento cuando se use horizontal
+  // TODO(lanstat): Verificar comportamiento cuando se use horizontal
   if (is_slider_pressed_) {
-    const QRectF &b = boundingRect();
-    const QRectF &t = mapRectToScene(b);
-    int delta = point.y() - (t.y() + boundingRect().y());
-    if (delta < boundingRect().y()) {
-      delta = boundingRect().y();
+    const QRectF &b = BoundingRect();
+    const QRectF &t = MapRectToScene(b);
+    int delta = point.y() - (t.y() + BoundingRect().y());
+    if (delta < BoundingRect().y()) {
+      delta = BoundingRect().y();
     } else if (delta + slider_rect_.height() >
-               boundingRect().y() + boundingRect().height()) {
+               BoundingRect().y() + BoundingRect().height()) {
       delta =
-          boundingRect().y() + boundingRect().height() - slider_rect_.height();
+          BoundingRect().y() + BoundingRect().height() - slider_rect_.height();
     }
-    content_rect_.setY((delta - boundingRect().y()) * content_scale_);
+    content_rect_.setY((delta - BoundingRect().y()) * content_scale_);
     slider_rect_.moveTop(delta);
   }
 }
@@ -291,6 +289,4 @@ void ListView::SetHorizontal(bool horizontal) {
   ReCalculateSize();
 }
 
-uint8_t ListView::Count() {
-  return items_.size();
-}
+uint8_t ListView::Count() { return items_.size(); }

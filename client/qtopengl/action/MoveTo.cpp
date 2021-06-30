@@ -30,7 +30,11 @@ void MoveTo::Start() {
   done_ = false;
 }
 
-void MoveTo::Stop() { done_ = true; }
+void MoveTo::Stop() {
+  done_ = true;
+  delta_x_ = 0;
+  delta_y_ = 0;
+}
 
 void MoveTo::Step(unsigned int ellapsed) {
   if (done_ || node_ == nullptr) return;
@@ -46,16 +50,6 @@ void MoveTo::Step(unsigned int ellapsed) {
 }
 
 bool MoveTo::IsDone() { return done_; }
-
-void MoveTo::OnFinish() {
-  done_ = true;
-  delta_x_ = 0;
-  delta_y_ = 0;
-  auto callback = node_->GetOnActionDone();
-  if (callback) {
-    callback(Action::Tag());
-  }
-}
 
 void MoveTo::CalculateDelta() {
   double frames = milliseconds_ / 1000 * 30;

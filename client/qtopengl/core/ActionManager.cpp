@@ -215,3 +215,8 @@ void ActionManager::DeleteHashElement(HashElementType *element) {
   free(element);
 }
 
+size_t ActionManager::GetNumberOfRunningActionsInTarget(Node *target) {
+  auto actions = GetAllActionsByTarget(target);
+  if (actions == nullptr) return 0;
+  return actions->size();
+}

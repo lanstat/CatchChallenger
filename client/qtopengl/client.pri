@@ -262,13 +262,16 @@ SOURCES += \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
     $$PWD/core/ActionManager.cpp \
+    $$PWD/core/Scene.cpp \
     $$PWD/action/Action.cpp \
     $$PWD/action/MoveTo.cpp \
-    $$PWD/action/Timeout.cpp \
+    $$PWD/action/Delay.cpp \
     $$PWD/action/Animation.cpp \
     $$PWD/action/Sequence.cpp \
+    $$PWD/action/Spawn.cpp \
     $$PWD/action/Tick.cpp \
     $$PWD/action/Blink.cpp \
+    $$PWD/action/CallFunc.cpp \
     $$PWD/../qt/BlacklistPassword.cpp \
     $$PWD/foreground/CharacterList.cpp \
     $$PWD/foreground/SubServer.cpp \
@@ -357,13 +360,16 @@ HEADERS  += \
     $$PWD/core/Stateful.hpp \
     $$PWD/core/Sprite.hpp \
     $$PWD/core/ActionManager.hpp \
+    $$PWD/core/Scene.hpp \
     $$PWD/action/Action.hpp \
     $$PWD/action/MoveTo.hpp \
-    $$PWD/action/Timeout.hpp \
+    $$PWD/action/Delay.hpp \
     $$PWD/action/Animation.hpp \
     $$PWD/action/Sequence.hpp \
+    $$PWD/action/Spawn.hpp \
     $$PWD/action/Tick.hpp \
     $$PWD/action/Blink.hpp \
+    $$PWD/action/CallFunc.hpp \
     $$PWD/../qt/BlacklistPassword.hpp \
     $$PWD/foreground/CharacterList.hpp \
     $$PWD/foreground/SubServer.hpp \

@@ -82,6 +82,7 @@ public:
 
     std::string getSkinPath(const std::string &skinName,const std::string &type) const;
     std::string getFrontSkinPath(const uint32_t &skinId) const;
+    std::vector<QPixmap> GetSkillAnimation(uint16_t id);
 protected:
     #ifndef NOTHREADS
     void run() override;
@@ -100,6 +101,7 @@ signals:
 
     void newItemImage(uint16_t id);
     void newMonsterImage(uint16_t id);
+
 private:
     QPixmap *mDefaultInventoryImage;
     std::string getLanguage() override;

@@ -26,6 +26,5 @@ class Blink : public Action {
   unsigned int index_;
 
   Blink();
-  void OnFinish();
 };
 #endif  // CLIENT_QTOPENGL_ACTION_BLINK_HPP_

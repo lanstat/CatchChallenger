@@ -10,7 +10,7 @@
 namespace UI {
 class ListView : public Node {
  public:
-  static ListView *Create(QGraphicsItem *parent = nullptr);
+  static ListView *Create(Node *parent = nullptr);
   ~ListView();
 
   /** Add an item to the listview */
@@ -28,8 +28,7 @@ class ListView : public Node {
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
   void MouseMoveEventXY(const QPointF &point) override;
 
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *) override;
+  void Draw(QPainter *painter) override;
 
  private:
   QPixmap slider_rail_;
@@ -45,7 +44,7 @@ class ListView : public Node {
   Node *selected_item_;
   bool is_horizontal_;
 
-  explicit ListView(QGraphicsItem *parent = nullptr);
+  explicit ListView(Node *parent = nullptr);
 
   void ReCalculateSize();
 };

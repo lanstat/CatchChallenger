@@ -10,7 +10,7 @@
 namespace UI {
 class Progressbar : public Node {
  public:
-  static Progressbar *Create(QGraphicsItem *parent = nullptr);
+  static Progressbar *Create(Node *parent = nullptr);
   virtual ~Progressbar();
 
   void SetSize(int width, int height);
@@ -21,9 +21,9 @@ class Progressbar : public Node {
   int Maximum();
   int Minimum();
   int Value();
+  void SetOnIncrementDone(const std::function<void()> &callback);
 
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *widget) override;
+  void Draw(QPainter *painter) override;
 
   void MousePressEventXY(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
@@ -47,10 +47,11 @@ class Progressbar : public Node {
   float delta_value_;
   float internal_value_;
   unsigned int increment_times_;
+  std::function<void()> on_increment_done_;
 
   Tick *tick_;
 
-  explicit Progressbar(QGraphicsItem *parent = nullptr);
+  explicit Progressbar(Node *parent = nullptr);
 
   bool OnTick();
 };

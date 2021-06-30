@@ -1,6 +1,7 @@
 // Copyright 2021 CatchChallenger
 #include "Sequence.hpp"
 
+#include <cstdarg>
 #include <iostream>
 #include <vector>
 
@@ -17,43 +18,69 @@ Sequence* Sequence::Create(const vector<Action*>& actions) {
   return instance;
 }
 
+Sequence* Sequence::Create(Action* action, ...) {
+  Sequence* instance = new (std::nothrow) Sequence();
+  va_list params;
+  va_start(params, action);
+  Action* item;
+
+  instance->actions_.push_back(action);
+  while (action) {
+    item = va_arg(params, Action*);
+    if (!item) break;
+    instance->actions_.push_back(item);
+  }
+
+  va_end(params);
+
+  return instance;
+}
+
 Sequence::Sequence() : Action() {
   done_ = true;
   current_ = 0;
 }
 
-Sequence::~Sequence() { Action::~Action(); }
+Sequence::~Sequence() {
+  Action::~Action();
+
+  for (auto action : actions_) {
+    delete action;
+  }
+}
+
+Action* Sequence::ActionAt(size_t index) { return actions_.at(index); }
 
 void Sequence::Start() {
   done_ = false;
-  current_ = 0;
-  actions_.at(0)->Start();
+  current_index_ = 0;
+  current_ = actions_.at(current_index_);
+  current_->SetTarget(node_);
+  current_->Start();
 }
 
 void Sequence::Stop() {
   done_ = true;
-  actions_.at(current_)->Stop();
+  current_index_ = 0;
+  if (current_) current_->Stop();
+  current_ = nullptr;
 }
 
 void Sequence::Step(unsigned int ellapsed) {
-  if (done_ || node_ == nullptr) return;
+  if (done_ || node_ == nullptr || current_ == nullptr) return;
 
-  if (actions_.at(current_)->IsDone()) {
-    current_++;
-    if (current_ >= actions_.size()) {
-      OnFinish();
+  current_->Step(ellapsed);
+
+  if (current_->IsDone()) {
+    current_index_++;
+    if (current_index_ < actions_.size()) {
+      current_ = actions_.at(current_index_);
+      current_->SetTarget(node_);
+      current_->Start();
     } else {
-      actions_.at(current_)->Start();
+      OnFinish();
     }
   }
 }
 
 bool Sequence::IsDone() { return done_; }
-
-void Sequence::OnFinish() {
-  done_ = true;
-  auto callback = node_->GetOnActionDone();
-  if (callback) {
-    callback(Action::Tag());
-  }
-}

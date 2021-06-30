@@ -1581,7 +1581,7 @@ void OverMapLogic::wildFightCollision(CatchChallenger::Map_client *map, const ui
 
     if(Battle::battle==nullptr) {
         Battle::battle=new Battle();
-        Battle::battle->setVar(connexionManager);
+        Battle::battle->SetVariables(connexionManager);
         connect(Battle::battle, &Battle::Finished, this, &OverMapLogic::BattleFinished);
     }
     Battle::battle->WildFightInitialize(map, x, y);
@@ -1597,10 +1597,10 @@ void OverMapLogic::botFightCollision(CatchChallenger::Map_client *map, const uin
 
     if(Battle::battle==nullptr) {
         Battle::battle=new Battle();
-        Battle::battle->setVar(connexionManager);
+        Battle::battle->SetVariables(connexionManager);
         connect(Battle::battle, &Battle::Finished, this, &OverMapLogic::BattleFinished);
     }
-    Battle::battle->botFight(map, x, y, fightId);
+    Battle::battle->BotFightInitialize(map, x, y, fightId);
     emit setForeground(Battle::battle);
 }
 

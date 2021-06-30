@@ -1,14 +1,14 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_ACTION_TIMEOUT_HPP_
-#define CLIENT_QTOPENGL_ACTION_TIMEOUT_HPP_
+#ifndef CLIENT_QTOPENGL_ACTION_DELAY_HPP_
+#define CLIENT_QTOPENGL_ACTION_DELAY_HPP_
 
 #include "Action.hpp"
 
-class Timeout : public Action {
+class Delay : public Action {
  public:
-  ~Timeout();
+  ~Delay();
 
-  static Timeout* Create(int milliseconds);
+  static Delay* Create(int milliseconds);
 
   void Step(unsigned int ellapsed) override;
   void Stop() override;
@@ -21,7 +21,6 @@ class Timeout : public Action {
   unsigned int ellapsed_;
   unsigned int timeout_;
 
-  Timeout();
-  void OnFinish();
+  Delay();
 };
-#endif  // CLIENT_QTOPENGL_ACTION_TIMEOUT_HPP_
+#endif  // CLIENT_QTOPENGL_ACTION_DELAY_HPP_

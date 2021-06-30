@@ -13,6 +13,9 @@ class Sequence : public Action {
   ~Sequence();
 
   static Sequence* Create(const vector<Action*>& actions);
+  static Sequence* Create(Action* action, ...);
+
+  Action* ActionAt(size_t index);
 
   void Step(unsigned int ellapsed) override;
   void Stop() override;
@@ -20,11 +23,11 @@ class Sequence : public Action {
   bool IsDone() override;
 
  private:
+  std::vector<Action*> actions_;
+  size_t current_index_;
+  Action* current_;
   bool done_;
-  vector<Action*> actions_;
-  unsigned int current_;
 
   Sequence();
-  void OnFinish();
 };
-#endif  // CLIENT_QTOPENGL_ACTION_SEQUENCE_HPP_ 
+#endif  // CLIENT_QTOPENGL_ACTION_SEQUENCE_HPP_

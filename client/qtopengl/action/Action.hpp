@@ -20,6 +20,7 @@ class Action {
   Node *node_;
 
   Action();
+  void OnFinish();
 
  private:
   int tag_;

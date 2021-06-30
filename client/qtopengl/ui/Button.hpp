@@ -10,7 +10,7 @@
 namespace UI {
 class Button : public Node {
  public:
-  static Button* Create(QString pix, QGraphicsItem *parent = nullptr);
+  static Button* Create(QString pix, Node *parent = nullptr);
   ~Button();
   void SetText(const QString &text);
   void SetOutlineColor(const QColor &color);
@@ -29,8 +29,7 @@ class Button : public Node {
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
   void MouseMoveEventXY(const QPointF &point) override;
 
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-             QWidget *) override;
+  void Draw(QPainter *painter) override;
 
  protected:
   void UpdateTextPath();
@@ -46,7 +45,7 @@ class Button : public Node {
   QString text_;
   bool checkable_;
   bool checked_;
-  explicit Button(QString pix, QGraphicsItem *parent = nullptr);
+  explicit Button(QString pix, Node *parent = nullptr);
 };
 }  // namespace UI
 

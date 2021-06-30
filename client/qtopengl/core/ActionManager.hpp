@@ -23,6 +23,7 @@ class ActionManager {
   Action *GetActionByTag(int tag, Node *target);
   std::vector<Action *> *GetAllActionsByTarget(Node *target);
   void Update();
+  size_t GetNumberOfRunningActionsInTarget(Node *target);
 
  private:
   ActionManager();

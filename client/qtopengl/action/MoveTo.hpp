@@ -26,6 +26,5 @@ class MoveTo : public Action {
 
   MoveTo();
   void CalculateDelta();
-  void OnFinish();
 };
 #endif  // CLIENT_QTOPENGL_ACTION_MOVETO_HPP_

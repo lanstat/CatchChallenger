@@ -10,7 +10,8 @@
 
 using UI::Progressbar;
 
-Progressbar::Progressbar(QGraphicsItem *parent) : Node(parent) {
+Progressbar::Progressbar(Node *parent)
+    : Node(parent), on_increment_done_(nullptr) {
   text_path_ = nullptr;
 
   font_ = new QFont();
@@ -27,7 +28,7 @@ Progressbar::Progressbar(QGraphicsItem *parent) : Node(parent) {
   min_ = 0;
   max_ = 0;
 
-  tick_ = Tick::Create(100, std::bind(&Progressbar::OnTick, this));
+  tick_ = Tick::Create(50, std::bind(&Progressbar::OnTick, this));
 }
 
 Progressbar::~Progressbar() {
@@ -45,13 +46,12 @@ Progressbar::~Progressbar() {
   }
 }
 
-Progressbar *Progressbar::Create(QGraphicsItem *parent) {
+Progressbar *Progressbar::Create(Node *parent) {
   Progressbar *instance = new (std::nothrow) Progressbar(parent);
   return instance;
 }
 
-void Progressbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
-                        QWidget *) {
+void Progressbar::Draw(QPainter *painter) {
   if (cache_ != nullptr) {
     painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y(),
                         bounding_rect_.width(), bounding_rect_.height(),
@@ -115,7 +115,7 @@ void Progressbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
   int startX = 18 * bounding_rect_.height() / 82;
   int size = bounding_rect_.width() - startX - startX;
   if (Maximum() == 0) return;
-  int inpixel = internal_value_ * size / Maximum();
+  float inpixel = internal_value_ * size / Maximum();
   if (inpixel < (bar_left_.width() + bar_right_.width())) {
     if (inpixel > 0) {
       const int tempW = inpixel / 2;
@@ -123,7 +123,7 @@ void Progressbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *,
         QPixmap bar_left_C = bar_left_.copy(0, 0, tempW, bar_left_.height());
         paint.drawPixmap(startX, 0, bar_left_C.width(), bar_left_C.height(),
                          bar_left_C);
-        const unsigned int pixelremaining = inpixel - bar_left_C.width();
+        const float pixelremaining = inpixel - bar_left_C.width();
         if (pixelremaining > 0) {
           QPixmap bar_right_C =
               bar_right_.copy(bar_right_.width() - pixelremaining, 0,
@@ -210,7 +210,11 @@ void Progressbar::SetMinimum(const int &value) {
 
 void Progressbar::SetValue(const int &value) {
   if (value_ == value) return;
-  value_ = value;
+  if (value > Maximum()) {
+    value_ = Maximum();
+  } else {
+    value_ = value;
+  }
   internal_value_ = value;
   if (cache_ != nullptr) {
     delete cache_;
@@ -219,12 +223,20 @@ void Progressbar::SetValue(const int &value) {
 }
 
 void Progressbar::IncrementValue(const int &delta, const bool &animate) {
-  SetValue(value_ + delta);
+  int tmp = delta;
+  if (value_ + tmp > Maximum()) {
+    tmp = Maximum() - value_;
+  }
+  value_ = value_ + tmp;
   if (animate) {
     increment_times_ = 0;
-    delta_value_ = delta / 10.0f;
+    delta_value_ = tmp / 10.0f;
 
     RunAction(tick_);
+  }
+  if (cache_ != nullptr) {
+    delete cache_;
+    cache_ = nullptr;
   }
 }
 
@@ -237,6 +249,9 @@ bool Progressbar::OnTick() {
   } else {
     internal_value_ = value_;
     should_continue = false;
+    if (on_increment_done_) {
+      on_increment_done_();
+    }
   }
   if (cache_ != nullptr) {
     delete cache_;
@@ -275,3 +290,7 @@ void Progressbar::MouseReleaseEventXY(const QPointF &point,
 }
 
 void Progressbar::MouseMoveEventXY(const QPointF &point) { (void)point; }
+
+void Progressbar::SetOnIncrementDone(const std::function<void()> &callback) {
+  on_increment_done_ = callback;
+}

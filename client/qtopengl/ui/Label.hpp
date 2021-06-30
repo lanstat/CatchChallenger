@@ -9,7 +9,7 @@
 namespace UI {
 class Label : public Node {
  public:
-  static Label *Create(QGraphicsItem *parent = nullptr);
+  static Label *Create(Node *parent = nullptr);
   ~Label();
 
   void SetText(const QString &text);
@@ -23,8 +23,7 @@ class Label : public Node {
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
   void MouseMoveEventXY(const QPointF &point) override;
 
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *) override;
+  void Draw(QPainter *painter) override;
 
  private:
   QPainterPath *text_path_;
@@ -33,7 +32,7 @@ class Label : public Node {
   QString text_;
   QColor *color_;
 
-  explicit Label(QGraphicsItem *parent = nullptr);
+  explicit Label(Node *parent = nullptr);
 };
 }  // namespace UI
 #endif  // CLIENT_QTOPENGL_UI_LABEL_HPP_

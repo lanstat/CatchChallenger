@@ -978,3 +978,22 @@ const QtDatapackClientLoader::QtItemExtra &QtDatapackClientLoader::getImageExtra
     ImageitemsExtra.erase(id);
     return QtitemsExtra.at(id);
 }
+
+std::vector<QPixmap> QtDatapackClientLoader::GetSkillAnimation(uint16_t id) {
+    QString file_animation =
+        QString::fromStdString(
+            QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
+        DATAPACK_BASE_PATH_SKILLANIMATION + QStringLiteral("%1").arg(id);
+
+    std::vector<QPixmap> frames;
+    if (QDir(file_animation).exists()) {
+        uint8_t index = 0;
+        QString file = file_animation + QStringLiteral("/%1.png").arg(index);
+        while (QFile(file).exists()) {
+            frames.push_back(QPixmap(file));
+            index++;
+            file = file_animation + QStringLiteral("/%1.png").arg(index);
+        }
+    }
+    return frames;
+}

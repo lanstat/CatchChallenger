@@ -23,7 +23,10 @@ void Blink::Start() {
   done_ = false;
 }
 
-void Blink::Stop() { done_ = true; }
+void Blink::Stop() {
+  done_ = true;
+  ellapsed_ = 0;
+}
 
 void Blink::Step(unsigned int ellapsed) {
   if (done_ || node_ == nullptr) return;
@@ -42,12 +45,3 @@ void Blink::Step(unsigned int ellapsed) {
 }
 
 bool Blink::IsDone() { return done_; }
-
-void Blink::OnFinish() {
-  done_ = true;
-  ellapsed_ = 0;
-  auto callback = node_->GetOnActionDone();
-  if (callback) {
-    callback(Action::Tag());
-  }
-}

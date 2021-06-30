@@ -5,11 +5,12 @@
 #include <QGraphicsWidget>
 #include <QVariant>
 #include <unordered_map>
+#include <vector>
 
 class Action;
 class ActionManager;
 
-class Node : public QGraphicsItem {
+class Node {
  public:
   ~Node();
 
@@ -29,21 +30,25 @@ class Node : public QGraphicsItem {
   bool IsEnabled() const;
   int Data(int role);
   void SetData(int role, int value);
-
+  void SetParent(Node *parent);
+  Node *Parent();
+  QRectF MapRectToScene(QRectF inner) const;
   void RunAction(Action *action);
   void StartAllActions();
   Action *GetAction(int tag);
   void SetOnActionDone(const std::function<void(int)> &callback);
   const std::function<void(int)> &GetOnActionDone() const;
+  bool HasRunningActions();
   void SetOnClick(const std::function<void(Node *)> &callback);
   void TestMode();
   void SetToolTip(QString text);
   QString ToolTip();
+  void AddChild(Node *node);
+  void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+             QWidget *);
+  QRectF BoundingRect() const;
 
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                     QWidget *);
-  QRectF boundingRect() const override;
-
+  virtual void Draw(QPainter *painter) = 0;
   virtual void MousePressEventXY(const QPointF &point,
                                  bool &press_validated) = 0;
   virtual void MouseReleaseEventXY(const QPointF &point,
@@ -52,11 +57,14 @@ class Node : public QGraphicsItem {
 
  protected:
   bool visible_;
+  bool enabled_;
   QRectF bounding_rect_;
   ActionManager *action_manager_;
   std::function<void(Node *)> on_click_;
+  std::vector<Node *> children_;
+  Node *parent_;
 
-  explicit Node(QGraphicsItem *parent = nullptr);
+  explicit Node(Node *parent = nullptr);
 
  private:
   std::function<void(int)> on_action_done_;

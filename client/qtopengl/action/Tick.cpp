@@ -6,7 +6,7 @@
 #include "../core/Node.hpp"
 #include "Action.hpp"
 
-Tick* Tick::Create(int milliseconds, const std::function<bool()> &callback) {
+Tick* Tick::Create(int milliseconds, const std::function<bool()>& callback) {
   Tick* instance = new Tick();
 
   instance->timeout_ = milliseconds;
@@ -24,7 +24,10 @@ void Tick::Start() {
   done_ = false;
 }
 
-void Tick::Stop() { done_ = true; }
+void Tick::Stop() {
+  done_ = true;
+  ellapsed_ = 0;
+}
 
 void Tick::Step(unsigned int ellapsed) {
   if (done_ || node_ == nullptr) return;
@@ -43,10 +46,5 @@ void Tick::OnFinish() {
     Start();
     return;
   }
-  done_ = true;
-  ellapsed_ = 0;
-  auto callback = node_->GetOnActionDone();
-  if (callback) {
-    callback(Action::Tag());
-  }
+  Action::OnFinish();
 }

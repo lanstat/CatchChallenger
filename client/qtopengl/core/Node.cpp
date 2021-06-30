@@ -8,16 +8,40 @@
 #include "../action/Action.hpp"
 #include "ActionManager.hpp"
 
-Node::Node(QGraphicsItem *parent) : QGraphicsItem(parent) {
+Node::Node(Node *parent) {
   on_action_done_ = nullptr;
   on_click_ = nullptr;
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   visible_ = true;
+  enabled_ = true;
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
+
+  SetParent(parent);
 }
 
 Node::~Node() {}
+
+void Node::SetParent(Node *parent) {
+  parent_ = parent;
+  if (parent_ != nullptr) parent_->AddChild(this);
+}
+
+Node *Node::Parent() { return parent_; }
+
+void Node::AddChild(Node *child) { children_.push_back(child); }
+
+QRectF Node::MapRectToScene(const QRectF inner) const {
+  QRectF tmp = inner;
+  Node *parent = parent_;
+  while (parent != nullptr) {
+    tmp =
+        QRectF(tmp.x() + parent->BoundingRect().x(),
+               tmp.y() + parent->BoundingRect().y(), tmp.width(), tmp.height());
+    parent = parent->Parent();
+  }
+  return tmp;
+}
 
 void Node::RunAction(Action *action) {
   action_manager_->AddAction(action, this, false);
@@ -46,7 +70,7 @@ void Node::StartAllActions() {
   }
 }
 
-QRectF Node::boundingRect() const { return bounding_rect_; }
+QRectF Node::BoundingRect() const { return bounding_rect_; }
 
 void Node::SetPos(int x, int y) { bounding_rect_.moveTo(x, y); }
 
@@ -75,9 +99,9 @@ void Node::SetVisible(bool visible) { visible_ = visible; }
 
 bool Node::IsVisible() { return visible_; }
 
-void Node::SetEnabled(bool enabled) { QGraphicsItem::setEnabled(enabled); }
+void Node::SetEnabled(bool enabled) { enabled_ = enabled; }
 
-bool Node::IsEnabled() const { return QGraphicsItem::isEnabled(); }
+bool Node::IsEnabled() const { return enabled_; }
 
 void Node::SetOnClick(const std::function<void(Node *)> &callback) {
   on_click_ = callback;
@@ -87,23 +111,31 @@ void Node::SetData(int role, int value) { data_[role] = value; }
 
 int Node::Data(int role) { return data_[role]; }
 
-void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                     QWidget *widget) {
-  (void) option;
-  (void) widget;
+void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                 QWidget *widget) {
   if (in_test_) {
-    painter->fillRect(boundingRect(), Qt::green);
+    painter->fillRect(BoundingRect(), Qt::green);
+  }
+
+  if (visible_) {
+    Draw(painter);
+
+    if (children_.size() == 0) return;
+
+    painter->translate(bounding_rect_.x(), bounding_rect_.y());
+    for (auto it = begin(children_); it != end(children_); it++) {
+      (*it)->Paint(painter, option, widget);
+    }
+    painter->translate(-bounding_rect_.x(), -bounding_rect_.y());
   }
 }
 
-void Node::TestMode() {
-  in_test_ = true;
-}
+void Node::TestMode() { in_test_ = true; }
 
-void Node::SetToolTip(QString text) {
-  tooltip_ = text;
-}
+void Node::SetToolTip(QString text) { tooltip_ = text; }
 
-QString Node::ToolTip() {
-  return tooltip_;
+QString Node::ToolTip() { return tooltip_; }
+
+bool Node::HasRunningActions() {
+  return action_manager_->GetNumberOfRunningActionsInTarget(this) > 0;
 }

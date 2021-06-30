@@ -24,6 +24,9 @@ Animation::Animation() : Action() { done_ = true; }
 Animation::~Animation() { Action::~Action(); }
 
 void Animation::Start() {
+  if (frames_.empty()) {
+    return;
+  }
   ellapsed_ = 0;
   index_ = 0;
   done_ = false;
@@ -39,24 +42,13 @@ void Animation::Step(unsigned int ellapsed) {
 
   ellapsed_ -= delay_;
 
-  //(static_cast<Sprite*>(node_))->SetPixmap(frames_.at(index_));
+  (static_cast<Sprite*>(node_))->SetPixmap(frames_.at(index_), false);
   index_++;
-  //if (frames_.size() == index_) {
-  if (10 == index_) {
+  if (frames_.size() == index_) {
     OnFinish();
   }
 }
 
 bool Animation::IsDone() { return done_; }
 
-void Animation::OnFinish() {
-  done_ = true;
-  auto callback = node_->GetOnActionDone();
-  if (callback) {
-    callback(Action::Tag());
-  }
-}
-
-void Animation::SetFrames(std::vector<QPixmap> frames) {
-  frames_ = frames;
-}
+void Animation::SetFrames(std::vector<QPixmap> frames) { frames_ = frames; }

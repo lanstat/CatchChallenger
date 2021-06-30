@@ -2,12 +2,13 @@
 #include "Label.hpp"
 
 #include <QPainter>
+#include <iostream>
 
 #include "../core/Node.hpp"
 
 using UI::Label;
 
-Label::Label(QGraphicsItem *parent) : Node(parent) {
+Label::Label(Node *parent) : Node(parent) {
   font_ = new QFont();
   font_->setFamily("Comic Sans MS");
   font_->setPixelSize(25);
@@ -22,18 +23,15 @@ Label::~Label() {
   delete color_;
 }
 
-Label *Label::Create(QGraphicsItem *parent) {
+Label *Label::Create(Node *parent) {
   Label *instance = new (std::nothrow) Label(parent);
   return instance;
 }
 
-void Label::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                  QWidget *widget) {
-  if (visible_) {
-    painter->setPen(*color_);
-    painter->setFont(*font_);
-    painter->drawText(X(), Y(), text_);
-  }
+void Label::Draw(QPainter *painter) {
+  painter->setPen(*color_);
+  painter->setFont(*font_);
+  painter->drawText(X(), Y(), text_);
 }
 
 void Label::SetText(const QString &text) {
@@ -56,7 +54,6 @@ QColor Label::GetColor() const { return *color_; }
 
 void Label::MousePressEventXY(const QPointF &point, bool &press_validated) {}
 
-void Label::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
-}
+void Label::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {}
 
-void Label::MouseMoveEventXY(const QPointF &point) {}
+void Label::MouseMoveEventXY(const QPointF &point) { (void) point; }

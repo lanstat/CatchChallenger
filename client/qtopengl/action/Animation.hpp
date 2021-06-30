@@ -28,11 +28,10 @@ class Animation : public Action {
 
   std::vector<QPixmap> frames_;
   uint8_t index_;
-  uint64_t ellapsed_;
-  int delay_;
+  unsigned int ellapsed_;
+  unsigned int delay_;
   unsigned int loop_;
 
   Animation();
-  void OnFinish();
 };
 #endif  // CLIENT_QTOPENGL_ACTION_ANIMATION_HPP_
