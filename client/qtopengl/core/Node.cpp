@@ -9,7 +9,6 @@
 #include "ActionManager.hpp"
 
 Node::Node(Node *parent) {
-  on_action_done_ = nullptr;
   on_click_ = nullptr;
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   visible_ = true;
@@ -49,14 +48,6 @@ void Node::RunAction(Action *action) {
 
 Action *Node::GetAction(int tag) {
   return action_manager_->GetActionByTag(tag, this);
-}
-
-void Node::SetOnActionDone(const std::function<void(int)> &callback) {
-  on_action_done_ = callback;
-}
-
-const std::function<void(int)> &Node::GetOnActionDone() const {
-  return on_action_done_;
 }
 
 void Node::StartAllActions() {

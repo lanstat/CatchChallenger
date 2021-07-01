@@ -54,12 +54,10 @@ Battle::Battle() : Scene(nullptr) {
   player_exp_bar_ = UI::Progressbar::Create(player_background_);
   player_exp_bar_->SetOnIncrementDone(
       std::bind(&Battle::OnExperienceIncrementDone, this));
-  player_background_->Strech(28, 400, 170);
 
   enemy_background_ = Sprite::Create(":/CC/images/interface/b1.png", this);
   enemy_name_ = UI::Label::Create(enemy_background_);
   enemy_hp_bar_ = UI::Progressbar::Create(enemy_background_);
-  enemy_background_->Strech(28, 400, 170);
 
   labelFightPlateformBottom = new QGraphicsPixmapItem(this);
   labelFightPlateformTop = new QGraphicsPixmapItem(this);
@@ -170,16 +168,18 @@ void Battle::OnScreenHDR() {
   t = labelFightForegroundPix.scaledToWidth(BoundingRect().width());
   labelFightForeground->SetPixmap(t);
 
+  player_background_->Strech(28, 400, 170);
   player_background_->SetPos(BoundingRect().width() * 0.63,
                              BoundingRect().height() * 0.6);
-  player_name_->SetPos(20, 40);
-  player_exp_bar_->SetPos(20, 110);
-  player_exp_bar_->SetSize(player_background_->Width() - 40, 44);
+  player_name_->SetPos(20, 10);
   player_hp_bar_->SetPos(20, 60);
   player_hp_bar_->SetSize(player_background_->Width() - 40, 44);
+  player_exp_bar_->SetPos(20, 110);
+  player_exp_bar_->SetSize(player_background_->Width() - 40, 44);
 
+  enemy_background_->Strech(28, 400, 120);
   enemy_background_->SetPos(100, 100);
-  enemy_name_->SetPos(20, 40);
+  enemy_name_->SetPos(20, 10);
   enemy_hp_bar_->SetPos(20, 60);
   enemy_hp_bar_->SetSize(enemy_background_->Width() - 40, 44);
 
@@ -1670,7 +1670,6 @@ void Battle::ShowStatusMessage(const std::string &text, bool show_next_btn,
 void Battle::ShowStatusMessage(const QString &text, bool show_next_btn,
                                bool use_timeout) {
   ShowActionBarTab(0);
-  qDebug() << text;
   status_label_->SetText(text);
   if (use_timeout) {
     status_label_->RunAction(status_timeout_);
@@ -3136,6 +3135,7 @@ void Battle::OnExperienceGainDone() {
             .arg(currentMonster->remaining_xp)
             .toStdString());*/
     player_exp_bar_->SetValue(current_monster->remaining_xp);
+    qDebug() << "no deberia entrar";
     doNextAction();
     return;
   }
@@ -3207,6 +3207,7 @@ void Battle::ProcessEnemyMonsterKO() {
         return;
       }
       player_monster_lvl_++;
+      player_->RunAction(experience_gain_);
       return;
     } else {
       if (player_monster_lvl_ < CATCHCHALLENGER_MONSTER_LEVEL_MAX) {

@@ -36,8 +36,6 @@ class Node {
   void RunAction(Action *action);
   void StartAllActions();
   Action *GetAction(int tag);
-  void SetOnActionDone(const std::function<void(int)> &callback);
-  const std::function<void(int)> &GetOnActionDone() const;
   bool HasRunningActions();
   void SetOnClick(const std::function<void(Node *)> &callback);
   void TestMode();
@@ -67,7 +65,6 @@ class Node {
   explicit Node(Node *parent = nullptr);
 
  private:
-  std::function<void(int)> on_action_done_;
   std::unordered_map<int, int> data_;
   uint unique_id_;
   bool in_test_;

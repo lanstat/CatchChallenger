@@ -10,14 +10,18 @@ namespace UI {
 class Label : public Node {
  public:
   static Label *Create(Node *parent = nullptr);
+  static Label *Create(QColor text, QColor border, Node *parent = nullptr);
+  static Label *Create(QColor text, QLinearGradient border,
+                       Node *parent = nullptr);
+  static Label *Create(QLinearGradient text, QLinearGradient border,
+                       Node *parent = nullptr);
   ~Label();
 
   void SetText(const QString &text);
   void SetFont(const QFont &font);
   QFont GetFont() const;
-  void SetColor(const QColor &color);
-  QColor GetColor() const;
   void SetPixelSize(uint8_t size);
+  void UpdateTextPath();
 
   void MousePressEventXY(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
@@ -30,9 +34,11 @@ class Label : public Node {
   QPixmap *cache_;
   QFont *font_;
   QString text_;
-  QColor *color_;
+  QLinearGradient pen_gradient_;
+  QLinearGradient brush_gradient_;
 
-  explicit Label(Node *parent = nullptr);
+  explicit Label(QLinearGradient pen, QLinearGradient brush,
+                 Node *parent = nullptr);
 };
 }  // namespace UI
 #endif  // CLIENT_QTOPENGL_UI_LABEL_HPP_
