@@ -8,6 +8,7 @@ class AudioGL : public QObject, public Audio
 {
     Q_OBJECT
 public:
+    static AudioGL* GetInstance();
     AudioGL();
     ~AudioGL();
 public slots:

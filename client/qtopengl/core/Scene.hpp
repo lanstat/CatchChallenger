@@ -30,6 +30,8 @@ class Scene : public ScreenInput, public Node {
   void MousePressEventXY(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
   void MouseMoveEventXY(const QPointF &point) override;
+  void KeyPressEvent(QKeyEvent * event, bool &event_trigger);
+  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger);
 
  protected:
   explicit Scene(Node *parent = nullptr);
@@ -37,6 +39,7 @@ class Scene : public ScreenInput, public Node {
   virtual void OnScreenSD() = 0;
   virtual void OnScreenHD() = 0;
   virtual void OnScreenHDR() = 0;
+  virtual void OnScreenResize() = 0;
 
   void PrintError(const char* file, int line, const QString &message);
 

@@ -1,6 +1,8 @@
 #include <QApplication>
 #include "../qt/LanguagesSelect.hpp"
 #include "ScreenTransition.hpp"
+#include "core/SceneManager.hpp"
+#include "scenes/main/Menu.hpp"
 #include "render/MapVisualiserOrder.hpp"
 #include "render/MapVisualiserPlayer.hpp"
 #include "../qt/LocalListener.hpp"
@@ -188,7 +190,10 @@ int main(int argc, char *argv[])
         Language::language.setLanguage(Settings::settings->value("language").toString());
     Options::options.loadVar();
 
-    ScreenTransition s;
+    // ScreenTransition s;
+    SceneManager s;
+
+    s.PushScene(Menu::Create());
     s.setWindowTitle(QObject::tr("CatchChallenger loading..."));
     /*QScreen *screen = QApplication::screens().at(0);
     s.setMinimumSize(QSize(screen->availableSize().width(),

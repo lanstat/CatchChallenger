@@ -12,6 +12,14 @@ AudioGL::~AudioGL()
 {
 }
 
+AudioGL* AudioGL::GetInstance() {
+    if (audio == nullptr) {
+        AudioGL* a = new AudioGL();
+        audio = a;
+    }
+    return static_cast<AudioGL*>(audio);
+}
+
 //if already playing ambiance then call stopCurrentAmbiance
 std::string AudioGL::startAmbiance(const std::string &soundPath)
 {

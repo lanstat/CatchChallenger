@@ -259,5 +259,6 @@ class Battle : public Scene {
   void OnScreenSD() override;
   void OnScreenHD() override;
   void OnScreenHDR() override;
+  void OnScreenResize() override;
 };
 #endif  // MULTI_H

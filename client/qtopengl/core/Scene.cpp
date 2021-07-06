@@ -24,6 +24,7 @@ void Scene::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   if (bounding_rect_.width() != widget->width() ||
       bounding_rect_.height() != widget->height()) {
     bounding_rect_ = QRectF(0, 0, widget->width(), widget->height());
+    OnScreenResize();
     if (bounding_rect_.width() < 512) {
       OnScreenSD();
     } else if (bounding_rect_.width() < 1024) {
@@ -83,6 +84,10 @@ void Scene::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
 
 void Scene::MouseMoveEventXY(const QPointF &point) { (void)point; }
 
-void Scene::PrintError(const char* file, int line, const QString &message) {
-  qDebug() << "[" << file << ":" << line <<"]" << message;
+void Scene::PrintError(const char *file, int line, const QString &message) {
+  qDebug() << "[" << file << ":" << line << "]" << message;
 }
+
+void Scene::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {}
+
+void Scene::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {}

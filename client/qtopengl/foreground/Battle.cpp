@@ -128,6 +128,8 @@ void Battle::SetVariables(ConnexionManager *connection_manager) {
     abort();
 }
 
+void Battle::OnScreenResize() {}
+
 void Battle::OnScreenSD() {}
 
 void Battle::OnScreenHD() {

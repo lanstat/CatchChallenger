@@ -263,6 +263,8 @@ SOURCES += \
     $$PWD/core/Sprite.cpp \
     $$PWD/core/ActionManager.cpp \
     $$PWD/core/Scene.cpp \
+    $$PWD/core/SceneManager.cpp \
+    $$PWD/core/GraphicRenderer.cpp \
     $$PWD/action/Action.cpp \
     $$PWD/action/MoveTo.cpp \
     $$PWD/action/Delay.cpp \
@@ -272,6 +274,7 @@ SOURCES += \
     $$PWD/action/Tick.cpp \
     $$PWD/action/Blink.cpp \
     $$PWD/action/CallFunc.cpp \
+    $$PWD/action/RepeatForever.cpp \
     $$PWD/../qt/BlacklistPassword.cpp \
     $$PWD/foreground/CharacterList.cpp \
     $$PWD/foreground/SubServer.cpp \
@@ -331,7 +334,9 @@ SOURCES += \
     $$PWD/above/player/FinishedQuests.cpp \
     $$PWD/QGraphicsPixmapItemClick.cpp \
     $$PWD/above/MonsterDetails.cpp \
-    $$PWD/ProgressBarPixel.cpp
+    $$PWD/ProgressBarPixel.cpp \
+    $$PWD/scenes/ParallaxForest.cpp \
+    $$PWD/scenes/main/Menu.cpp
 HEADERS  += \
     $$PWD/CCGraphicsTextItem.hpp \
     $$PWD/CCSliderH.hpp \
@@ -361,6 +366,8 @@ HEADERS  += \
     $$PWD/core/Sprite.hpp \
     $$PWD/core/ActionManager.hpp \
     $$PWD/core/Scene.hpp \
+    $$PWD/core/SceneManager.hpp \
+    $$PWD/core/GraphicRenderer.hpp \
     $$PWD/action/Action.hpp \
     $$PWD/action/MoveTo.hpp \
     $$PWD/action/Delay.hpp \
@@ -370,6 +377,7 @@ HEADERS  += \
     $$PWD/action/Tick.hpp \
     $$PWD/action/Blink.hpp \
     $$PWD/action/CallFunc.hpp \
+    $$PWD/action/RepeatForever.hpp \
     $$PWD/../qt/BlacklistPassword.hpp \
     $$PWD/foreground/CharacterList.hpp \
     $$PWD/foreground/SubServer.hpp \
@@ -417,7 +425,9 @@ HEADERS  += \
     $$PWD/above/player/FinishedQuests.hpp \
     $$PWD/QGraphicsPixmapItemClick.hpp \
     $$PWD/above/MonsterDetails.hpp \
-    $$PWD/ProgressBarPixel.hpp
+    $$PWD/ProgressBarPixel.hpp \
+    $$PWD/scenes/ParallaxForest.hpp \
+    $$PWD/scenes/main/Menu.hpp
 
 
 wasm: {
