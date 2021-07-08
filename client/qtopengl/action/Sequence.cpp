@@ -71,7 +71,7 @@ void Sequence::Step(unsigned int ellapsed) {
 
   current_->Step(ellapsed);
 
-  if (current_->IsDone()) {
+  if (current_ && current_->IsDone()) {
     current_index_++;
     if (current_index_ < actions_.size()) {
       current_ = actions_.at(current_index_);

@@ -24,9 +24,11 @@ class Sprite : public Node, public Stateful {
   void SetSize(int width, int height);
   void Strech(unsigned int border_size, int width, int height);
 
-  void MousePressEventXY(const QPointF &point, bool &press_validated) override;
-  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
-  void MouseMoveEventXY(const QPointF &point) override;
+  void MousePressEvent(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
+  void MouseMoveEvent(const QPointF &point) override;
+  void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
+  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
 
   void Draw(QPainter *painter) override;
 

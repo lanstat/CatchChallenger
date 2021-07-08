@@ -23,9 +23,11 @@ class Label : public Node {
   void SetPixelSize(uint8_t size);
   void UpdateTextPath();
 
-  void MousePressEventXY(const QPointF &point, bool &press_validated) override;
-  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated) override;
-  void MouseMoveEventXY(const QPointF &point) override;
+  void MousePressEvent(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
+  void MouseMoveEvent(const QPointF &point) override;
+  void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
+  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
 
   void Draw(QPainter *painter) override;
 

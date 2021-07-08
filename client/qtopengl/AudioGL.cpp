@@ -3,6 +3,7 @@
 #include "../qt/GameLoader.hpp"
 #include <QCoreApplication>
 #include <QAudioDeviceInfo>
+#include <iostream>
 
 AudioGL::AudioGL()
 {
@@ -13,11 +14,11 @@ AudioGL::~AudioGL()
 }
 
 AudioGL* AudioGL::GetInstance() {
-    if (audio == nullptr) {
+    if (Audio::audio == nullptr) {
         AudioGL* a = new AudioGL();
-        audio = a;
+        Audio::audio = a;
     }
-    return static_cast<AudioGL*>(audio);
+    return static_cast<AudioGL*>(Audio::audio);
 }
 
 //if already playing ambiance then call stopCurrentAmbiance
@@ -40,7 +41,6 @@ std::string AudioGL::startAmbiance(const std::string &soundPath)
                 std::to_string((int)m_format.sampleRate())+","+
                 std::to_string((int)m_format.sampleType())+","+
                 " "+QAudioDeviceInfo::defaultOutputDevice().deviceName().toStdString();
-
     ambiance_player = new QAudioOutput(Audio::audio->format());
     // Create a new Media
     if(ambiance_player!=nullptr && GameLoader::gameLoader->musics.contains(QtsoundPath))

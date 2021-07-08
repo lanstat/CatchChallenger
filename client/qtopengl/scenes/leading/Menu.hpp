@@ -1,6 +1,6 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_SCENES_MAIN_MENU_HPP_
-#define CLIENT_QTOPENGL_SCENES_MAIN_MENU_HPP_
+#ifndef CLIENT_QTOPENGL_SCENES_LEADING_MENU_HPP_
+#define CLIENT_QTOPENGL_SCENES_LEADING_MENU_HPP_
 
 #include <vector>
 
@@ -63,6 +63,10 @@ class Menu : public Scene {
   void OpenWebsite();
   void OpenFacebook();
   void OpenUpdate();
+  void GoToSolo();
+  void GoToMulti();
+  void GoToOptions();
+  void GoToDebug();
 };
 
-#endif  // CLIENT_QTOPENGL_SCENES_MAIN_MENU_HPP_
+#endif  // CLIENT_QTOPENGL_SCENES_LEADING_MENU_HPP_

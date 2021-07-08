@@ -15,11 +15,6 @@ class GraphicRenderer : public QObject, public QGraphicsItem {
   ~GraphicRenderer();
 
   void SetScene(Scene *scene);
-  void MousePressEventXY(const QPointF &point, bool &press_validated);
-  void MouseReleaseEventXY(const QPointF &point, bool &prev_validated);
-  void MouseMoveEventXY(const QPointF &point);
-  void KeyPressEvent(QKeyEvent *event, bool &event_trigger);
-  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger);
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget) override;

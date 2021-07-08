@@ -32,6 +32,7 @@ class Node {
   void SetData(int role, int value);
   void SetParent(Node *parent);
   Node *Parent();
+  Node *Root();
   QRectF MapRectToScene(QRectF inner) const;
   void RunAction(Action *action);
   void StartAllActions();
@@ -42,16 +43,19 @@ class Node {
   void SetToolTip(QString text);
   QString ToolTip();
   void AddChild(Node *node);
-  void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+  void RemoveChild(Node *node);
+  virtual void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *);
   QRectF BoundingRect() const;
 
   virtual void Draw(QPainter *painter) = 0;
-  virtual void MousePressEventXY(const QPointF &point,
+  virtual void MousePressEvent(const QPointF &point,
                                  bool &press_validated) = 0;
-  virtual void MouseReleaseEventXY(const QPointF &point,
+  virtual void MouseReleaseEvent(const QPointF &point,
                                    bool &prev_validated) = 0;
-  virtual void MouseMoveEventXY(const QPointF &point) = 0;
+  virtual void MouseMoveEvent(const QPointF &point) = 0;
+  virtual void KeyPressEvent(QKeyEvent *event, bool &event_trigger) = 0;
+  virtual void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) = 0;
 
  protected:
   bool visible_;

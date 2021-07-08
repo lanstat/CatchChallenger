@@ -1,6 +1,8 @@
 // Copyright 2021 CatchChallenger
 #include "RepeatForever.hpp"
 
+#include <iostream>
+
 #include "../core/Node.hpp"
 #include "Action.hpp"
 
@@ -19,7 +21,11 @@ RepeatForever::~RepeatForever() {
   if (action_) delete action_;
 }
 
-void RepeatForever::Start() { done_ = false; }
+void RepeatForever::Start() {
+  done_ = false;
+  action_->SetTarget(node_);
+  action_->Start();
+}
 
 void RepeatForever::Stop() {
   done_ = true;
@@ -27,7 +33,6 @@ void RepeatForever::Stop() {
 }
 
 void RepeatForever::Step(unsigned int ellapsed) {
-  (void)ellapsed;
   if (done_ || node_ == nullptr) return;
 
   action_->Step(ellapsed);

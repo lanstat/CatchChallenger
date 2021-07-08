@@ -1,8 +1,8 @@
 // Copyright 2021 CatchChallenger
 #include "ParallaxForest.hpp"
 
-#include <QPainter>
 #include <QDebug>
+#include <QPainter>
 #include <iostream>
 
 #include "../action/CallFunc.hpp"
@@ -25,7 +25,6 @@ ParallaxForest::ParallaxForest() {
   StartAnimation();
 }
 
-
 ParallaxForest::~ParallaxForest() {
   delete grass_updater_;
   delete treeback_updater_;
@@ -41,25 +40,27 @@ ParallaxForest* ParallaxForest::Create() {
 void ParallaxForest::StartAnimation() {
   unsigned int base_time = 20;
   if (grass_updater_ == nullptr) {
-    grass_updater_ = RepeatForever::Create(
-        Sequence::Create(Delay::Create(base_time),
-        CallFunc::Create(std::bind(&ParallaxForest::GrassSlot, this))));
-    treefront_updater_ = RepeatForever::Create(
-        Sequence::Create(Delay::Create(base_time * 3),
-        CallFunc::Create(std::bind(&ParallaxForest::TreefrontSlot, this))));
-    treeback_updater_ = RepeatForever::Create(
-        Sequence::Create(Delay::Create(base_time * 9),
-        CallFunc::Create(std::bind(&ParallaxForest::TreebackSlot, this))));
-    cloud_updater_ = RepeatForever::Create(
-        Sequence::Create(Delay::Create(base_time * 30),
-        CallFunc::Create(std::bind(&ParallaxForest::CloudSlot, this))));
+    grass_updater_ = RepeatForever::Create(Sequence::Create(
+        Delay::Create(base_time),
+        CallFunc::Create(std::bind(&ParallaxForest::GrassSlot, this)),
+        nullptr));
+    treefront_updater_ = RepeatForever::Create(Sequence::Create(
+        Delay::Create(base_time * 3),
+        CallFunc::Create(std::bind(&ParallaxForest::TreefrontSlot, this)),
+        nullptr));
+    treeback_updater_ = RepeatForever::Create(Sequence::Create(
+        Delay::Create(base_time * 9),
+        CallFunc::Create(std::bind(&ParallaxForest::TreebackSlot, this)),
+        nullptr));
+    cloud_updater_ = RepeatForever::Create(Sequence::Create(
+        Delay::Create(base_time * 30),
+        CallFunc::Create(std::bind(&ParallaxForest::CloudSlot, this)),
+        nullptr));
   }
- /*
   RunAction(grass_updater_);
   RunAction(treeback_updater_);
   RunAction(treefront_updater_);
   RunAction(cloud_updater_);
-  */
 }
 
 void ParallaxForest::StopAnimation() {
@@ -69,7 +70,7 @@ void ParallaxForest::StopAnimation() {
   cloud_updater_->Stop();
 }
 
-void ParallaxForest::ScalePix(QPixmap &pix, unsigned int zoom) {
+void ParallaxForest::ScalePix(QPixmap& pix, unsigned int zoom) {
   pix = pix.scaled(pix.width() * zoom, pix.height() * zoom);
 }
 
@@ -105,9 +106,7 @@ unsigned int ParallaxForest::GetTargetZoom() {
   return target_zoom;
 }
 
-void ParallaxForest::Draw(QPainter *painter) {
-  Scene::Draw(painter);
-  /*
+void ParallaxForest::Draw(QPainter* painter) {
   treefrontMove %= treefront_.width() * zoom_;
   cloudMove %= cloud_.width() * zoom_;
   treebackMove %= treeback_.width() * zoom_;
@@ -123,8 +122,7 @@ void ParallaxForest::Draw(QPainter *painter) {
     skyOffset = (BoundingRect().height() - 120 * zoom_) * 2 / 3;
     if (skyOffset > BoundingRect().height() / 4)
       skyOffset = BoundingRect().height() / 4;
-    endOfGrass =
-        120 * zoom_ + (BoundingRect().height() - 120 * zoom_) * 2 / 3;
+    endOfGrass = 120 * zoom_ + (BoundingRect().height() - 120 * zoom_) * 2 / 3;
     painter->fillRect(0, endOfGrass, BoundingRect().width(),
                       BoundingRect().height() - endOfGrass,
                       QColor(131, 203, 83));
@@ -171,12 +169,10 @@ void ParallaxForest::Draw(QPainter *painter) {
 
   int lastcloudX = -cloudMove;
   while (BoundingRect().width() > lastcloudX) {
-    painter->drawPixmap(lastcloudX,
-                        skyOffset + (endOfGrass - skyOffset) / 4 ,
+    painter->drawPixmap(lastcloudX, skyOffset + (endOfGrass - skyOffset) / 4,
                         cloud_.width(), cloud_.height(), cloud_);
     lastcloudX += cloud_.width();
   }
-  */
 }
 
 void ParallaxForest::OnScreenSD() {}
@@ -210,6 +206,5 @@ void ParallaxForest::OnScreenResize() {
     treefrontMove = rand() % treefront_.width() * target_zoom;
     cloudMove = rand() % cloud_.width();
     zoom_ = target_zoom;
-    qDebug() << "dibujo";
   }
 }

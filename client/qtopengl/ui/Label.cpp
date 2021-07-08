@@ -155,8 +155,24 @@ void Label::SetFont(const QFont &font) { *this->font_ = font; }
 
 QFont Label::GetFont() const { return *font_; }
 
-void Label::MousePressEventXY(const QPointF &point, bool &press_validated) {}
+void Label::MousePressEvent(const QPointF &point, bool &press_validated) {
+  (void)point;
+  (void)press_validated;
+}
 
-void Label::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {}
+void Label::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
+  (void)point;
+  (void)prev_validated;
+}
 
-void Label::MouseMoveEventXY(const QPointF &point) { (void)point; }
+void Label::MouseMoveEvent(const QPointF &point) { (void)point; }
+
+void Label::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void Label::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}

@@ -4,6 +4,7 @@ include(../qt/tiled/tiled.pri)
 QT       += gui network core widgets opengl xml
 
 DEFINES += CATCHCHALLENGER_CLIENT
+CONFIG += object_parallel_to_source
 
 wasm: DEFINES += CATCHCHALLENGER_NOAUDIO
 #android: DEFINES += CATCHCHALLENGER_NOAUDIO
@@ -251,7 +252,6 @@ SOURCES += \
     $$PWD/above/monster/MonsterBag.cpp \
     $$PWD/above/Login.cpp \
     $$PWD/CheckBox.cpp \
-    $$PWD/foreground/Battle.cpp \
     $$PWD/foreground/MainScreen.cpp \
     $$PWD/foreground/Multi.cpp \
     $$PWD/ui/Label.cpp \
@@ -262,6 +262,7 @@ SOURCES += \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
     $$PWD/core/ActionManager.cpp \
+    $$PWD/core/EventManager.cpp \
     $$PWD/core/Scene.cpp \
     $$PWD/core/SceneManager.cpp \
     $$PWD/core/GraphicRenderer.cpp \
@@ -336,7 +337,9 @@ SOURCES += \
     $$PWD/above/MonsterDetails.cpp \
     $$PWD/ProgressBarPixel.cpp \
     $$PWD/scenes/ParallaxForest.cpp \
-    $$PWD/scenes/main/Menu.cpp
+    $$PWD/scenes/Leading.cpp \
+    $$PWD/scenes/leading/Loading.cpp \
+    $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
     $$PWD/CCGraphicsTextItem.hpp \
     $$PWD/CCSliderH.hpp \
@@ -353,7 +356,6 @@ HEADERS  += \
     $$PWD/above/monster/MonsterBag.hpp \
     $$PWD/above/Login.hpp \
     $$PWD/CheckBox.hpp \
-    $$PWD/foreground/Battle.hpp \
     $$PWD/foreground/MainScreen.hpp \
     $$PWD/foreground/Multi.hpp \
     $$PWD/ui/Label.hpp \
@@ -365,6 +367,7 @@ HEADERS  += \
     $$PWD/core/Stateful.hpp \
     $$PWD/core/Sprite.hpp \
     $$PWD/core/ActionManager.hpp \
+    $$PWD/core/EventManager.hpp \
     $$PWD/core/Scene.hpp \
     $$PWD/core/SceneManager.hpp \
     $$PWD/core/GraphicRenderer.hpp \
@@ -427,7 +430,9 @@ HEADERS  += \
     $$PWD/above/MonsterDetails.hpp \
     $$PWD/ProgressBarPixel.hpp \
     $$PWD/scenes/ParallaxForest.hpp \
-    $$PWD/scenes/main/Menu.hpp
+    $$PWD/scenes/Leading.hpp \
+    $$PWD/scenes/leading/Loading.hpp \
+    $$PWD/scenes/leading/Menu.hpp
 
 
 wasm: {
@@ -479,7 +484,10 @@ SOURCES += \
     $$PWD/../qt/GameLoaderThread.cpp \
     $$PWD/../qt/ExtraSocket.cpp \
     $$PWD/../qt/Settings.cpp \
+    $$PWD/core/AssetsLoader.cpp \
+    $$PWD/core/AssetsLoaderThread.cpp \
     $$PWD/ScreenInput.cpp \
+    $$PWD/core/AudioPlayer.cpp \
     $$PWD/AudioGL.cpp
 
 HEADERS  += \
@@ -508,7 +516,10 @@ HEADERS  += \
     $$PWD/../qt/GameLoaderThread.hpp \
     $$PWD/../qt/ExtraSocket.hpp \
     $$PWD/../qt/Settings.hpp \
+    $$PWD/core/AssetsLoader.hpp \
+    $$PWD/core/AssetsLoaderThread.hpp \
     $$PWD/ScreenInput.hpp \
+    $$PWD/core/AudioPlayer.hpp \
     $$PWD/AudioGL.hpp
 
 DEFINES += CATCHCHALLENGER_MULTI

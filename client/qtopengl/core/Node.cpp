@@ -3,6 +3,7 @@
 
 #include <QPainter>
 #include <QVariant>
+#include <algorithm>
 #include <iostream>
 
 #include "../action/Action.hpp"
@@ -15,20 +16,39 @@ Node::Node(Node *parent) {
   enabled_ = true;
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
+  parent_ = nullptr;
 
-  SetParent(parent);
+  if (parent) {
+    parent->AddChild(this);
+  }
 }
 
 Node::~Node() {}
 
 void Node::SetParent(Node *parent) {
   parent_ = parent;
-  if (parent_ != nullptr) parent_->AddChild(this);
 }
 
 Node *Node::Parent() { return parent_; }
 
-void Node::AddChild(Node *child) { children_.push_back(child); }
+Node *Node::Root() {
+  Node *parent = parent_;
+  while (parent->Parent() != nullptr) {
+    parent = parent->Parent();
+  }
+  return parent; 
+}
+
+void Node::AddChild(Node *child) {
+  child->SetParent(this);
+  children_.push_back(child);
+}
+
+void Node::RemoveChild(Node *child) {
+  child->SetParent(nullptr);
+  children_.erase(std::remove(children_.begin(), children_.end(), child),
+                  children_.end());
+}
 
 QRectF Node::MapRectToScene(const QRectF inner) const {
   QRectF tmp = inner;

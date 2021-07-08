@@ -59,8 +59,8 @@ Battle::Battle() : Scene(nullptr) {
   enemy_name_ = UI::Label::Create(enemy_background_);
   enemy_hp_bar_ = UI::Progressbar::Create(enemy_background_);
 
-  labelFightPlateformBottom = new QGraphicsPixmapItem(this);
-  labelFightPlateformTop = new QGraphicsPixmapItem(this);
+  // labelFightPlateformBottom = new QGraphicsPixmapItem(this);
+  // labelFightPlateformTop = new QGraphicsPixmapItem(this);
 
   player_ = Sprite::Create(this);
   enemy_ = Sprite::Create(this);
@@ -123,9 +123,10 @@ void Battle::SetVariables(ConnexionManager *connection_manager) {
   client_ = connection_manager->client;
   fightEngine = static_cast<CommonFightEngine *>(client_);
 
+  /*
   if (!connect(client_, &CatchChallenger::Api_client_real::QtmonsterCatch, this,
                &Battle::MonsterCatch))
-    abort();
+    abort();*/
 }
 
 void Battle::OnScreenResize() {}
@@ -535,7 +536,7 @@ void Battle::BotFightInitialize(Map_client *map, const uint8_t &x,
   if (CommonDatapackServerSpec::commonDatapackServerSpec.botFights.find(
           fight_id) ==
       CommonDatapackServerSpec::commonDatapackServerSpec.botFights.cend()) {
-    emit error("fight id not found at collision");
+    // emit error("fight id not found at collision");
     return;
   }
   ConfigureFighters();
@@ -570,7 +571,7 @@ bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
   ConfigureCommons();
 
   if (!client_->isInFight()) {
-    emit error("is in fight but without monster");
+    // emit error("is in fight but without monster");
     return false;
   }
   player_background_->SetVisible(false);
@@ -581,7 +582,7 @@ bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
   init_other_monster_display();
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster == NULL) {
-    emit error("NULL pointer for other monster at wildFightCollision()");
+    // emit error("NULL pointer for other monster at wildFightCollision()");
     return false;
   }
   battleStep = BattleStep_PresentationMonster;
@@ -665,7 +666,7 @@ void Battle::PlayerMonsterInitialize(PlayerMonster *fight_monster) {
       }
     }
   } else {
-    emit error("Try fight without monster");
+    // emit error("Try fight without monster");
   }
   battleStep = BattleStep_PresentationMonster;
 }
@@ -811,24 +812,28 @@ void Battle::loose() {
   PublicPlayerMonster *currentMonster = client_->getCurrentMonster();
   if (currentMonster != NULL) {
     if ((int)currentMonster->hp != player_hp_bar_->Value()) {
+      /*
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (loose && currentMonster): %1!=%2")
               .arg(currentMonster->hp)
               .arg(player_hp_bar_->Value())
               .toStdString());
+      */
       return;
     }
   }
   PublicPlayerMonster *otherMonster = client_->getOtherMonster();
   if (otherMonster != NULL) {
     if ((int)otherMonster->hp != enemy_hp_bar_->Value()) {
+      /*
       emit error(
           QStringLiteral("Current monster damage don't match with the internal "
                          "value (loose && otherMonster): %1!=%2")
               .arg(otherMonster->hp)
               .arg(enemy_hp_bar_->Value())
               .toStdString());
+      */
       return;
     }
   }
@@ -843,7 +848,9 @@ void Battle::loose() {
   switch (battleType) {
     case BattleType_Bot:
       if (botFightList.empty()) {
+        /*
         emit error("battle info not found at collision");
+        */
         return;
       }
       botFightList.erase(botFightList.cbegin());
@@ -851,7 +858,7 @@ void Battle::loose() {
       break;
     case BattleType_OtherPlayer:
       if (battleInformationsList.empty()) {
-        emit error("battle info not found at collision");
+        // emit error("battle info not found at collision");
         return;
       }
       battleInformationsList.erase(battleInformationsList.cbegin());
@@ -1159,7 +1166,7 @@ void Battle::doNextAction() {
       } else {
         PublicPlayerMonster *otherMonster = client_->getOtherMonster();
         if (otherMonster == NULL) {
-          emit error("NULL pointer for other monster at doNextAction()");
+          // emit error("NULL pointer for other monster at doNextAction()");
           return;
         }
         qDebug()
@@ -1254,9 +1261,9 @@ void Battle::doNextAction() {
   if (currentMonster != NULL) {
     if (CommonDatapack::commonDatapack.monsters.find(currentMonster->monster) ==
         CommonDatapack::commonDatapack.monsters.cend()) {
-      emit error(QStringLiteral("Current monster don't exists: %1")
+      /* emit error(QStringLiteral("Current monster don't exists: %1")
                      .arg(currentMonster->monster)
-                     .toStdString());
+                     .toStdString());*/
       return;
     }
     if ((int)currentMonster->hp != player_hp_bar_->Value()) {
@@ -1300,38 +1307,38 @@ void Battle::error(std::string error) {
 void Battle::ShowMessageDialog(const QString &title, const QString &message) {
   if (message_dialog_ == nullptr) {
     message_dialog_ = new MessageDialog();
-    message_dialog_->SetParent(this);
+    // jmessage_dialog_->SetParent(this);
   }
   message_dialog_->SetMessage(message);
-  emit setAbove(message_dialog_);
+  // emit setAbove(message_dialog_);
 }
 
 void Battle::ShowMonsterDialog() {
   if (monsters_bag_ == nullptr) {
     monsters_bag_ = new MonsterBag();
-    monsters_bag_->setParent(this);
+    // monsters_bag_->setParent(this);
     monsters_bag_->SetVar(connexionManager);
-    if (!connect(monsters_bag_, &MonsterBag::OnSelectMonster, this,
+    /*if (!connect(monsters_bag_, &MonsterBag::OnSelectMonster, this,
                  &Battle::OnMonsterSelect))
-      abort();
+      abort();*/
   }
-  emit setAbove(monsters_bag_);
+  // emit setAbove(monsters_bag_);
 }
 
 void Battle::ShowBagDialog() {
   if (inventory_ == nullptr) {
     inventory_ = new Inventory();
-    inventory_->SetParent(this);
-    if (!connect(inventory_, &Inventory::useItem, this, &Battle::UseBagItem))
-      abort();
+    // inventory_->SetParent(this);
+    /*if (!connect(inventory_, &Inventory::useItem, this, &Battle::UseBagItem))
+      abort();*/
   }
   inventory_->setVar(connexionManager,
                      Inventory::ObjectType::ObjectType_UseInFight, true);
-  emit setAbove(inventory_);
+  // emit setAbove(inventory_);
 }
 
 void Battle::UseBagItem(uint16_t item) {
-  emit setAbove(nullptr);
+  // emit setAbove(nullptr);
 
   const CatchChallenger::Player_private_and_public_informations
       &playerInformations = client_->get_player_informations_ro();

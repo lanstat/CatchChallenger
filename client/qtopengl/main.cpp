@@ -2,7 +2,7 @@
 #include "../qt/LanguagesSelect.hpp"
 #include "ScreenTransition.hpp"
 #include "core/SceneManager.hpp"
-#include "scenes/main/Menu.hpp"
+#include "scenes/Leading.hpp"
 #include "render/MapVisualiserOrder.hpp"
 #include "render/MapVisualiserPlayer.hpp"
 #include "../qt/LocalListener.hpp"
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     // ScreenTransition s;
     SceneManager s;
 
-    s.PushScene(Menu::Create());
+    s.PushScene(Leading::Create());
     s.setWindowTitle(QObject::tr("CatchChallenger loading..."));
     /*QScreen *screen = QApplication::screens().at(0);
     s.setMinimumSize(QSize(screen->availableSize().width(),

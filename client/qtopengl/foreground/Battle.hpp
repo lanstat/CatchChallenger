@@ -29,8 +29,6 @@ class MoveTo;
 class Delay;
 
 class Battle : public Scene {
-  Q_OBJECT
-
  public:
   Battle();
   ~Battle();
@@ -73,8 +71,7 @@ class Battle : public Scene {
     uint8_t monsterPlace;
     CatchChallenger::PublicPlayerMonster publicPlayerMonster;
   };
- public slots:
- signals:
+
   void Finished();
 
  private:
@@ -252,7 +249,6 @@ class Battle : public Scene {
   void ShowMonsterDialog();
   void UseBagItem(uint16_t);
   void newError(std::string error, std::string detailedError);
- private slots:
   void error(std::string error);
 
  protected:

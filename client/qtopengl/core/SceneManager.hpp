@@ -9,8 +9,10 @@
 #include <vector>
 
 #include "../../../general/base/GeneralStructures.hpp"
+#include "ActionManager.hpp"
 #include "GraphicRenderer.hpp"
 #include "Scene.hpp"
+#include "EventManager.hpp"
 
 namespace CatchChallenger {
 class InternalServer;
@@ -34,8 +36,6 @@ class SceneManager : public QGraphicsView {
   void mouseReleaseEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void closeEvent(QCloseEvent *event) override;
-
- protected:
   void paintEvent(QPaintEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
   void keyReleaseEvent(QKeyEvent *event) override;
@@ -56,8 +56,17 @@ class SceneManager : public QGraphicsView {
   QTimer timer_render_;
   QTime time_elapsed_;
   uint16_t frame_counter_;
+  QTimer timerUpdateFPS;
+  QTime timeUpdateFPS;
+  QGraphicsPixmapItem *imageText;
+  int draw_times_;
+
+  ActionManager *action_manager_;
+  EventManager *event_manager_;
 
   void Render();
+  void UpdateFPS();
+  void SetTargetFPS(int targetFPS);
 };
 
 #endif  // CLIENT_QTOPENGL_CORE_SCENEMANAGER_HPP_

@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <iostream>
 
+#include "AssetsLoader.hpp"
 #include "Node.hpp"
 #include "Stateful.hpp"
 
@@ -37,12 +38,10 @@ void Sprite::UseInternal(void *data) {
 void Sprite::Draw(QPainter *painter) { painter->drawPixmap(X(), Y(), cache_); }
 
 void Sprite::SetPixmap(const QString &file_name) {
-  SetPixmap(QPixmap(file_name));
+  SetPixmap(*AssetsLoader::GetInstance()->GetImage(file_name));
 }
 
-void Sprite::SetPixmap(const QPixmap pixmap) {
-  SetPixmap(pixmap, true);
-}
+void Sprite::SetPixmap(const QPixmap pixmap) { SetPixmap(pixmap, true); }
 
 void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
   if (preserve_size) {
@@ -58,7 +57,7 @@ void Sprite::SetSize(int width, int height) {
   Node::SetSize(width, height);
 }
 
-void Sprite::MousePressEventXY(const QPointF &point, bool &press_validated) {
+void Sprite::MousePressEvent(const QPointF &point, bool &press_validated) {
   if (press_validated) return;
   const QRectF &b = BoundingRect();
   const QRectF &t = MapRectToScene(b);
@@ -67,7 +66,7 @@ void Sprite::MousePressEventXY(const QPointF &point, bool &press_validated) {
   }
 }
 
-void Sprite::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
+void Sprite::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
   if (prev_validated) return;
 
   const QRectF &b = BoundingRect();
@@ -81,7 +80,17 @@ void Sprite::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
   }
 }
 
-void Sprite::MouseMoveEventXY(const QPointF &point) { (void)point; }
+void Sprite::MouseMoveEvent(const QPointF &point) { (void)point; }
+
+void Sprite::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void Sprite::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
 
 void Sprite::Strech(unsigned int border_size, int width, int height) {
   if (width == Width() && height == Height()) return;

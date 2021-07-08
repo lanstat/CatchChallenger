@@ -1,0 +1,38 @@
+// Copyright 2021 CatchChallenger
+#ifndef CLIENT_QTOPENGL_CORE_EVENTMANAGER_HPP_
+#define CLIENT_QTOPENGL_CORE_EVENTMANAGER_HPP_
+
+#include <QKeyEvent>
+#include <QPointF>
+#include <cstdint>
+#include <vector>
+
+class Node;
+
+class EventManager {
+ public:
+  ~EventManager();
+
+  static EventManager *GetInstance();
+  void AddMouseListener(Node *listener);
+  void AddKeyboardListener(Node *listener);
+  void RemoveAllListeners();
+  void RemoveListener(Node *listener);
+
+  void MousePressEvent(const QPointF &point, bool &press_validated);
+  void MouseReleaseEvent(const QPointF &point, bool &prev_validated);
+  void MouseMoveEvent(const QPointF &point);
+  void KeyPressEvent(QKeyEvent *event, bool &event_trigger);
+  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger);
+
+ private:
+  EventManager();
+  void RemoveListener(std::vector<Node *> *item, Node *listener);
+  void AddListener(std::vector<Node *> *item, Node *listener);
+
+ protected:
+  static EventManager *instance_;
+  struct std::vector<Node *> mouse_listeners_;
+  struct std::vector<Node *> keyboard_listeners_;
+};
+#endif  // CLIENT_QTOPENGL_CORE_EVENTMANAGER_HPP_

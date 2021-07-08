@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <iostream>
 
-#include "../../qt/GameLoader.hpp"
+#include "../core/AssetsLoader.hpp"
 
 using UI::Button;
 
@@ -82,7 +82,7 @@ void Button::Draw(QPainter *painter) {
   if (image.isNull()) abort();
   paint.begin(&image);
   QPixmap scaled_background;
-  QPixmap temp(*GameLoader::gameLoader->getImage(background_));
+  QPixmap temp(*AssetsLoader::GetInstance()->GetImage(background_));
   if (temp.isNull()) abort();
   if (!IsEnabled())
     scaled_background =
@@ -202,7 +202,7 @@ void Button::SetPressed(const bool &pressed) {
   }
 }
 
-void Button::MousePressEventXY(const QPointF &p, bool &press_validated) {
+void Button::MousePressEvent(const QPointF &p, bool &press_validated) {
   if (press_validated) return;
   if (pressed_) return;
   if (!IsVisible()) return;
@@ -216,7 +216,7 @@ void Button::MousePressEventXY(const QPointF &p, bool &press_validated) {
   }
 }
 
-void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
+void Button::MouseReleaseEvent(const QPointF &p, bool &prev_validated) {
   if (prev_validated) {
     SetPressed(false);
     return;
@@ -235,7 +235,17 @@ void Button::MouseReleaseEventXY(const QPointF &p, bool &prev_validated) {
   }
 }
 
-void Button::MouseMoveEventXY(const QPointF &point) { (void)point; }
+void Button::MouseMoveEvent(const QPointF &point) { (void)point; }
+
+void Button::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void Button::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
 
 void Button::SetEnabled(bool enabled) {
   if (enabled == IsEnabled()) return;

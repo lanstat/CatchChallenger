@@ -219,7 +219,7 @@ void ListView::ReCalculateSize() {
   }
 }
 
-void ListView::MousePressEventXY(const QPointF &point, bool &press_validated) {
+void ListView::MousePressEvent(const QPointF &point, bool &press_validated) {
   if (press_validated) return;
 
   const QRectF &b = slider_rect_;
@@ -236,13 +236,13 @@ void ListView::MousePressEventXY(const QPointF &point, bool &press_validated) {
       QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                  content_rect_.y() + point.y() - t2.y());
       for (auto item : items_) {
-        item->MousePressEventXY(auxiliar, press_validated);
+        item->MousePressEvent(auxiliar, press_validated);
       }
     }
   }
 }
 
-void ListView::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
+void ListView::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
   is_slider_pressed_ = false;
   // Verify if point is in listview, if true calculate the relative position
   // of the point in the content
@@ -252,12 +252,12 @@ void ListView::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
     QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                content_rect_.y() + point.y() - t2.y());
     for (auto item : items_) {
-      item->MouseReleaseEventXY(auxiliar, prev_validated);
+      item->MouseReleaseEvent(auxiliar, prev_validated);
     }
   }
 }
 
-void ListView::MouseMoveEventXY(const QPointF &point) {
+void ListView::MouseMoveEvent(const QPointF &point) {
   // TODO(lanstat): Verificar comportamiento cuando se use horizontal
   if (is_slider_pressed_) {
     const QRectF &b = BoundingRect();
@@ -273,6 +273,16 @@ void ListView::MouseMoveEventXY(const QPointF &point) {
     content_rect_.setY((delta - BoundingRect().y()) * content_scale_);
     slider_rect_.moveTop(delta);
   }
+}
+
+void ListView::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void ListView::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
 }
 
 void ListView::Clear() {

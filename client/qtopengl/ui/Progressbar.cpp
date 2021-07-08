@@ -44,6 +44,10 @@ Progressbar::~Progressbar() {
     delete cache_;
     cache_ = nullptr;
   }
+  if (tick_ != nullptr) {
+    delete tick_;
+    tick_ = nullptr;
+  }
 }
 
 Progressbar *Progressbar::Create(Node *parent) {
@@ -277,19 +281,28 @@ void Progressbar::SetSize(int width, int height) {
   }
 }
 
-void Progressbar::MousePressEventXY(const QPointF &point,
-                                    bool &press_validated) {
+void Progressbar::MousePressEvent(const QPointF &point, bool &press_validated) {
   (void)point;
   (void)press_validated;
 }
 
-void Progressbar::MouseReleaseEventXY(const QPointF &point,
-                                      bool &prev_validated) {
+void Progressbar::MouseReleaseEvent(const QPointF &point,
+                                    bool &prev_validated) {
   (void)point;
   (void)prev_validated;
 }
 
-void Progressbar::MouseMoveEventXY(const QPointF &point) { (void)point; }
+void Progressbar::MouseMoveEvent(const QPointF &point) { (void)point; }
+
+void Progressbar::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void Progressbar::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
 
 void Progressbar::SetOnIncrementDone(const std::function<void()> &callback) {
   on_increment_done_ = callback;

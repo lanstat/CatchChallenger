@@ -9,18 +9,15 @@
 #include <string>
 
 #include "../ScreenInput.hpp"
-#include "ActionManager.hpp"
+#include "EventManager.hpp"
 #include "Node.hpp"
 
-Scene::Scene(Node *parent) : Node(parent) {
-  action_manager_ = ActionManager::GetInstance();
-}
+Scene::Scene(Node *parent) : Node(parent) {}
 
 Scene::~Scene() {}
 
-void Scene::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+void Scene::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget) {
-  action_manager_->Update();
   if (bounding_rect_.width() != widget->width() ||
       bounding_rect_.height() != widget->height()) {
     bounding_rect_ = QRectF(0, 0, widget->width(), widget->height());
@@ -33,61 +30,41 @@ void Scene::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       OnScreenHDR();
     }
   }
-  Paint(painter, option, widget);
+  Node::Paint(painter, option, widget);
 }
 
-QRectF Scene::boundingRect() const { return bounding_rect_; }
-
 void Scene::RegisterMouseListener(Node *node) {
-  mouse_listener_.push_back(node);
+  EventManager::GetInstance()->AddMouseListener(node);
 }
 
 void Scene::RegisterKeyboardListerner(Node *node) {
-  keyboard_listener_.push_back(node);
-}
-
-void Scene::mousePressEventXY(const QPointF &p, bool &press,
-                              bool &call_parent_class) {
-  (void)call_parent_class;
-  for (auto it = begin(mouse_listener_); it != end(mouse_listener_); ++it) {
-    (*it)->MousePressEventXY(p, press);
-  }
-}
-
-void Scene::mouseReleaseEventXY(const QPointF &p, bool &press,
-                                bool &call_parent_class) {
-  (void)call_parent_class;
-  for (auto it = begin(mouse_listener_); it != end(mouse_listener_); ++it) {
-    (*it)->MouseReleaseEventXY(p, press);
-  }
-}
-
-void Scene::mouseMoveEventXY(const QPointF &p, bool &press,
-                             bool &call_parent_class) {
-  (void)call_parent_class;
-  for (auto it = begin(mouse_listener_); it != end(mouse_listener_); ++it) {
-    (*it)->MouseMoveEventXY(p);
-  }
+  EventManager::GetInstance()->AddKeyboardListener(node);
 }
 
 void Scene::Draw(QPainter *painter) { (void)painter; }
 
-void Scene::MousePressEventXY(const QPointF &point, bool &press_validated) {
-  (void)point;
-  (void)press_validated;
+void Scene::MousePressEvent(const QPointF &p, bool &press) {
+  (void)p;
+  (void)press;
 }
 
-void Scene::MouseReleaseEventXY(const QPointF &point, bool &prev_validated) {
-  (void)point;
-  (void)prev_validated;
+void Scene::MouseReleaseEvent(const QPointF &p, bool &press) {
+  (void)p;
+  (void)press;
 }
 
-void Scene::MouseMoveEventXY(const QPointF &point) { (void)point; }
+void Scene::MouseMoveEvent(const QPointF &p) { (void)p; }
+
+void Scene::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
+
+void Scene::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
+  (void)event;
+  (void)event_trigger;
+}
 
 void Scene::PrintError(const char *file, int line, const QString &message) {
   qDebug() << "[" << file << ":" << line << "]" << message;
 }
-
-void Scene::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {}
-
-void Scene::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {}

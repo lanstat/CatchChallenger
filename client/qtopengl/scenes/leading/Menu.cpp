@@ -4,27 +4,26 @@
 #include <QDesktopServices>
 #include <QWidget>
 #include <iostream>
+#include <string>
 
+#include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../qt/FeedNews.hpp"
-#include "../../../qt/GameLoader.hpp"
 #include "../../../qt/InternetUpdater.hpp"
-#include "../../../qt/Settings.hpp"
 #include "../../../qt/Ultimate.hpp"
 #include "../../Language.hpp"
 #include "../../core/Sprite.hpp"
+#include "../../qt/Settings.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
 #include "../ParallaxForest.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
-  #include "../../AudioGL.hpp"
+  #include "../../core/AudioPlayer.hpp"
 #endif
 
 Menu::Menu() {
   have_update_ = false;
   current_news_type_ = 0;
-
-  AddChild(ParallaxForest::Create());
 
   solo_ = UI::Button::Create(":/CC/images/interface/button.png", this);
   multi_ = UI::Button::Create(":/CC/images/interface/button.png", this);
@@ -43,18 +42,14 @@ Menu::Menu() {
   have_fresh_feed_ = false;
   news_ = Sprite::Create(":/CC/images/interface/message.png", this);
   news_text_ = UI::Label::Create(news_);
-  /*
-  newsTxt->setOpenExternalLinks(true);
-  newsText->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-  newsText->setTextInteractionFlags(Qt::TextBrowserInteraction);
-  */
+
+  // newsTxt->setOpenExternalLinks(true);
+  // newsText->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+  // newsText->setTextInteractionFlags(Qt::TextBrowserInteraction);
   // work
   UpdateNews();
   news_wait_ = Sprite::Create(news_);
-  if (GameLoader::gameLoader == nullptr)
-    GameLoader::gameLoader = new GameLoader();
-  news_wait_->SetPixmap(
-      *GameLoader::gameLoader->getImage(":/CC/images/multi/busy.png"));
+  news_wait_->SetPixmap(":/CC/images/multi/busy.png");
 
   warning_ = UI::Label::Create(this);
   warning_->SetVisible(false);
@@ -65,8 +60,7 @@ Menu::Menu() {
   news_update_ =
       UI::Button::Create(":/CC/images/interface/greenbutton.png", news_);
   news_update_->SetOutlineColor(QColor(44, 117, 0));
-
-  /*
+/*
 #ifndef __EMSCRIPTEN__
   InternetUpdater::internetUpdater = new InternetUpdater();
   if (!connect(InternetUpdater::internetUpdater, &InternetUpdater::newUpdate,
@@ -82,40 +76,32 @@ Menu::Menu() {
   FeedNews::feedNews->checkCache();
   */
 #ifndef CATCHCHALLENGER_SOLO
-  solo_->hide();
+  solo_->SetVisible(false);
 #endif
 
-  /*if (!connect(facebook, &CustomButton::clicked, this, &Menu::openFacebook))
-    abort();
-  if (!connect(website, &CustomButton::clicked, this, &Menu::openWebsite))
-    abort();
-  if (!connect(newsUpdate, &CustomButton::clicked, this, &Menu::openUpdate))
-    abort();
-  if (!connect(solo, &CustomButton::clicked, this, &Menu::goToSolo)) abort();
-  if (!connect(multi, &CustomButton::clicked, this, &Menu::goToMulti)) abort();
-  if (!connect(options, &CustomButton::clicked, this, &Menu::goToOptions))
-    abort();
-  if (!connect(debug, &CustomButton::clicked, this, &Menu::goToDebug)) abort();
-  if (!connect(&Language::language, &Language::newLanguage, this,
-               &Menu::newLanguage, Qt::QueuedConnection))
-    abort();*/
+  facebook_->SetOnClick(std::bind(&Menu::OpenFacebook, this));
+  website_->SetOnClick(std::bind(&Menu::OpenWebsite, this));
+  news_update_->SetOnClick(std::bind(&Menu::OpenUpdate, this));
+  solo_->SetOnClick(std::bind(&Menu::GoToSolo, this));
+  multi_->SetOnClick(std::bind(&Menu::GoToMulti, this));
+  options_->SetOnClick(std::bind(&Menu::GoToOptions, this));
+  debug_->SetOnClick(std::bind(&Menu::GoToDebug, this));
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   if (!Settings::settings->contains("audioVolume"))
     Settings::settings->setValue("audioVolume", 80);
-  AudioGL::GetInstance()->setVolume(
+  AudioPlayer::GetInstance()->SetVolume(
       Settings::settings->value("audioVolume").toUInt());
   const std::string &terr =
-      AudioGL::GetInstance()->startAmbiance(":/CC/music/loading.opus");
-  if (!terr.empty()) setError(terr);
-/*else
-    setError("Sound ok:
-"+QAudioDeviceInfo::defaultOutputDevice().deviceName().toStdString()); #else
-    setError("Sound disabled");*/
+      AudioPlayer::GetInstance()->StartAmbiance(":/CC/music/loading.opus");
+  if (!terr.empty())
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] " << terr
+              << std::endl;
 #endif
+
   ChangeLanguage();
 
-  // news 46,
+  RegisterMouseListener(solo_);
 }
 
 Menu::~Menu() { delete update_; }
@@ -138,130 +124,111 @@ void Menu::setError(const std::string &error) {
 }
 
 void Menu::OnScreenResize() {
+  int buttonMargin = 10;
+  if (BoundingRect().width() < 600 || BoundingRect().height() < 600) {
+    solo_->SetSize(148, 61);
+    solo_->SetPixelSize(23);
+    multi_->SetSize(148, 61);
+    multi_->SetPixelSize(23);
+    options_->SetSize(41, 46);
+    options_->SetPixelSize(23);
+    debug_->SetSize(41, 46);
+    debug_->SetPixelSize(23);
+    facebook_->SetSize(41, 46);
+    facebook_->SetPixelSize(18);
+    website_->SetSize(41, 46);
+    website_->SetPixelSize(18);
+  } else {
+    buttonMargin = 30;
+    solo_->SetSize(223, 92);
+    solo_->SetPixelSize(35);
+    multi_->SetSize(223, 92);
+    multi_->SetPixelSize(35);
+    options_->SetSize(62, 70);
+    options_->SetPixelSize(35);
+    debug_->SetSize(62, 70);
+    debug_->SetPixelSize(35);
+    facebook_->SetSize(62, 70);
+    facebook_->SetPixelSize(28);
+    website_->SetSize(62, 70);
+    website_->SetPixelSize(28);
+  }
+  int verticalMargin =
+      BoundingRect().height() / 2 + multi_->Height() / 2 + buttonMargin;
+  if (solo_->IsVisible()) {
+    solo_->SetPos(BoundingRect().width() / 2 - solo_->Width() / 2,
+                  BoundingRect().height() / 2 - multi_->Height() / 2 -
+                      solo_->Height() - buttonMargin);
+    multi_->SetPos(BoundingRect().width() / 2 - multi_->Width() / 2,
+                   BoundingRect().height() / 2 - multi_->Height() / 2);
+  } else {
+    multi_->SetPos(BoundingRect().width() / 2 - multi_->Width() / 2,
+                   BoundingRect().height() / 2 - multi_->Height());
+    verticalMargin = BoundingRect().height() / 2 + buttonMargin;
+  }
+  debug_->SetPos(10, 10);
+  const int horizontalMargin = (multi_->Width() - options_->Width() -
+                                facebook_->Width() - website_->Width()) /
+                               2;
+  options_->SetPos(BoundingRect().width() / 2 - facebook_->Width() / 2 -
+                       horizontalMargin - options_->Width(),
+                   verticalMargin);
+  facebook_->SetPos(BoundingRect().width() / 2 - facebook_->Width() / 2,
+                    verticalMargin);
+  website_->SetPos(
+      BoundingRect().width() / 2 + facebook_->Width() / 2 + horizontalMargin,
+      verticalMargin);
+  warning_->SetPos(BoundingRect().width() / 2 - warning_->Width() / 2, 5);
+
+  if (BoundingRect().height() < 280) {
+    news_update_->SetVisible(false);
+    if (current_news_type_ != 0) {
+      current_news_type_ = 0;
+      UpdateNews();
+    }
+  } else {
+    uint8_t border_size = 46;
+    news_->SetPos(BoundingRect().width() / 2 - news_->Width() / 2,
+                  BoundingRect().height() - news_->Height() - 5);
+    news_text_->SetPos(border_size + 2, border_size + 2);
+    news_wait_->SetPos(news_->Width() - news_wait_->Width() - border_size - 2,
+                       news_->Height() / 2 - news_wait_->Height() / 2);
+    news_->SetVisible(true);
+
+    if (BoundingRect().width() < 600 || BoundingRect().height() < 480) {
+      int w = BoundingRect().width() - 9 * 2;
+      if (w > 300) w = 300;
+      news_->SetSize(w, 40);
+      news_wait_->SetVisible(BoundingRect().width() > 450 && !have_fresh_feed_);
+      news_update_->SetVisible(false);
+
+      if (current_news_type_ != 1) {
+        current_news_type_ = 1;
+        UpdateNews();
+      }
+    } else {
+      news_->SetSize(600 - 9 * 2, 120);
+      news_wait_->SetVisible(!have_fresh_feed_);
+      news_update_->SetSize(136, 57);
+      news_update_->SetPixelSize(18);
+      news_update_->SetPos(news_->Width() - 136 - border_size - 2,
+                           news_->Height() / 2 - 57 / 2);
+      news_update_->SetVisible(have_update_);
+
+      if (current_news_type_ != 2) {
+        current_news_type_ = 2;
+        UpdateNews();
+      }
+    }
+  }
+
 }
 
 void Menu::OnScreenSD() {}
 
-void Menu::OnScreenHD() {
-  int buttonMargin = 10;
-  solo_->SetSize(148, 61);
-  solo_->SetPixelSize(23);
-  multi_->SetSize(148, 61);
-  multi_->SetPixelSize(23);
-  options_->SetSize(41, 46);
-  options_->SetPixelSize(23);
-  debug_->SetSize(41, 46);
-  debug_->SetPixelSize(23);
-  facebook_->SetSize(41, 46);
-  facebook_->SetPixelSize(18);
-  website_->SetSize(41, 46);
-  website_->SetPixelSize(18);
-}
+void Menu::OnScreenHD() {}
 
 void Menu::OnScreenHDR() {}
-
-/*
-void Menu::paint(QPainter *, const QStyleOptionGraphicsItem *,
-                 QWidget *widget) {
-  int buttonMargin = 10;
-  if (widget->width() < 600 || widget->height() < 600) {
-    solo->setSize(148, 61);
-    solo->setPixelSize(23);
-    multi->setSize(148, 61);
-    multi->setPixelSize(23);
-    options->setSize(41, 46);
-    options->setPixelSize(23);
-    debug->setSize(41, 46);
-    debug->setPixelSize(23);
-    facebook->setSize(41, 46);
-    facebook->setPixelSize(18);
-    website->setSize(41, 46);
-    website->setPixelSize(18);
-  } else {
-    buttonMargin = 30;
-    solo->setSize(223, 92);
-    solo->setPixelSize(35);
-    multi->setSize(223, 92);
-    multi->setPixelSize(35);
-    options->setSize(62, 70);
-    options->setPixelSize(35);
-    debug->setSize(62, 70);
-    debug->setPixelSize(35);
-    facebook->setSize(62, 70);
-    facebook->setPixelSize(28);
-    website->setSize(62, 70);
-    website->setPixelSize(28);
-  }
-  int verticalMargin =
-      widget->height() / 2 + multi->height() / 2 + buttonMargin;
-  if (solo->isVisible()) {
-    solo->setPos(widget->width() / 2 - solo->width() / 2,
-                 widget->height() / 2 - multi->height() / 2 - solo->height() -
-                     buttonMargin);
-    multi->setPos(widget->width() / 2 - multi->width() / 2,
-                  widget->height() / 2 - multi->height() / 2);
-  } else {
-    multi->setPos(widget->width() / 2 - multi->width() / 2,
-                  widget->height() / 2 - multi->height());
-    verticalMargin = widget->height() / 2 + buttonMargin;
-  }
-  debug->setPos(10, 10);
-  const int horizontalMargin = (multi->width() - options->width() -
-                                facebook->width() - website->width()) /
-                               2;
-  options->setPos(widget->width() / 2 - facebook->width() / 2 -
-                      horizontalMargin - options->width(),
-                  verticalMargin);
-  facebook->setPos(widget->width() / 2 - facebook->width() / 2, verticalMargin);
-  website->setPos(
-      widget->width() / 2 + facebook->width() / 2 + horizontalMargin,
-      verticalMargin);
-  warning->setPos(widget->width() / 2 - warning->boundingRect().width() / 2, 5);
-
-  if (widget->height() < 280) {
-    newsUpdate->setVisible(false);
-    if (currentNewsType != 0) {
-      currentNewsType = 0;
-      updateNews();
-    }
-  } else {
-    news->setPos(widget->width() / 2 - news->width() / 2,
-                 widget->height() - news->height() - 5);
-    newsText->setPos(news->currentBorderSize() + 2,
-                     news->currentBorderSize() + 2);
-    newsWait->setPos(news->width() - newsWait->pixmap().width() -
-                         news->currentBorderSize() - 2,
-                     news->height() / 2 - newsWait->pixmap().height() / 2);
-    news->setVisible(true);
-
-    if (widget->width() < 600 || widget->height() < 480) {
-      int w = widget->width() - 9 * 2;
-      if (w > 300) w = 300;
-      news->setSize(w, 40);
-      newsWait->setVisible(widget->width() > 450 && !haveFreshFeed);
-      newsUpdate->setVisible(false);
-
-      if (currentNewsType != 1) {
-        currentNewsType = 1;
-        updateNews();
-      }
-    } else {
-      news->setSize(600 - 9 * 2, 120);
-      newsWait->setVisible(!haveFreshFeed);
-      newsUpdate->setSize(136, 57);
-      newsUpdate->setPixelSize(18);
-      newsUpdate->setPos(news->width() - 136 - news->currentBorderSize() - 2,
-                         news->height() / 2 - 57 / 2);
-      newsUpdate->setVisible(haveUpdate);
-
-      if (currentNewsType != 2) {
-        currentNewsType = 2;
-        updateNews();
-      }
-    }
-  }
-}
-*/
 
 #ifndef __EMSCRIPTEN__
 void Menu::NewUpdate(const std::string &version) {
@@ -347,6 +314,14 @@ void Menu::OpenUpdate() {
           QUrl("https://catchchallenger.first-world.info/download.html")))
     std::cerr << "Menu::openFacebook() failed" << std::endl;
 }
+
+void Menu::GoToSolo() {}
+
+void Menu::GoToMulti() {}
+
+void Menu::GoToOptions() {}
+
+void Menu::GoToDebug() {}
 
 void Menu::ChangeLanguage() {
   solo_->SetText(tr("Solo"));
