@@ -62,15 +62,7 @@ void Label::Draw(QPainter *painter) {
   const unsigned int h = bounding_rect_.height();
   const unsigned int w = bounding_rect_.width();
 
-  if (cache_ != nullptr && !cache_->isNull() && cache_->width() == w &&
-      cache_->height() == h) {
-    painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y() + h * 0.1, w, h,
-                        *cache_);
-    return;
-  }
   if (bounding_rect_.isEmpty()) return;
-  if (cache_ != nullptr) delete cache_;
-  cache_ = new QPixmap();
 
   QImage image(w, h, QImage::Format_ARGB32);
   image.fill(Qt::transparent);
@@ -103,30 +95,21 @@ void Label::Draw(QPainter *painter) {
     paint.drawPath(*text_path_);
   }
 
-  *cache_ = QPixmap::fromImage(image);
-
-  painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y() + h * 0.1, w, h,
-                      *cache_);
+  painter->drawPixmap(0, 0 + h * 0.1, w, h, QPixmap::fromImage(image));
 }
 
 void Label::SetText(const QString &text) {
   if (text_ == text) return;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   text_ = text;
   UpdateTextPath();
+  ReDraw();
 }
 
 void Label::SetPixelSize(uint8_t size) {
   int tempsize = size * 1.5;
   if (font_->pixelSize() == tempsize) return;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   font_->setPixelSize(tempsize);
+  ReDraw();
 }
 
 void Label::UpdateTextPath() {
@@ -151,7 +134,10 @@ void Label::UpdateTextPath() {
                         temp_height - 1, *font_, text);
 }
 
-void Label::SetFont(const QFont &font) { *this->font_ = font; }
+void Label::SetFont(const QFont &font) {
+  *this->font_ = font;
+  ReDraw();
+}
 
 QFont Label::GetFont() const { return *font_; }
 

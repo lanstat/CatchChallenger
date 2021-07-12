@@ -35,7 +35,7 @@ void Sprite::UseInternal(void *data) {
   SetPos(object->x, object->y);
 }
 
-void Sprite::Draw(QPainter *painter) { painter->drawPixmap(X(), Y(), cache_); }
+void Sprite::Draw(QPainter *painter) { painter->drawPixmap(0, 0, cache_); }
 
 void Sprite::SetPixmap(const QString &file_name) {
   SetPixmap(*AssetsLoader::GetInstance()->GetImage(file_name));
@@ -50,6 +50,7 @@ void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
   } else {
     cache_ = pixmap.scaledToWidth(bounding_rect_.width());
   }
+  ReDraw();
 }
 
 void Sprite::SetSize(int width, int height) {

@@ -77,21 +77,25 @@ void ParallaxForest::ScalePix(QPixmap& pix, unsigned int zoom) {
 void ParallaxForest::GrassSlot() {
   if (grass_.isNull()) return;
   grassMove++;
+  ReDraw();
 }
 
 void ParallaxForest::TreebackSlot() {
   if (treeback_.isNull()) return;
   treebackMove++;
+  ReDraw();
 }
 
 void ParallaxForest::TreefrontSlot() {
   if (treefront_.isNull()) return;
   treefrontMove++;
+  ReDraw();
 }
 
 void ParallaxForest::CloudSlot() {
   if (cloud_.isNull()) return;
   cloudMove++;
+  ReDraw();
 }
 
 unsigned int ParallaxForest::GetTargetZoom() {

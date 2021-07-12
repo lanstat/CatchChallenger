@@ -24,7 +24,6 @@ Button::Button(QString pix, Node *parent) : Node(parent) {
   background_ = pix;
   outline_color_ = QColor(217, 145, 0);
   percent_ = 75;
-  cache_ = nullptr;
   checkable_ = false;
   checked_ = false;
 
@@ -39,9 +38,8 @@ Button *Button::Create(QString pix, Node *parent) {
 void Button::SetSize(int w, int h) {
   if (bounding_rect_.width() == w && bounding_rect_.height() == h) return;
   Node::SetSize(w, h);
-  if (cache_ != nullptr) delete cache_;
-  cache_ = nullptr;
   UpdateTextPath();
+  ReDraw();
 }
 
 void Button::SetPos(int x, int y) {
@@ -58,23 +56,10 @@ Button::~Button() {
     delete font_;
     font_ = nullptr;
   }
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
 }
 
 void Button::Draw(QPainter *painter) {
-  if (!IsVisible()) return;
-  if (cache_ != nullptr) {
-    painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y(),
-                        bounding_rect_.width(), bounding_rect_.height(),
-                        *cache_);
-    return;
-  }
   if (bounding_rect_.isEmpty()) return;
-  if (cache_ != nullptr) delete cache_;
-  cache_ = new QPixmap();
   QImage image(bounding_rect_.width(), bounding_rect_.height(),
                QImage::Format_ARGB32);
   image.fill(Qt::transparent);
@@ -111,34 +96,23 @@ void Button::Draw(QPainter *painter) {
     paint.setBrush(Qt::white);
     paint.drawPath(*text_path_);
   }
-  *cache_ = QPixmap::fromImage(image);
 
-  {
-    painter->drawPixmap(bounding_rect_.x(), bounding_rect_.y(),
-                        bounding_rect_.width(), bounding_rect_.height(),
-                        *cache_);
-    return;
-  }
+  painter->drawPixmap(0, 0, bounding_rect_.width(), bounding_rect_.height(),
+                      QPixmap::fromImage(image));
 }
 
 void Button::SetText(const QString &text) {
   if (text_ == text) return;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   text_ = text;
   UpdateTextPath();
+  ReDraw();
 }
 
 bool Button::SetPixelSize(uint8_t size) {
   int tempsize = size * 1.5;
   if (font_->pixelSize() == tempsize) return true;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   font_->setPixelSize(tempsize);
+  ReDraw();
   return true;
 }
 
@@ -163,23 +137,16 @@ void Button::UpdateTextPath() {
 
 bool Button::UpdateTextPercent(uint8_t percent) {
   if (percent_ == percent) return true;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   if (percent > 100) return false;
   percent_ = percent;
   UpdateTextPath();
-  // update();
+  ReDraw();
   return true;
 }
 
 void Button::SetFont(const QFont &font) {
   *font_ = font;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
+  ReDraw();
 }
 
 QFont Button::GetFont() const { return *font_; }
@@ -196,10 +163,7 @@ void Button::SetPressed(const bool &pressed) {
     checked_ = pressed;
   }
   pressed_ = pressed;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
+  ReDraw();
 }
 
 void Button::MousePressEvent(const QPointF &p, bool &press_validated) {
@@ -249,13 +213,13 @@ void Button::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 
 void Button::SetEnabled(bool enabled) {
   if (enabled == IsEnabled()) return;
-  if (cache_ != nullptr) {
-    delete cache_;
-    cache_ = nullptr;
-  }
   Node::SetEnabled(enabled);
+  ReDraw();
 }
 
-void Button::SetCheckable(bool checkable) { checkable_ = checkable; }
+void Button::SetCheckable(bool checkable) {
+  checkable_ = checkable;
+  ReDraw();
+}
 
 bool Button::IsChecked() const { return checked_; }

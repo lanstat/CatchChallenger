@@ -32,8 +32,10 @@ class Node {
   void SetData(int role, int value);
   void SetParent(Node *parent);
   Node *Parent();
+  /** Get the root node */
   Node *Root();
   QRectF MapRectToScene(QRectF inner) const;
+  /** Start an action */
   void RunAction(Action *action);
   void StartAllActions();
   Action *GetAction(int tag);
@@ -43,7 +45,10 @@ class Node {
   void SetToolTip(QString text);
   QString ToolTip();
   void AddChild(Node *node);
+  /** Remove a child from the node */
   void RemoveChild(Node *node);
+  /** Invalidate cache */
+  void ReDraw();
   virtual void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *);
   QRectF BoundingRect() const;
@@ -69,6 +74,7 @@ class Node {
   explicit Node(Node *parent = nullptr);
 
  private:
+  QPixmap *node_cache_;
   std::unordered_map<int, int> data_;
   uint unique_id_;
   bool in_test_;

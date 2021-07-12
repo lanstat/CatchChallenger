@@ -17,17 +17,18 @@ Node::Node(Node *parent) {
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
   parent_ = nullptr;
+  node_cache_ = nullptr;
 
   if (parent) {
     parent->AddChild(this);
   }
 }
 
-Node::~Node() {}
-
-void Node::SetParent(Node *parent) {
-  parent_ = parent;
+Node::~Node() {
+  delete node_cache_;
 }
+
+void Node::SetParent(Node *parent) { parent_ = parent; }
 
 Node *Node::Parent() { return parent_; }
 
@@ -36,7 +37,7 @@ Node *Node::Root() {
   while (parent->Parent() != nullptr) {
     parent = parent->Parent();
   }
-  return parent; 
+  return parent;
 }
 
 void Node::AddChild(Node *child) {
@@ -97,11 +98,18 @@ int Node::Y() { return bounding_rect_.y(); }
 void Node::SetSize(int w, int h) {
   bounding_rect_.setWidth(w);
   bounding_rect_.setHeight(h);
+  ReDraw();
 }
 
-void Node::SetHeight(int h) { bounding_rect_.setHeight(h); }
+void Node::SetHeight(int h) {
+  bounding_rect_.setHeight(h);
+  ReDraw();
+}
 
-void Node::SetWidth(int w) { bounding_rect_.setWidth(w); }
+void Node::SetWidth(int w) {
+  bounding_rect_.setWidth(w);
+  ReDraw();
+}
 
 int Node::Height() { return bounding_rect_.height(); }
 
@@ -130,7 +138,14 @@ void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   }
 
   if (visible_) {
-    Draw(painter);
+    if (!node_cache_) {
+      node_cache_ = new QPixmap(Width(), Height());
+      node_cache_->fill(Qt::transparent);
+      QPainter painter_c(node_cache_);
+      Draw(&painter_c);
+      painter_c.end();
+    }
+    painter->drawPixmap(X(), Y(), *node_cache_);
 
     if (children_.size() == 0) return;
 
@@ -150,4 +165,11 @@ QString Node::ToolTip() { return tooltip_; }
 
 bool Node::HasRunningActions() {
   return action_manager_->GetNumberOfRunningActionsInTarget(this) > 0;
+}
+
+void Node::ReDraw() {
+  if (node_cache_) {
+    delete node_cache_;
+  }
+  node_cache_ = nullptr;
 }

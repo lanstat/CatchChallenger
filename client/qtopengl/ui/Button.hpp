@@ -38,7 +38,6 @@ class Button : public Node {
   explicit Button(QString pix, Node *parent = nullptr);
 
  private:
-  QPixmap *cache_;
   QString background_;
   bool pressed_;
   QPainterPath *text_path_;

@@ -31,32 +31,30 @@ ListView *ListView::Create(Node *parent) {
 void ListView::Draw(QPainter *painter) {
   if (items_.size() == 0 && !is_drawable_) return;
 
-  if (visible_) {
-    int x1 = bounding_rect_.x();
-    int y1 = bounding_rect_.y();
-    int x2 = bounding_rect_.x() + bounding_rect_.width();
-    int y2 = bounding_rect_.y() + bounding_rect_.height();
+  int x1 = 0;
+  int y1 = 0;
+  int x2 = x1 + bounding_rect_.width();
+  int y2 = y1 + bounding_rect_.height();
 
-    content_.fill(Qt::transparent);
-    QPainter painter_c(&content_);
-    if (painter_c.isActive()) {
-      for (auto item : items_) {
-        item->Paint(&painter_c, nullptr, nullptr);
-      }
-      painter_c.end();
+  content_.fill(Qt::transparent);
+  QPainter painter_c(&content_);
+  if (painter_c.isActive()) {
+    for (auto item : items_) {
+      item->Paint(&painter_c, nullptr, nullptr);
     }
+    painter_c.end();
+  }
 
-    painter->drawPixmap(x1, y1, content_, content_rect_.x(), content_rect_.y(),
-                        BoundingRect().width(), BoundingRect().height());
+  painter->drawPixmap(x1, y1, content_, content_rect_.x(), content_rect_.y(),
+                      BoundingRect().width(), BoundingRect().height());
 
-    if (show_slider_) {
-      if (is_horizontal_) {
-        painter->drawPixmap(x2 - 22, y1, slider_rail_);
-      } else {
-        painter->drawPixmap(x1, y2 - 22, slider_rail_);
-      }
-      painter->drawPixmap(slider_rect_.x(), slider_rect_.y(), slider_);
+  if (show_slider_) {
+    if (is_horizontal_) {
+      painter->drawPixmap(x2 - 22, y1, slider_rail_);
+    } else {
+      painter->drawPixmap(x1, y2 - 22, slider_rail_);
     }
+    painter->drawPixmap(slider_rect_.x(), slider_rect_.y(), slider_);
   }
 }
 
@@ -64,17 +62,19 @@ void ListView::AddItem(Node *node) {
   node->SetParent(nullptr);
   items_.push_back(node);
   ReCalculateSize();
+  ReDraw();
 }
 
 Node *ListView::GetItem(uint8_t index) { return items_.at(index); }
 
 void ListView::RemoveItem(uint8_t index) {
   items_.erase(items_.begin() + index);
+  ReDraw();
 }
 
 Node *ListView::GetSelectedItem() { return selected_item_; }
 
-std::vector<Node*> ListView::Items() { return items_; }
+std::vector<Node *> ListView::Items() { return items_; }
 
 void ListView::SetSize(int width, int height) {
   Node::SetSize(width, height);
@@ -82,6 +82,7 @@ void ListView::SetSize(int width, int height) {
     is_drawable_ = true;
   }
   ReCalculateSize();
+  ReDraw();
 }
 
 void ListView::ReCalculateSize() {
@@ -279,6 +280,7 @@ void ListView::MouseMoveEvent(const QPointF &point) {
     }
     content_rect_.setY((delta - BoundingRect().y()) * content_scale_);
     slider_rect_.moveTop(delta);
+    ReDraw();
   }
 }
 
@@ -298,12 +300,14 @@ void ListView::Clear() {
     delete *it;
   }
   items_.clear();
+  ReDraw();
 }
 
 void ListView::SetHorizontal(bool horizontal) {
   if (is_horizontal_ == horizontal) return;
   is_horizontal_ = horizontal;
   ReCalculateSize();
+  ReDraw();
 }
 
 uint8_t ListView::Count() { return items_.size(); }
