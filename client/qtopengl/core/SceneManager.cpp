@@ -59,6 +59,8 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
       setRenderHint(QPainter::HighQualityAntialiasing, true);
       setRenderHint(QPainter::SmoothPixmapTransform, false);
       setRenderHint(QPainter::NonCosmeticDefaultPen, true);
+
+      setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     }
     // else use the CPU only
   }

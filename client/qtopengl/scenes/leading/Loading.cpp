@@ -14,6 +14,7 @@
 #include "../../ui/Label.hpp"
 #include "../../ui/Progressbar.hpp"
 
+using Scenes::Loading;
 using std::placeholders::_1;
 
 Loading::Loading() : on_finish_(nullptr) {

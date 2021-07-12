@@ -35,6 +35,7 @@ class Button : public Node {
 
  protected:
   void UpdateTextPath();
+  explicit Button(QString pix, Node *parent = nullptr);
 
  private:
   QPixmap *cache_;
@@ -47,7 +48,6 @@ class Button : public Node {
   QString text_;
   bool checkable_;
   bool checked_;
-  explicit Button(QString pix, Node *parent = nullptr);
 };
 }  // namespace UI
 

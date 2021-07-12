@@ -8,6 +8,7 @@
 #include "../../ui/Label.hpp"
 #include "../../ui/Progressbar.hpp"
 
+namespace Scenes {
 class Loading : public Scene {
  public:
   static Loading *Create();
@@ -40,5 +41,5 @@ class Loading : public Scene {
   bool doTheNext;
   std::function<void()> on_finish_;
 };
-
+}  // namespace Scenes
 #endif  // CLIENT_QTOPENGL_SCENES_LEADING_LOADING_HPP_

@@ -45,6 +45,7 @@ void Node::AddChild(Node *child) {
 }
 
 void Node::RemoveChild(Node *child) {
+  if (child == nullptr) return;
   child->SetParent(nullptr);
   children_.erase(std::remove(children_.begin(), children_.end(), child),
                   children_.end());

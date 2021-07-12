@@ -9,6 +9,7 @@
 #include "../../core/Sprite.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
+#include "Multi.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -16,6 +17,7 @@
   #include "../../../qt/QInfiniteBuffer.hpp"
 #endif
 
+namespace Scenes {
 class Menu : public Scene {
  public:
   Menu();
@@ -45,6 +47,8 @@ class Menu : public Scene {
   bool have_fresh_feed_;
   bool have_update_;
 
+  Multi *multi_scene_;
+
   void ChangeLanguage();
 
  protected:
@@ -68,5 +72,5 @@ class Menu : public Scene {
   void GoToOptions();
   void GoToDebug();
 };
-
+}  // namespace Scenes
 #endif  // CLIENT_QTOPENGL_SCENES_LEADING_MENU_HPP_

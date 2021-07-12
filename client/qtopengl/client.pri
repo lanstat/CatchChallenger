@@ -265,6 +265,7 @@ SOURCES += \
     $$PWD/core/EventManager.cpp \
     $$PWD/core/Scene.cpp \
     $$PWD/core/SceneManager.cpp \
+    $$PWD/core/StackedScene.cpp \
     $$PWD/core/GraphicRenderer.cpp \
     $$PWD/action/Action.cpp \
     $$PWD/action/MoveTo.cpp \
@@ -339,6 +340,8 @@ SOURCES += \
     $$PWD/scenes/ParallaxForest.cpp \
     $$PWD/scenes/Leading.cpp \
     $$PWD/scenes/leading/Loading.cpp \
+    $$PWD/scenes/leading/Multi.cpp \
+    $$PWD/scenes/leading/MultiItem.cpp \
     $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
     $$PWD/CCGraphicsTextItem.hpp \
@@ -370,6 +373,7 @@ HEADERS  += \
     $$PWD/core/EventManager.hpp \
     $$PWD/core/Scene.hpp \
     $$PWD/core/SceneManager.hpp \
+    $$PWD/core/StackedScene.hpp \
     $$PWD/core/GraphicRenderer.hpp \
     $$PWD/action/Action.hpp \
     $$PWD/action/MoveTo.hpp \
@@ -432,6 +436,8 @@ HEADERS  += \
     $$PWD/scenes/ParallaxForest.hpp \
     $$PWD/scenes/Leading.hpp \
     $$PWD/scenes/leading/Loading.hpp \
+    $$PWD/scenes/leading/MultiItem.hpp \
+    $$PWD/scenes/leading/Multi.hpp \
     $$PWD/scenes/leading/Menu.hpp
 
 

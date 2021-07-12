@@ -14,6 +14,7 @@ ListView::ListView(Node *parent) : Node(parent) {
   show_slider_ = false;
   is_slider_pressed_ = false;
   is_horizontal_ = false;
+  is_drawable_ = false;
 }
 
 ListView::~ListView() {
@@ -28,7 +29,7 @@ ListView *ListView::Create(Node *parent) {
 }
 
 void ListView::Draw(QPainter *painter) {
-  if (items_.size() == 0) return;
+  if (items_.size() == 0 && !is_drawable_) return;
 
   if (visible_) {
     int x1 = bounding_rect_.x();
@@ -73,12 +74,18 @@ void ListView::RemoveItem(uint8_t index) {
 
 Node *ListView::GetSelectedItem() { return selected_item_; }
 
+std::vector<Node*> ListView::Items() { return items_; }
+
 void ListView::SetSize(int width, int height) {
   Node::SetSize(width, height);
+  if (width > 0 && height > 0) {
+    is_drawable_ = true;
+  }
   ReCalculateSize();
 }
 
 void ListView::ReCalculateSize() {
+  if (!is_drawable_) return;
   if (!is_horizontal_) {
     content_rect_ = QRectF(0.0, 0.0, Width() - 22, 0.0);
 

@@ -12,14 +12,18 @@
 #include "../../../qt/Ultimate.hpp"
 #include "../../Language.hpp"
 #include "../../core/Sprite.hpp"
+#include "../../core/StackedScene.hpp"
 #include "../../qt/Settings.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
 #include "../ParallaxForest.hpp"
+#include "Multi.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include "../../core/AudioPlayer.hpp"
 #endif
+
+using Scenes::Menu;
 
 Menu::Menu() {
   have_update_ = false;
@@ -87,6 +91,8 @@ Menu::Menu() {
   options_->SetOnClick(std::bind(&Menu::GoToOptions, this));
   debug_->SetOnClick(std::bind(&Menu::GoToDebug, this));
 
+  multi_scene_ = nullptr;
+
 #ifndef CATCHCHALLENGER_NOAUDIO
   if (!Settings::settings->contains("audioVolume"))
     Settings::settings->setValue("audioVolume", 80);
@@ -102,6 +108,7 @@ Menu::Menu() {
   ChangeLanguage();
 
   RegisterMouseListener(solo_);
+  RegisterMouseListener(multi_);
 }
 
 Menu::~Menu() { delete update_; }
@@ -221,7 +228,6 @@ void Menu::OnScreenResize() {
       }
     }
   }
-
 }
 
 void Menu::OnScreenSD() {}
@@ -317,7 +323,10 @@ void Menu::OpenUpdate() {
 
 void Menu::GoToSolo() {}
 
-void Menu::GoToMulti() {}
+void Menu::GoToMulti() {
+  if (!multi_scene_) multi_scene_ = Multi::Create();
+  static_cast<StackedScene *>(Parent())->PushForeground(multi_scene_);
+}
 
 void Menu::GoToOptions() {}
 

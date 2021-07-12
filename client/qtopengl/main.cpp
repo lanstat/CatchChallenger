@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     // ScreenTransition s;
     SceneManager s;
 
-    s.PushScene(Leading::Create());
+    s.PushScene(Scenes::Leading::Create());
     s.setWindowTitle(QObject::tr("CatchChallenger loading..."));
     /*QScreen *screen = QApplication::screens().at(0);
     s.setMinimumSize(QSize(screen->availableSize().width(),

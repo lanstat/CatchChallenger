@@ -8,20 +8,22 @@
 #include "leading/Loading.hpp"
 #include "leading/Menu.hpp"
 
+using Scenes::Leading;
+
 Leading::Leading() {
   background_ = ParallaxForest::Create();
-  AddChild(background_);
+  SetBackground(background_);
 
-  foreground_ = Loading::Create();
+  loader_ = Loading::Create();
 
-  static_cast<Loading*>(foreground_)
-      ->SetOnFinished(std::bind(&Leading::OnLoadingFinish, this));
-  AddChild(foreground_);
+  loader_->SetOnFinished(std::bind(&Leading::OnLoadingFinish, this));
+  PushForeground(loader_);
 }
 
 Leading::~Leading() {
   delete background_;
-  delete foreground_;
+  delete loader_;
+  delete menu_;
 }
 
 Leading* Leading::Create() {
@@ -30,9 +32,9 @@ Leading* Leading::Create() {
 }
 
 void Leading::OnLoadingFinish() {
-  RemoveChild(foreground_);
-  foreground_ = Menu::Create();
-  AddChild(foreground_);
+  PopForeground();
+  menu_ = Menu::Create();
+  PushForeground(menu_);
 }
 
 void Leading::OnScreenSD() {}

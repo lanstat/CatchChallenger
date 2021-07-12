@@ -22,6 +22,7 @@ class GraphicRenderer : public QObject, public QGraphicsItem {
 
  private:
   Scene *scene_;
+  QPixmap buffer_;
 };
 
 #endif  // CLIENT_QTOPENGL_GRAPHICRENDERER_HPP_

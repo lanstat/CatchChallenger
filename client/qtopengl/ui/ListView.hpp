@@ -20,6 +20,7 @@ class ListView : public Node {
   uint8_t Count();
   Node *GetSelectedItem();
   void SetSize(int width, int height);
+  std::vector<Node *> Items();
   /** Release all items in the list */
   void Clear();
   void SetHorizontal(bool horizontal);
@@ -45,6 +46,7 @@ class ListView : public Node {
   std::vector<Node *> items_;
   Node *selected_item_;
   bool is_horizontal_;
+  bool is_drawable_;
 
   explicit ListView(Node *parent = nullptr);
 
