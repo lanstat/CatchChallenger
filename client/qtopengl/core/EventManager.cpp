@@ -100,3 +100,7 @@ void EventManager::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
     index++;
   }
 }
+
+void EventManager::Lock() {}
+
+void EventManager::UnLock() {}

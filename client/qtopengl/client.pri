@@ -258,6 +258,8 @@ SOURCES += \
     $$PWD/ui/ListView.cpp \
     $$PWD/ui/Button.cpp \
     $$PWD/ui/Progressbar.cpp \
+    $$PWD/ui/Input.cpp \
+    $$PWD/ui/Combo.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -342,6 +344,7 @@ SOURCES += \
     $$PWD/scenes/leading/Loading.cpp \
     $$PWD/scenes/leading/Multi.cpp \
     $$PWD/scenes/leading/MultiItem.cpp \
+    $$PWD/scenes/leading/AddOrEditServer.cpp \
     $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
     $$PWD/CCGraphicsTextItem.hpp \
@@ -365,6 +368,8 @@ HEADERS  += \
     $$PWD/ui/ListView.hpp \
     $$PWD/ui/Button.hpp \
     $$PWD/ui/Progressbar.hpp \
+    $$PWD/ui/Input.hpp \
+    $$PWD/ui/Combo.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \
@@ -438,6 +443,7 @@ HEADERS  += \
     $$PWD/scenes/leading/Loading.hpp \
     $$PWD/scenes/leading/MultiItem.hpp \
     $$PWD/scenes/leading/Multi.hpp \
+    $$PWD/scenes/leading/AddOrEditServer.hpp \
     $$PWD/scenes/leading/Menu.hpp
 
 

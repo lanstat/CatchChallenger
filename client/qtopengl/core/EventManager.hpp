@@ -18,6 +18,8 @@ class EventManager {
   void AddKeyboardListener(Node *listener);
   void RemoveAllListeners();
   void RemoveListener(Node *listener);
+  void Lock();
+  void UnLock();
 
   void MousePressEvent(const QPointF &point, bool &press_validated);
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated);

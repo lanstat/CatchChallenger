@@ -12,16 +12,16 @@ Label::Label(QLinearGradient text_color, QLinearGradient border_color,
              Node *parent)
     : Node(parent) {
   font_ = new QFont();
-  font_->setFamily("Comic Sans MS");
+  font_->setFamily("Aristotelica Text Trial");
   font_->setPixelSize(25);
-  font_->setStyleHint(QFont::Monospace);
-  font_->setStyleStrategy(QFont::ForceOutline);
 
   pen_gradient_ = border_color;
   brush_gradient_ = text_color;
+  font_height_ = 0;
 
-  cache_ = nullptr;
   text_path_ = nullptr;
+  alignment_ = Qt::AlignLeft;
+  auto_size_ = true;
 }
 
 Label::~Label() { delete font_; }
@@ -62,8 +62,6 @@ void Label::Draw(QPainter *painter) {
   const unsigned int h = bounding_rect_.height();
   const unsigned int w = bounding_rect_.width();
 
-  if (bounding_rect_.isEmpty()) return;
-
   QImage image(w, h, QImage::Format_ARGB32);
   image.fill(Qt::transparent);
   QPainter paint;
@@ -72,19 +70,8 @@ void Label::Draw(QPainter *painter) {
 
   if (text_path_ != nullptr && paint.isActive()) {
     paint.setRenderHint(QPainter::Antialiasing);
-    qreal pen_width = 2.0;
-    if (font_->pixelSize() <= 12)
-      pen_width = 2;
-    else if (font_->pixelSize() <= 18)
-      pen_width = 3;
-    else if (font_->pixelSize() <= 24)
-      pen_width = 4;
-    else
-      pen_width = 5;
-
-    pen_gradient_.setStart(0, 0);
     pen_gradient_.setFinalStop(0, h);
-    QPen pen(pen_gradient_, pen_width, Qt::SolidLine, Qt::RoundCap,
+    QPen pen(pen_gradient_, GetPenWidth(), Qt::SolidLine, Qt::RoundCap,
              Qt::RoundJoin);
     QBrush brush(brush_gradient_);
     paint.setPen(pen);
@@ -95,7 +82,7 @@ void Label::Draw(QPainter *painter) {
     paint.drawPath(*text_path_);
   }
 
-  painter->drawPixmap(0, 0 + h * 0.1, w, h, QPixmap::fromImage(image));
+  painter->drawPixmap(0, 0, QPixmap::fromImage(image));
 }
 
 void Label::SetText(const QString &text) {
@@ -105,10 +92,16 @@ void Label::SetText(const QString &text) {
   ReDraw();
 }
 
+QString Label::Text() const {
+  return text_;
+}
+
 void Label::SetPixelSize(uint8_t size) {
   int tempsize = size * 1.5;
   if (font_->pixelSize() == tempsize) return;
+  font_height_ = 0;
   font_->setPixelSize(tempsize);
+  UpdateTextPath();
   ReDraw();
 }
 
@@ -116,26 +109,42 @@ void Label::UpdateTextPath() {
   const QString &text = text_;
   if (text_path_ != nullptr) delete text_path_;
   QPainterPath temp_path;
-  temp_path.addText(0, 20, *font_, text_);
+  if (font_height_ == 0) {
+    temp_path.addText(0, 0, *font_,
+                      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOQPRSTUVWXYZ");
+
+    font_height_ = temp_path.boundingRect().height();
+    temp_path.clear();
+  }
+  temp_path.addText(0, 0, *font_, text_);
   QRectF rect = temp_path.boundingRect();
   text_path_ = new QPainterPath();
-  SetSize(rect.width() + 15, rect.height() + 15);
-  int new_height = bounding_rect_.height();
-  const int p = font_->pixelSize();
-  const int temp_height = new_height / 2 + p / 2;
-  const Qt::Alignment a = Qt::AlignCenter;  // alignment();
-  if (a.testFlag(Qt::AlignLeft))
-    text_path_->addText(0, temp_height - 1, *font_, text);
-  else if (a.testFlag(Qt::AlignRight))
-    text_path_->addText(bounding_rect_.width() - rect.width(), temp_height - 1,
-                        *font_, text);
-  else
-    text_path_->addText(bounding_rect_.width() / 2 - rect.width() / 2,
-                        temp_height - 1, *font_, text);
+  auto pen_width = GetPenWidth() * 2;
+
+  if (auto_size_) {
+    Node::SetSize(rect.width() + pen_width, font_height_ + pen_width);
+    text_path_->addText((pen_width / 2) - 2, font_height_, *font_, text);
+  } else {
+    Node::SetHeight(font_height_ + pen_width);
+    switch (alignment_) {
+      case Qt::AlignCenter:
+        text_path_->addText(bounding_rect_.width() / 2 - rect.width() / 2,
+                            font_height_, *font_, text);
+        break;
+      case Qt::AlignRight:
+        text_path_->addText(bounding_rect_.width() - rect.width() - pen_width,
+                            font_height_, *font_, text);
+        break;
+      default:
+        text_path_->addText((pen_width / 2) - 2, font_height_, *font_, text);
+    }
+  }
 }
 
 void Label::SetFont(const QFont &font) {
   *this->font_ = font;
+  font_height_ = 0;
+  UpdateTextPath();
   ReDraw();
 }
 
@@ -161,4 +170,57 @@ void Label::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
 void Label::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
   (void)event;
   (void)event_trigger;
+}
+
+qreal Label::GetPenWidth() {
+  qreal pen_width = 2.0;
+  if (font_->pixelSize() <= 12)
+    pen_width = 2;
+  else if (font_->pixelSize() <= 18)
+    pen_width = 3;
+  else if (font_->pixelSize() <= 24)
+    pen_width = 4;
+  else
+    pen_width = 5;
+  return pen_width;
+}
+
+void Label::SetTextColor(QColor color) {
+  QLinearGradient pen(0, 0, 0, 100);
+  pen.setColorAt(0, color);
+  pen.setColorAt(1, color);
+  SetTextColor(pen);
+}
+
+void Label::SetTextColor(QLinearGradient gradient) {
+  brush_gradient_ = gradient;
+  ReDraw();
+}
+
+void Label::SetBorderColor(QColor color) {
+  QLinearGradient pen(0, 0, 0, 100);
+  pen.setColorAt(0, color);
+  pen.setColorAt(1, color);
+  SetBorderColor(pen);
+}
+
+void Label::SetBorderColor(QLinearGradient gradient) {
+  pen_gradient_ = gradient;
+  ReDraw();
+}
+
+void Label::SetAlignment(Qt::Alignment alignment) {
+  alignment_ = alignment;
+  ReDraw();
+}
+
+void Label::SetSize(int w, int h) {
+  Node::SetSize(w, h);
+  auto_size_ = false;
+}
+
+void Label::SetWidth(int w) {
+  auto_size_ = false;
+  Node::SetWidth(w);
+  UpdateTextPath();
 }

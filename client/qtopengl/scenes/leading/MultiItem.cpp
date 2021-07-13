@@ -57,9 +57,12 @@ void MultiItem::FetchName() {
 void MultiItem::Draw(QPainter *painter) {
   if (Width() == 0 || Height() == 0) return;
 
-  auto background = Sprite::Create(":/CC/images/interface/b1.png");
-  background->Strech(20, Width(), Height());
+  auto background = Sprite::Create(":/CC/images/interface/b1-trimmed.png");
+  background->Strech(20, 18, 20, Width(), Height());
   auto text = UI::Label::Create(QColor(255, 255, 255), QColor(30, 25, 17));
+  text->SetWidth(bounding_rect_.width());
+  text->SetAlignment(Qt::AlignCenter);
+  text->SetY(17);
   text->SetText(name_);
 
   background->Draw(painter);
@@ -70,7 +73,7 @@ void MultiItem::Draw(QPainter *painter) {
     const int size = Height() -20;
     painter->drawPixmap(10, 10, size, size, p);
   }
-  text->Draw(painter);
+  text->Paint(painter, nullptr, nullptr);
 
   delete background;
   delete text;

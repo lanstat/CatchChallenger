@@ -23,6 +23,9 @@ class Sprite : public Node, public Stateful {
   void SetPixmap(const QPixmap pixmap, bool preserve_size);
   void SetSize(int width, int height);
   void Strech(unsigned int border_size, int width, int height);
+  /** Scale the sprite to specified size, returns padding scaled */
+  QPointF Strech(unsigned int scaled_x, unsigned int scaled_y,
+                 unsigned int border_size, int width, int height);
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
@@ -38,6 +41,7 @@ class Sprite : public Node, public Stateful {
 
  private:
   QPixmap cache_;
+  QPixmap original_pix_;
   explicit Sprite(Node *parent = nullptr);
 };
 #endif  // CLIENT_QTOPENGL_CORE_SPRITE_HPP_

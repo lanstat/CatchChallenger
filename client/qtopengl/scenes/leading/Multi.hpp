@@ -12,11 +12,12 @@
 #include "../../core/Scene.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../ui/Button.hpp"
+#include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/ListView.hpp"
+#include "AddOrEditServer.hpp"
 
 class ListEntryEnvolued;
-class AddOrEditServer;
 class Login;
 class MultiItem;
 class QNetworkReply;
@@ -80,6 +81,8 @@ class Multi : public Scene {
   Sprite *wdialog;
   UI::Label *serverEmpty;
   UI::ListView *scrollZone;
+
+  UI::Input *tmmp_;
 
   void GoBack();
   void connectToServer(ConnexionInfo connexionInfo, QString login,

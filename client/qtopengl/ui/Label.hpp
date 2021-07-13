@@ -18,10 +18,18 @@ class Label : public Node {
   ~Label();
 
   void SetText(const QString &text);
+  QString Text() const;
   void SetFont(const QFont &font);
   QFont GetFont() const;
   void SetPixelSize(uint8_t size);
   void UpdateTextPath();
+  void SetTextColor(QColor color);
+  void SetTextColor(QLinearGradient gradient);
+  void SetBorderColor(QColor color);
+  void SetBorderColor(QLinearGradient gradient);
+  void SetAlignment(Qt::Alignment alignment);
+  void SetSize(int w, int h);
+  void SetWidth(int w);
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
@@ -33,14 +41,17 @@ class Label : public Node {
 
  private:
   QPainterPath *text_path_;
-  QPixmap *cache_;
   QFont *font_;
   QString text_;
   QLinearGradient pen_gradient_;
   QLinearGradient brush_gradient_;
+  qreal font_height_;
+  Qt::Alignment alignment_;
+  bool auto_size_;
 
   explicit Label(QLinearGradient pen, QLinearGradient brush,
                  Node *parent = nullptr);
+  qreal GetPenWidth();
 };
 }  // namespace UI
 #endif  // CLIENT_QTOPENGL_UI_LABEL_HPP_

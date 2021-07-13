@@ -6,6 +6,7 @@
 #include <QPointF>
 
 #include "../core/Node.hpp"
+#include "Label.hpp"
 
 namespace UI {
 class Button : public Node {
@@ -16,7 +17,6 @@ class Button : public Node {
   void SetOutlineColor(const QColor &color);
   void SetFont(const QFont &font);
   QFont GetFont() const;
-  bool UpdateTextPercent(uint8_t percent);
   bool SetPixelSize(uint8_t size);
   void SetPressed(const bool &pressed);
   void SetEnabled(bool enabled);
@@ -34,19 +34,16 @@ class Button : public Node {
   void Draw(QPainter *painter) override;
 
  protected:
-  void UpdateTextPath();
   explicit Button(QString pix, Node *parent = nullptr);
 
  private:
   QString background_;
   bool pressed_;
-  QPainterPath *text_path_;
-  QFont *font_;
   QColor outline_color_;
-  uint8_t percent_;
   QString text_;
   bool checkable_;
   bool checked_;
+  Label *label_;
 };
 }  // namespace UI
 

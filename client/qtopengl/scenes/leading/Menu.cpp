@@ -40,7 +40,7 @@ Menu::Menu() {
   website_->SetText("w");
   website_->SetOutlineColor(QColor(0, 79, 154));
   website_->SetPixelSize(28);
-  website_->UpdateTextPercent(75);
+  // website_->UpdateTextPercent(75);
   warning_can_be_reset_ = true;
 
   have_fresh_feed_ = false;

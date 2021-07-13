@@ -17,6 +17,7 @@
 #include "../qt/QtDatapackChecksum.hpp"
 #include <QStandardPaths>
 #include <QScreen>
+#include <iostream>
 #include "Language.hpp"
 #include "MyApplication.h"
 #include "../qt/Settings.hpp"
@@ -166,7 +167,8 @@ int main(int argc, char *argv[])
     CatchChallenger::FacilityLibGeneral::applicationDirPath=argv[0];
     Settings::init();
 
-    QFontDatabase::addApplicationFont(":/other/comicbd.ttf");
+    QFontDatabase::addApplicationFont(":/CC/other/comicbd.ttf");
+    QFontDatabase::addApplicationFont(":/CC/other/aristotelica.ttf");
     QFont font("Comic Sans MS");
     font.setStyleHint(QFont::Monospace);
     //font.setBold(true);

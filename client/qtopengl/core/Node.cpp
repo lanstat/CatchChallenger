@@ -139,6 +139,7 @@ void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
   if (visible_) {
     if (!node_cache_) {
+      if (bounding_rect_.isEmpty()) return;
       node_cache_ = new QPixmap(Width(), Height());
       node_cache_->fill(Qt::transparent);
       QPainter painter_c(node_cache_);

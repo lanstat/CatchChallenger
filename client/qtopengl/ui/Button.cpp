@@ -11,23 +11,17 @@
 using UI::Button;
 
 Button::Button(QString pix, Node *parent) : Node(parent) {
-  text_path_ = nullptr;
-
-  font_ = new QFont();
-  font_->setFamily("Comic Sans MS");
-  font_->setPixelSize(35);
-  font_->setStyleHint(QFont::Monospace);
-  font_->setBold(true);
-  font_->setStyleStrategy(QFont::ForceOutline);
-
   pressed_ = false;
   background_ = pix;
   outline_color_ = QColor(217, 145, 0);
-  percent_ = 75;
   checkable_ = false;
   checked_ = false;
 
   bounding_rect_ = QRectF(0.0, 0.0, 223.0, 92.0);
+  label_ = Label::Create();
+  label_->SetPixelSize(35);
+  label_->SetWidth(bounding_rect_.width());
+  label_->SetAlignment(Qt::AlignCenter);
 }
 
 Button *Button::Create(QString pix, Node *parent) {
@@ -38,7 +32,7 @@ Button *Button::Create(QString pix, Node *parent) {
 void Button::SetSize(int w, int h) {
   if (bounding_rect_.width() == w && bounding_rect_.height() == h) return;
   Node::SetSize(w, h);
-  UpdateTextPath();
+  label_->SetWidth(bounding_rect_.width());
   ReDraw();
 }
 
@@ -47,16 +41,7 @@ void Button::SetPos(int x, int y) {
   Node::SetPos(x, y);
 }
 
-Button::~Button() {
-  if (text_path_ != nullptr) {
-    delete text_path_;
-    text_path_ = nullptr;
-  }
-  if (font_ != nullptr) {
-    delete font_;
-    font_ = nullptr;
-  }
-}
+Button::~Button() { delete label_; }
 
 void Button::Draw(QPainter *painter) {
   if (bounding_rect_.isEmpty()) return;
@@ -82,19 +67,24 @@ void Button::Draw(QPainter *painter) {
                                Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
   paint.drawPixmap(0, 0, bounding_rect_.width(), bounding_rect_.height(),
                    scaled_background);
-  UpdateTextPath();
 
-  if (text_path_ != nullptr && paint.isActive()) {
-    paint.setRenderHint(QPainter::Antialiasing);
-    qreal pen_width = font_->pixelSize() * 0.057;
+  if (!text_.isEmpty()) {
     if (IsEnabled())
-      paint.setPen(QPen(outline_color_, pen_width, Qt::SolidLine, Qt::RoundCap,
-                        Qt::RoundJoin));
+      label_->SetBorderColor(outline_color_);
     else
-      paint.setPen(QPen(QColor(125, 125, 125), pen_width, Qt::SolidLine,
-                        Qt::RoundCap, Qt::RoundJoin));
-    paint.setBrush(Qt::white);
-    paint.drawPath(*text_path_);
+      label_->SetBorderColor(QColor(125, 125, 125));
+
+    label_->SetTextColor(Qt::white);
+    label_->SetText(text_);
+    int height = 0;
+    int percent = 75;
+    int h = bounding_rect_.height();
+    if (checked_)
+      height = (h * (percent + 20) / 100);
+    else
+      height = (h * percent / 100);
+    label_->SetPos(0, height / 2 - label_->Height() / 2);
+    label_->Paint(&paint, nullptr, nullptr);
   }
 
   painter->drawPixmap(0, 0, bounding_rect_.width(), bounding_rect_.height(),
@@ -104,52 +94,21 @@ void Button::Draw(QPainter *painter) {
 void Button::SetText(const QString &text) {
   if (text_ == text) return;
   text_ = text;
-  UpdateTextPath();
   ReDraw();
 }
 
 bool Button::SetPixelSize(uint8_t size) {
-  int tempsize = size * 1.5;
-  if (font_->pixelSize() == tempsize) return true;
-  font_->setPixelSize(tempsize);
-  ReDraw();
-  return true;
-}
-
-void Button::UpdateTextPath() {
-  const QString &text = this->text_;
-  if (text_path_ != nullptr) delete text_path_;
-  QPainterPath temp_path;
-  temp_path.addText(0, 0, *font_, text_);
-  QRectF rect = temp_path.boundingRect();
-  text_path_ = new QPainterPath();
-  const int h = bounding_rect_.height();
-  int new_height = 0;
-  if (checked_)
-    new_height = (h * (percent_ + 20) / 100);
-  else
-    new_height = (h * percent_ / 100);
-  const int p = font_->pixelSize();
-  const int temp_height = new_height / 2 + p / 2;
-  text_path_->addText(bounding_rect_.width() / 2 - rect.width() / 2,
-                      temp_height, *font_, text);
-}
-
-bool Button::UpdateTextPercent(uint8_t percent) {
-  if (percent_ == percent) return true;
-  if (percent > 100) return false;
-  percent_ = percent;
-  UpdateTextPath();
+  label_->SetPixelSize(size);
   ReDraw();
   return true;
 }
 
 void Button::SetFont(const QFont &font) {
-  *font_ = font;
+  label_->SetFont(font);
   ReDraw();
 }
 
-QFont Button::GetFont() const { return *font_; }
+QFont Button::GetFont() const { return label_->GetFont(); }
 
 void Button::SetOutlineColor(const QColor &color) { outline_color_ = color; }
 

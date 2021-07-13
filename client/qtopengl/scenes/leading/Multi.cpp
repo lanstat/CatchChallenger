@@ -67,6 +67,7 @@ Multi::Multi() : reply(nullptr) {
 
   wdialog = Sprite::Create(":/CC/images/interface/message.png", this);
   warning = UI::Label::Create(this);
+  warning->SetAlignment(Qt::AlignCenter);
   serverEmpty = UI::Label::Create(this);
   scrollZone = UI::ListView::Create(wdialog);
 
@@ -85,12 +86,19 @@ Multi::Multi() : reply(nullptr) {
   displayServerList();
   addServer = nullptr;
 
+  tmmp_ = UI::Input::Create(this);
+  tmmp_->SetSize(200, 50);
+  tmmp_->SetPos(100, 100);
+
   RegisterMouseListener(server_add);
   RegisterMouseListener(server_remove);
   RegisterMouseListener(server_edit);
   RegisterMouseListener(server_select);
   RegisterMouseListener(back);
   RegisterMouseListener(server_refresh);
+
+  RegisterMouseListener(tmmp_);
+  RegisterKeyboardListerner(tmmp_);
 }
 
 Multi::~Multi() {}
@@ -135,14 +143,14 @@ void Multi::displayServerList() {
 }
 
 void Multi::server_add_clicked() {
-  /*
-if (addServer == nullptr) {
-  addServer = new AddOrEditServer();
-  if (!connect(addServer, &AddOrEditServer::removeAbove, this,
-               &Multi::server_add_finished))
-    abort();
-}
-emit setAbove(addServer);*/
+  if (addServer == nullptr) {
+    addServer = AddOrEditServer::Create();
+    /*
+    if (!connect(addServer, &AddOrEditServer::removeAbove, this,
+                 &Multi::server_add_finished))
+      abort();*/
+  }
+  AddChild(addServer);
 }
 
 void Multi::server_add_finished() {
@@ -1028,8 +1036,8 @@ void Multi::OnScreenResize() {
     wdialog->SetPos(BoundingRect().width() / 2 - width / 2, space);
   }
   wdialog->Strech(border_size, width, height);
-  warning->SetPos(BoundingRect().width() / 2 - warning->Width(),
-                  space + wdialog->Height() - border_size - warning->Height());
+  warning->SetY(space + wdialog->Height() - border_size - warning->Height());
+  warning->SetWidth(bounding_rect_.width());
 
   scrollZone->SetSize(wdialog->Width() - border_size,
                       wdialog->Height() - border_size);

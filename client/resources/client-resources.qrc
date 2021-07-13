@@ -11,6 +11,7 @@
         <file>images/interface/quit.png</file>
         <file>images/interface/refresh.png</file>
         <file>images/interface/player.png</file>
+        <file>images/interface/input.png</file>
         <file>images/link.png</file>
         <file>images/interface/female.png</file>
         <file>images/interface/male.png</file>
@@ -45,6 +46,7 @@
         <file>images/interface/star.png</file>
         <file>images/interface/message.png</file>
         <file>images/interface/b1.png</file>
+        <file>images/interface/b1-trimmed.png</file>
         <file>music/click.opus</file>
         <file>music/crafting.opus</file>
         <file>music/loading.opus</file>
