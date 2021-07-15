@@ -106,9 +106,6 @@ Menu::Menu() {
 #endif
 
   ChangeLanguage();
-
-  RegisterMouseListener(solo_);
-  RegisterMouseListener(multi_);
 }
 
 Menu::~Menu() { delete update_; }
@@ -337,4 +334,14 @@ void Menu::ChangeLanguage() {
   multi_->SetText(tr("Multi"));
   news_update_->SetText(tr("Update!"));
   UpdateNews();
+}
+
+void Menu::OnEnter() {
+  solo_->RegisterEvents();
+  multi_->RegisterEvents();
+}
+
+void Menu::OnExit() {
+  solo_->UnRegisterEvents();
+  multi_->UnRegisterEvents();
 }

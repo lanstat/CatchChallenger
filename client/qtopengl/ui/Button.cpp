@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../core/AssetsLoader.hpp"
+#include "../core/EventManager.hpp"
 
 using UI::Button;
 
@@ -182,3 +183,11 @@ void Button::SetCheckable(bool checkable) {
 }
 
 bool Button::IsChecked() const { return checked_; }
+
+void Button::RegisterEvents() {
+  EventManager::GetInstance()->AddMouseListener(this);
+}
+
+void Button::UnRegisterEvents() {
+  EventManager::GetInstance()->RemoveListener(this);
+}

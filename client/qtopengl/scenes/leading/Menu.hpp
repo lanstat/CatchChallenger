@@ -24,6 +24,8 @@ class Menu : public Scene {
   static Menu *Create();
   ~Menu();
   void setError(const std::string &error);
+  void OnEnter() override;
+  void OnExit() override;
 
  private:
   UI::Label *update_;

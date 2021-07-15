@@ -226,12 +226,16 @@ void SceneManager::keyReleaseEvent(QKeyEvent *event) {
 void SceneManager::PushScene(Scene *scene) {
   scene_stack_.push_back(scene);
   renderer_->SetScene(scene);
+  scene->OnEnter();
 }
 
 Scene *SceneManager::PopScene() {
   Scene *tmp = scene_stack_.back();
+  tmp->OnExit();
   scene_stack_.pop_back();
-  renderer_->SetScene(scene_stack_.back());
+  auto scene = scene_stack_.back();
+  renderer_->SetScene(scene);
+  scene->OnEnter();
   return tmp;
 }
 

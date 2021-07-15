@@ -61,6 +61,8 @@ class Node {
   virtual void MouseMoveEvent(const QPointF &point) = 0;
   virtual void KeyPressEvent(QKeyEvent *event, bool &event_trigger) = 0;
   virtual void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) = 0;
+  virtual void OnEnter();
+  virtual void OnExit();
 
  protected:
   bool visible_;

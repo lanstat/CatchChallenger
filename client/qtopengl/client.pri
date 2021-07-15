@@ -260,6 +260,7 @@ SOURCES += \
     $$PWD/ui/Progressbar.cpp \
     $$PWD/ui/Input.cpp \
     $$PWD/ui/Combo.cpp \
+    $$PWD/ui/Dialog.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -370,6 +371,7 @@ HEADERS  += \
     $$PWD/ui/Progressbar.hpp \
     $$PWD/ui/Input.hpp \
     $$PWD/ui/Combo.hpp \
+    $$PWD/ui/Dialog.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \

@@ -5,45 +5,30 @@
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QRegularExpression>
 #include <QTextDocument>
+#include <iostream>
 
 #include "../../../qt/Settings.hpp"
 #include "../../../qt/Ultimate.hpp"
 #include "../../core/AssetsLoader.hpp"
+#include "../../core/EventManager.hpp"
 
 using Scenes::AddOrEditServer;
 
 AddOrEditServer::AddOrEditServer() {
-  wdialog = Sprite::Create(":/CC/images/interface/message.png", this);
-  label = Sprite::Create(this);
   ok = false;
   edit = false;
 
-  x = -1;
-  y = -1;
-  label->SetPixmap(":/CC/images/interface/label.png");
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
   validate = UI::Button::Create(":/CC/images/interface/validate.png", this);
-
-  QLinearGradient gradient1(0, 0, 0, 100);
-  gradient1.setColorAt(0.25, QColor(230, 153, 0));
-  gradient1.setColorAt(0.75, QColor(255, 255, 255));
-  QLinearGradient gradient2(0, 0, 0, 100);
-  gradient2.setColorAt(0, QColor(64, 28, 2));
-  gradient2.setColorAt(1, QColor(64, 28, 2));
-  title = UI::Label::Create(gradient2, gradient1, this);
-
-  QPixmap p = *AssetsLoader::GetInstance()->GetImage(
-      ":/CC/images/interface/inputText.png");
-  p = p.scaled(p.width(), 50, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
   m_type = UI::Combo::Create(":/CC/images/interface/button.png", this);
   m_type->AddItem(QString("Tcp"));
   m_type->AddItem(QString("WS"));
   serverText = UI::Label::Create(this);
-  serverText->SetVisible(false);
   serverInput = UI::Input::Create(this);
-  // serverInput->setPlaceholderText("ws://www.server.com:9999/");
+  serverInput->SetPlaceholder("ws://www.server.com:9999/");
   portInput = UI::Input::Create(this);
   /*
   portInput->setMinimum(1);
@@ -84,20 +69,17 @@ AddOrEditServer::AddOrEditServer() {
   m_type->SetVisible(false);
   #if defined(NOTCPSOCKET)
   proxyPortInput->SetVisible(false);
-  // serverInput->setPlaceholderText("ws://www.server.com:9999/");
+  serverInput->SetPlaceholder("ws://www.server.com:9999/");
   #endif
 #endif
-  RegisterMouseListener(quit);
-  RegisterMouseListener(validate);
-  RegisterMouseListener(nameInput);
-  RegisterKeyboardListerner(nameInput);
+
+  AddActionButton(quit);
+  AddActionButton(validate);
 }
 
 AddOrEditServer::~AddOrEditServer() {
-  delete wdialog;
   delete quit;
   delete validate;
-  delete title;
   delete warning;
   delete m_type;
   delete nameText;
@@ -108,51 +90,12 @@ AddOrEditServer *AddOrEditServer::Create() {
 }
 
 void AddOrEditServer::OnScreenResize() {
-  bool forcedCenter = true;
-  int idealW = 900;
-  int idealH = 400;
-  if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
-    idealW /= 2;
-    idealH /= 2;
-  }
-  if (idealW > bounding_rect_.width()) idealW = bounding_rect_.width();
-  int top = 36;
-  int bottom = 94 / 2;
-  if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
-    top /= 2;
-    bottom /= 2;
-  }
-  if ((idealH + top + bottom) > bounding_rect_.height())
-    idealH = bounding_rect_.height() - (top + bottom);
-
-  if (x < 0 || y < 0 || forcedCenter) {
-    x = bounding_rect_.width() / 2 - idealW / 2;
-    y = bounding_rect_.height() / 2 - idealH / 2;
-  } else {
-    if ((x + idealW) > bounding_rect_.width())
-      x = bounding_rect_.width() - idealW;
-    if ((y + idealH + bottom) > bounding_rect_.height())
-      y = bounding_rect_.height() - (idealH + bottom);
-    if (y < top) y = top;
-  }
-
-  wdialog->SetPos(x, y);
-  wdialog->SetSize(idealW, idealH);
+  UI::Dialog::OnScreenResize();
 
   auto font = serverText->GetFont();
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
-    // label->SetScale(0.5);
-    quit->SetSize(83 / 2, 94 / 2);
-    validate->SetSize(83 / 2, 94 / 2);
-    label->SetPos(x + (idealW - label->Width() / 2) / 2, y - 36 / 2);
-    title->SetPixelSize(30 / 2);
     font.setPixelSize(30 / 2);
   } else {
-    // label->SetScale(1);
-    quit->SetSize(83, 94);
-    validate->SetSize(83, 94);
-    label->SetPos(x + (idealW - label->Width()) / 2, y - 36);
-    title->SetPixelSize(30);
     font.setPixelSize(30);
   }
   serverText->SetFont(font);
@@ -178,20 +121,19 @@ void AddOrEditServer::OnScreenResize() {
     proxyInput->SetFont(font);
     proxyPortInput->SetFont(font);
   }
-
-  quit->SetPos(x + (idealW / 2 - quit->Width() - space / 2),
-               y + idealH - quit->Height() / 2);
-  validate->SetPos(x + (idealW / 2 + space / 2),
-                   y + idealH - quit->Height() / 2);
-  const QRectF trect = title->BoundingRect();
-  title->SetPos(x + (idealW - title->BoundingRect().width()) / 2,
-                y - trect.height() / 2);
+  int top = 36;
+  int bottom = 94 / 2;
+  if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
+    top /= 2;
+    bottom /= 2;
+  }
 
   const QRectF &serverTextRect = serverText->BoundingRect();
   const QRectF &nameTextRect = nameText->BoundingRect();
   const QRectF &proxyTextRect = proxyText->BoundingRect();
 
   int border_size = 46;
+  int idealW = background_->Width();
 
   const unsigned int &serverBackgroundNewWidth =
       idealW - nameTextRect.width() - border_size * 4;
@@ -215,8 +157,8 @@ void AddOrEditServer::OnScreenResize() {
                             nameBackgroundNewHeight);
   }
   {
-    m_type->SetPos(x + border_size * 2, y + top * 1.5);
-    serverText->SetPos(x + border_size * 2, y + top * 1.5);
+    m_type->SetPos(x_ + border_size * 2, y_ + top * 1.5);
+    serverText->SetPos(x_ + border_size * 2, y_ + top * 1.5);
     const unsigned int serverBackgroundW =
         serverText->X() + serverTextRect.width();
     serverInput->SetPos(
@@ -232,7 +174,7 @@ void AddOrEditServer::OnScreenResize() {
                   2);
   }
   {
-    nameText->SetPos(x + border_size * 2,
+    nameText->SetPos(x_ + border_size * 2,
                      serverText->Y() + serverTextRect.height() + space);
     const unsigned int nameBackgroundW = nameText->X() + nameTextRect.width();
     nameInput->SetPos(
@@ -241,7 +183,7 @@ void AddOrEditServer::OnScreenResize() {
             (nameTextRect.height() - nameInput->BoundingRect().height()) / 2);
   }
   {
-    proxyText->SetPos(x + border_size * 2,
+    proxyText->SetPos(x_ + border_size * 2,
                       nameText->Y() + nameTextRect.height() + space);
     const unsigned int proxyBackgroundW =
         proxyText->X() + proxyTextRect.width();
@@ -261,9 +203,9 @@ void AddOrEditServer::newLanguage() {
   nameText->SetText(tr("Name: "));
   serverText->SetText(tr("Server: "));
   if (edit)
-    title->SetText(tr("EDIT"));
+    SetTitle(tr("EDIT"));
   else
-    title->SetText(tr("ADD"));
+    SetTitle(tr("ADD"));
 }
 
 int AddOrEditServer::type() const {
@@ -299,7 +241,7 @@ void AddOrEditServer::setType(const int &type) {
 
 void AddOrEditServer::setEdit(const bool &edit) {
   this->edit = edit;
-  title->SetText(tr("EDIT"));
+  SetTitle(tr("EDIT"));
 }
 
 void AddOrEditServer::on_ok_clicked() {
@@ -378,12 +320,7 @@ void AddOrEditServer::on_type_currentIndexChanged(int index) {
 
 void AddOrEditServer::on_cancel_clicked() {
   ok = false;
-  // emit removeAbove();
-}
-
-void AddOrEditServer::Draw(QPainter *painter) {
-  painter->fillRect(0, 0, bounding_rect_.width(), bounding_rect_.height(),
-                    QColor(0, 0, 0, 120));
+  Close();
 }
 
 void AddOrEditServer::OnScreenSD() {}
@@ -391,3 +328,27 @@ void AddOrEditServer::OnScreenSD() {}
 void AddOrEditServer::OnScreenHD() {}
 
 void AddOrEditServer::OnScreenHDR() {}
+
+void AddOrEditServer::OnEnter() {
+  UI::Dialog::OnEnter();
+
+  quit->RegisterEvents();
+  validate->RegisterEvents();
+  nameInput->RegisterEvents();
+}
+
+void AddOrEditServer::OnExit() {
+  quit->UnRegisterEvents();
+  validate->UnRegisterEvents();
+  nameInput->UnRegisterEvents();
+
+  UI::Dialog::OnExit();
+}
+
+void AddOrEditServer::OnActionClick(Node *node) {
+  if (node == quit) {
+    on_cancel_clicked();
+  } else if (node == validate) {
+    on_ok_clicked();
+  }
+}

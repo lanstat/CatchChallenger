@@ -22,9 +22,9 @@
 #include "../../../qt/Settings.hpp"
 #include "../../../qt/Ultimate.hpp"
 #include "../../Language.hpp"
-#include "../../MultiItem.hpp"
 #include "../../above/AddOrEditServer.hpp"
 #include "../../above/Login.hpp"
+#include "../../core/EventManager.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../core/StackedScene.hpp"
 #include "../../ui/Button.hpp"
@@ -36,6 +36,7 @@
 #endif
 
 using Scenes::Multi;
+using std::placeholders::_1;
 
 Multi::Multi() : reply(nullptr) {
   srand(time(0));
@@ -85,20 +86,6 @@ Multi::Multi() : reply(nullptr) {
   downloadFile();
   displayServerList();
   addServer = nullptr;
-
-  tmmp_ = UI::Input::Create(this);
-  tmmp_->SetSize(200, 50);
-  tmmp_->SetPos(100, 100);
-
-  RegisterMouseListener(server_add);
-  RegisterMouseListener(server_remove);
-  RegisterMouseListener(server_edit);
-  RegisterMouseListener(server_select);
-  RegisterMouseListener(back);
-  RegisterMouseListener(server_refresh);
-
-  RegisterMouseListener(tmmp_);
-  RegisterKeyboardListerner(tmmp_);
 }
 
 Multi::~Multi() {}
@@ -129,12 +116,13 @@ void Multi::displayServerList() {
       continue;
     }
     auto *newEntry = MultiItem::Create(connexionInfo);
+    newEntry->SetOnClick(std::bind(&Multi::OnSelectServer, this, _1));
     if (selectedServer.unique_code == connexionInfo.unique_code) {
       server_edit->SetEnabled(connexionInfo.isCustom);
       server_remove->SetEnabled(connexionInfo.isCustom);
-      newEntry->SetEnabled(true);
+      // newEntry->SetEnabled(true);
     } else {
-      newEntry->SetEnabled(false);
+      // newEntry->SetEnabled(false);
     }
 
     scrollZone->AddItem(newEntry);
@@ -145,164 +133,153 @@ void Multi::displayServerList() {
 void Multi::server_add_clicked() {
   if (addServer == nullptr) {
     addServer = AddOrEditServer::Create();
-    /*
-    if (!connect(addServer, &AddOrEditServer::removeAbove, this,
-                 &Multi::server_add_finished))
-      abort();*/
+    addServer->SetOnClose(std::bind(&Multi::server_add_finished, this));
   }
   AddChild(addServer);
 }
 
 void Multi::server_add_finished() {
-  /*
-emit setAbove(nullptr);
-if (addServer == nullptr) return;
-if (!addServer->isOk()) return;
-if (!Settings::settings->isWritable()) {
-  warning->setHtml(tr("Option is not writable") + ": " +
-                   QString::number(Settings::settings->status()));
-  warning->setVisible(true);
-}
+  if (addServer == nullptr) return;
+  RemoveChild(addServer);
+  if (!addServer->isOk()) return;
+  if (!Settings::settings->isWritable()) {
+    warning->SetText(tr("Option is not writable") + ": " +
+                     QString::number(Settings::settings->status()));
+    warning->SetVisible(true);
+  }
 #ifdef __EMSCRIPTEN__
-std::cerr << "AddOrEditServer returned" << std::endl;
+  std::cerr << "AddOrEditServer returned" << std::endl;
 #endif
-ConnexionInfo connexionInfo;
-connexionInfo.connexionCounter = 0;
-connexionInfo.lastConnexion =
-    static_cast<uint32_t>(QDateTime::currentMSecsSinceEpoch() / 1000);
+  ConnexionInfo connexionInfo;
+  connexionInfo.connexionCounter = 0;
+  connexionInfo.lastConnexion =
+      static_cast<uint32_t>(QDateTime::currentMSecsSinceEpoch() / 1000);
 
-connexionInfo.name = addServer->name();
-connexionInfo.unique_code = QString::fromStdString(
-    CatchChallenger::FacilityLibGeneral::randomPassword(
-        "abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-        16));
-connexionInfo.isCustom = true;
+  connexionInfo.name = addServer->name();
+  connexionInfo.unique_code = QString::fromStdString(
+      CatchChallenger::FacilityLibGeneral::randomPassword(
+          "abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+          16));
+  connexionInfo.isCustom = true;
 
-if (addServer->type() == 0) {
-  connexionInfo.port = addServer->port();
+  if (addServer->type() == 0) {
+    connexionInfo.port = addServer->port();
 #ifndef NOTCPSOCKET
-  connexionInfo.host = addServer->server();
+    connexionInfo.host = addServer->server();
 #endif
-  connexionInfo.ws.clear();
-} else {
-  connexionInfo.port = 0;
-  connexionInfo.host.clear();
+    connexionInfo.ws.clear();
+  } else {
+    connexionInfo.port = 0;
+    connexionInfo.host.clear();
 #ifndef NOWEBSOCKET
-  connexionInfo.ws = addServer->server();
+    connexionInfo.ws = addServer->server();
 #endif
-}
+  }
 
-connexionInfo.proxyHost = addServer->proxyServer();
-connexionInfo.proxyPort = addServer->proxyPort();
-temp_customConnexionInfoList.push_back(connexionInfo);
-mergedConnexionInfoList = temp_customConnexionInfoList;
-mergedConnexionInfoList.insert(mergedConnexionInfoList.end(),
-                               temp_xmlConnexionInfoList.begin(),
-                               temp_xmlConnexionInfoList.end());
-std::sort(mergedConnexionInfoList.begin(), mergedConnexionInfoList.end());
-saveConnexionInfoList();
-displayServerList();
-*/
+  connexionInfo.proxyHost = addServer->proxyServer();
+  connexionInfo.proxyPort = addServer->proxyPort();
+  temp_customConnexionInfoList.push_back(connexionInfo);
+  mergedConnexionInfoList = temp_customConnexionInfoList;
+  mergedConnexionInfoList.insert(mergedConnexionInfoList.end(),
+                                 temp_xmlConnexionInfoList.begin(),
+                                 temp_xmlConnexionInfoList.end());
+  std::sort(mergedConnexionInfoList.begin(), mergedConnexionInfoList.end());
+  saveConnexionInfoList();
+  displayServerList();
 }
 
 void Multi::server_edit_clicked() {
-  /*
-if (selectedServer.unique_code.isEmpty()) return;
-unsigned int index = 0;
-while (index < mergedConnexionInfoList.size()) {
-  ConnexionInfo &connexionInfo = mergedConnexionInfoList[index];
-  if (connexionInfo.isCustom == selectedServer.isCustom &&
-      connexionInfo.unique_code == selectedServer.unique_code) {
-    if (!connexionInfo.isCustom) return;
-    if (addServer == nullptr) {
-      addServer = new AddOrEditServer();
-      if (!connect(addServer, &AddOrEditServer::removeAbove, this,
-                   &Multi::server_edit_finished))
-        abort();
-    }
+  if (selectedServer.unique_code.isEmpty()) return;
+  unsigned int index = 0;
+  while (index < mergedConnexionInfoList.size()) {
+    ConnexionInfo &connexionInfo = mergedConnexionInfoList[index];
+    if (connexionInfo.isCustom == selectedServer.isCustom &&
+        connexionInfo.unique_code == selectedServer.unique_code) {
+      if (!connexionInfo.isCustom) return;
+      if (addServer == nullptr) {
+        addServer = AddOrEditServer::Create();
+        addServer->SetOnClose(std::bind(&Multi::server_edit_finished, this));
+      }
 #if !defined(NOTCPSOCKET) && !defined(NOWEBSOCKET)
-    if (connexionInfo.ws.isEmpty()) {
+      if (connexionInfo.ws.isEmpty()) {
+        addServer->setType(0);
+        addServer->setServer(connexionInfo.host);
+        addServer->setPort(connexionInfo.port);
+      } else {
+        addServer->setType(1);
+        addServer->setServer(connexionInfo.ws);
+      }
+#else
+  #if defined(NOTCPSOCKET)
+      addServer->setType(1);
+      addServer->setServer(connexionInfo.ws);
+  #else
+    #if defined(NOWEBSOCKET)
       addServer->setType(0);
       addServer->setServer(connexionInfo.host);
       addServer->setPort(connexionInfo.port);
-    } else {
-      addServer->setType(1);
-      addServer->setServer(connexionInfo.ws);
-    }
-#else
-#if defined(NOTCPSOCKET)
-    addServer->setType(1);
-    addServer->setServer(connexionInfo.ws);
-#else
-  #if defined(NOWEBSOCKET)
-    addServer->setType(0);
-    addServer->setServer(connexionInfo.host);
-    addServer->setPort(connexionInfo.port);
+    #endif
   #endif
 #endif
-#endif
-    addServer->setName(connexionInfo.name);
-    addServer->setProxyServer(connexionInfo.proxyHost);
-    addServer->setProxyPort(connexionInfo.proxyPort);
-    addServer->setEdit(true);
-    emit setAbove(addServer);
-    return;
+      addServer->setName(connexionInfo.name);
+      addServer->setProxyServer(connexionInfo.proxyHost);
+      addServer->setProxyPort(connexionInfo.proxyPort);
+      addServer->setEdit(true);
+      AddChild(addServer);
+      return;
+    }
+    index++;
   }
-  index++;
-}
-std::cerr << "remove server not found" << std::endl;
-*/
+  std::cerr << "remove server not found" << std::endl;
 }
 
 void Multi::server_edit_finished() {
-  /*
-emit setAbove(nullptr);
-if (addServer == nullptr) return;
-if (!addServer->isOk()) return;
+  if (addServer == nullptr) return;
+  RemoveChild(addServer);
+  if (!addServer->isOk()) return;
 #ifdef __EMSCRIPTEN__
-std::cerr << "AddOrEditServer returned" << std::endl;
+  std::cerr << "AddOrEditServer returned" << std::endl;
 #endif
-unsigned int index = 0;
-while (index < temp_customConnexionInfoList.size()) {
-  ConnexionInfo &connexionInfo = temp_customConnexionInfoList[index];
-  if (connexionInfo.isCustom == selectedServer.isCustom &&
-      connexionInfo.unique_code == selectedServer.unique_code) {
-    if (!connexionInfo.isCustom) return;
+  unsigned int index = 0;
+  while (index < temp_customConnexionInfoList.size()) {
+    ConnexionInfo &connexionInfo = temp_customConnexionInfoList[index];
+    if (connexionInfo.isCustom == selectedServer.isCustom &&
+        connexionInfo.unique_code == selectedServer.unique_code) {
+      if (!connexionInfo.isCustom) return;
 
-    connexionInfo.name = addServer->name();
-    connexionInfo.unique_code = QString::fromStdString(
-        CatchChallenger::FacilityLibGeneral::randomPassword(
-            "abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-            16));
-    connexionInfo.isCustom = true;
+      connexionInfo.name = addServer->name();
+      connexionInfo.unique_code = QString::fromStdString(
+          CatchChallenger::FacilityLibGeneral::randomPassword(
+              "abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+              16));
+      connexionInfo.isCustom = true;
 
-    if (addServer->type() == 0) {
-      connexionInfo.port = addServer->port();
+      if (addServer->type() == 0) {
+        connexionInfo.port = addServer->port();
 #ifndef NOTCPSOCKET
-      connexionInfo.host = addServer->server();
+        connexionInfo.host = addServer->server();
 #endif
-      connexionInfo.ws.clear();
-    } else {
-      connexionInfo.port = 0;
-      connexionInfo.host.clear();
+        connexionInfo.ws.clear();
+      } else {
+        connexionInfo.port = 0;
+        connexionInfo.host.clear();
 #ifndef NOWEBSOCKET
-      connexionInfo.ws = addServer->server();
+        connexionInfo.ws = addServer->server();
 #endif
-    }
+      }
 
-    connexionInfo.proxyHost = addServer->proxyServer();
-    connexionInfo.proxyPort = addServer->proxyPort();
+      connexionInfo.proxyHost = addServer->proxyServer();
+      connexionInfo.proxyPort = addServer->proxyPort();
+    }
+    index++;
   }
-  index++;
-}
-mergedConnexionInfoList = temp_customConnexionInfoList;
-mergedConnexionInfoList.insert(mergedConnexionInfoList.end(),
-                               temp_xmlConnexionInfoList.begin(),
-                               temp_xmlConnexionInfoList.end());
-std::sort(mergedConnexionInfoList.begin(), mergedConnexionInfoList.end());
-saveConnexionInfoList();
-displayServerList();
-*/
+  mergedConnexionInfoList = temp_customConnexionInfoList;
+  mergedConnexionInfoList.insert(mergedConnexionInfoList.end(),
+                                 temp_xmlConnexionInfoList.begin(),
+                                 temp_xmlConnexionInfoList.end());
+  std::sort(mergedConnexionInfoList.begin(), mergedConnexionInfoList.end());
+  saveConnexionInfoList();
+  displayServerList();
 }
 
 void Multi::server_remove_clicked() {
@@ -397,59 +374,57 @@ void Multi::httpFinished() {
 }
 
 void Multi::saveConnexionInfoList() {
-  /*
-QSet<QString> valid;
-unsigned int index = 0;
-while (index < temp_customConnexionInfoList.size()) {
-  const ConnexionInfo &connexionInfo = temp_customConnexionInfoList.at(index);
-  if (connexionInfo.unique_code.isEmpty()) abort();
+  QSet<QString> valid;
+  unsigned int index = 0;
+  while (index < temp_customConnexionInfoList.size()) {
+    const ConnexionInfo &connexionInfo = temp_customConnexionInfoList.at(index);
+    if (connexionInfo.unique_code.isEmpty()) abort();
 
-  if (connexionInfo.isCustom) {
-    valid.insert(QStringLiteral("Custom-%1").arg(connexionInfo.unique_code));
-    Settings::settings->beginGroup(
-        QStringLiteral("Custom-%1").arg(connexionInfo.unique_code));
-    if (!connexionInfo.ws.isEmpty()) {
-      Settings::settings->setValue(QStringLiteral("ws"), connexionInfo.ws);
-      Settings::settings->remove("host");
-      Settings::settings->remove("port");
-    } else {
-      Settings::settings->setValue(QStringLiteral("host"),
-                                   connexionInfo.host);
-      Settings::settings->setValue(QStringLiteral("port"),
-                                   connexionInfo.port);
-      Settings::settings->remove("ws");
-    }
-    Settings::settings->setValue(QStringLiteral("name"), connexionInfo.name);
-  } else
-    Settings::settings->beginGroup(
-        QStringLiteral("Xml-%1").arg(connexionInfo.unique_code));
-  if (connexionInfo.connexionCounter > 0)
-    Settings::settings->setValue(QStringLiteral("connexionCounter"),
-                                 connexionInfo.connexionCounter);
-  else
-    Settings::settings->remove(QStringLiteral("connexionCounter"));
-  if (connexionInfo.lastConnexion > 0 && connexionInfo.connexionCounter > 0)
-    Settings::settings->setValue(QStringLiteral("lastConnexion"),
-                                 (quint64)connexionInfo.lastConnexion);
-  else
-    Settings::settings->remove(QStringLiteral("lastConnexion"));
-  Settings::settings->setValue(QStringLiteral("proxyHost"),
-                               connexionInfo.proxyHost);
-  Settings::settings->setValue(QStringLiteral("proxyPort"),
-                               connexionInfo.proxyPort);
-  Settings::settings->endGroup();
-  index++;
-}
-QStringList groups = Settings::settings->childGroups();
-index = 0;
-while (index < (unsigned int)groups.size()) {
-  const QString &groupName = groups.at(index);
-  if (groupName.startsWith("Custom-") && !valid.contains(groupName))
-    Settings::settings->remove(groupName);
-  index++;
-}
-Settings::settings->sync();
-*/
+    if (connexionInfo.isCustom) {
+      valid.insert(QStringLiteral("Custom-%1").arg(connexionInfo.unique_code));
+      Settings::settings->beginGroup(
+          QStringLiteral("Custom-%1").arg(connexionInfo.unique_code));
+      if (!connexionInfo.ws.isEmpty()) {
+        Settings::settings->setValue(QStringLiteral("ws"), connexionInfo.ws);
+        Settings::settings->remove("host");
+        Settings::settings->remove("port");
+      } else {
+        Settings::settings->setValue(QStringLiteral("host"),
+                                     connexionInfo.host);
+        Settings::settings->setValue(QStringLiteral("port"),
+                                     connexionInfo.port);
+        Settings::settings->remove("ws");
+      }
+      Settings::settings->setValue(QStringLiteral("name"), connexionInfo.name);
+    } else
+      Settings::settings->beginGroup(
+          QStringLiteral("Xml-%1").arg(connexionInfo.unique_code));
+    if (connexionInfo.connexionCounter > 0)
+      Settings::settings->setValue(QStringLiteral("connexionCounter"),
+                                   connexionInfo.connexionCounter);
+    else
+      Settings::settings->remove(QStringLiteral("connexionCounter"));
+    if (connexionInfo.lastConnexion > 0 && connexionInfo.connexionCounter > 0)
+      Settings::settings->setValue(QStringLiteral("lastConnexion"),
+                                   (quint64)connexionInfo.lastConnexion);
+    else
+      Settings::settings->remove(QStringLiteral("lastConnexion"));
+    Settings::settings->setValue(QStringLiteral("proxyHost"),
+                                 connexionInfo.proxyHost);
+    Settings::settings->setValue(QStringLiteral("proxyPort"),
+                                 connexionInfo.proxyPort);
+    Settings::settings->endGroup();
+    index++;
+  }
+  QStringList groups = Settings::settings->childGroups();
+  index = 0;
+  while (index < (unsigned int)groups.size()) {
+    const QString &groupName = groups.at(index);
+    if (groupName.startsWith("Custom-") && !valid.contains(groupName))
+      Settings::settings->remove(groupName);
+    index++;
+  }
+  Settings::settings->sync();
 }
 
 std::vector<ConnexionInfo> Multi::loadXmlConnexionInfoList() {
@@ -918,46 +893,6 @@ void Multi::newLanguage() {
   */
 }
 
-/*
-void Multi::mousePressEventXY(const QPointF &p, bool &pressValidated,
-                              bool &callParentClass) {
-  server_add->mousePressEventXY(p, pressValidated);
-  server_remove->mousePressEventXY(p, pressValidated);
-  server_edit->mousePressEventXY(p, pressValidated);
-  server_refresh->mousePressEventXY(p, pressValidated);
-  back->mousePressEventXY(p, pressValidated);
-  server_select->mousePressEventXY(p, pressValidated);
-  foreach (MultiItem *item, serverConnexion)
-    item->mousePressEventXY(p, pressValidated);
-}
-
-void Multi::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
-                                bool &callParentClass) {
-  server_add->mouseReleaseEventXY(p, pressValidated);
-  server_remove->mouseReleaseEventXY(p, pressValidated);
-  server_edit->mouseReleaseEventXY(p, pressValidated);
-  server_refresh->mouseReleaseEventXY(p, pressValidated);
-  back->mouseReleaseEventXY(p, pressValidated);
-  server_select->mouseReleaseEventXY(p, pressValidated);
-  MultiItem *newSelectedItem = nullptr;
-  foreach (MultiItem *item, serverConnexion) {
-    const bool wasSelected = item->isSelected();
-    item->mouseReleaseEventXY(p, pressValidated);
-    if (wasSelected == false && newSelectedItem == nullptr &&
-        item->isSelected()) {
-      newSelectedItem = item;
-      const ConnexionInfo &info = item->connexionInfo();
-      selectedServer.unique_code = info.unique_code;
-      selectedServer.isCustom = info.isCustom;
-      server_edit->setEnabled(info.isCustom);
-      server_remove->setEnabled(info.isCustom);
-    }
-  }
-  server_select->setEnabled(!selectedServer.unique_code.isEmpty());
-  if (newSelectedItem != nullptr) foreach (MultiItem *item, serverConnexion)
-      if (newSelectedItem != item) item->setSelected(false);
-}*/
-
 void Multi::OnScreenSD() {}
 
 void Multi::OnScreenHD() {}
@@ -1049,3 +984,34 @@ void Multi::OnScreenResize() {
 }
 
 void Multi::GoBack() { static_cast<StackedScene *>(Parent())->PopForeground(); }
+
+void Multi::OnEnter() {
+  server_add->RegisterEvents();
+  server_remove->RegisterEvents();
+  server_edit->RegisterEvents();
+  server_select->RegisterEvents();
+  back->RegisterEvents();
+  server_refresh->RegisterEvents();
+  RegisterMouseListener(scrollZone);
+}
+
+void Multi::OnExit() {
+  server_add->UnRegisterEvents();
+  server_remove->UnRegisterEvents();
+  server_edit->UnRegisterEvents();
+  server_select->UnRegisterEvents();
+  back->UnRegisterEvents();
+  server_refresh->UnRegisterEvents();
+}
+
+void Multi::OnSelectServer(Node *item) {
+  MultiItem *selected = static_cast<MultiItem *>(item);
+  const ConnexionInfo &info = selected->Connection();
+  selectedServer.unique_code = info.unique_code;
+  selectedServer.isCustom = info.isCustom;
+  server_edit->SetEnabled(info.isCustom);
+  server_remove->SetEnabled(info.isCustom);
+  server_select->SetEnabled(!selectedServer.unique_code.isEmpty());
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdq" << std::endl;
+  ReDraw();
+}

@@ -2,18 +2,16 @@
 #ifndef CLIENT_QTOPENGL_SCENES_LEADING_ADDOREDITSERVER_HPP_
 #define CLIENT_QTOPENGL_SCENES_LEADING_ADDOREDITSERVER_HPP_
 
-#include <QComboBox>
-#include <QObject>
-
 #include "../../core/Scene.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/Combo.hpp"
+#include "../../ui/Dialog.hpp"
 
 namespace Scenes {
-class AddOrEditServer : public Scene {
+class AddOrEditServer : public UI::Dialog {
  public:
   ~AddOrEditServer();
   static AddOrEditServer* Create();
@@ -35,22 +33,21 @@ class AddOrEditServer : public Scene {
   bool isOk() const;
   void on_type_currentIndexChanged(int index);
   void on_cancel_clicked();
+  void OnEnter() override;
+  void OnExit() override;
+  void OnActionClick(Node *node) override;
 
  protected:
-  void OnScreenSD() override;
-  void OnScreenHD() override;
-  void OnScreenHDR() override;
-  void OnScreenResize() override;
-  void Draw(QPainter *painter) override;
+  void OnScreenSD();
+  void OnScreenHD();
+  void OnScreenHDR();
+  void OnScreenResize();
 
  private:
   AddOrEditServer();
 
   bool edit;
-  Sprite *wdialog;
   UI::Button *quit;
-  UI::Label *title;
-  Sprite *label;
   UI::Button *validate;
   UI::Combo *m_type;
 
@@ -67,7 +64,6 @@ class AddOrEditServer : public Scene {
 
   UI::Label *warning;
 
-  int x, y;
   bool ok;
 
   QString serverPrevious;
@@ -76,7 +72,6 @@ class AddOrEditServer : public Scene {
   QString proxyPrevious;
   QString proxyPortPrevious;
 
-  void removeAbove();
   void newLanguage();
 };
 }  // namespace Scenes

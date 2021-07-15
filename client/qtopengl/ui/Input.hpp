@@ -27,6 +27,8 @@ class Input : public Node {
   void SetValue(const QString &value);
   void SetPlaceholder(const QString &value);
   void SetFont(const QFont &font);
+  void RegisterEvents();
+  void UnRegisterEvents();
 
   void Draw(QPainter *painter) override;
 

@@ -51,12 +51,16 @@ class Multi : public Scene {
   void downloadFile();
   void newLanguage();
   void on_server_refresh_clicked();
+  void OnEnter() override;
+  void OnExit() override;
 
  protected:
   void OnScreenSD() override;
   void OnScreenHD() override;
   void OnScreenHDR() override;
   void OnScreenResize() override;
+
+  void OnSelectServer(Node* item);
 
  private:
   Multi();

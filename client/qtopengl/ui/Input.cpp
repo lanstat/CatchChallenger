@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <iostream>
 
+#include "../core/EventManager.hpp"
 #include "../core/Node.hpp"
 
 using UI::Input;
@@ -14,6 +15,7 @@ Input::Input(Node *parent) : Node(parent) {
 }
 
 Input::~Input() {
+  UnRegisterEvents();
   delete label_;
   delete background_;
 }
@@ -92,14 +94,22 @@ QString Input::Value() const { return text_; }
 
 void Input::SetValue(const QString &value) {
   text_ = value;
+  label_->SetText(text_);
   ReDraw();
 }
 
-void Input::SetPlaceholder(const QString &value) {
-  placeholder_ = value;
-}
+void Input::SetPlaceholder(const QString &value) { placeholder_ = value; }
 
 void Input::SetFont(const QFont &font) {
   label_->SetFont(font);
   ReDraw();
+}
+
+void Input::RegisterEvents() {
+  EventManager::GetInstance()->AddMouseListener(this);
+  EventManager::GetInstance()->AddKeyboardListener(this);
+}
+
+void Input::UnRegisterEvents() {
+  EventManager::GetInstance()->RemoveListener(this);
 }

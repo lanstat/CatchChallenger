@@ -70,7 +70,7 @@ void MultiItem::Draw(QPainter *painter) {
   if (m_connexionInfo.connexionCounter > 0) {
     const QPixmap &p = *AssetsLoader::GetInstance()->GetImage(
         ":/CC/images/interface/star.png");
-    const int size = Height() -20;
+    const int size = Height() - 20;
     painter->drawPixmap(10, 10, size, size, p);
   }
   text->Paint(painter, nullptr, nullptr);
@@ -79,9 +79,35 @@ void MultiItem::Draw(QPainter *painter) {
   delete text;
 }
 
-void MultiItem::MousePressEvent(const QPointF &point, bool &press_validated) {}
+void MultiItem::MousePressEvent(const QPointF &point, bool &press_validated) {
+  if (press_validated) return;
+  if (!IsVisible()) return;
+  if (!IsEnabled()) return;
 
-void MultiItem::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {}
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
+  if (t.contains(point)) {
+    press_validated = true;
+    ReDraw();
+  }
+}
+
+void MultiItem::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
+  if (prev_validated) {
+    ReDraw();
+    return;
+  }
+  if (!IsEnabled()) return;
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
+  if (!prev_validated && IsVisible()) {
+    if (t.contains(point)) {
+      if (on_click_) {
+        on_click_(this);
+      }
+    }
+  }
+}
 
 void MultiItem::MouseMoveEvent(const QPointF &point) { (void)point; }
 
@@ -94,3 +120,5 @@ void MultiItem::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
   (void)event;
   (void)event_trigger;
 }
+
+ConnexionInfo MultiItem::Connection() const { return m_connexionInfo; }

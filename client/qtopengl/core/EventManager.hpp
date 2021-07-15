@@ -8,6 +8,7 @@
 #include <vector>
 
 class Node;
+class HashElement;
 
 class EventManager {
  public:
@@ -29,12 +30,16 @@ class EventManager {
 
  private:
   EventManager();
-  void RemoveListener(std::vector<Node *> *item, Node *listener);
-  void AddListener(std::vector<Node *> *item, Node *listener);
+
+  HashElement *DeleteHashElement(HashElement *item, HashElement *element);
+  HashElement *RemoveListener(HashElement *item, Node *listener);
+  HashElement *AddListener(HashElement *item, Node *listener, bool paused);
+  struct HashElement *current_target_;
+  bool current_target_salvaged_;
 
  protected:
   static EventManager *instance_;
-  struct std::vector<Node *> mouse_listeners_;
-  struct std::vector<Node *> keyboard_listeners_;
+  struct HashElement *mouse_listeners_;
+  struct HashElement *keyboard_listeners_;
 };
 #endif  // CLIENT_QTOPENGL_CORE_EVENTMANAGER_HPP_

@@ -42,12 +42,14 @@ Node *Node::Root() {
 
 void Node::AddChild(Node *child) {
   child->SetParent(this);
+  child->OnEnter();
   children_.push_back(child);
 }
 
 void Node::RemoveChild(Node *child) {
   if (child == nullptr) return;
   child->SetParent(nullptr);
+  child->OnExit();
   children_.erase(std::remove(children_.begin(), children_.end(), child),
                   children_.end());
 }
@@ -174,3 +176,7 @@ void Node::ReDraw() {
   }
   node_cache_ = nullptr;
 }
+
+void Node::OnEnter() {}
+
+void Node::OnExit() {}

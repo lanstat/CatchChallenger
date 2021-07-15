@@ -17,6 +17,7 @@ class MultiItem : public Node {
   void MouseMoveEvent(const QPointF &point) override;
   void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
   void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
+  ConnexionInfo Connection() const;
 
  private:
   explicit MultiItem(const ConnexionInfo &connexionInfo);
