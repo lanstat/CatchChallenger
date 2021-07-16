@@ -63,6 +63,8 @@ class Node {
   virtual void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) = 0;
   virtual void OnEnter();
   virtual void OnExit();
+  virtual void RegisterEvents();
+  virtual void UnRegisterEvents();
 
  protected:
   bool visible_;

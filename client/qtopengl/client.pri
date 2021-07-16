@@ -261,6 +261,7 @@ SOURCES += \
     $$PWD/ui/Input.cpp \
     $$PWD/ui/Combo.cpp \
     $$PWD/ui/Dialog.cpp \
+    $$PWD/ui/Checkbox.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -372,6 +373,7 @@ HEADERS  += \
     $$PWD/ui/Input.hpp \
     $$PWD/ui/Combo.hpp \
     $$PWD/ui/Dialog.hpp \
+    $$PWD/ui/Checkbox.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \

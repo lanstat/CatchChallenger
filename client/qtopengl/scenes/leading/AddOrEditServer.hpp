@@ -31,7 +31,7 @@ class AddOrEditServer : public UI::Dialog {
   void setProxyServer(const QString &proxyServer);
   void setProxyPort(const uint16_t &proxyPort);
   bool isOk() const;
-  void on_type_currentIndexChanged(int index);
+  void on_type_currentIndexChanged(uint8_t index);
   void on_cancel_clicked();
   void OnEnter() override;
   void OnExit() override;
@@ -49,7 +49,7 @@ class AddOrEditServer : public UI::Dialog {
   bool edit;
   UI::Button *quit;
   UI::Button *validate;
-  UI::Combo *m_type;
+  UI::Combo *protocol_;
 
   UI::Label *serverText;
   UI::Input *serverInput;

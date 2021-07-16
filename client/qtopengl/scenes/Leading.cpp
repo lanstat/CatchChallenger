@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "../../../general/base/Version.hpp"
+#include "../core/SceneManager.hpp"
 #include "../core/AssetsLoader.hpp"
 #include "ParallaxForest.hpp"
 #include "leading/Loading.hpp"
@@ -32,6 +34,9 @@ Leading* Leading::Create() {
 }
 
 void Leading::OnLoadingFinish() {
+  SceneManager::GetInstance()->setWindowTitle(
+      tr("CatchChallenger %1")
+          .arg(QString::fromStdString(CatchChallenger::Version::str)));
   PopForeground();
   menu_ = Menu::Create();
   PushForeground(menu_);

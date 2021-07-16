@@ -10,9 +10,9 @@
 
 #include "../../../general/base/GeneralStructures.hpp"
 #include "ActionManager.hpp"
+#include "EventManager.hpp"
 #include "GraphicRenderer.hpp"
 #include "Scene.hpp"
-#include "EventManager.hpp"
 
 namespace CatchChallenger {
 class InternalServer;
@@ -24,7 +24,7 @@ class SceneManager : public QGraphicsView {
   Q_OBJECT
 
  public:
-  SceneManager();
+  static SceneManager *GetInstance();
   ~SceneManager();
 
   void PushScene(Scene *scene);
@@ -41,6 +41,8 @@ class SceneManager : public QGraphicsView {
   void keyReleaseEvent(QKeyEvent *event) override;
 
  private:
+  static SceneManager *instance_;
+  SceneManager();
 #ifdef CATCHCHALLENGER_SOLO
   CatchChallenger::InternalServer *internal_server_;
 #endif

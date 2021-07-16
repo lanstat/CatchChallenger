@@ -180,3 +180,7 @@ void Node::ReDraw() {
 void Node::OnEnter() {}
 
 void Node::OnExit() {}
+
+void Node::RegisterEvents() {}
+
+void Node::UnRegisterEvents() {}

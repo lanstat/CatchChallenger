@@ -10,6 +10,7 @@
 #include "../../action/RepeatForever.hpp"
 #include "../../action/Sequence.hpp"
 #include "../../core/AssetsLoader.hpp"
+#include "../../core/SceneManager.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/Progressbar.hpp"

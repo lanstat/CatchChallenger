@@ -217,6 +217,7 @@ void Label::SetAlignment(Qt::Alignment alignment) {
 void Label::SetSize(int w, int h) {
   Node::SetSize(w, h);
   auto_size_ = false;
+  UpdateTextPath();
 }
 
 void Label::SetWidth(int w) {

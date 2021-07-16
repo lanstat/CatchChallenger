@@ -26,6 +26,7 @@ Input *Input::Create(Node *parent) {
 }
 
 void Input::MousePressEvent(const QPointF &point, bool &press_validated) {
+  focus_ = false;
   if (press_validated) return;
   if (pressed_) return;
   if (!IsVisible()) return;
@@ -52,6 +53,7 @@ void Input::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
   pressed_ = false;
   if (!prev_validated && IsVisible()) {
     if (t.contains(point)) {
+      prev_validated = true;
       focus_ = true;
     }
   }

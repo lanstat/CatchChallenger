@@ -193,25 +193,25 @@ int main(int argc, char *argv[])
     Options::options.loadVar();
 
     // ScreenTransition s;
-    SceneManager s;
+    SceneManager *s = SceneManager::GetInstance();
 
-    s.PushScene(Scenes::Leading::Create());
-    s.setWindowTitle(QObject::tr("CatchChallenger loading..."));
+    s->PushScene(Scenes::Leading::Create());
+    s->setWindowTitle(QObject::tr("CatchChallenger loading..."));
     /*QScreen *screen = QApplication::screens().at(0);
     s.setMinimumSize(QSize(screen->availableSize().width(),
                            screen->availableSize().height()));*/
     #ifndef  Q_OS_ANDROID
-    s.setMinimumSize(QSize(640,480));
+    s->setMinimumSize(QSize(640,480));
     #endif
-    s.move(0,0);
+    s->move(0,0);
     QIcon icon;
     icon.addFile(":/CC/images/catchchallenger.png", QSize(), QIcon::Normal, QIcon::Off);
-    s.setWindowIcon(icon);
+    s->setWindowIcon(icon);
 #ifdef  Q_OS_ANDROID
-    s.showFullScreen();
+    s->showFullScreen();
 #else
     //s.show();
-    s.showMaximized();
+    s->showMaximized();
 #endif
     QtDatapackClientLoader::datapackLoader=nullptr;
     const auto returnCode=a.exec();

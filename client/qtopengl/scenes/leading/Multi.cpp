@@ -1012,6 +1012,5 @@ void Multi::OnSelectServer(Node *item) {
   server_edit->SetEnabled(info.isCustom);
   server_remove->SetEnabled(info.isCustom);
   server_select->SetEnabled(!selectedServer.unique_code.isEmpty());
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdq" << std::endl;
   ReDraw();
 }

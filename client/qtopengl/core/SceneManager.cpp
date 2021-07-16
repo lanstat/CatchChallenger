@@ -1,7 +1,6 @@
 // Copyright 2021 CatchChallenger
 #include "SceneManager.hpp"
 
-#include "../../qt/GameLoader.hpp"
 #ifdef CATCHCHALLENGER_SOLO
   #include <QStandardPaths>
 
@@ -20,6 +19,8 @@
 #endif
 #include <QGLWidget>
 #include <iostream>
+
+SceneManager *SceneManager::instance_ = nullptr;
 
 #ifdef Q_OS_ANDROID
   #include <QtAndroidExtras>
@@ -126,6 +127,13 @@ SceneManager::~SceneManager() {
 #endif
   delete action_manager_;
   delete event_manager_;
+}
+
+SceneManager *SceneManager::GetInstance() {
+  if (!instance_) {
+    instance_ = new SceneManager();
+  }
+  return instance_;
 }
 
 void SceneManager::resizeEvent(QResizeEvent *event) {

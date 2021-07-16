@@ -15,6 +15,7 @@
 #include "../../core/EventManager.hpp"
 
 using Scenes::AddOrEditServer;
+using std::placeholders::_1;
 
 AddOrEditServer::AddOrEditServer() {
   ok = false;
@@ -23,10 +24,11 @@ AddOrEditServer::AddOrEditServer() {
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
   validate = UI::Button::Create(":/CC/images/interface/validate.png", this);
 
-  m_type = UI::Combo::Create(":/CC/images/interface/button.png", this);
-  m_type->AddItem(QString("Tcp"));
-  m_type->AddItem(QString("WS"));
+  protocol_ = UI::Combo::Create(":/CC/images/interface/button.png", this);
+  protocol_->AddItem(QString("Tcp"));
+  protocol_->AddItem(QString("WS"));
   serverText = UI::Label::Create(this);
+  serverText->SetVisible(false);
   serverInput = UI::Input::Create(this);
   serverInput->SetPlaceholder("ws://www.server.com:9999/");
   portInput = UI::Input::Create(this);
@@ -50,14 +52,8 @@ AddOrEditServer::AddOrEditServer() {
   warning = UI::Label::Create(this);
   warning->SetVisible(false);
 
-  /*
-  if (!connect(
-          m_type,
-          static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
-          this, &AddOrEditServer::on_type_currentIndexChanged,
-          Qt::QueuedConnection))
-    abort();
-    */
+  protocol_->SetOnSelectChange(
+      std::bind(&AddOrEditServer::on_type_currentIndexChanged, this, _1));
   on_type_currentIndexChanged(0);
 
   quit->SetOnClick(std::bind(&AddOrEditServer::on_cancel_clicked, this));
@@ -66,7 +62,7 @@ AddOrEditServer::AddOrEditServer() {
   newLanguage();
 
 #if defined(NOTCPSOCKET) || defined(NOWEBSOCKET)
-  m_type->SetVisible(false);
+  protocol_->SetVisible(false);
   #if defined(NOTCPSOCKET)
   proxyPortInput->SetVisible(false);
   serverInput->SetPlaceholder("ws://www.server.com:9999/");
@@ -81,7 +77,7 @@ AddOrEditServer::~AddOrEditServer() {
   delete quit;
   delete validate;
   delete warning;
-  delete m_type;
+  delete protocol_;
   delete nameText;
 }
 
@@ -148,8 +144,9 @@ void AddOrEditServer::OnScreenResize() {
     if (portInput->IsVisible()) {
       serverInput->SetWidth(serverBackgroundNewWidth * 3 / 4);
       portInput->SetWidth(serverBackgroundNewWidth * 1 / 4);
-    } else
+    } else {
       serverInput->SetWidth(serverBackgroundNewWidth);
+    }
     nameInput->SetSize(nameBackgroundNewWidth, nameBackgroundNewHeight);
     proxyInput->SetSize(proxyBackgroundNewWidth * 3 / 4,
                         nameBackgroundNewHeight);
@@ -157,7 +154,9 @@ void AddOrEditServer::OnScreenResize() {
                             nameBackgroundNewHeight);
   }
   {
-    m_type->SetPos(x_ + border_size * 2, y_ + top * 1.5);
+    protocol_->SetPos(x_ + border_size * 2, y_ + top * 1.5);
+    // TODO(lanstat): Verify which is the best height for the combo
+    protocol_->SetSize(100, 32);
     serverText->SetPos(x_ + border_size * 2, y_ + top * 1.5);
     const unsigned int serverBackgroundW =
         serverText->X() + serverTextRect.width();
@@ -210,7 +209,7 @@ void AddOrEditServer::newLanguage() {
 
 int AddOrEditServer::type() const {
 #if !defined(NOTCPSOCKET) && !defined(NOWEBSOCKET)
-  return m_type->CurrentIndex();
+  return protocol_->CurrentIndex();
 #else
   #if defined(NOTCPSOCKET)
   return 1;
@@ -227,13 +226,13 @@ int AddOrEditServer::type() const {
 
 void AddOrEditServer::setType(const int &type) {
 #if !defined(NOTCPSOCKET) && !defined(NOWEBSOCKET)
-  m_type->SetCurrentIndex(type);
+  protocol_->SetCurrentIndex(type);
 #else
   #if defined(NOTCPSOCKET)
-  m_type->SetCurrentIndex(1);
+  protocol_->SetCurrentIndex(1);
   #else
     #if defined(NOWEBSOCKET)
-  m_type->SetCurrentIndex(0);
+  protocol_->SetCurrentIndex(0);
     #endif
   #endif
 #endif
@@ -303,7 +302,7 @@ void AddOrEditServer::setProxyPort(const uint16_t &proxyPort) {
 
 bool AddOrEditServer::isOk() const { return ok; }
 
-void AddOrEditServer::on_type_currentIndexChanged(int index) {
+void AddOrEditServer::on_type_currentIndexChanged(uint8_t index) {
   switch (index) {
     case 0:
       portInput->SetVisible(true);
@@ -335,12 +334,22 @@ void AddOrEditServer::OnEnter() {
   quit->RegisterEvents();
   validate->RegisterEvents();
   nameInput->RegisterEvents();
+  serverInput->RegisterEvents();
+  portInput->RegisterEvents();
+  proxyInput->RegisterEvents();
+  proxyPortInput->RegisterEvents();
+  protocol_->RegisterEvents();
 }
 
 void AddOrEditServer::OnExit() {
   quit->UnRegisterEvents();
   validate->UnRegisterEvents();
   nameInput->UnRegisterEvents();
+  serverInput->UnRegisterEvents();
+  portInput->UnRegisterEvents();
+  proxyInput->UnRegisterEvents();
+  proxyPortInput->UnRegisterEvents();
+  protocol_->UnRegisterEvents();
 
   UI::Dialog::OnExit();
 }
