@@ -1,0 +1,445 @@
+// Copyright 2021 CatchChallenger
+#include "MonsterDetails.hpp"
+
+#include <QPainter>
+
+#include "../../../../general/base/CommonDatapack.hpp"
+#include "../../../../general/base/CommonSettingsServer.hpp"
+#include "../../../../general/fight/CommonFightEngineBase.hpp"
+#include "../../../qt/Ultimate.hpp"
+#include "../../Language.hpp"
+#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../core/AssetsLoader.hpp"
+
+using Scenes::MonsterDetails;
+
+MonsterDetails::MonsterDetails() {
+  quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
+  // connect(quit, &CustomButton::clicked, this, &MonsterDetails::removeAbove);
+
+  details = UI::Label::Create(this);
+  details->SetTextColor(Qt::white);
+
+  monsterDetailsImage = Sprite::Create(this);
+
+  monsterDetailsSkills = UI::ListView::Create();
+
+  monsterDetailsCatched = Sprite::Create(this);
+  QLinearGradient gradient1(0, 0, 0, 100);
+  gradient1.setColorAt(0.25, QColor(230, 153, 0));
+  gradient1.setColorAt(0.75, QColor(255, 255, 255));
+  QLinearGradient gradient2(0, 0, 0, 100);
+  gradient2.setColorAt(0, QColor(64, 28, 2));
+  gradient2.setColorAt(1, QColor(64, 28, 2));
+  monsterDetailsName = UI::Label::Create(gradient1, gradient2, this);
+  monsterDetailsLevel = UI::Label::Create(this);
+  monsterDetailsLevel->SetTextColor(Qt::white);
+  hp_text = UI::Label::Create(this);
+  hp_text->SetTextColor(Qt::white);
+  hp_bar = UI::Progressbar::Create(this);
+  xp_text = UI::Label::Create(this);
+  xp_text->SetTextColor(Qt::white);
+  xp_bar = UI::Progressbar::Create(this);
+
+  /*
+  if (!connect(&Language::language, &Language::newLanguage, this,
+               &MonsterDetails::newLanguage, Qt::QueuedConnection))
+    abort();
+  if (!connect(quit, &CustomButton::clicked, this, &MonsterDetails::removeAbove,
+               Qt::QueuedConnection))
+    abort();
+  */
+  newLanguage();
+}
+
+void MonsterDetails::Draw(QPainter *p) {
+  int min = bounding_rect_.height();
+  if (min > bounding_rect_.width()) min = bounding_rect_.width();
+  const int xLeft = (bounding_rect_.width() - min) / 2;
+  const int xRight = bounding_rect_.width() - min - xLeft;
+  const int yTop = (bounding_rect_.height() - min) / 2;
+  const int yBottom = bounding_rect_.height() - min - yTop;
+  p->drawPixmap(xLeft, yTop, min, min,
+                *AssetsLoader::GetInstance()->GetImage(
+                    ":/CC/images/interface/backm.png"));
+  if (xLeft > 0)
+    p->drawPixmap(0, 0, xLeft, bounding_rect_.height(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (xRight > 0)
+    p->drawPixmap(bounding_rect_.width() - xRight, 0, xRight,
+                  bounding_rect_.height(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (yTop > 0)
+    p->drawPixmap(0, 0, bounding_rect_.width(), yTop,
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (yBottom > 0)
+    p->drawPixmap(bounding_rect_.height() - yBottom, 0, yBottom,
+                  bounding_rect_.width(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+
+  auto font = details->GetFont();
+  unsigned int bigSpace = 50;
+  unsigned int space = 30;
+  qreal lineSize = 2.0;
+
+  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
+    quit->SetSize(83 / 2, 94 / 2);
+    font.setPixelSize(30 / 2);
+    bigSpace /= 2;
+    space = 10;
+    monsterDetailsCatched->SetScale(1.0);
+    hp_bar->SetSize(50 * 2, 8 * 2);
+    xp_bar->SetSize(50 * 2, 8 * 2);
+    lineSize = 2.0;
+    monsterDetailsName->SetPixelSize(50 / 2);
+  } else {
+    quit->SetSize(83, 94);
+    font.setPixelSize(30);
+    monsterDetailsCatched->SetScale(2.0);
+    if (bounding_rect_.width() < 1400 || bounding_rect_.height() < 800) {
+      hp_bar->SetSize(50 * 3, 8 * 3);
+      xp_bar->SetSize(50 * 3, 8 * 3);
+      lineSize = 3.0;
+    } else {
+      hp_bar->SetSize(50 * 4, 8 * 4);
+      xp_bar->SetSize(50 * 4, 8 * 4);
+      lineSize = 4.0;
+    }
+    monsterDetailsName->SetPixelSize(50);
+  }
+  details->SetFont(font);
+
+  p->save();
+  p->setPen(
+      QPen(Qt::white, lineSize, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  // p->drawLine(bounding_rect_.width()*1/6,bounding_rect_.height()*1/6,bounding_rect_.width()*2/6,bounding_rect_.height()*1/6);
+  p->drawLine(details->Width() + space, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6);
+
+  p->drawLine(bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() / 2, bounding_rect_.height() * 4 / 10);
+  // p->drawLine(bounding_rect_.width()*2/6,bounding_rect_.height()*1/6,bounding_rect_.width()*4/6,bounding_rect_.height()*7/10);
+  p->drawLine(bounding_rect_.width() / 2, bounding_rect_.height() * 5 / 10,
+              bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10);
+
+  p->drawLine(bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10,
+              bounding_rect_.width() * 5 / 6, bounding_rect_.height() * 7 / 10);
+  p->restore();
+
+  monsterDetailsLevel->SetFont(font);
+  hp_text->SetFont(font);
+  xp_text->SetFont(font);
+
+  quit->SetPos(bounding_rect_.width() - quit->Width() - bigSpace, bigSpace);
+  details->SetPos(bigSpace, bigSpace);
+
+  int ratio = (min * 2 / 3) / monsterDetailsImage->Pixmap().width();
+  if (ratio > 0) monsterDetailsImage->SetScale(ratio);
+  monsterDetailsImage->SetPos(
+      bounding_rect_.width() / 2 - monsterDetailsImage->Pixmap().width() *
+                                       monsterDetailsImage->Scale() / 2,
+      bounding_rect_.height() / 2 - monsterDetailsImage->Pixmap().height() *
+                                        monsterDetailsImage->Scale() / 2);
+
+  monsterDetailsSkills->SetSize((bounding_rect_.width() - bigSpace * 4) / 3,
+                                bounding_rect_.height() / 3);
+  monsterDetailsSkills->SetPos(
+      bounding_rect_.width() - monsterDetailsSkills->Width() - bigSpace,
+      bounding_rect_.height() / 3);
+
+  int tempY = bounding_rect_.height() / 2 +
+              monsterDetailsImage->Pixmap().height() *
+                  monsterDetailsImage->Scale() / 2 +
+              space - 100;
+  monsterDetailsName->SetPos(
+      bounding_rect_.width() / 2 - monsterDetailsName->Width() / 2, tempY);
+  monsterDetailsCatched->SetPos(bounding_rect_.width() / 2 -
+                                    monsterDetailsName->Width() / 2 - space -
+                                    monsterDetailsCatched->Pixmap().width() *
+                                        monsterDetailsCatched->Scale(),
+                                tempY -
+                                    (monsterDetailsCatched->Pixmap().height() -
+                                     monsterDetailsName->Height()) /
+                                        2 -
+                                    18);
+  monsterDetailsLevel->SetPos(
+      bounding_rect_.width() / 2 + monsterDetailsName->Width() / 2 + space,
+      tempY +
+          (monsterDetailsName->Height() - monsterDetailsLevel->Height()) / 2 +
+          15);
+
+  int hp_bar_width = hp_bar->Width();
+  int hp_bar_height = hp_bar->Height();
+  tempY +=
+      monsterDetailsCatched->Pixmap().height() * monsterDetailsCatched->Scale();
+  unsigned int tempBarW =
+      hp_text->Width() + space + hp_bar_width * hp_bar->Scale();
+  unsigned int tempX =
+      bounding_rect_.width() / 2 - tempBarW / 2 + hp_text->Width() + space;
+  hp_text->SetPos(tempX - hp_text->Width() - space / 3, tempY + 10);
+  int o = +(hp_text->Height() - hp_bar_height) / 2;
+  hp_bar->SetPos(tempX, tempY + o);
+  tempY += hp_text->Height();
+  xp_text->SetPos(tempX - xp_text->Width() - space / 3, tempY + 10);
+  o = +(hp_text->Height() - hp_bar_height) / 2;
+  xp_bar->SetPos(tempX, tempY + o);
+}
+
+/*
+void MonsterDetails::mousePressEventXY(const QPointF &p, bool &pressValidated,
+                                       bool &callParentClass) {
+  quit->mousePressEventXY(p, pressValidated);
+  pressValidated = true;
+  callParentClass = true;
+}
+
+void MonsterDetails::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
+                                         bool &callParentClass) {
+  quit->mouseReleaseEventXY(p, pressValidated);
+  pressValidated = true;
+  callParentClass = true;
+}
+
+void MonsterDetails::keyPressEvent(QKeyEvent *event,
+                                   bool &eventTriggerGeneral) {
+  Q_UNUSED(event);
+  eventTriggerGeneral = true;
+  return;
+}
+
+void MonsterDetails::keyReleaseEvent(QKeyEvent *event,
+                                     bool &eventTriggerGeneral) {
+  Q_UNUSED(event);
+  eventTriggerGeneral = true;
+  return;
+}
+*/
+
+void MonsterDetails::newLanguage() {
+  hp_text->SetText(tr("HP"));
+  xp_text->SetText(tr("XP"));
+}
+
+void MonsterDetails::setVar(const CatchChallenger::PlayerMonster &monster) {
+  /// TODO monsterDetailsBuffs
+
+  QLinearGradient gradient1(0, 0, 0, 100);
+  QLinearGradient gradient2(0, 0, 0, 100);
+  switch (monster.gender) {
+    case CatchChallenger::Gender::Gender_Male:
+      gradient1.setColorAt(0.25, QColor(180, 200, 255));
+      gradient1.setColorAt(0.75, QColor(255, 255, 255));
+      gradient2.setColorAt(0, QColor(2, 28, 64));
+      gradient2.setColorAt(1, QColor(2, 28, 64));
+      break;
+    case CatchChallenger::Gender::Gender_Female:
+      gradient1.setColorAt(0.25, QColor(255, 200, 200));
+      gradient1.setColorAt(0.75, QColor(255, 255, 255));
+      gradient2.setColorAt(0, QColor(64, 28, 2));
+      gradient2.setColorAt(1, QColor(64, 28, 2));
+      break;
+    default:
+      gradient1.setColorAt(0.25, QColor(230, 230, 230));
+      gradient1.setColorAt(0.75, QColor(255, 255, 255));
+      gradient2.setColorAt(0, QColor(50, 50, 50));
+      gradient2.setColorAt(1, QColor(50, 50, 50));
+      break;
+  }
+  monsterDetailsName->SetBorderColor(gradient1);
+  monsterDetailsName->SetTextColor(gradient2);
+
+  const QtDatapackClientLoader::MonsterExtra &monsterExtraInfo =
+      QtDatapackClientLoader::datapackLoader->monsterExtra.at(monster.monster);
+  const QtDatapackClientLoader::QtMonsterExtra &QtmonsterExtraInfo =
+      QtDatapackClientLoader::datapackLoader->getMonsterExtra(monster.monster);
+  const CatchChallenger::Monster &monsterGeneralInfo =
+      CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
+          monster.monster);
+  const CatchChallenger::Monster::Stat &stat =
+      CatchChallenger::CommonFightEngineBase::getStat(monsterGeneralInfo,
+                                                      monster.level);
+
+  QString typeString;
+  if (!monsterGeneralInfo.type.empty()) {
+    QStringList typeList;
+    unsigned int sub_index = 0;
+    while (sub_index < monsterGeneralInfo.type.size()) {
+      const auto &typeSub = monsterGeneralInfo.type.at(sub_index);
+      if (QtDatapackClientLoader::datapackLoader->typeExtra.find(typeSub) !=
+          QtDatapackClientLoader::datapackLoader->typeExtra.cend()) {
+        const QtDatapackClientLoader::TypeExtra &typeExtra =
+            QtDatapackClientLoader::datapackLoader->typeExtra.at(typeSub);
+        if (!typeExtra.name.empty()) {
+          /*if(typeExtra.color.isValid())
+              typeList.push_back("<span
+          style=\"background-color:"+typeExtra.color.name()+";\">"+QString::fromStdString(typeExtra.name)+"</span>");
+          else*/
+          typeList.push_back(QString::fromStdString(typeExtra.name));
+        }
+      }
+      sub_index++;
+    }
+    QStringList extraInfo;
+    if (!typeList.isEmpty())
+      extraInfo << tr("Type: %1").arg(typeList.join(QStringLiteral(", ")));
+    if (Ultimate::ultimate.isUltimate()) {
+      if (!monsterExtraInfo.kind.empty())
+        extraInfo << tr("Kind: %1")
+                         .arg(QString::fromStdString(monsterExtraInfo.kind));
+      if (!monsterExtraInfo.habitat.empty())
+        extraInfo << tr("Habitat: %1")
+                         .arg(QString::fromStdString(monsterExtraInfo.habitat));
+    }
+    typeString = extraInfo.join(QStringLiteral("<br />"));
+  }
+  monsterDetailsName->SetText(QString::fromStdString(monsterExtraInfo.name));
+  // monsterDetailsDescription->setText(QString::fromStdString(monsterExtraInfo.description));
+  {
+    QPixmap front = QtmonsterExtraInfo.front;
+    front = front.scaled(160, 160);
+    monsterDetailsImage->SetPixmap(front);
+  }
+  {
+    QPixmap catchPixmap;
+    if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(
+            monster.catched_with) !=
+        QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
+      catchPixmap = QtDatapackClientLoader::datapackLoader
+                        ->getImageExtra(monster.catched_with)
+                        .image;
+      monsterDetailsCatched->SetToolTip(
+          tr("catched with %1")
+              .arg(QString::fromStdString(
+                  QtDatapackClientLoader::datapackLoader->itemsExtra
+                      .at(monster.catched_with)
+                      .name)));
+    } else {
+      catchPixmap =
+          QtDatapackClientLoader::datapackLoader->defaultInventoryImage();
+      monsterDetailsCatched->SetToolTip(
+          tr("catched with unknown item: %1").arg(monster.catched_with));
+    }
+    catchPixmap = catchPixmap.scaled(48, 48);
+    monsterDetailsCatched->SetPixmap(catchPixmap);
+  }
+  const uint32_t &maxXp = monsterGeneralInfo.level_to_xp.at(monster.level - 1);
+  monsterDetailsLevel->SetText(QString::number(monster.level));
+
+  hp_bar->SetMaximum(stat.hp);
+  hp_bar->SetValue(monster.hp);
+  hp_bar->SetSize(50, 8);
+  xp_bar->SetMaximum(maxXp);
+  xp_bar->SetValue(monster.remaining_xp);
+  xp_bar->SetSize(50, 8);
+
+  QString detailsString;
+  detailsString += tr("Speed: %1").arg(stat.speed) + "<br />";
+  detailsString += tr("Attack: %1").arg(stat.attack) + "<br />";
+  detailsString += tr("Defense: %1").arg(stat.defense) + "<br />";
+  detailsString += tr("SP attack: %1").arg(stat.special_attack) + "<br />";
+  detailsString += tr("SP defense: %1").arg(stat.special_defense) + "<br />";
+  if (CommonSettingsServer::commonSettingsServer.useSP)
+    detailsString += tr("Skill point: %1").arg(monster.sp) + "<br />";
+  if (!typeString.isEmpty()) detailsString += "<br />" + typeString;
+  details->SetText(detailsString);
+  // skill
+  monsterDetailsSkills->Clear();
+  {
+    unsigned int indexSkill = 0;
+    while (indexSkill < monster.skills.size()) {
+      const CatchChallenger::PlayerMonster::PlayerSkill &monsterSkill =
+          monster.skills.at(indexSkill);
+      auto item = UI::Label::Create();
+      if (QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.find(
+              monsterSkill.skill) ==
+          QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.cend()) {
+        item->SetText(tr("Unknown skill"));
+      } else {
+        if (monsterSkill.level > 1)
+          item->SetText(
+              tr("%1 at level %2")
+                  .arg(QString::fromStdString(
+                      QtDatapackClientLoader::datapackLoader->monsterSkillsExtra
+                          .at(monsterSkill.skill)
+                          .name))
+                  .arg(monsterSkill.level));
+        else
+          item->SetText(QString::fromStdString(
+              QtDatapackClientLoader::datapackLoader->monsterSkillsExtra
+                  .at(monsterSkill.skill)
+                  .name));
+        const CatchChallenger::Skill &skill =
+            CatchChallenger::CommonDatapack::commonDatapack.monsterSkills.at(
+                monsterSkill.skill);
+        item->SetText(
+            item->Text() +
+            QStringLiteral(" (%1/%2)")
+                .arg(monsterSkill.endurance)
+                .arg(skill.level.at(monsterSkill.level - 1).endurance));
+        if (skill.type != 255)
+          if (QtDatapackClientLoader::datapackLoader->typeExtra.find(
+                  skill.type) !=
+              QtDatapackClientLoader::datapackLoader->typeExtra.cend())
+            if (!QtDatapackClientLoader::datapackLoader->typeExtra
+                     .at(skill.type)
+                     .name.empty())
+              item->SetText(
+                  item->Text() + ", " +
+                  tr("Type: %1")
+                      .arg(QString::fromStdString(
+                          QtDatapackClientLoader::datapackLoader->typeExtra
+                              .at(skill.type)
+                              .name)));
+        item->SetText(
+            item->Text() + "\n" +
+            QString::fromStdString(
+                QtDatapackClientLoader::datapackLoader->monsterSkillsExtra
+                    .at(monsterSkill.skill)
+                    .description));
+        item->SetToolTip(QString::fromStdString(
+            QtDatapackClientLoader::datapackLoader->monsterSkillsExtra
+                .at(monsterSkill.skill)
+                .description));
+      }
+      monsterDetailsSkills->AddItem(item);
+      indexSkill++;
+    }
+  }
+  // do the buff
+  /*{
+      monsterDetailsBuffs->clear();
+      unsigned int index=0;
+      while(index<monster.buffs.size())
+      {
+          const PlayerBuff &buffEffect=monster.buffs.at(index);
+          QListWidgetItem *item=new QListWidgetItem();
+          if(QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.find(buffEffect.buff)==QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.cend())
+          {
+              item->setToolTip(tr("Unknown buff"));
+              item->setIcon(QIcon(":/CC/images/interface/buff.png"));
+          }
+          else
+          {
+              item->setIcon(QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra.at(buffEffect.buff).icon);
+              if(buffEffect.level<=1)
+                  item->setToolTip(QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(buffEffect.buff).name));
+              else
+                  item->setToolTip(tr("%1 at level
+  %2").arg(QString::fromStdString(
+                        QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(buffEffect.buff).name)).arg(buffEffect.level));
+              item->setToolTip(item->toolTip()+"\n"+QString::fromStdString(QtDatapackClientLoader::datapackLoader->monsterBuffsExtra
+                                                                           .at(buffEffect.buff).description));
+          }
+          monsterDetailsBuffs->addItem(item);
+          index++;
+      }
+  }*/
+}

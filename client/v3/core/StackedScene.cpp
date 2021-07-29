@@ -1,0 +1,64 @@
+// Copyright 2021 CatchChallenger
+#include "StackedScene.hpp"
+
+#include <iostream>
+
+#include "Node.hpp"
+#include "Scene.hpp"
+
+StackedScene::StackedScene(Node *parent) : Scene(parent) {
+  background_ = nullptr;
+  foreground_.clear();
+}
+
+StackedScene::~StackedScene() {}
+
+void StackedScene::SetBackground(Scene *scene) {
+  RemoveChild(background_);
+  background_ = scene;
+  AddChild(background_);
+}
+
+void StackedScene::PushForeground(Scene *scene) {
+  if (!foreground_.empty()) {
+    if (foreground_.back() == scene) {
+      return;
+    }
+    RemoveChild(foreground_.back());
+  }
+
+  foreground_.push_back(scene);
+  AddChild(scene);
+}
+
+void StackedScene::ReplaceForeground(Scene *previous, Scene *next) {
+  if (foreground_.empty()) return;
+  int iter = 0;
+  int index = -1;
+  while (iter < foreground_.size()) {
+    if (foreground_.at(iter) == previous) {
+      index = iter;
+      break;
+    }
+    iter++;
+  }
+  if (index >= 0) {
+    std::replace(foreground_.begin(), foreground_.end(), previous, next);
+    if (index == foreground_.size() - 1) {
+      RemoveChild(previous);
+      AddChild(next);
+    }
+  }
+}
+
+Scene *StackedScene::PopForeground() {
+  if (foreground_.empty()) return nullptr;
+  auto tmp = foreground_.back();
+
+  RemoveChild(tmp);
+  foreground_.pop_back();
+
+  if (!foreground_.empty()) AddChild(foreground_.back());
+
+  return tmp;
+}

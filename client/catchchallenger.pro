@@ -1,4 +1,4 @@
-include(qtopengl/client.pri)
+include(v3/client.pri)
 include(../general/general.pri)
 include(qt/qt.pri)
 
