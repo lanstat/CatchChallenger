@@ -19,6 +19,7 @@ Map::Map() {
   overmap_->setVar(background_);
   overmap_->connectAllSignals();
   SetBackground(background_);
+  PushForeground(overmap_);
 }
 
 Map::~Map() {

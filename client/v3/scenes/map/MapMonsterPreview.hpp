@@ -1,33 +1,34 @@
 // Copyright 2021 CatchChallenger
-#ifndef MapMonsterPreview_H
-#define MapMonsterPreview_H
-
-#include <QObject>
+#ifndef CLIENT_V3_SCENE_MAP_MAPMONSTERPREVIEW_HPP_
+#define CLIENT_V3_SCENE_MAP_MAPMONSTERPREVIEW_HPP_
 
 #include "../../../../general/base/GeneralStructures.hpp"
-#include "../../core/Sprite.hpp"
+#include "../../core/Node.hpp"
 
 namespace Scenes {
-class MapMonsterPreview : public QObject, public Sprite {
-  Q_OBJECT
+class MapMonsterPreview : public Node {
  public:
+  ~MapMonsterPreview();
+  static MapMonsterPreview *Create(const CatchChallenger::PlayerMonster &m,
+                                   Node *parent = nullptr);
+  void SetInDrag(bool drag);
+  bool IsPressed();
+  const CatchChallenger::PlayerMonster &GetMonster() const;
+  void Draw(QPainter *painter) override;
+  void MousePressEvent(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
+  void MouseMoveEvent(const QPointF &point) override;
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
+
+ private:
+  CatchChallenger::PlayerMonster monster_;
+  bool pressed_;
+  bool drag_;
+
   MapMonsterPreview(const CatchChallenger::PlayerMonster &m,
                     Node *parent = nullptr);
-  ~MapMonsterPreview();
-  void regenCache();
-  void setInDrag(bool drag);
-  bool isPressed();
-  const CatchChallenger::PlayerMonster &getMonster() const;
-
- private:
-  void setPressed(const bool &pressed);
-
- private:
-  CatchChallenger::PlayerMonster monster;
-  bool pressed;
-  bool m_drag;
- signals:
-  void clicked();
+  void SetPressed(const bool &pressed);
 };
 }  // namespace Scenes
-#endif  // MapMonsterPreview_H
+#endif  // CLIENT_V3_SCENE_MAP_MAPMONSTERPREVIEW_HPP_

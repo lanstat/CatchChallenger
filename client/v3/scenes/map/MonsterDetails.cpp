@@ -2,23 +2,23 @@
 #include "MonsterDetails.hpp"
 
 #include <QPainter>
+#include <iostream>
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonSettingsServer.hpp"
 #include "../../../../general/fight/CommonFightEngineBase.hpp"
-#include "../../../qt/Ultimate.hpp"
 #include "../../Language.hpp"
+#include "../../Ultimate.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
+#include "../../core/EventManager.hpp"
 
 using Scenes::MonsterDetails;
 
 MonsterDetails::MonsterDetails() {
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
-  // connect(quit, &CustomButton::clicked, this, &MonsterDetails::removeAbove);
 
   details = UI::Label::Create(this);
-  details->SetTextColor(Qt::white);
 
   monsterDetailsImage = Sprite::Create(this);
 
@@ -33,23 +33,28 @@ MonsterDetails::MonsterDetails() {
   gradient2.setColorAt(1, QColor(64, 28, 2));
   monsterDetailsName = UI::Label::Create(gradient1, gradient2, this);
   monsterDetailsLevel = UI::Label::Create(this);
-  monsterDetailsLevel->SetTextColor(Qt::white);
   hp_text = UI::Label::Create(this);
-  hp_text->SetTextColor(Qt::white);
   hp_bar = UI::Progressbar::Create(this);
   xp_text = UI::Label::Create(this);
-  xp_text->SetTextColor(Qt::white);
   xp_bar = UI::Progressbar::Create(this);
 
   /*
   if (!connect(&Language::language, &Language::newLanguage, this,
                &MonsterDetails::newLanguage, Qt::QueuedConnection))
     abort();
-  if (!connect(quit, &CustomButton::clicked, this, &MonsterDetails::removeAbove,
-               Qt::QueuedConnection))
-    abort();
   */
-  newLanguage();
+  quit->SetOnClick(std::bind(&MonsterDetails::Close, this));
+  NewLanguage();
+}
+
+MonsterDetails::~MonsterDetails() {
+  delete quit;
+  delete details;
+  delete monsterDetailsImage;
+}
+
+MonsterDetails *MonsterDetails::Create() {
+  return new (std::nothrow) MonsterDetails();
 }
 
 void MonsterDetails::Draw(QPainter *p) {
@@ -85,6 +90,44 @@ void MonsterDetails::Draw(QPainter *p) {
                       ":/CC/images/interface/backm.png"),
                   0, 0, 1, 1);
 
+  unsigned int bigSpace = 50;
+  unsigned int space = 30;
+  qreal lineSize = 2.0;
+
+  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
+    bigSpace /= 2;
+    space = 10;
+    lineSize = 2.0;
+  } else {
+    if (bounding_rect_.width() < 1400 || bounding_rect_.height() < 800) {
+      lineSize = 3.0;
+    } else {
+      lineSize = 4.0;
+    }
+  }
+
+  p->save();
+  p->setPen(
+      QPen(Qt::white, lineSize, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  // p->drawLine(bounding_rect_.width()*1/6,bounding_rect_.height()*1/6,bounding_rect_.width()*2/6,bounding_rect_.height()*1/6);
+  p->drawLine(details->Width() + space, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6);
+
+  p->drawLine(bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() / 2, bounding_rect_.height() * 4 / 10);
+  // p->drawLine(bounding_rect_.width()*2/6,bounding_rect_.height()*1/6,bounding_rect_.width()*4/6,bounding_rect_.height()*7/10);
+  p->drawLine(bounding_rect_.width() / 2, bounding_rect_.height() * 5 / 10,
+              bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10);
+
+  p->drawLine(bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10,
+              bounding_rect_.width() * 5 / 6, bounding_rect_.height() * 7 / 10);
+  p->restore();
+}
+
+void MonsterDetails::OnScreenResize() {
+  int min = bounding_rect_.height();
+  if (min > bounding_rect_.width()) min = bounding_rect_.width();
+
   auto font = details->GetFont();
   unsigned int bigSpace = 50;
   unsigned int space = 30;
@@ -115,29 +158,6 @@ void MonsterDetails::Draw(QPainter *p) {
     }
     monsterDetailsName->SetPixelSize(50);
   }
-  details->SetFont(font);
-
-  p->save();
-  p->setPen(
-      QPen(Qt::white, lineSize, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-  // p->drawLine(bounding_rect_.width()*1/6,bounding_rect_.height()*1/6,bounding_rect_.width()*2/6,bounding_rect_.height()*1/6);
-  p->drawLine(details->Width() + space, bounding_rect_.height() * 1 / 6,
-              bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6);
-
-  p->drawLine(bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6,
-              bounding_rect_.width() / 2, bounding_rect_.height() * 4 / 10);
-  // p->drawLine(bounding_rect_.width()*2/6,bounding_rect_.height()*1/6,bounding_rect_.width()*4/6,bounding_rect_.height()*7/10);
-  p->drawLine(bounding_rect_.width() / 2, bounding_rect_.height() * 5 / 10,
-              bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10);
-
-  p->drawLine(bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10,
-              bounding_rect_.width() * 5 / 6, bounding_rect_.height() * 7 / 10);
-  p->restore();
-
-  monsterDetailsLevel->SetFont(font);
-  hp_text->SetFont(font);
-  xp_text->SetFont(font);
-
   quit->SetPos(bounding_rect_.width() - quit->Width() - bigSpace, bigSpace);
   details->SetPos(bigSpace, bigSpace);
 
@@ -161,15 +181,12 @@ void MonsterDetails::Draw(QPainter *p) {
               space - 100;
   monsterDetailsName->SetPos(
       bounding_rect_.width() / 2 - monsterDetailsName->Width() / 2, tempY);
-  monsterDetailsCatched->SetPos(bounding_rect_.width() / 2 -
-                                    monsterDetailsName->Width() / 2 - space -
-                                    monsterDetailsCatched->Pixmap().width() *
-                                        monsterDetailsCatched->Scale(),
-                                tempY -
-                                    (monsterDetailsCatched->Pixmap().height() -
-                                     monsterDetailsName->Height()) /
-                                        2 -
-                                    18);
+  monsterDetailsCatched->SetPos(
+      bounding_rect_.width() / 2 - monsterDetailsName->Width() / 2 - space -
+          monsterDetailsCatched->Width() * monsterDetailsCatched->Scale(),
+      tempY -
+          (monsterDetailsCatched->Height() - monsterDetailsName->Height()) / 2 -
+          18);
   monsterDetailsLevel->SetPos(
       bounding_rect_.width() / 2 + monsterDetailsName->Width() / 2 + space,
       tempY +
@@ -178,8 +195,7 @@ void MonsterDetails::Draw(QPainter *p) {
 
   int hp_bar_width = hp_bar->Width();
   int hp_bar_height = hp_bar->Height();
-  tempY +=
-      monsterDetailsCatched->Pixmap().height() * monsterDetailsCatched->Scale();
+  tempY += monsterDetailsCatched->Height() * monsterDetailsCatched->Scale();
   unsigned int tempBarW =
       hp_text->Width() + space + hp_bar_width * hp_bar->Scale();
   unsigned int tempX =
@@ -193,42 +209,33 @@ void MonsterDetails::Draw(QPainter *p) {
   xp_bar->SetPos(tempX, tempY + o);
 }
 
-/*
-void MonsterDetails::mousePressEventXY(const QPointF &p, bool &pressValidated,
-                                       bool &callParentClass) {
-  quit->mousePressEventXY(p, pressValidated);
-  pressValidated = true;
-  callParentClass = true;
+void MonsterDetails::OnEnter() {
+  EventManager::GetInstance()->Lock();
+  quit->RegisterEvents();
 }
 
-void MonsterDetails::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
-                                         bool &callParentClass) {
-  quit->mouseReleaseEventXY(p, pressValidated);
-  pressValidated = true;
-  callParentClass = true;
+void MonsterDetails::OnExit() {
+  quit->UnRegisterEvents();
+  EventManager::GetInstance()->UnLock();
 }
 
-void MonsterDetails::keyPressEvent(QKeyEvent *event,
-                                   bool &eventTriggerGeneral) {
-  Q_UNUSED(event);
-  eventTriggerGeneral = true;
-  return;
+void MonsterDetails::Close() {
+  if (on_close_) {
+    on_close_();
+  }
+  Parent()->RemoveChild(this);
 }
 
-void MonsterDetails::keyReleaseEvent(QKeyEvent *event,
-                                     bool &eventTriggerGeneral) {
-  Q_UNUSED(event);
-  eventTriggerGeneral = true;
-  return;
+void MonsterDetails::SetOnClose(std::function<void()> callback) {
+  on_close_ = callback;
 }
-*/
 
-void MonsterDetails::newLanguage() {
+void MonsterDetails::NewLanguage() {
   hp_text->SetText(tr("HP"));
   xp_text->SetText(tr("XP"));
 }
 
-void MonsterDetails::setVar(const CatchChallenger::PlayerMonster &monster) {
+void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
   /// TODO monsterDetailsBuffs
 
   QLinearGradient gradient1(0, 0, 0, 100);

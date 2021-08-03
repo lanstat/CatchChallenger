@@ -440,17 +440,15 @@ SOURCES += \
     $$PWD/../../general/base/tinyXML2/tinyxml2c.cpp \
     $$PWD/base/ConnectionManager.cpp \
     $$PWD/Globals.cpp \
+    $$PWD/Ultimate.cpp \
     $$PWD/../qt/QtDatapackChecksum.cpp \
     $$PWD/../qt/QZstdDecodeThread.cpp \
     $$PWD/../qt/InternetUpdater.cpp \
     $$PWD/../qt/FeedNews.cpp \
     $$PWD/../qt/ConnectedSocket.cpp \
-    $$PWD/../qt/GameLoader.cpp \
     $$PWD/../tarcompressed/TarDecode.cpp \
     $$PWD/../tarcompressed/ZstdDecode.cpp \
     $$PWD/../qt/fight/interface/ClientFightEngine.cpp \
-    $$PWD/../qt/Ultimate.cpp \
-    $$PWD/../qt/GameLoaderThread.cpp \
     $$PWD/../qt/ExtraSocket.cpp \
     $$PWD/../qt/Settings.cpp \
     $$PWD/core/AssetsLoader.cpp \
@@ -463,17 +461,15 @@ HEADERS  += \
     $$PWD/../../general/base/tinyXML2/customtinyxml2.hpp \
     $$PWD/base/ConnectionManager.hpp \
     $$PWD/Globals.hpp \
+    $$PWD/Ultimate.hpp \
     $$PWD/../qt/QtDatapackChecksum.hpp \
     $$PWD/../qt/QZstdDecodeThread.hpp \
     $$PWD/../qt/InternetUpdater.hpp \
     $$PWD/../qt/FeedNews.hpp \
     $$PWD/../qt/ConnectedSocket.hpp \
-    $$PWD/../qt/GameLoader.hpp \
     $$PWD/../tarcompressed/TarDecode.hpp \
     $$PWD/../tarcompressed/ZstdDecode.hpp \
     $$PWD/../qt/fight/interface/ClientFightEngine.hpp \
-    $$PWD/../qt/Ultimate.hpp \
-    $$PWD/../qt/GameLoaderThread.hpp \
     $$PWD/../qt/ExtraSocket.hpp \
     $$PWD/../qt/Settings.hpp \
     $$PWD/core/AssetsLoader.hpp \

@@ -60,11 +60,14 @@ class OverMap : public QObject, public Scene {
                      CatchChallenger::Player_type player_type);
   void removeNumberForFlood();
 
-  void openMonster();
+  void openMonster(Node *item);
   void updatePlayerNumber(const uint16_t &number, const uint16_t &max_players);
   void have_current_player_info(
       const CatchChallenger::Player_private_and_public_informations
           &informations);
+
+  void OnEnter() override;
+  void OnExit() override;
 
  protected:
   QTimer stopFlood;

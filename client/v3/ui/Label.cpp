@@ -92,6 +92,10 @@ void Label::SetText(const QString &text) {
   ReDraw();
 }
 
+void Label::SetText(const std::string &text) {
+  SetText(QString::fromStdString(text));
+}
+
 QString Label::Text() const {
   return text_;
 }

@@ -92,6 +92,7 @@ void CCMap::PaintChildItems(std::vector<Node *> childItems, qreal parentX,
 
 void CCMap::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget) {
+  painter->save();
   qreal zoomW = (qreal)widget->width() / (32.0 * 16.0);
   qreal zoomH = (qreal)widget->height() / (32.0 * 16.0);
   qreal zoomFinal = zoomW;
@@ -109,6 +110,7 @@ void CCMap::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   y = (widget->height() / 2 / scale - ((p->y() - 1) * 16 + p->height() / 2));
   PaintChildItems(mapController.mapItem->Children(), x, y, painter, option,
                   widget);
+  painter->restore();
 }
 
 /*

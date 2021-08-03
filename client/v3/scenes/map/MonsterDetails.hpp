@@ -1,6 +1,6 @@
 // Copyright 2021 CatchChallenger
-#ifndef MONSTERDETAILS_H
-#define MONSTERDETAILS_H
+#ifndef CLIENT_V3_SCENE_MAP_MONSTERDETAILS_HPP_ 
+#define CLIENT_V3_SCENE_MAP_MONSTERDETAILS_HPP_
 
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../../core/Scene.hpp"
@@ -13,10 +13,17 @@
 namespace Scenes {
 class MonsterDetails : public Scene {
  public:
-  MonsterDetails();
-  void setVar(const CatchChallenger::PlayerMonster &monster);
-  void newLanguage();
+  ~MonsterDetails();
+  static MonsterDetails* Create();
+
+  void SetMonster(const CatchChallenger::PlayerMonster &monster);
+  void NewLanguage();
   void Draw(QPainter *painter) override;
+  void OnScreenResize() override;
+  void OnEnter() override;
+  void OnExit() override;
+  void Close();
+  void SetOnClose(std::function<void()> callback);
 
  private:
   UI::Button *quit;
@@ -33,6 +40,9 @@ class MonsterDetails : public Scene {
   UI::Progressbar *hp_bar;
   UI::Label *xp_text;
   UI::Progressbar *xp_bar;
+  std::function<void()> on_close_;
+
+  MonsterDetails();
 };
 }  // namespace Scenes
-#endif  // MONSTERDETAILS_H
+#endif  // CLIENT_V3_SCENE_MAP_MONSTERDETAILS_HPP_

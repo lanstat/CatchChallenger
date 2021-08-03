@@ -7,64 +7,66 @@
 #include "../../../../general/fight/CommonFightEngine.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
+#include "../../core/EventManager.hpp"
 
 using Scenes::MapMonsterPreview;
 
 MapMonsterPreview::MapMonsterPreview(
     const CatchChallenger::PlayerMonster &monster, Node *parent)
-    : Sprite(parent) {
-  this->monster = monster;
-  pressed = false;
-  m_drag = false;
-  regenCache();
+    : Node(parent) {
+  monster_ = monster;
+  pressed_ = false;
+  drag_ = false;
+  SetSize(80, 80);
 }
 
 MapMonsterPreview::~MapMonsterPreview() {}
 
-void MapMonsterPreview::setInDrag(bool drag) {
-  if (m_drag == drag) return;
-  m_drag = drag;
-  regenCache();
+MapMonsterPreview *MapMonsterPreview::Create(
+    const CatchChallenger::PlayerMonster &m, Node *parent) {
+  return new (std::nothrow) MapMonsterPreview(m, parent);
 }
 
-void MapMonsterPreview::regenCache() {
-  QImage cache(QSize(80, 80), QImage::Format_ARGB32_Premultiplied);
-  cache.fill(Qt::transparent);
-  QPainter painter(&cache);
+void MapMonsterPreview::SetInDrag(bool drag) {
+  if (drag_ == drag) return;
+  drag_ = drag;
+  ReDraw();
+}
 
+void MapMonsterPreview::Draw(QPainter *painter) {
   QPixmap background;
-  if (m_drag)
+  if (drag_)
     background = *AssetsLoader::GetInstance()->GetImage(
         ":/CC/images/interface/mgbDrag.png");
   else
     background =
         *AssetsLoader::GetInstance()->GetImage(":/CC/images/interface/mgb.png");
-  unsigned int bx = cache.width() / 2 - background.width() / 2;
-  unsigned int by = cache.height() / 2 - background.height() / 2;
-  painter.drawPixmap(bx, by, background.width(), background.height(),
-                     background);
+  unsigned int bx = bounding_rect_.width() / 2 - background.width() / 2;
+  unsigned int by = bounding_rect_.height() / 2 - background.height() / 2;
+  painter->drawPixmap(bx, by, background.width(), background.height(),
+                      background);
 
   const QtDatapackClientLoader::QtMonsterExtra &monsterExtra =
-      QtDatapackClientLoader::datapackLoader->getMonsterExtra(monster.monster);
+      QtDatapackClientLoader::datapackLoader->getMonsterExtra(monster_.monster);
   // QPixmap front=monsterExtra.front;
   QPixmap front = monsterExtra.thumb.scaledToWidth(
       monsterExtra.thumb.width() * 2, Qt::FastTransformation);
-  painter.drawPixmap(cache.width() / 2 - front.width() / 2,
-                     cache.height() / 2 - front.height() / 2, front.width(),
-                     front.height(), front);
+  painter->drawPixmap(bounding_rect_.width() / 2 - front.width() / 2,
+                      bounding_rect_.height() / 2 - front.height() / 2,
+                      front.width(), front.height(), front);
 
   const CatchChallenger::Monster &monsterGeneralInfo =
       CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
-          monster.monster);
+          monster_.monster);
   const CatchChallenger::Monster::Stat &stat =
       CatchChallenger::CommonFightEngine::getStat(monsterGeneralInfo,
-                                                  monster.level);
+                                                  monster_.level);
 
-  if (monster.hp == 0) {
+  if (monster_.hp == 0) {
     QPixmap monsterko = QPixmap(":/CC/images/interface/monsterko.png");
-    painter.drawPixmap(cache.width() / 2 - monsterko.width() / 2,
-                       cache.height() / 2 - monsterko.height() / 2,
-                       monsterko.width(), monsterko.height(), monsterko);
+    painter->drawPixmap(bounding_rect_.width() / 2 - monsterko.width() / 2,
+                        bounding_rect_.height() / 2 - monsterko.height() / 2,
+                        monsterko.width(), monsterko.height(), monsterko);
   }
 
   int barx = bx + 3;
@@ -75,9 +77,9 @@ void MapMonsterPreview::regenCache() {
     QPixmap background(":/CC/images/interface/mbb.png");
     if (background.isNull()) abort();
     QPixmap bar;
-    if (monster.hp > (stat.hp / 2))
+    if (monster_.hp > (stat.hp / 2))
       bar = QPixmap(":/CC/images/interface/mbgreen.png");
-    else if (monster.hp > (stat.hp / 4))
+    else if (monster_.hp > (stat.hp / 4))
       bar = QPixmap(":/CC/images/interface/mborange.png");
     else
       bar = QPixmap(":/CC/images/interface/mbred.png");
@@ -89,92 +91,99 @@ void MapMonsterPreview::regenCache() {
     barMiddle = bar.copy(2, 0, 46, 8);
     barRight = bar.copy(48, 0, 2, 8);
   }
-  painter.drawPixmap(barx + 0, bary + 0, backgroundLeft.width(),
-                     backgroundLeft.height(), backgroundLeft);
-  painter.drawPixmap(barx + backgroundLeft.width(), bary + 0,
-                     50 - backgroundLeft.width() - backgroundRight.width(),
-                     backgroundLeft.height(), backgroundMiddle);
-  painter.drawPixmap(barx + 50 - backgroundRight.width(), bary + 0,
-                     backgroundRight.width(), backgroundRight.height(),
-                     backgroundRight);
+  painter->drawPixmap(barx + 0, bary + 0, backgroundLeft.width(),
+                      backgroundLeft.height(), backgroundLeft);
+  painter->drawPixmap(barx + backgroundLeft.width(), bary + 0,
+                      50 - backgroundLeft.width() - backgroundRight.width(),
+                      backgroundLeft.height(), backgroundMiddle);
+  painter->drawPixmap(barx + 50 - backgroundRight.width(), bary + 0,
+                      backgroundRight.width(), backgroundRight.height(),
+                      backgroundRight);
 
   int startX = 0;
   int size = 50 - startX - startX;
-  int inpixel = monster.hp * size / stat.hp;
+  int inpixel = monster_.hp * size / stat.hp;
   if (inpixel < (barLeft.width() + barRight.width())) {
     if (inpixel > 0) {
       const int tempW = inpixel / 2;
       if (tempW > 0) {
         QPixmap barLeftC = barLeft.copy(0, 0, tempW, barLeft.height());
-        painter.drawPixmap(barx + startX, bary + 0, barLeftC.width(),
-                           barLeftC.height(), barLeftC);
+        painter->drawPixmap(barx + startX, bary + 0, barLeftC.width(),
+                            barLeftC.height(), barLeftC);
         const unsigned int pixelremaining = inpixel - barLeftC.width();
         if (pixelremaining > 0) {
           QPixmap barRightC =
               barRight.copy(barRight.width() - pixelremaining, 0,
                             pixelremaining, barRight.height());
-          painter.drawPixmap(barx + startX + barLeftC.width(), bary + 0,
-                             barRightC.width(), barRightC.height(), barRightC);
+          painter->drawPixmap(barx + startX + barLeftC.width(), bary + 0,
+                              barRightC.width(), barRightC.height(), barRightC);
         }
       }
     }
   } else {
-    painter.drawPixmap(barx + startX, bary + 0, barLeft.width(),
-                       barLeft.height(), barLeft);
+    painter->drawPixmap(barx + startX, bary + 0, barLeft.width(),
+                        barLeft.height(), barLeft);
     const unsigned int pixelremaining =
         inpixel - (barLeft.width() + barRight.width());
     if (pixelremaining > 0)
-      painter.drawPixmap(barx + startX + barLeft.width(), bary + 0,
-                         pixelremaining, barMiddle.height(), barMiddle);
-    painter.drawPixmap(barx + startX + barLeft.width() + pixelremaining,
-                       bary + 0, barRight.width(), barRight.height(), barRight);
-  }
-
-  SetPixmap(QPixmap::fromImage(cache));
-}
-
-/*
-void MapMonsterPreview::mousePressEventXY(const QPointF &p,
-                                          bool &pressValidated) {
-  if (this->pressed) return;
-  if (pressValidated) return;
-  if (!isVisible()) return;
-  if (!isEnabled()) return;
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
-  if (t.contains(p)) {
-    pressValidated = true;
-    setPressed(true);
+      painter->drawPixmap(barx + startX + barLeft.width(), bary + 0,
+                          pixelremaining, barMiddle.height(), barMiddle);
+    painter->drawPixmap(barx + startX + barLeft.width() + pixelremaining,
+                        bary + 0, barRight.width(), barRight.height(),
+                        barRight);
   }
 }
 
-void MapMonsterPreview::mouseReleaseEventXY(const QPointF &p,
-                                            bool &previousPressValidated) {
-  if (previousPressValidated) {
-    setPressed(false);
+void MapMonsterPreview::SetPressed(const bool &pressed) { pressed_ = pressed; }
+
+bool MapMonsterPreview::IsPressed() { return this->pressed_; }
+
+const CatchChallenger::PlayerMonster &MapMonsterPreview::GetMonster() const {
+  return monster_;
+}
+
+void MapMonsterPreview::MousePressEvent(const QPointF &point,
+                                        bool &press_validated) {
+  if (pressed_) return;
+  if (press_validated) return;
+  if (!IsVisible()) return;
+  if (!IsEnabled()) return;
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
+  if (t.contains(point)) {
+    press_validated = true;
+    SetPressed(true);
+  }
+}
+
+void MapMonsterPreview::MouseReleaseEvent(const QPointF &point,
+                                          bool &prev_validated) {
+  if (prev_validated) {
+    SetPressed(false);
     return;
   }
-  const QRectF &b = boundingRect();
-  const QRectF &t = mapRectToScene(b);
-  if (!this->pressed) return;
-  if (!isEnabled()) return;
-  if (!previousPressValidated && isVisible()) {
-    if (t.contains(p)) {
-      emit clicked();
-      previousPressValidated = true;
+
+  const QRectF &b = BoundingRect();
+  const QRectF &t = MapRectToScene(b);
+  if (!pressed_) return;
+  if (!IsEnabled()) return;
+  if (!prev_validated && IsVisible()) {
+    if (t.contains(point)) {
+      if (on_click_) {
+        on_click_(this);
+        prev_validated = true;
+      }
     }
   }
-  setPressed(false);
-}
-*/
-
-void MapMonsterPreview::setPressed(const bool &pressed) {
-  this->pressed = pressed;
-  // regenCache();
+  SetPressed(false);
 }
 
-bool MapMonsterPreview::isPressed() { return this->pressed; }
+void MapMonsterPreview::MouseMoveEvent(const QPointF &point) {}
 
-const CatchChallenger::PlayerMonster &MapMonsterPreview::getMonster() const {
-  return monster;
+void MapMonsterPreview::RegisterEvents() {
+  EventManager::GetInstance()->AddMouseListener(this);
+}
+
+void MapMonsterPreview::UnRegisterEvents() {
+  EventManager::GetInstance()->RemoveListener(this);
 }

@@ -51,6 +51,7 @@ void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
     cache_ =
         pixmap.scaledToWidth(bounding_rect_.width(), Qt::SmoothTransformation);
   }
+  original_pix_ = cache_;
   ReDraw();
 }
 

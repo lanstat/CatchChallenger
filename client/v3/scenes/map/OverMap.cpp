@@ -13,6 +13,8 @@
 
 using Scenes::OverMap;
 
+using std::placeholders::_1;
+
 OverMap::OverMap() {
   connexionManager = ConnectionManager::GetInstance();
   monstersDragged = nullptr;
@@ -176,41 +178,37 @@ void OverMap::have_current_player_info(
   if (playerBackgroundBig == true)
     pPixm = pPixm.scaledToHeight(pPixm.height() * 2, Qt::FastTransformation);
   playerImage->SetPixmap(pPixm);
-  name->SetText(
-      "<span style=\"color:#fff;\">" +
-      QString::fromStdString(informations.public_informations.pseudo) +
-      "<span>");
+  name->SetText(informations.public_informations.pseudo);
   std::cout << "info.public_informations.pseudo: "
             << informations.public_informations.pseudo << std::endl;
-  cash->SetText("<span style=\"color:#fff;\">" +
-                QString::number(informations.cash) + "<span>");
+  cash->SetText(QString::number(informations.cash));
   for (auto it = begin(monsters); it != end(monsters); it++) {
     delete *it;
   }
   monsters.clear();
   for (CatchChallenger::PlayerMonster m : informations.playerMonster) {
-    MapMonsterPreview *t = new MapMonsterPreview(m, this);
-    if (!connect(t, &MapMonsterPreview::clicked, this, &OverMap::openMonster))
-      abort();
+    auto *t = MapMonsterPreview::Create(m, this);
+    t->SetOnClick(std::bind(&OverMap::openMonster, this, _1));
     monsters.push_back(t);
   }
   std::pair<uint16_t, uint16_t> t =
       connexionManager->client->getLast_number_of_player();
-  playersCount->SetText("<span stlye=\"color:#fff;\">" +
-                        QString::number(t.first) + "<span>");
+  playersCount->SetText(QString::number(t.first));
 }
 
-void OverMap::openMonster() {
-  MapMonsterPreview *m = qobject_cast<MapMonsterPreview *>(sender());
-  if (monsterDetails == nullptr) monsterDetails = new MonsterDetails();
-  monsterDetails->setVar(m->getMonster());
+void OverMap::openMonster(Node *item) {
+  MapMonsterPreview *m = static_cast<MapMonsterPreview *>(item);
+  if (monsterDetails == nullptr) {
+    monsterDetails = MonsterDetails::Create();
+  }
+  monsterDetails->SetMonster(m->GetMonster());
+  AddChild(monsterDetails);
 }
 
 void OverMap::updatePlayerNumber(const uint16_t &number,
                                  const uint16_t &max_players) {
   Q_UNUSED(max_players);
-  playersCount->SetText("<span style=\"color:#fff;\">" +
-                        QString::number(number) + "<span>");
+  playersCount->SetText(QString::number(number));
 }
 
 void OverMap::newLanguage() {
@@ -267,10 +265,9 @@ void OverMap::OnScreenResize() {
       name->SetVisible(false);
       cash->SetVisible(false);
     }
-    int tempx =
-        playerBackground->X() + playerBackground->Pixmap().width() + space;
+    int tempx = playerBackground->X() + playerBackground->Width() + space;
     if (playerBackgroundBig != true)
-      tempx = playerBackground->X() + playerBackground->Pixmap().width();
+      tempx = playerBackground->X() + playerBackground->Width();
     unsigned int monsterIndex = 0;
     while (monsterIndex < monsters.size()) {
       MapMonsterPreview *m = monsters.at(monsterIndex);
@@ -284,8 +281,7 @@ void OverMap::OnScreenResize() {
   }
 
   playersCountBack->SetPos(
-      bounding_rect_.width() - space - playersCountBack->Pixmap().width(),
-      space);
+      bounding_rect_.width() - space - playersCountBack->Width(), space);
   playersCount->SetPos(bounding_rect_.width() - space - 80, space + 15);
 
   // TODO(lanstat): verificar como obtener este valor
@@ -440,6 +436,18 @@ void OverMap::OnScreenResize() {
     tipBack->SetPos(bounding_rect_.width() / 2 - tipBack->Width() / 2,
                     yMiddle - tipBack->Height());
     yMiddle -= (f.height() + space * 2 + space);
+  }
+}
+
+void OverMap::OnEnter() {
+  for (auto item : monsters) {
+    item->RegisterEvents();
+  }
+}
+
+void OverMap::OnExit() {
+  for (auto item : monsters) {
+    item->UnRegisterEvents();
   }
 }
 

@@ -18,6 +18,7 @@ class Label : public Node {
   ~Label();
 
   void SetText(const QString &text);
+  void SetText(const std::string &text);
   QString Text() const;
   void SetFont(const QFont &font);
   QFont GetFont() const;

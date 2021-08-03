@@ -20,6 +20,7 @@ Node::Node(Node *parent) {
   node_cache_ = nullptr;
   should_cache_ = true;
   z_ = 0;
+  scale_ = 1;
 
   if (parent) {
     parent->AddChild(this);
@@ -151,6 +152,9 @@ void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
       node_cache_ = new QPixmap(Width(), Height());
       node_cache_->fill(Qt::transparent);
       QPainter painter_c(node_cache_);
+      if (scale_ != 1) {
+        painter_c.scale(scale_, scale_);
+      }
       Draw(&painter_c);
       painter_c.end();
     }
@@ -239,7 +243,11 @@ void Node::KeyReleaseEvent(QKeyEvent *, bool &) {}
 
 std::vector<Node *> Node::Children() { return children_; }
 
-void Node::SetScale(qreal value) { scale_ = value; }
+void Node::SetScale(qreal value) {
+  scale_ = value;
+  const auto rect = BoundingRect();
+  SetSize(rect.width() * value, rect.height() * value);
+}
 
 qreal Node::Scale() { return scale_; }
 
