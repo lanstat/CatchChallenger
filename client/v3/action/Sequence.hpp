@@ -2,6 +2,7 @@
 #ifndef CLIENT_QTOPENGL_ACTION_SEQUENCE_HPP_
 #define CLIENT_QTOPENGL_ACTION_SEQUENCE_HPP_
 
+#include <cstddef>
 #include <vector>
 
 #include "Action.hpp"

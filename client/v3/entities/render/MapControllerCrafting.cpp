@@ -1,4 +1,5 @@
 #include <QObject>
+#include <iostream>
 
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"

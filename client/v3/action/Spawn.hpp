@@ -2,8 +2,9 @@
 #ifndef CLIENT_QTOPENGL_ACTION_SPAWN_HPP_
 #define CLIENT_QTOPENGL_ACTION_SPAWN_HPP_
 
-#include <vector>
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 #include "Action.hpp"
 

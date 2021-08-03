@@ -6,45 +6,46 @@
 #include <QObject>
 #include <QPainter>
 #include <QTime>
-#include <iostream>
 #include <vector>
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../../../qt/QtDatapackClientLoader.hpp"
 #include "../../base/ConnectionManager.hpp"
+#include "../../core/Logger.hpp"
+#include "../../entities/render/TileLayerItem.hpp"
 
 using Scenes::CCMap;
 
 CCMap::CCMap() {
-    /*
-  if (!connect(&mapController, &MapController::pathFindingNotFound, this,
-               &CCMap::pathFindingNotFound))
-    abort();
-  if (!connect(&mapController, &MapController::repelEffectIsOver, this,
-               &CCMap::repelEffectIsOver))
-    abort();
-  if (!connect(&mapController, &MapController::teleportConditionNotRespected,
-               this, &CCMap::teleportConditionNotRespected))
-    abort();
-  if (!connect(&mapController, &MapController::stopped_in_front_of, this,
-               &CCMap::stopped_in_front_of))
-    abort();
-  if (!connect(&mapController, &MapController::actionOn, this,
-               &CCMap::actionOn))
-    abort();
-  if (!connect(&mapController, &MapController::actionOnNothing, this,
-               &CCMap::actionOnNothing))
-    abort();
-  if (!connect(&mapController, &MapController::blockedOn, this,
-               &CCMap::blockedOn))
-    abort();
-  if (!connect(&mapController, &MapController::wildFightCollision, this,
-               &CCMap::wildFightCollision))
-    abort();
-  if (!connect(&mapController, &MapController::botFightCollision, this,
-               &CCMap::botFightCollision))
-    abort();
+  /*
+if (!connect(&mapController, &MapController::pathFindingNotFound, this,
+             &CCMap::pathFindingNotFound))
+  abort();
+if (!connect(&mapController, &MapController::repelEffectIsOver, this,
+             &CCMap::repelEffectIsOver))
+  abort();
+if (!connect(&mapController, &MapController::teleportConditionNotRespected,
+             this, &CCMap::teleportConditionNotRespected))
+  abort();
+if (!connect(&mapController, &MapController::stopped_in_front_of, this,
+             &CCMap::stopped_in_front_of))
+  abort();
+if (!connect(&mapController, &MapController::actionOn, this,
+             &CCMap::actionOn))
+  abort();
+if (!connect(&mapController, &MapController::actionOnNothing, this,
+             &CCMap::actionOnNothing))
+  abort();
+if (!connect(&mapController, &MapController::blockedOn, this,
+             &CCMap::blockedOn))
+  abort();
+if (!connect(&mapController, &MapController::wildFightCollision, this,
+             &CCMap::wildFightCollision))
+  abort();
+if (!connect(&mapController, &MapController::botFightCollision, this,
+             &CCMap::botFightCollision))
+  abort();
+  */
   if (!connect(&mapController, &MapController::error, this, &CCMap::error))
     abort();
   if (!connect(&mapController, &MapController::errorWithTheCurrentMap, this,
@@ -53,7 +54,6 @@ CCMap::CCMap() {
   if (!connect(&mapController, &MapController::currentMapLoaded, this,
                &CCMap::currentMapLoaded))
     abort();
-    */
   clicked = false;
   scale = 1.0;
   x = 0.0;
@@ -65,9 +65,7 @@ CCMap::CCMap() {
   mapController.datapackParsedMainSub();
 }
 
-CCMap* CCMap::Create() {
-  return new CCMap();
-}
+CCMap *CCMap::Create() { return new CCMap(); }
 
 void CCMap::PaintChildItems(std::vector<Node *> childItems, qreal parentX,
                             qreal parentY, QPainter *painter,
@@ -83,10 +81,11 @@ void CCMap::PaintChildItems(std::vector<Node *> childItems, qreal parentX,
     MapObjectItem::x = x;
     MapObjectItem::y = y;
     painter->translate(x, y);
-    child->Paint(painter, option, widget);
+    child->Draw(painter);
     painter->translate(-x, -y);
-    // return;
-    // PaintChildItems(child->Children(), x, y, painter, option, widget);
+    if (!child->Children().empty()) {
+      PaintChildItems(child->Children(), x, y, painter, option, widget);
+    }
     index++;
   }
 }

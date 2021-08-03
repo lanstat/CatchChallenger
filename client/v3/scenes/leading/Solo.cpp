@@ -296,7 +296,6 @@ void Solo::IsStarted(bool started) {
 void Solo::ConnectToServer(ConnectionInfo connexionInfo, QString login,
                            QString pass) {
   ConnectionManager::ClearInstance();
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "awesome" << std::endl;
   if (!subserver_) subserver_ = SubServer::Create();
   static_cast<StackedScene *>(Parent())->PushForeground(subserver_);
 

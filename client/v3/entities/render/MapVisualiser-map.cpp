@@ -123,10 +123,11 @@ void MapVisualiser::asyncDetectBorder(Map_full *tempMapObject) {
   if (CatchChallenger::FacilityLibClient::rectTouch(current_map_rect,
                                                     map_rect)) {
     // display a new map now visible
-    if (!mapItem->haveMap(tempMapObject->tiledMap))
+    if (!mapItem->haveMap(tempMapObject->tiledMap)) {
       mapItem->addMap(tempMapObject, tempMapObject->tiledMap,
                       tempMapObject->tiledRender,
                       tempMapObject->objectGroupIndex);
+    }
     mapItem->setMapPosition(
         tempMapObject->tiledMap,
         static_cast<uint16_t>(tempMapObject->relative_x_pixel),

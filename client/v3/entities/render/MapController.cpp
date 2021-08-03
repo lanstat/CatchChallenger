@@ -2,12 +2,9 @@
 
 #include <iostream>
 
-#include "../../../general/base/CommonDatapack.hpp"
 #include "../../../general/base/CommonDatapackServerSpec.hpp"
-#include "../../../general/base/CommonSettingsServer.hpp"
-#include "../../../general/base/GeneralStructures.hpp"
-#include "../../qt/Api_client_real.hpp"
-#include "../../qt/QtDatapackClientLoader.hpp"
+#include "../../cc/Api_client_real.hpp"
+#include "../../cc/QtDatapackClientLoader.hpp"
 
 std::string MapController::text_random = "random";
 std::string MapController::text_loop = "loop";

@@ -21,9 +21,10 @@
  */
 class MapObjectItem : public Node {
  public:
-  MapObjectItem(Tiled::MapObject *mapObject, Node *parent = nullptr);
-  QRectF BoundingRect() const;
-  void Draw(QPainter *p);
+  static MapObjectItem *Create(Tiled::MapObject *mapObject,
+                               Node *parent = nullptr);
+  // QRectF BoundingRect() const override;
+  void Draw(QPainter *p) override;
   const Tiled::MapObject *getMapObject() const;
 
   static const void *playerObject;
@@ -34,6 +35,8 @@ class MapObjectItem : public Node {
  private:
   Tiled::MapObject *mMapObject;
   QPixmap cache;
+
+  MapObjectItem(Tiled::MapObject *mapObject, Node *parent = nullptr);
 
  public:
   // interresting if have lot of object by group layer

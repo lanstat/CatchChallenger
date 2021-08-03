@@ -19,13 +19,19 @@ Node::Node(Node *parent) {
   parent_ = nullptr;
   node_cache_ = nullptr;
   should_cache_ = true;
+  z_ = 0;
 
   if (parent) {
     parent->AddChild(this);
   }
 }
 
-Node::~Node() { delete node_cache_; }
+Node::~Node() {
+  delete node_cache_;
+  if (parent_) {
+    parent_->RemoveChild(this);
+  }
+}
 
 void Node::SetParent(Node *parent) { parent_ = parent; }
 
@@ -51,9 +57,7 @@ void Node::RemoveChild(Node *child) {
   child->OnExit();
   node_to_delete_.push_back(child);
 
-  if (!visible_) {
-    CleanNodeToDelete();
-  }
+  CleanNodeToDelete();
 }
 
 QRectF Node::MapRectToScene(const QRectF inner) const {
@@ -219,10 +223,9 @@ void Node::RegisterEvents() {}
 
 void Node::UnRegisterEvents() {}
 
-void Node::SetZValue(int index) {
-  std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-            << "z value" << std::endl;
-}
+void Node::SetZValue(int index) { z_ = index; }
+
+int Node::ZValue() { return z_; }
 
 void Node::MousePressEvent(const QPointF &, bool &) {}
 
@@ -234,14 +237,15 @@ void Node::KeyPressEvent(QKeyEvent *, bool &) {}
 
 void Node::KeyReleaseEvent(QKeyEvent *, bool &) {}
 
-std::vector<Node *> Node::Children() {
-  return children_;
-}
+std::vector<Node *> Node::Children() { return children_; }
 
-void Node::SetScale(qreal value) {
-  scale_ = value;
-}
+void Node::SetScale(qreal value) { scale_ = value; }
 
-qreal Node::Scale() {
-  return scale_;
+qreal Node::Scale() { return scale_; }
+
+QString Node::NodeType() { return node_type_; }
+
+void Node::Draw(QPainter *painter) {
+  std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+            << "~nooo" << std::endl;
 }

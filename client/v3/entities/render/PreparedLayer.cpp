@@ -5,16 +5,28 @@
 
 #include <QDebug>
 #include <QWidget>
+#include <iostream>
 
 PreparedLayer::PreparedLayer(Map_full *tempMapObject, Node *parent)
     : Node(parent), tempMapObject(tempMapObject) {
   // setAcceptHoverEvents(true);
+  node_type_ = "PreparedLayer";
 }
 
 PreparedLayer::PreparedLayer(Map_full *tempMapObject, const QPixmap &pixmap,
                              Node *parent)
     : Node(parent), tempMapObject(tempMapObject) {
   cache = pixmap;
+  node_type_ = "PreparedLayer";
+}
+
+PreparedLayer *PreparedLayer::Create(Map_full *tempMapObject, Node *parent) {
+  return new (std::nothrow) PreparedLayer(tempMapObject, parent);
+}
+
+PreparedLayer *PreparedLayer::Create(Map_full *tempMapObject,
+                                     const QPixmap &pixmap, Node *parent) {
+  return new (std::nothrow) PreparedLayer(tempMapObject, pixmap, parent);
 }
 
 void PreparedLayer::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {

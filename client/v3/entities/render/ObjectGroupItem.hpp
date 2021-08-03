@@ -26,7 +26,7 @@
 
 class ObjectGroupItem : public Node {
  public:
-  ObjectGroupItem(Tiled::ObjectGroup *objectGroup, Node *parent = nullptr);
+  static ObjectGroupItem* Create(Tiled::ObjectGroup *objectGroup, Node *parent = nullptr);
   ~ObjectGroupItem();
   void Draw(QPainter *) override;
   bool isVisible() const;
@@ -39,6 +39,9 @@ class ObjectGroupItem : public Node {
   // the link tiled with viewer
   static std::unordered_map<Tiled::ObjectGroup *, ObjectGroupItem *>
       objectGroupLink;
+
+ private:
+  ObjectGroupItem(Tiled::ObjectGroup *objectGroup, Node *parent = nullptr);
 };
 
 #endif

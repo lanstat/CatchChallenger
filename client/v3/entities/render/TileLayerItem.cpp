@@ -7,13 +7,21 @@ TileLayerItem::TileLayerItem(Tiled::TileLayer *tileLayer,
                              Tiled::MapRenderer *renderer, Node *parent)
     : Node(parent), mTileLayer(tileLayer), mRenderer(renderer) {
   // setFlag(QGraphicsItem::ItemUsesExtendedStyleOption);
-  bounding_rect_ = mRenderer->boundingRect(mTileLayer->bounds());
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< bounding_rect_.width() << std::endl;
+  node_type_ = "TileLayerItem";
+}
+
+TileLayerItem *TileLayerItem::Create(Tiled::TileLayer *tileLayer,
+                                     Tiled::MapRenderer *renderer,
+                                     Node *parent) {
+  return new (std::nothrow) TileLayerItem(tileLayer, renderer, parent);
 }
 
 void TileLayerItem::Draw(QPainter *painter) {
   // TODO(lanstat): verify how works option
   // mRenderer->drawTileLayer(painter, mTileLayer, option->rect);
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "1" << std::endl;
   mRenderer->drawTileLayer(painter, mTileLayer, BoundingRect());
+}
+
+QRectF TileLayerItem::BoundingRect() const {
+  return mRenderer->boundingRect(mTileLayer->bounds());
 }

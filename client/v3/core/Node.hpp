@@ -44,7 +44,9 @@ class Node {
   void TestMode();
   void SetToolTip(QString text);
   QString ToolTip();
+  QString NodeType();
   void SetZValue(int index);
+  int ZValue();
   void AddChild(Node *node);
   /** Remove a child from the node */
   void RemoveChild(Node *node);
@@ -56,9 +58,9 @@ class Node {
   qreal Scale();
   virtual void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *);
-  QRectF BoundingRect() const;
+  virtual QRectF BoundingRect() const;
 
-  virtual void Draw(QPainter *painter) = 0;
+  virtual void Draw(QPainter *painter);
   virtual void MousePressEvent(const QPointF &point, bool &press_validated);
   virtual void MouseReleaseEvent(const QPointF &point, bool &prev_validated);
   virtual void MouseMoveEvent(const QPointF &point);
@@ -77,6 +79,7 @@ class Node {
   std::function<void(Node *)> on_click_;
   std::vector<Node *> children_;
   Node *parent_;
+  QString node_type_;
 
   explicit Node(Node *parent = nullptr);
 
@@ -89,6 +92,7 @@ class Node {
   bool should_cache_;
   qreal scale_;
   std::vector<Node *> node_to_delete_;
+  int z_;
 
   void CleanNodeToDelete();
 };

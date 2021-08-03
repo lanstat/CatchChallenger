@@ -11,17 +11,23 @@ std::unordered_map<Tiled::ObjectGroup *, ObjectGroupItem *>
 
 ObjectGroupItem::ObjectGroupItem(Tiled::ObjectGroup *objectGroup, Node *parent)
     : Node(parent), mObjectGroup(objectGroup) {
+  node_type_ = "ObjectGroupItem";
   // setFlag(QGraphicsItem::ItemHasNoContents);
 
   // Create a child item for each object
   QList<Tiled::MapObject *> objects = mObjectGroup->objects();
   int index = 0;
   while (index < objects.size()) {
-    MapObjectItem *mapObjectItem = new MapObjectItem(objects.at(index), this);
+    MapObjectItem *mapObjectItem = MapObjectItem::Create(objects.at(index), this);
     mapObjectItem->SetZValue(qCeil(objects.at(index)->y()));
     MapObjectItem::objectLink[objects.at(index)] = mapObjectItem;
     index++;
   }
+}
+
+ObjectGroupItem *ObjectGroupItem::Create(Tiled::ObjectGroup *objectGroup,
+                                         Node *parent) {
+  return new (std::nothrow) ObjectGroupItem(objectGroup, parent);
 }
 
 ObjectGroupItem::~ObjectGroupItem() {
@@ -49,7 +55,7 @@ void ObjectGroupItem::addObject(Tiled::MapObject *object) {
     qDebug() << "Tiled object already present on the layer:" << object;
     return;
   }
-  MapObjectItem::objectLink[object] = new MapObjectItem(object, this);
+  MapObjectItem::objectLink[object] = MapObjectItem::Create(object, this);
 
   mObjectGroup->addObject(object);
 }

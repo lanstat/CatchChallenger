@@ -34,7 +34,7 @@
 class MapItem : public QObject, public Node {
   Q_OBJECT
  public:
-  MapItem(Node *parent = 0);
+  MapItem(Node *parent = nullptr);
   void addMap(Map_full *tempMapObject, Tiled::Map *map,
               Tiled::MapRenderer *renderer, const int &playerLayerIndex);
   bool haveMap(Tiled::Map *map);

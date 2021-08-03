@@ -89,12 +89,6 @@ void OverMapLogic::setVar(CCMap *ccmap) {
   if (!connect(ccmap, &CCMap::blockedOn, this, &OverMapLogic::blockedOn))
     abort();
   if (!connect(ccmap, &CCMap::error, this, &OverMapLogic::error)) abort();
-  if (!connect(ccmap, &CCMap::errorWithTheCurrentMap, this,
-               &OverMapLogic::errorWithTheCurrentMap))
-    abort();
-  if (!connect(ccmap, &CCMap::currentMapLoaded, this,
-               &OverMapLogic::currentMapLoaded))
-    abort();
   if (!connect(ccmap, &CCMap::wildFightCollision, this,
                &OverMapLogic::wildFightCollision))
     abort();
@@ -102,6 +96,12 @@ void OverMapLogic::setVar(CCMap *ccmap) {
                &OverMapLogic::botFightCollision))
     abort();
   */
+  if (!connect(ccmap, &CCMap::currentMapLoaded, this,
+               &OverMapLogic::currentMapLoaded))
+    abort();
+  if (!connect(ccmap, &CCMap::errorWithTheCurrentMap, this,
+               &OverMapLogic::errorWithTheCurrentMap))
+    abort();
 
   OverMap::setVar(ccmap);
 

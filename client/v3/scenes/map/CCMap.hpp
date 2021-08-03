@@ -2,15 +2,18 @@
 #ifndef CLIENT_V3_SCENES_MAP_CCMAP_HPP_
 #define CLIENT_V3_SCENES_MAP_CCMAP_HPP_
 
+#include <QObject>
 #include <vector>
 
 #include "../../core/Scene.hpp"
 #include "../../entities/render/MapController.hpp"
 
 namespace Scenes {
-class CCMap : public Scene {
+class CCMap : public QObject, public Scene {
+  Q_OBJECT
+
  public:
-  static CCMap* Create();
+  static CCMap *Create();
   MapController mapController;
 
   void PaintChildItems(std::vector<Node *> childItems, qreal parentX,
@@ -44,10 +47,11 @@ class CCMap : public Scene {
                           const uint8_t &y);
   void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x,
                          const uint8_t &y, const uint16_t &fightId);
-  void error(const std::string &error);
-  void errorWithTheCurrentMap();
-  void currentMapLoaded();
   */
+ signals:
+  void currentMapLoaded();
+  void errorWithTheCurrentMap();
+  void error(const std::string &error);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_CCMAP_HPP_

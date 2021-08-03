@@ -14,9 +14,9 @@
 class PreparedLayer : public QObject, public Node {
   Q_OBJECT
  public:
-  explicit PreparedLayer(Map_full *tempMapObject, Node *parent = 0);
-  explicit PreparedLayer(Map_full *tempMapObject, const QPixmap &pixmap,
-                         Node *parent = 0);
+  static PreparedLayer *Create(Map_full *tempMapObject, Node *parent = 0);
+  static PreparedLayer *Create(Map_full *tempMapObject, const QPixmap &pixmap,
+                               Node *parent = 0);
   void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
   void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
   void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
@@ -29,6 +29,9 @@ class PreparedLayer : public QObject, public Node {
   Map_full *tempMapObject;
   QTime clickDuration;
   QPixmap cache;
+  explicit PreparedLayer(Map_full *tempMapObject, Node *parent = 0);
+  explicit PreparedLayer(Map_full *tempMapObject, const QPixmap &pixmap,
+                         Node *parent = 0);
  signals:
   void eventOnMap(CatchChallenger::MapEvent event, Map_full *tempMapObject,
                   uint8_t x, uint8_t y);

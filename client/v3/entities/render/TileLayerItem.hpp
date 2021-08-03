@@ -19,13 +19,18 @@
  */
 class TileLayerItem : public Node {
  public:
-  TileLayerItem(Tiled::TileLayer *tileLayer, Tiled::MapRenderer *renderer,
-                Node *parent = nullptr);
+  static TileLayerItem *Create(Tiled::TileLayer *tileLayer,
+                               Tiled::MapRenderer *renderer,
+                               Node *parent = nullptr);
   void Draw(QPainter *painter) override;
+  QRectF BoundingRect() const override;
 
  private:
   Tiled::TileLayer *mTileLayer;
   Tiled::MapRenderer *mRenderer;
+
+  TileLayerItem(Tiled::TileLayer *tileLayer, Tiled::MapRenderer *renderer,
+                Node *parent = nullptr);
 };
 
 #endif  // CLIENT_V3_ENTITIES_RENDER_TILELAYERITEM_HPP_

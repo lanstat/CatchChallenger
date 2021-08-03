@@ -455,11 +455,12 @@ SOURCES += \
     $$PWD/../qt/Settings.cpp \
     $$PWD/core/AssetsLoader.cpp \
     $$PWD/core/AssetsLoaderThread.cpp \
+    $$PWD/core/Logger.cpp \
     $$PWD/core/AudioPlayer.cpp
 
 HEADERS  += \
-    $$PWD/general/base/tinyXML2/tinyxml2.hpp \
-    $$PWD/general/base/tinyXML2/customtinyxml2.hpp \
+    $$PWD/../../general/base/tinyXML2/tinyxml2.hpp \
+    $$PWD/../../general/base/tinyXML2/customtinyxml2.hpp \
     $$PWD/base/ConnectionManager.hpp \
     $$PWD/Globals.hpp \
     $$PWD/../qt/QtDatapackChecksum.hpp \
@@ -477,6 +478,7 @@ HEADERS  += \
     $$PWD/../qt/Settings.hpp \
     $$PWD/core/AssetsLoader.hpp \
     $$PWD/core/AssetsLoaderThread.hpp \
+    $$PWD/core/Logger.hpp \
     $$PWD/core/AudioPlayer.hpp
 
 DEFINES += CATCHCHALLENGER_MULTI

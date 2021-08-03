@@ -36,7 +36,7 @@ void MapItem::addMap(Map_full *tempMapObject, Tiled::Map *map,
   while (index2 < loopSize) {
     mapNameList << layers.at(index2)->name();
     if (Tiled::TileLayer *tileLayer = layers.at(index2)->asTileLayer()) {
-      graphicsItem = new TileLayerItem(tileLayer, renderer, this);
+      graphicsItem = TileLayerItem::Create(tileLayer, renderer);
       if (image.size().isNull()) {
         image = QImage(QSize(graphicsItem->BoundingRect().size().width(),
                              graphicsItem->BoundingRect().size().height()),
@@ -63,7 +63,7 @@ void MapItem::addMap(Map_full *tempMapObject, Tiled::Map *map,
           temp->setPixmap(tempPixmap);
           temp->show();
 #endif
-          graphicsItem = new PreparedLayer(tempMapObject, tempPixmap, this);
+          graphicsItem = PreparedLayer::Create(tempMapObject, tempPixmap, this);
           if (!connect(static_cast<PreparedLayer *>(graphicsItem),
                        &PreparedLayer::eventOnMap, this, &MapItem::eventOnMap))
             abort();
@@ -73,7 +73,7 @@ void MapItem::addMap(Map_full *tempMapObject, Tiled::Map *map,
         }
       }
 
-      ObjectGroupItem *newObject = new ObjectGroupItem(objectGroup, this);
+      ObjectGroupItem *newObject = ObjectGroupItem::Create(objectGroup, this);
       graphicsItem = newObject;
 
       ObjectGroupItem::objectGroupLink[objectGroup] = newObject;
@@ -94,7 +94,7 @@ void MapItem::addMap(Map_full *tempMapObject, Tiled::Map *map,
       temp->setPixmap(tempPixmap);
       temp->show();
 #endif
-      graphicsItem = new PreparedLayer(tempMapObject, tempPixmap, this);
+      graphicsItem = PreparedLayer::Create(tempMapObject, tempPixmap, this);
       if (!connect(static_cast<PreparedLayer *>(graphicsItem),
                    &PreparedLayer::eventOnMap, this, &MapItem::eventOnMap))
         abort();
