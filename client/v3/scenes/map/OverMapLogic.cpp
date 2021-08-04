@@ -13,7 +13,6 @@
 #include "../above/inventory/Inventory.hpp"
 #include "../above/inventory/Plant.hpp"
 #include "../above/player/FinishedQuests.hpp"
-#include "../above/player/Player.hpp"
 #include "../above/player/Quests.hpp"
 #include "../above/player/Reputations.hpp"
 */
@@ -29,8 +28,8 @@ crafting = nullptr;
 */
   inventoryIndex = 0;
 
-  /*
   player = nullptr;
+  /*
   reputations = nullptr;
   quests = nullptr;
   finishedQuests = nullptr;
@@ -108,10 +107,8 @@ void OverMapLogic::setVar(CCMap *ccmap) {
   /*
   if (!connect(bag, &CustomButton::clicked, this, &OverMapLogic::bag_open))
     abort();
-  if (!connect(playerBackground, &QGraphicsPixmapItemClick::clicked, this,
-               &OverMapLogic::player_open))
-    abort();
   */
+  playerBackground->SetOnClick(std::bind(&OverMapLogic::player_open, this));
 }
 
 void OverMapLogic::resetAll() {
@@ -743,20 +740,18 @@ inventoryIndex--;
 }
 
 void OverMapLogic::player_open() {
-  /*
-if (player == nullptr) {
-  player = new Player();
-  if (!connect(player, &Player::setAbove, this, &OverMapLogic::setAbove))
-    abort();
-  if (!connect(player, &Player::sendNext, this, &OverMapLogic::playerNext))
-    abort();
-  if (!connect(player, &Player::sendBack, this, &OverMapLogic::playerBack))
-    abort();
-}
-player->setVar(connexionManager);
-setAbove(player);
-playerIndex = 0;
-*/
+  if (player == nullptr) {
+    player = Player::Create();
+    /*
+    if (!connect(player, &Player::setAbove, this, &OverMapLogic::setAbove))
+      abort();
+    if (!connect(player, &Player::sendNext, this, &OverMapLogic::playerNext))
+      abort();
+    if (!connect(player, &Player::sendBack, this, &OverMapLogic::playerBack))
+      abort();*/
+  }
+  playerIndex = 0;
+  AddChild(player);
 }
 
 void OverMapLogic::playerNext() {
@@ -2775,4 +2770,14 @@ void OverMapLogic::removeCash(const uint32_t &cash) {
   CatchChallenger::Player_private_and_public_informations &playerInformations =
       connexionManager->client->get_player_informations();
   playerInformations.cash -= cash;
+}
+
+void OverMapLogic::OnEnter() {
+  OverMap::OnEnter();
+  playerBackground->RegisterEvents();
+}
+
+void OverMapLogic::OnExit() {
+  playerBackground->UnRegisterEvents();
+  OverMap::OnExit();
 }

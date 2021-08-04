@@ -35,6 +35,8 @@ class Sprite : public Node, public Stateful {
   void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
 
   void Draw(QPainter *painter) override;
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
 
  protected:
   virtual void *StoreInternal();

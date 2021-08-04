@@ -6,6 +6,7 @@
 #include "../../entities/DisplayStructures.hpp"
 #include "../../entities/Map_client.hpp"
 #include "../../entities/render/MapVisualiserPlayer.hpp"
+#include "../shared/player/Player.hpp"
 #include "OverMap.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -23,6 +24,9 @@ class OverMapLogic : public OverMap {
   OverMapLogic();
   void resetAll();
   void setVar(CCMap *ccmap) override;
+  void OnEnter() override;
+  void OnExit() override;
+
   enum QueryType { QueryType_Seed, QueryType_CollectPlant };
   // plant seed in waiting
   struct SeedInWaiting {
@@ -266,7 +270,7 @@ class OverMapLogic : public OverMap {
   // Crafting *crafting;
   int inventoryIndex;
 
-  // Player *player;
+  Player *player;
   // Reputations *reputations;
   // Quests *quests;
   // FinishedQuests *finishedQuests;

@@ -19,6 +19,7 @@ TileLayerItem *TileLayerItem::Create(Tiled::TileLayer *tileLayer,
 void TileLayerItem::Draw(QPainter *painter) {
   // TODO(lanstat): verify how works option
   // mRenderer->drawTileLayer(painter, mTileLayer, option->rect);
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "123" << std::endl;
   mRenderer->drawTileLayer(painter, mTileLayer, BoundingRect());
 }
 

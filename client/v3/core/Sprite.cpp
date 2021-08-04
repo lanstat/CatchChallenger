@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "AssetsLoader.hpp"
+#include "EventManager.hpp"
 #include "Node.hpp"
 #include "Stateful.hpp"
 
@@ -252,6 +253,12 @@ QPointF Sprite::Strech(unsigned int padding_x, unsigned int padding_y,
   return QPointF(scaled_x, scaled_y);
 }
 
-QPixmap Sprite::Pixmap() const {
-  return original_pix_;
+QPixmap Sprite::Pixmap() const { return original_pix_; }
+
+void Sprite::RegisterEvents() {
+  EventManager::GetInstance()->AddMouseListener(this);
+}
+
+void Sprite::UnRegisterEvents() {
+  EventManager::GetInstance()->RemoveListener(this);
 }

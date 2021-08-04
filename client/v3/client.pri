@@ -290,6 +290,13 @@ SOURCES += \
     $$PWD/scenes/map/OverMapLogicFactory.cpp \
     $$PWD/scenes/map/OverMapLogicShop.cpp \
     $$PWD/scenes/map/OverMapLogicTrade.cpp \
+    #$$PWD/scenes/inventory/Crafting.cpp \
+    #$$PWD/scenes/inventory/Inventory.cpp \
+    #$$PWD/scenes/inventory/Plant.cpp \
+    #$$PWD/scenes/player/FinishedQuests.cpp \
+    $$PWD/scenes/shared/player/Player.cpp \
+    #$$PWD/scenes/player/Quests.cpp \
+    #$$PWD/scenes/player/Reputations.cpp \
     $$PWD/scenes/leading/Leading.cpp \
     $$PWD/scenes/leading/Loading.cpp \
     $$PWD/scenes/leading/Multi.cpp \
@@ -350,6 +357,13 @@ HEADERS  += \
     $$PWD/scenes/map/MonsterDetails.hpp \
     $$PWD/scenes/map/OverMap.hpp \
     $$PWD/scenes/map/OverMapLogic.hpp \
+    #$$PWD/scenes/inventory/Crafting.hpp \
+    #$$PWD/scenes/inventory/Inventory.hpp \
+    #$$PWD/scenes/inventory/Plant.hpp \
+    #$$PWD/scenes/player/FinishedQuests.hpp \
+    $$PWD/scenes/shared/player/Player.hpp \
+    #$$PWD/scenes/player/Quests.hpp \
+    #$$PWD/scenes/player/Reputations.hpp \
     $$PWD/scenes/leading/Leading.hpp \
     $$PWD/scenes/leading/Loading.hpp \
     $$PWD/scenes/leading/MultiItem.hpp \
