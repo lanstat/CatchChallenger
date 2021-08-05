@@ -1,44 +1,17 @@
 // Copyright 2021 <CatchChallenger>
 #include "MonsterBag.hpp"
 
-#include <QDesktopServices>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsScene>
-#include <QListWidget>
-#include <QPainter>
-#include <QTextDocument>
-
-#include "../../../qt/GameLoader.hpp"
-#include "../../../qt/Settings.hpp"
-#include "../../../qt/Ultimate.hpp"
-#include "../../ConnexionManager.hpp"
-#include "../../Language.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
-#include "../MessageDialog.hpp"
+#include "../../../Language.hpp"
+#include "../../../base/ConnectionManager.hpp"
+#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../ui/MessageDialog.hpp"
 
 using CatchChallenger::PlayerMonster;
+using Scenes::MonsterBag;
 
-MonsterBag::MonsterBag()
-    : wdialog_(new ImagesStrechMiddle(46, ":/CC/images/interface/message.png",
-                                      this)),
-      label_(this) {
-  x_ = -1;
-  y_ = -1;
-  screen_width_ = -1;
-  screen_height_ = -1;
-  label_.setPixmap(
-      *GameLoader::gameLoader->getImage(":/CC/images/interface/label.png"));
-  label_.setTransformationMode(Qt::SmoothTransformation);
-  label_.setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-  quit_ = new CustomButton(":/CC/images/interface/cancel.png", this);
-  accept_ = new CustomButton(":/CC/images/interface/validate.png", this);
-  QLinearGradient gradient1(0, 0, 0, 100);
-  gradient1.setColorAt(0.25, QColor(230, 153, 0));
-  gradient1.setColorAt(0.75, QColor(255, 255, 255));
-  QLinearGradient gradient2(0, 0, 0, 100);
-  gradient2.setColorAt(0, QColor(64, 28, 2));
-  gradient2.setColorAt(1, QColor(64, 28, 2));
-  title_ = new CustomText(gradient1, gradient2, this);
+MonsterBag::MonsterBag() {
+  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
+  accept_ = UI::Button::Create(":/CC/images/interface/validate.png", this);
 
   proxy_ = new QGraphicsProxyWidget(this);
   monster_list_ = new QListWidget();
@@ -90,37 +63,7 @@ void MonsterBag::paint(QPainter *p, const QStyleOptionGraphicsItem *,
   }
 }
 
-void MonsterBag::RecalculateInnerElements(QWidget *widget) {
-  bool forcedCenter = true;
-  int idealW = 600;
-  int idealH = 600;
-  if (widget->width() < 600 || widget->height() < 480) {
-    idealW /= 2;
-    idealH /= 2;
-  }
-  if (idealW > widget->width()) idealW = widget->width();
-  int top = 36;
-  int bottom = 94 / 2;
-  if (widget->width() < 600 || widget->height() < 480) {
-    top /= 2;
-    bottom /= 2;
-  }
-  if ((idealH + top + bottom) > widget->height())
-    idealH = widget->height() - (top + bottom);
-
-  if (x_ < 0 || y_ < 0 || forcedCenter) {
-    x_ = widget->width() / 2 - idealW / 2;
-    y_ = widget->height() / 2 - idealH / 2;
-  } else {
-    if ((x_ + idealW) > widget->width()) x_ = widget->width() - idealW;
-    if ((y_ + idealH + bottom) > widget->height())
-      y_ = widget->height() - (idealH + bottom);
-    if (y_ < top) y_ = top;
-  }
-
-  wdialog_->setPos(x_, y_);
-  wdialog_->setSize(idealW, idealH);
-
+void MonsterBag::OnScreenResize() {
   if (widget->width() < 600 || widget->height() < 480) {
     label_.setScale(0.5);
     quit_->setSize(83 / 2, 94 / 2);
@@ -134,22 +77,8 @@ void MonsterBag::RecalculateInnerElements(QWidget *widget) {
     label_.setPos(x_ + (idealW - label_.pixmap().width()) / 2, y_ - 36);
     title_->setPixelSize(30);
   }
-  unsigned int space = 30;
-  if (widget->width() < 600 || widget->height() < 480) {
-    space = 10;
-  }
-
-  quit_->setPos(x_ + (idealW / 2 - quit_->width() - space / 2),
-                y_ + idealH - quit_->height() / 2);
-  accept_->setPos(x_ + idealW / 2 + space / 2, quit_->y());
-  const QRectF trect = title_->boundingRect();
-  title_->setPos(x_ + (idealW - title_->boundingRect().width()) / 2,
-                 y_ - trect.height() / 2);
-  proxy_->setPos(x_ + wdialog_->currentBorderSize() + space,
-                 y_ + label_.pixmap().height() / 2 + space);
-  monster_list_->setFixedSize(
-      idealW - space * 2 - wdialog_->currentBorderSize() * 2,
-      idealH - label_.pixmap().height() / 2 - space - space - space);
+  monster_list_->SetPos(x_, y_);
+  monster_list_->SetSize(background_->Width(), background_->Height());
 }
 
 void MonsterBag::mousePressEventXY(const QPointF &p, bool &pressValidated,
@@ -242,17 +171,27 @@ void MonsterBag::OnAcceptClicked() {
 
 void MonsterBag::ClearSelection() {
   last_item_selected_ = -1;
-  //monster_list_->selectionModel()->clearSelection();
+  // monster_list_->selectionModel()->clearSelection();
 }
 
 void MonsterBag::ShowMessageDialog(const QString &title,
                                    const QString &message) {
   ClearSelection();
   if (message_dialog_ == nullptr) {
-    message_dialog_ = new MessageDialog();
-    message_dialog_->SetParent(this);
+    message_dialog_ = UI::MessageDialog::Create();
   }
 
+  message_dialog_->SetTitle(title);
   message_dialog_->SetMessage(message);
-  emit setAbove(message_dialog_);
+  AddChild(message_dialog_);
+}
+
+void MonsterBag::OnEnter() {
+  UI::Dialog::OnEnter();
+  monster_list_->RegisterEvents();
+}
+
+void MonsterBag::OnExit() {
+  monster_list_->UnRegisterEvents();
+  UI::Dialog::OnExit();
 }

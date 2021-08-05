@@ -1,11 +1,12 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_UI_PROGRESSBAR_HPP_
-#define CLIENT_QTOPENGL_UI_PROGRESSBAR_HPP_
+#ifndef CLIENT_V3_UI_PROGRESSBAR_HPP_
+#define CLIENT_V3_UI_PROGRESSBAR_HPP_
 
 #include <QGraphicsWidget>
 
 #include "../core/Node.hpp"
 #include "../action/Tick.hpp"
+#include "Label.hpp"
 
 namespace UI {
 class Progressbar : public Node {
@@ -25,12 +26,6 @@ class Progressbar : public Node {
 
   void Draw(QPainter *painter) override;
 
-  void MousePressEvent(const QPointF &point, bool &press_validated) override;
-  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
-  void MouseMoveEvent(const QPointF &point) override;
-  void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
-  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
-
  private:
   QPixmap background_left_;
   QPixmap background_middle_;
@@ -38,10 +33,7 @@ class Progressbar : public Node {
   QPixmap bar_left_;
   QPixmap bar_middle_;
   QPixmap bar_right_;
-  QPainterPath *text_path_;
-  QFont *font_;
-  QString oldText;
-  QPixmap *cache_;
+  UI::Label *text_;
 
   int value_;
   int min_;
@@ -59,4 +51,4 @@ class Progressbar : public Node {
 };
 }  // namespace UI
 
-#endif  // CLIENT_QTOPENGL_UI_PROGRESSBAR_HPP_
+#endif  // CLIENT_V3_UI_PROGRESSBAR_HPP_

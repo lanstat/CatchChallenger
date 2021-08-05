@@ -513,6 +513,9 @@ include(../../server/catchchallenger-server-qt.pri)
 QT       += sql
 }
 
+#define pc viewport
+include(viewports/pc/viewport.pri)
+
 DISTFILES += \
     $$PWD/client.pri
 
