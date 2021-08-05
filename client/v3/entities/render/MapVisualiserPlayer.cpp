@@ -14,8 +14,8 @@
 #include "../../../../general/base/CommonSettingsServer.hpp"
 #include "../../../../general/base/GeneralVariable.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../../../qt/QtDatapackClientLoader.hpp"
 #include "../../cc/Api_protocol_Qt.hpp"
+#include "../../cc/QtDatapackClientLoader.hpp"
 
 /* why send the look at because blocked into the wall?
 to be sync if connexion is stop, but use more bandwith
@@ -2359,20 +2359,13 @@ void MapVisualiserPlayer::centerOnPlayer() {
 
 void MapVisualiserPlayer::Draw(QPainter *painter) {
   // TODO(lanstat): verificar si es nodo o scena
-  // if(widget->width()>0 && widget->height()>0)
-  {
-    const Tiled::MapObject *playerMapObject = getPlayerMapObject();
-    const float px = playerMapObject->x() * 16.0;
-    const float py = (playerMapObject->y() - 1.0) * 16.0;
-    const float pw = playerMapObject->width();
-    const float ph = playerMapObject->height();
-    if (MapObjectItem::objectLink.find(const_cast<Tiled::MapObject *>(
-                    playerMapObject)) != MapObjectItem::objectLink.cend()) {
-
-        /*
-      SetPos(widget->width() / 2 - px - pw / 2,
-             widget->height() / 2 - py - ph / 2);
-             */
-    }
+  const Tiled::MapObject *playerMapObject = getPlayerMapObject();
+  const float px = playerMapObject->x() * 16.0;
+  const float py = (playerMapObject->y() - 1.0) * 16.0;
+  const float pw = playerMapObject->width();
+  const float ph = playerMapObject->height();
+  if (MapObjectItem::objectLink.find(const_cast<Tiled::MapObject *>(
+          playerMapObject)) != MapObjectItem::objectLink.cend()) {
+    SetPos(1440 / 2 - px - pw / 2, 900 / 2 - py - ph / 2);
   }
 }

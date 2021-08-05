@@ -8,6 +8,8 @@
 #include "../../base/ConnectionManager.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AudioPlayer.hpp"
+#include "../../core/SceneManager.hpp"
+#include "../../Globals.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
 #include "../above/inventory/Inventory.hpp"
@@ -65,7 +67,6 @@ crafting = nullptr;
 void OverMapLogic::setVar(CCMap *ccmap) {
   this->ccmap = ccmap;
 
-  /*
   if (!connect(ccmap, &CCMap::pathFindingNotFound, this,
                &OverMapLogic::pathFindingNotFound))
     abort();
@@ -94,7 +95,6 @@ void OverMapLogic::setVar(CCMap *ccmap) {
   if (!connect(ccmap, &CCMap::botFightCollision, this,
                &OverMapLogic::botFightCollision))
     abort();
-  */
   if (!connect(ccmap, &CCMap::currentMapLoaded, this,
                &OverMapLogic::currentMapLoaded))
     abort();
@@ -1713,38 +1713,19 @@ void OverMapLogic::botFight(const uint16_t &fightId) {
 void OverMapLogic::wildFightCollision(CatchChallenger::Map_client *map,
                                       const uint8_t &x, const uint8_t &y) {
   std::cerr << "OverMapLogic::wildFightCollision" << std::endl;
-  /*
-
-  if(Battle::battle==nullptr) {
-      Battle::battle=new Battle();
-      Battle::battle->SetVariables(connexionManager);
-      // connect(Battle::battle, &Battle::Finished, this,
-  &OverMapLogic::BattleFinished);
-  }
-  Battle::battle->WildFightInitialize(map, x, y);
-  // emit setForeground(Battle::battle);
-  */
+  auto battle = Globals::GetBattleScene();
+  battle->WildFightInitialize(map, x, y);
+  SceneManager::GetInstance()->PushScene(battle);
 }
 
 void OverMapLogic::botFightCollision(CatchChallenger::Map_client *map,
                                      const uint8_t &x, const uint8_t &y,
                                      const uint16_t &fightId) {
-  (void)map;
-  (void)x;
-  (void)y;
   std::cerr << "OverMapLogic::botFightCollision " << std::endl;
 
-  /*
-
-  if(Battle::battle==nullptr) {
-      Battle::battle=new Battle();
-      Battle::battle->SetVariables(connexionManager);
-      // connect(Battle::battle, &Battle::Finished, this,
-  &OverMapLogic::BattleFinished);
-  }
-  Battle::battle->BotFightInitialize(map, x, y, fightId);
-  // emit setForeground(Battle::battle);
-  */
+  auto battle = Globals::GetBattleScene();
+  battle->BotFightInitialize(map, x, y, fightId);
+  SceneManager::GetInstance()->PushScene(battle);
 }
 
 void OverMapLogic::BattleFinished() {

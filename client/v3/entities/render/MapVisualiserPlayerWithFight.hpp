@@ -9,7 +9,6 @@
 class MapVisualiserPlayerWithFight : public MapVisualiserPlayer {
   Q_OBJECT
  public:
-  explicit MapVisualiserPlayerWithFight(const bool &debugTags = false);
   ~MapVisualiserPlayerWithFight();
   void addRepelStep(const uint32_t &repel_step);
  protected slots:
@@ -23,6 +22,8 @@ class MapVisualiserPlayerWithFight : public MapVisualiserPlayer {
  protected:
   uint32_t repel_step;
   Tiled::Tileset *fightCollisionBot;
+  explicit MapVisualiserPlayerWithFight(const bool &debugTags = false);
+
  signals:
   void repelEffectIsOver() const;
   void teleportConditionNotRespected(const std::string &text) const;

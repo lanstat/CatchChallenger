@@ -10,5 +10,6 @@ class Logger {
   static void Log(const char *file, int line, const QString &message);
   static void Log(const char *file, int line, const std::string &message);
   static void Log(const QString &message);
+  static void Log(const char *message);
 };
 #endif  // CLIENT_V3_CORE_LOGGER_HPP_

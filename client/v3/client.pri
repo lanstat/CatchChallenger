@@ -246,6 +246,7 @@ SOURCES += \
     $$PWD/ui/Combo.cpp \
     $$PWD/ui/Dialog.cpp \
     $$PWD/ui/Checkbox.cpp \
+    $$PWD/ui/MessageDialog.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -279,6 +280,7 @@ SOURCES += \
     $$PWD/MyApplication.cpp \
     $$PWD/cc/QtDatapackClientLoaderThread.cpp \
     $$PWD/scenes/ParallaxForest.cpp \
+    $$PWD/scenes/battle/Battle.cpp \
     $$PWD/scenes/map/CCMap.cpp \
     $$PWD/scenes/map/Map.cpp \
     $$PWD/scenes/map/MapMonsterPreview.cpp \
@@ -320,6 +322,7 @@ HEADERS  += \
     $$PWD/ui/Combo.hpp \
     $$PWD/ui/Dialog.hpp \
     $$PWD/ui/Checkbox.hpp \
+    $$PWD/ui/MessageDialog.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \
@@ -351,6 +354,7 @@ HEADERS  += \
     $$PWD/MyApplication.h \
     $$PWD/cc/QtDatapackClientLoaderThread.hpp \
     $$PWD/scenes/ParallaxForest.hpp \
+    $$PWD/scenes/battle/Battle.hpp \
     $$PWD/scenes/map/Map.hpp \
     $$PWD/scenes/map/CCMap.hpp \
     $$PWD/scenes/map/MapMonsterPreview.hpp \

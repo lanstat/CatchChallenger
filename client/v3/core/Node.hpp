@@ -46,6 +46,7 @@ class Node {
   QString ToolTip();
   QString NodeType();
   void SetZValue(int index);
+  void ReArrangeChild(Node * node);
   int ZValue();
   void AddChild(Node *node);
   /** Remove a child from the node */

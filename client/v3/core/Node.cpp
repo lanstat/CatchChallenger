@@ -47,9 +47,12 @@ Node *Node::Root() {
 }
 
 void Node::AddChild(Node *child) {
+  if (child->Parent() && child->Parent() != this) {
+    child->Parent()->RemoveChild(child);
+  }
   child->SetParent(this);
   child->OnEnter();
-  children_.push_back(child);
+  ReArrangeChild(child);
 }
 
 void Node::RemoveChild(Node *child) {
@@ -227,9 +230,25 @@ void Node::RegisterEvents() {}
 
 void Node::UnRegisterEvents() {}
 
-void Node::SetZValue(int index) { z_ = index; }
+void Node::SetZValue(int index) {
+  z_ = index;
+  if (Parent()) {
+    Parent()->ReArrangeChild(this);
+  }
+}
 
 int Node::ZValue() { return z_; }
+
+void Node::ReArrangeChild(Node *node) {
+  children_.erase(std::remove(children_.begin(), children_.end(), node),
+                  children_.end());
+  size_t index = 0;
+  for (auto child : children_) {
+    if (node->ZValue() < child->ZValue()) break;
+    index++;
+  }
+  children_.insert(children_.begin() + index, node);
+}
 
 void Node::MousePressEvent(const QPointF &, bool &) {}
 

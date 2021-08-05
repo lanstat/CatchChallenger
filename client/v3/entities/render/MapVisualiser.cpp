@@ -14,6 +14,7 @@
 #include <QPointer>
 #include <QStyleOptionGraphicsItem>
 #include <QTime>
+#include <iostream>
 
 #include "../../../general/base/MoveOnTheMap.hpp"
 
@@ -33,7 +34,7 @@ MapVisualiser::MapVisualiser(const bool &debugTags) : mark(NULL) {
   mapVisualiserThread.debugTags = debugTags;
   this->debugTags = debugTags;
 
-  mapItem = new MapItem(this);
+  mapItem = MapItem::Create();
   if (!connect(mapItem, &MapItem::eventOnMap, this, &MapVisualiser::eventOnMap))
     abort();
 

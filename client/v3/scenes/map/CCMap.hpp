@@ -22,6 +22,12 @@ class CCMap : public QObject, public Scene {
                        QWidget *widget = nullptr);
   void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;
+  void MousePressEvent(const QPointF &point, bool &press_validated) override;
+  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
+  void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
+  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
+  void OnEnter() override;
+  void OnExit() override;
 
  private:
   QPointF lastClickedPos;
@@ -32,7 +38,7 @@ class CCMap : public QObject, public Scene {
   qreal y;
   CCMap();
 
-  /*
+ signals:
   void pathFindingNotFound();
   void repelEffectIsOver() const;
   void teleportConditionNotRespected(const std::string &text) const;
@@ -47,8 +53,6 @@ class CCMap : public QObject, public Scene {
                           const uint8_t &y);
   void botFightCollision(CatchChallenger::Map_client *map, const uint8_t &x,
                          const uint8_t &y, const uint16_t &fightId);
-  */
- signals:
   void currentMapLoaded();
   void errorWithTheCurrentMap();
   void error(const std::string &error);

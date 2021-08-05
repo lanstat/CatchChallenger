@@ -5,20 +5,29 @@ CatchChallenger::InternalServer *Globals::InternalServer = nullptr;
 
 QThread *Globals::ThreadSolo = nullptr;
 
-Scenes::Leading *Globals::leading_instance_ = nullptr;
+Scenes::Leading *Globals::leading_ = nullptr;
 
-Scenes::Map *Globals::map_instance_ = nullptr;
+Scenes::Map *Globals::map_ = nullptr;
+
+Scenes::Battle *Globals::battle_ = nullptr;
 
 Scenes::Leading *Globals::GetLeadingScene() {
-  if (!leading_instance_) {
-    leading_instance_ = Scenes::Leading::Create();
+  if (!leading_) {
+    leading_ = Scenes::Leading::Create();
   }
-  return leading_instance_;
+  return leading_;
 }
 
 Scenes::Map *Globals::GetMapScene() {
-  if (!map_instance_) {
-    map_instance_ = Scenes::Map::Create();
+  if (!map_) {
+    map_ = Scenes::Map::Create();
   }
-  return map_instance_;
+  return map_;
+}
+
+Scenes::Battle *Globals::GetBattleScene() {
+  if (!battle_) {
+    battle_ = Scenes::Battle::Create();
+  }
+  return battle_;
 }

@@ -1,3 +1,4 @@
+// Copyright 2021 CatchChallenger
 #ifndef MAPITEM_H
 #define MAPITEM_H
 
@@ -34,7 +35,7 @@
 class MapItem : public QObject, public Node {
   Q_OBJECT
  public:
-  MapItem(Node *parent = nullptr);
+  static MapItem *Create(Node *parent = nullptr);
   void addMap(Map_full *tempMapObject, Tiled::Map *map,
               Tiled::MapRenderer *renderer, const int &playerLayerIndex);
   bool haveMap(Tiled::Map *map);
@@ -43,8 +44,9 @@ class MapItem : public QObject, public Node {
   void Draw(QPainter *) override;
 
  private:
-  std::unordered_map<Tiled::Map *, std::unordered_set<Node *> >
-      displayed_layer;
+  std::unordered_map<Tiled::Map *, std::unordered_set<Node *> > displayed_layer;
+
+  MapItem(Node *parent = nullptr);
  signals:
   void eventOnMap(CatchChallenger::MapEvent event, Map_full *tempMapObject,
                   uint8_t x, uint8_t y);

@@ -21,6 +21,7 @@ void GraphicRenderer::SetScene(Scene *scene) { scene_ = scene; }
 void GraphicRenderer::paint(QPainter *painter,
                             const QStyleOptionGraphicsItem *option,
                             QWidget *widget) {
+
   if (scene_ != nullptr) {
     if (widget->width() != buffer_.width() ||
         widget->height() != buffer_.height())

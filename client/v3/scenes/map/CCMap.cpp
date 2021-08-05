@@ -6,46 +6,46 @@
 #include <QObject>
 #include <QPainter>
 #include <QTime>
+#include <iostream>
 #include <vector>
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
 #include "../../base/ConnectionManager.hpp"
+#include "../../core/EventManager.hpp"
 #include "../../core/Logger.hpp"
 #include "../../entities/render/TileLayerItem.hpp"
 
 using Scenes::CCMap;
 
 CCMap::CCMap() {
-  /*
-if (!connect(&mapController, &MapController::pathFindingNotFound, this,
-             &CCMap::pathFindingNotFound))
-  abort();
-if (!connect(&mapController, &MapController::repelEffectIsOver, this,
-             &CCMap::repelEffectIsOver))
-  abort();
-if (!connect(&mapController, &MapController::teleportConditionNotRespected,
-             this, &CCMap::teleportConditionNotRespected))
-  abort();
-if (!connect(&mapController, &MapController::stopped_in_front_of, this,
-             &CCMap::stopped_in_front_of))
-  abort();
-if (!connect(&mapController, &MapController::actionOn, this,
-             &CCMap::actionOn))
-  abort();
-if (!connect(&mapController, &MapController::actionOnNothing, this,
-             &CCMap::actionOnNothing))
-  abort();
-if (!connect(&mapController, &MapController::blockedOn, this,
-             &CCMap::blockedOn))
-  abort();
-if (!connect(&mapController, &MapController::wildFightCollision, this,
-             &CCMap::wildFightCollision))
-  abort();
-if (!connect(&mapController, &MapController::botFightCollision, this,
-             &CCMap::botFightCollision))
-  abort();
-  */
+  if (!connect(&mapController, &MapController::pathFindingNotFound, this,
+               &CCMap::pathFindingNotFound))
+    abort();
+  if (!connect(&mapController, &MapController::repelEffectIsOver, this,
+               &CCMap::repelEffectIsOver))
+    abort();
+  if (!connect(&mapController, &MapController::teleportConditionNotRespected,
+               this, &CCMap::teleportConditionNotRespected))
+    abort();
+  if (!connect(&mapController, &MapController::stopped_in_front_of, this,
+               &CCMap::stopped_in_front_of))
+    abort();
+  if (!connect(&mapController, &MapController::actionOn, this,
+               &CCMap::actionOn))
+    abort();
+  if (!connect(&mapController, &MapController::actionOnNothing, this,
+               &CCMap::actionOnNothing))
+    abort();
+  if (!connect(&mapController, &MapController::blockedOn, this,
+               &CCMap::blockedOn))
+    abort();
+  if (!connect(&mapController, &MapController::wildFightCollision, this,
+               &CCMap::wildFightCollision))
+    abort();
+  if (!connect(&mapController, &MapController::botFightCollision, this,
+               &CCMap::botFightCollision))
+    abort();
   if (!connect(&mapController, &MapController::error, this, &CCMap::error))
     abort();
   if (!connect(&mapController, &MapController::errorWithTheCurrentMap, this,
@@ -111,22 +111,21 @@ void CCMap::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
   PaintChildItems(mapController.mapItem->Children(), x, y, painter, option,
                   widget);
   painter->restore();
+  // mapController.Paint(painter, option, widget);
+  // mapController.Draw(painter);
 }
 
-/*
-void CCMap::mousePressEventXY(const QPointF &p, bool &pressValidated,
-                              bool &callParentClass) {
+void CCMap::MousePressEvent(const QPointF &p, bool &press_validated) {
   if (clicked) return;
   clicked = true;
   lastClickedPos = p;
-  pressValidated = true;
+  press_validated = true;
 }
 
-void CCMap::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
-                                bool &callParentClass) {
+void CCMap::MouseReleaseEvent(const QPointF &p, bool &press_validated) {
   if (!clicked) return;
   clicked = false;
-  pressValidated = true;
+  press_validated = true;
   mapController.keyPressReset();
 
   // convert pixel scaled -> pixel -> tile
@@ -152,12 +151,12 @@ void CCMap::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
   for (const auto &n : all_map) {
     Map_full *map = n.second;
     if (mapToScan.find(map->logicalMap.map_file) != mapToScan.cend()) {
-      *std::cout << map->logicalMap.map_file << ": "
-                << std::to_string(map->relative_x) << "," <<
-         std::to_string(map->relative_y) << ","
-                << std::to_string(map->logicalMap.width) << "," <<
-         std::to_string(map->logicalMap.height)
-                << std::endl;*
+      /*std::cout << map->logicalMap.map_file << ": "
+                 << std::to_string(map->relative_x) << ","
+                 << std::to_string(map->relative_y) << ","
+                 << std::to_string(map->logicalMap.width) << ","
+                 << std::to_string(map->logicalMap.height) << std::endl;
+      */
       if (diffX >= map->relative_x &&
           diffX <= (map->relative_x + map->logicalMap.width))
         if (diffY >= map->relative_y &&
@@ -171,18 +170,22 @@ void CCMap::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
         }
     }
   }
-  std::cerr << "CCMap not found: " << p.x() << "," << p.y() << std::endl;
+  Logger::Log(QString("CCMap not found: %1, %2").arg(p.x()).arg(p.y()));
 }
 
-void CCMap::keyPressReset() { mapController.keyPressReset(); }
-
-void CCMap::keyPressEvent(QKeyEvent *event, bool &eventTriggerGeneral) {
+void CCMap::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
   mapController.keyPressEvent(event);
-  eventTriggerGeneral = false;
+  event_trigger = false;
 }
 
-void CCMap::keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) {
+void CCMap::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
   mapController.keyReleaseEvent(event);
-  eventTriggerGeneral = false;
+  event_trigger = false;
 }
-*/
+
+void CCMap::OnEnter() {
+  EventManager::GetInstance()->AddMouseListener(this);
+  EventManager::GetInstance()->AddKeyboardListener(this);
+}
+
+void CCMap::OnExit() { EventManager::GetInstance()->RemoveListener(this); }

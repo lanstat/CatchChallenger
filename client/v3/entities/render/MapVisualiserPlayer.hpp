@@ -1,3 +1,4 @@
+// Copyright 2021 CatchChallenger
 #ifndef MAP_VISUALISER_PLAYER_H
 #define MAP_VISUALISER_PLAYER_H
 
@@ -19,12 +20,12 @@ class MapVisualiserPlayer : public MapVisualiser {
 
  public:
   const Tiled::MapObject *getPlayerMapObject() const;
-  explicit MapVisualiserPlayer(const bool &debugTags = false);
   ~MapVisualiserPlayer();
   virtual bool haveMapInMemory(const std::string &mapPath);
   void keyPressEvent(QKeyEvent *event);
   void keyReleaseEvent(QKeyEvent *event);
   virtual void keyPressReset();
+  void Draw(QPainter *painter) override;
   std::string lastLocation() const;
   std::string currentMap() const;
   Map_full *currentMapFull() const;
@@ -121,6 +122,8 @@ class MapVisualiserPlayer : public MapVisualiser {
   uint16_t currentPlayerSpeed;
   bool animationDisplayed;
 
+  explicit MapVisualiserPlayer(const bool &debugTags = false);
+
  protected:
   // current player
   bool player_informations_is_set;
@@ -181,7 +184,6 @@ class MapVisualiserPlayer : public MapVisualiser {
   bool isInMove() const;
   CatchChallenger::Direction getDirection() const;
   void stopMove();
-  void Draw(QPainter *painter) override;
  signals:
   // auto connected to client in render/MapControllerMP
   void send_player_direction(const CatchChallenger::Direction &the_direction);

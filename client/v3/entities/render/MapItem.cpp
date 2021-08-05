@@ -1,3 +1,4 @@
+// Copyright 2021 CatchChallenger
 #include "MapItem.hpp"
 
 #include <QDebug>
@@ -14,6 +15,10 @@ MapItem::MapItem(Node *parent) : Node(parent) {
   // setFlag(QGraphicsItem::ItemHasNoContents);
   // setCacheMode(QGraphicsItem::ItemCoordinateCache);just change direction
   // without move do bug
+}
+
+MapItem *MapItem::Create(Node *parent) {
+  return new (std::nothrow) MapItem(parent);
 }
 
 void MapItem::addMap(Map_full *tempMapObject, Tiled::Map *map,

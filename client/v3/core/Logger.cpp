@@ -14,3 +14,7 @@ void Logger::Log(const char *file, int line, const QString &message) {
 void Logger::Log(const QString &message) {
   std::cout << message.toStdString() << std::endl;
 }
+
+void Logger::Log(const char *message) {
+  std::cout << message << std::endl;
+}

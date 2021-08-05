@@ -5,6 +5,7 @@
 #include <QThread>
 
 #include "../qt/solo/InternalServer.hpp"
+#include "scenes/battle/Battle.hpp"
 #include "scenes/leading/Leading.hpp"
 #include "scenes/map/Map.hpp"
 
@@ -16,10 +17,12 @@ class Globals {
 #endif
   static Scenes::Leading* GetLeadingScene();
   static Scenes::Map* GetMapScene();
+  static Scenes::Battle* GetBattleScene();
 
  private:
-  static Scenes::Leading* leading_instance_;
-  static Scenes::Map* map_instance_;
+  static Scenes::Leading* leading_;
+  static Scenes::Map* map_;
+  static Scenes::Battle* battle_;
 };
 
 #endif  // CLIENT_QTOPENGL_GLOBALS_HPP_

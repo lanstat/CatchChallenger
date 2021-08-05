@@ -1,3 +1,5 @@
+// Copyright 2021 CatchChallenger
+#include "MapControllerMP.hpp"
 #include <iostream>
 
 #include "../../../general/base/CommonDatapack.hpp"

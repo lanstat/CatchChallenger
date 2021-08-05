@@ -168,7 +168,7 @@ void Dialog::RecalculateActionButtons() {
 }
 
 void Dialog::SetTitle(const QString &text) {
-  title_->SetText(text);
+  title_->SetText(text.toUpper());
   ReDraw();
 }
 
