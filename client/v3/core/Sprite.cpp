@@ -57,8 +57,10 @@ void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
 }
 
 void Sprite::SetSize(int width, int height) {
-  cache_ = cache_.scaled(width, height, Qt::IgnoreAspectRatio,
-                         Qt::SmoothTransformation);
+  if (!cache_.isNull()) {
+    cache_ = cache_.scaled(width, height, Qt::IgnoreAspectRatio,
+                           Qt::SmoothTransformation);
+  }
   Node::SetSize(width, height);
 }
 

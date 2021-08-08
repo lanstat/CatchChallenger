@@ -17,6 +17,7 @@ class MonsterBag : public UI::Dialog {
   void OnScreenResize() override;
   void OnEnter() override;
   void OnExit() override;
+  void Draw(QPainter *painter);
 
   void OnCloseClicked();
   void OnAcceptClicked();

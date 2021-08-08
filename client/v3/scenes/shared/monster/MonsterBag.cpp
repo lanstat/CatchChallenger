@@ -33,6 +33,16 @@ MonsterBag::~MonsterBag() {
 
 MonsterBag *MonsterBag::Create() { return new (std::nothrow) MonsterBag(); }
 
+void MonsterBag::Draw(QPainter *painter) {
+  UI::Dialog::Draw(painter);
+
+  auto inner = ContentBoundary();
+  auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
+  b2->Strech(24, 22, 20, inner.width(), inner.height());
+  b2->SetPos(inner.x(), inner.y());
+  b2->Paint(painter, nullptr, nullptr);
+}
+
 void MonsterBag::OnScreenResize() {
   UI::Dialog::OnScreenResize();
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
@@ -42,8 +52,8 @@ void MonsterBag::OnScreenResize() {
   }
 
   auto inner = ContentBoundary();
-  monster_list_->SetPos(inner.x(), inner.y());
-  monster_list_->SetSize(inner.width(), inner.height());
+  monster_list_->SetPos(inner.x() + 20, inner.y() + 20);
+  monster_list_->SetSize(inner.width() - 40, inner.height() - 40);
 }
 
 void MonsterBag::newLanguage() { SetTitle(tr("Monsters")); }
@@ -106,4 +116,6 @@ void MonsterBag::OnExit() {
   UI::Dialog::OnExit();
 }
 
-void MonsterBag::OnActionClick(Node * node) {}
+void MonsterBag::OnActionClick(Node * node) {
+  OnCloseClicked();
+}

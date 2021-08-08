@@ -83,7 +83,7 @@ void Dialog::OnScreenResize() {
   title_->SetPos(x_ + (idealW - title_->BoundingRect().width()) / 2,
                  y_ - trect.height() / 2);
 
-  content_boundary_ = QRectF(x_ + 30, y_ + 20, idealW - 60, idealH - 60);
+  content_boundary_ = QRectF(x_ + 30, y_ + 60, idealW - 60, idealH - 100);
 }
 
 void Dialog::Draw(QPainter *painter) {
