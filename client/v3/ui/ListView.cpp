@@ -16,6 +16,7 @@ ListView::ListView(Node *parent) : Node(parent) {
   is_slider_pressed_ = false;
   is_horizontal_ = false;
   is_drawable_ = false;
+  spacing_ = 0;
   ShouldCache(false);
 }
 
@@ -100,7 +101,7 @@ void ListView::ReCalculateSize() {
       item->SetX(x);
       item->SetY(y);
       content_rect_.setHeight(item->Height() + y);
-      y = y + item->Height();
+      y = y + item->Height() + spacing_;
     }
 
     show_slider_ = content_rect_.height() > Height();
@@ -287,16 +288,6 @@ void ListView::MouseMoveEvent(const QPointF &point) {
   }
 }
 
-void ListView::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
-  (void)event;
-  (void)event_trigger;
-}
-
-void ListView::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
-  (void)event;
-  (void)event_trigger;
-}
-
 void ListView::Clear() {
   for (std::vector<Node *>::iterator it = items_.begin(); it != items_.end();
        ++it) {
@@ -321,4 +312,9 @@ void ListView::RegisterEvents() {
 
 void ListView::UnRegisterEvents() {
   EventManager::GetInstance()->RemoveListener(this);
+}
+
+void ListView::SetItemSpacing(int value) {
+  spacing_ = value;
+  ReCalculateSize();
 }

@@ -24,13 +24,13 @@ class MonsterBag : public UI::Dialog {
   void OnSelectMonster(uint8_t monsterPosition);
   void LoadMonster();
 
+ protected:
+  void OnActionClick(Node *node);
+
  private:
   UI::Button *quit_;
-  UI::Button *accept_;
-  QGraphicsPixmapItem label_;
   UI::ListView *monster_list_;
   UI::MessageDialog *message_dialog_;
-  int last_item_selected_ = -1;
 
   ConnectionManager *connection_manager_;
   CatchChallenger::Api_protocol_Qt *client_;

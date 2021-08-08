@@ -110,17 +110,16 @@ int Node::Y() { return bounding_rect_.y(); }
 void Node::SetSize(int w, int h) {
   bounding_rect_.setWidth(w);
   bounding_rect_.setHeight(h);
+  OnResize();
   ReDraw();
 }
 
 void Node::SetHeight(int h) {
-  bounding_rect_.setHeight(h);
-  ReDraw();
+  SetSize(Width(), h);
 }
 
 void Node::SetWidth(int w) {
-  bounding_rect_.setWidth(w);
-  ReDraw();
+  SetSize(w, Height());
 }
 
 int Node::Height() { return bounding_rect_.height(); }
@@ -276,3 +275,5 @@ void Node::Draw(QPainter *painter) {
   std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
             << "~nooo" << std::endl;
 }
+
+void Node::OnResize() {}

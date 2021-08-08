@@ -297,6 +297,8 @@ SOURCES += \
     #$$PWD/scenes/inventory/Plant.cpp \
     #$$PWD/scenes/player/FinishedQuests.cpp \
     $$PWD/scenes/shared/player/Player.cpp \
+    $$PWD/scenes/shared/monster/MonsterItem.cpp \
+    $$PWD/scenes/shared/monster/MonsterBag.cpp \
     #$$PWD/scenes/player/Quests.cpp \
     #$$PWD/scenes/player/Reputations.cpp \
     $$PWD/scenes/leading/Leading.cpp \
@@ -366,6 +368,8 @@ HEADERS  += \
     #$$PWD/scenes/inventory/Plant.hpp \
     #$$PWD/scenes/player/FinishedQuests.hpp \
     $$PWD/scenes/shared/player/Player.hpp \
+    $$PWD/scenes/shared/monster/MonsterItem.hpp \
+    $$PWD/scenes/shared/monster/MonsterBag.hpp \
     #$$PWD/scenes/player/Quests.hpp \
     #$$PWD/scenes/player/Reputations.hpp \
     $$PWD/scenes/leading/Leading.hpp \
@@ -514,7 +518,7 @@ QT       += sql
 }
 
 #define pc viewport
-include(viewports/pc/viewport.pri)
+include(viewports/desktop/viewport.pri)
 
 DISTFILES += \
     $$PWD/client.pri

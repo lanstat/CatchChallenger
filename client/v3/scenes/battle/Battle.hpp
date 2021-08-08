@@ -27,13 +27,13 @@
 #include "../../ui/Progressbar.hpp"
 /*
 #include "../above/inventory/Inventory.hpp"
-#include "../above/monster/MonsterBag.hpp"
 */
+#include "../shared/monster/MonsterBag.hpp"
 
 namespace Scenes {
 class Battle : public Scene {
  public:
-  static Battle* Create();
+  static Battle *Create();
   ~Battle();
   void ChangeLanguage();
 
@@ -105,7 +105,7 @@ class Battle : public Scene {
   DoNextActionStep doNextActionStep;
 
   // Inventory *inventory_;
-  // MonsterBag *monsters_bag_;
+  MonsterBag *monsters_bag_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
   UI::MessageDialog *message_dialog_;

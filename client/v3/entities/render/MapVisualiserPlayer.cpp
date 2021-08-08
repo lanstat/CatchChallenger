@@ -2298,6 +2298,7 @@ void MapVisualiserPlayer::pathFindingResultInternal(
     pathResolved.path = path;
 
     if (!inMove) {
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "mapeo" << std::endl;
       inMove = true;
       if (this->current_map == current_map && this->x == x && this->y == y) {
         std::cout
@@ -2325,6 +2326,7 @@ void MapVisualiserPlayer::pathFindingResultInternal(
         std::cerr << "Wrong start point to start the path finding" << std::endl;
       }
     }
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "no debio entrar" << std::endl;
     wasPathFindingUsed = true;
     return;
   }

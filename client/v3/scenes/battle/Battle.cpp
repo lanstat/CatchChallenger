@@ -85,8 +85,8 @@ Battle::Battle() : Scene(nullptr) {
   message_dialog_ = nullptr;
   /*
   inventory_ = nullptr;
-  monsters_bag_ = nullptr;
   */
+  monsters_bag_ = nullptr;
 
   trap_ = nullptr;
 
@@ -97,9 +97,9 @@ Battle::Battle() : Scene(nullptr) {
 
 Battle::~Battle() {
   if (message_dialog_) delete message_dialog_;
+  if (monsters_bag_) delete monsters_bag_;
   /*
   delete inventory_;
-  delete monsters_bag_;
   */
 }
 
@@ -139,7 +139,8 @@ QPixmap Battle::GetBackSkin(const uint32_t &skinId) {
   /*const QPixmap skin(QString::fromStdString(getBackSkinPath(skinId)));
   if(!skin.isNull())
       return skin;*/
-  return QPixmap(":/CC/images/player_default/back2.png");
+  return *AssetsLoader::GetInstance()->GetImage(
+      ":/CC/images/player_default/back2.png");
 }
 
 void Battle::ShowActionBarTab(int index) {
@@ -1237,17 +1238,10 @@ void Battle::ShowMessageDialog(const QString &title, const QString &message) {
 }
 
 void Battle::ShowMonsterDialog() {
-  /*
   if (monsters_bag_ == nullptr) {
-    monsters_bag_ = new MonsterBag();
-    // monsters_bag_->setParent(this);
-    monsters_bag_->SetVar(connexionManager);
-    if (!connect(monsters_bag_, &MonsterBag::OnSelectMonster, this,
-                 &Battle::OnMonsterSelect))
-      abort();
+    monsters_bag_ = MonsterBag::Create();
   }
-  // emit setAbove(monsters_bag_);
-  */
+  AddChild(monsters_bag_);
 }
 
 void Battle::ShowBagDialog() {
@@ -3338,6 +3332,4 @@ void Battle::BotFightFullDiffered() {
   player_->RunAction(both_enter_);
 }
 
-void Battle::Finished() {
-  SceneManager::GetInstance()->PopScene();
-}
+void Battle::Finished() { SceneManager::GetInstance()->PopScene(); }

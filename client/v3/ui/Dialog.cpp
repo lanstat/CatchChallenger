@@ -65,7 +65,7 @@ void Dialog::OnScreenResize() {
   }
 
   background_->SetPos(x_, y_);
-  background_->SetSize(idealW, idealH);
+  background_->Strech(42, 42, 30, idealW, idealH);
 
   unsigned int space = 30;
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {

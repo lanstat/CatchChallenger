@@ -24,6 +24,7 @@ class Node {
   void SetHeight(int h);
   int Width();
   int Height();
+  virtual void OnResize();
   void SetVisible(bool visible);
   bool IsVisible();
   void SetEnabled(bool enabled);
