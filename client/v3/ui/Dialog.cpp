@@ -82,6 +82,8 @@ void Dialog::OnScreenResize() {
   const QRectF trect = title_->BoundingRect();
   title_->SetPos(x_ + (idealW - title_->BoundingRect().width()) / 2,
                  y_ - trect.height() / 2);
+
+  content_boundary_ = QRectF(x_ + 30, y_ + 20, idealW - 60, idealH - 60);
 }
 
 void Dialog::Draw(QPainter *painter) {
@@ -182,6 +184,6 @@ void Dialog::Close() {
   }
 }
 
-QRectF Dialog::ContainerBounding() const {
-  return background_->BoundingRect();
+QRectF Dialog::ContentBoundary() const {
+  return content_boundary_;
 }

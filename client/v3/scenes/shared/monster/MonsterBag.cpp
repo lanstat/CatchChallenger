@@ -40,8 +40,10 @@ void MonsterBag::OnScreenResize() {
   } else {
     quit_->SetSize(83, 94);
   }
-  monster_list_->SetPos(x_ + 20, y_ + 60);
-  monster_list_->SetSize(background_->Width() - 40, background_->Height() - 60);
+
+  auto inner = ContentBoundary();
+  monster_list_->SetPos(inner.x(), inner.y());
+  monster_list_->SetSize(inner.width(), inner.height());
 }
 
 void MonsterBag::newLanguage() { SetTitle(tr("Monsters")); }

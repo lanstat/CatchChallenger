@@ -111,7 +111,7 @@ bool Login::isOk() { return validated; }
 
 void Login::OnScreenResize() {
   UI::Dialog::OnScreenResize();
-  auto inner_rect = ContainerBounding();
+  auto inner_rect = ContentBoundary();
 
   auto font = loginText->GetFont();
   if (BoundingRect().width() < 600 || BoundingRect().height() < 640) {

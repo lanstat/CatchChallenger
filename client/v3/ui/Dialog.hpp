@@ -37,13 +37,14 @@ class Dialog : public Scene {
   void OnScreenResize() override;
   void Draw(QPainter *painter) override;
   void RecalculateActionButtons();
-  QRectF ContainerBounding() const;
+  QRectF ContentBoundary() const;
   virtual void OnActionClick(Node *node) = 0;
 
  private:
   std::vector<Button *> actions_;
   Label *title_;
   Sprite *title_background_;
+  QRectF content_boundary_;
 
   std::function<void()> on_close_;
 
