@@ -1197,7 +1197,9 @@ void MapVisualiserPlayer::stopAndSend() {
 
 void MapVisualiserPlayer::parseAction() {
   {  // to prevent flood and kick from server, mostly with infinite item on map
-    if (lastAction.elapsed() < 400) return;
+    if (lastAction.elapsed() < 400) {
+      return;
+    }
     lastAction.restart();
   }
   CatchChallenger::CommonMap *map = &all_map.at(current_map)->logicalMap;
@@ -2298,7 +2300,6 @@ void MapVisualiserPlayer::pathFindingResultInternal(
     pathResolved.path = path;
 
     if (!inMove) {
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "mapeo" << std::endl;
       inMove = true;
       if (this->current_map == current_map && this->x == x && this->y == y) {
         std::cout
@@ -2326,7 +2327,6 @@ void MapVisualiserPlayer::pathFindingResultInternal(
         std::cerr << "Wrong start point to start the path finding" << std::endl;
       }
     }
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "no debio entrar" << std::endl;
     wasPathFindingUsed = true;
     return;
   }

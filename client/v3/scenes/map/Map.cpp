@@ -10,7 +10,7 @@ Map::Map() {
   // todo: optimise by prevent create each time
   background_ = CCMap::Create();
 
-  overmap_ = new OverMapLogic();
+  overmap_ = OverMapLogic::Create();
   /*
   if (!connect(overmap, &OverMapLogic::error, this,
                &ScreenTransition::errorString))

@@ -184,11 +184,11 @@ bool Progressbar::OnTick() {
   return should_continue;
 }
 
-int Progressbar::Maximum() { return this->max_; }
+int Progressbar::Maximum() { return max_; }
 
-int Progressbar::Minimum() { return this->min_; }
+int Progressbar::Minimum() { return min_; }
 
-int Progressbar::Value() { return this->value_; }
+int Progressbar::Value() { return value_; }
 
 void Progressbar::SetSize(int width, int height) {
   if (bounding_rect_.width() == width && bounding_rect_.height() == height)

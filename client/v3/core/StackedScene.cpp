@@ -14,6 +14,7 @@ StackedScene::StackedScene(Node *parent) : Scene(parent) {
 StackedScene::~StackedScene() {}
 
 void StackedScene::SetBackground(Scene *scene) {
+  scene->SetZValue(-1);
   RemoveChild(background_);
   background_ = scene;
   AddChild(background_);
@@ -27,6 +28,7 @@ void StackedScene::PushForeground(Scene *scene) {
     RemoveChild(foreground_.back());
   }
 
+  scene->SetZValue(0);
   foreground_.push_back(scene);
   AddChild(scene);
 }

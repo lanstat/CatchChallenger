@@ -116,6 +116,7 @@ void CCMap::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 }
 
 void CCMap::MousePressEvent(const QPointF &p, bool &press_validated) {
+  if (press_validated) return;
   if (clicked) return;
   clicked = true;
   lastClickedPos = p;
@@ -186,6 +187,7 @@ void CCMap::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 void CCMap::OnEnter() {
   EventManager::GetInstance()->AddMouseListener(this);
   EventManager::GetInstance()->AddKeyboardListener(this);
+  mapController.unblock();
 }
 
 void CCMap::OnExit() { EventManager::GetInstance()->RemoveListener(this); }

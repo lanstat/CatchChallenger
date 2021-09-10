@@ -64,6 +64,10 @@ crafting = nullptr;
     abort();
 }
 
+OverMapLogic* OverMapLogic::Create() {
+  return new (std::nothrow) OverMapLogic();
+}
+
 void OverMapLogic::setVar(CCMap *ccmap) {
   this->ccmap = ccmap;
 
@@ -527,7 +531,9 @@ void OverMapLogic::actionOn(CatchChallenger::Map_client *map, uint8_t x,
   }
 }
 
-void OverMapLogic::actionOnNothing() { setIG_dialog(QString()); }
+void OverMapLogic::actionOnNothing() { 
+  setIG_dialog(QString()); 
+}
 
 int32_t OverMapLogic::havePlant(CatchChallenger::Map_client *map, uint8_t x,
                                 uint8_t y) const {

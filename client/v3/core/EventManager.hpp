@@ -9,6 +9,7 @@
 
 class Node;
 class HashElement;
+class HashScene;
 
 class EventManager {
  public:
@@ -21,6 +22,7 @@ class EventManager {
   void RemoveListener(Node *listener);
   void Lock();
   void UnLock();
+  void PrintData();
 
   void MousePressEvent(const QPointF &point, bool &press_validated);
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated);
@@ -32,14 +34,15 @@ class EventManager {
   EventManager();
 
   HashElement *DeleteHashElement(HashElement *item, HashElement *element);
-  HashElement *RemoveListener(HashElement *item, Node *listener);
-  HashElement *AddListener(HashElement *item, Node *listener, bool paused);
+  HashScene *DeleteHashScene(HashScene *item, HashScene *element);
+  HashScene *RemoveListener(HashScene *scene, Node *listener);
+  HashScene *AddListener(HashScene *scene, Node *listener, bool paused);
   struct HashElement *current_target_;
   bool current_target_salvaged_;
 
  protected:
   static EventManager *instance_;
-  struct HashElement *mouse_listeners_;
-  struct HashElement *keyboard_listeners_;
+  struct HashScene *mouse_listeners_;
+  struct HashScene *keyboard_listeners_;
 };
 #endif  // CLIENT_QTOPENGL_CORE_EVENTMANAGER_HPP_

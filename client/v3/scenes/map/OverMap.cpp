@@ -117,9 +117,8 @@ OverMap::OverMap() {
   if (!connect(IG_dialog_quit, &CustomButton::clicked, this,
                &OverMap::IG_dialog_close))
     abort();
-  if (!connect(buy, &CustomButton::clicked, this, &OverMap::buyClicked))
-    abort();
   */
+  buy->SetOnClick(std::bind(&OverMap::buyClicked, this));
 
   stopFlood.setSingleShot(false);
   stopFlood.start(1500);
@@ -443,12 +442,14 @@ void OverMap::OnEnter() {
   for (auto item : monsters) {
     item->RegisterEvents();
   }
+  buy->RegisterEvents();
 }
 
 void OverMap::OnExit() {
   for (auto item : monsters) {
     item->UnRegisterEvents();
   }
+  buy->UnRegisterEvents();
 }
 
 /*

@@ -7,11 +7,10 @@
 
 #include "../../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../../general/base/FacilityLibGeneral.hpp"
-#include "../../../qt/Settings.hpp"
-#include "../../../qt/solo/InternalServer.hpp"
+#include "../../Globals.hpp"
+#include "../../Settings.hpp"
 #include "../../base/ConnectionInfo.hpp"
 #include "../../base/ConnectionManager.hpp"
-#include "../../Globals.hpp"
 #include "../../core/StackedScene.hpp"
 #include "Loading.hpp"
 

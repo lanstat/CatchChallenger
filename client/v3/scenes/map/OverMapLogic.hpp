@@ -21,7 +21,7 @@ class OverMapLogic : public OverMap {
   Q_OBJECT
 
  public:
-  OverMapLogic();
+  static OverMapLogic* Create();
   void resetAll();
   void setVar(CCMap *ccmap) override;
   void OnEnter() override;
@@ -325,6 +325,8 @@ class OverMapLogic : public OverMap {
   std::vector<CatchChallenger::ItemToSellOrBuy> itemsToSell, itemsToBuy;
   std::vector<uint16_t> objectInUsing;
   std::vector<uint32_t> monster_to_deposit, monster_to_withdraw;
+
+  OverMapLogic();
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_OVERMAPLOGIC_HPP_

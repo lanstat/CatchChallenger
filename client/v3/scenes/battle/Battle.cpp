@@ -463,6 +463,7 @@ void Battle::BotFightInitialize(Map_client *map, const uint8_t &x,
     // emit error("fight id not found at collision");
     return;
   }
+  ShowActionBarTab(0);
   ConfigureFighters();
   ConfigureCommons();
 
@@ -491,6 +492,7 @@ void Battle::prepareFight() {
 // Initialize the battle for wild encounter
 bool Battle::WildFightInitialize(Map_client *map, const uint8_t &x,
                                  const uint8_t &y) {
+  ShowActionBarTab(0);
   ConfigureFighters();
   ConfigureCommons();
 
@@ -2653,6 +2655,8 @@ void Battle::OnActionEscapeClick(Node *) {
 void Battle::OnActionReturnClick(Node *) { ShowActionBarTab(1); }
 
 void Battle::ConfigureBattleground() {
+  std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+            << "warning!" << std::endl;
   const auto &playerInformations = client_->get_player_informations_ro();
   // map not located
   if (zone_collision_.walkOn.size() == 0) {
@@ -2665,18 +2669,22 @@ void Battle::ConfigureBattleground() {
 
     labelFightBackground->SetPixmap(
         QPixmap(QStringLiteral(":/CC/images/interface/fight/background.png"))
-            .scaled(800, 440));
+            .scaled(800, 440),
+        false);
     labelFightForeground->SetPixmap(
         QPixmap(QStringLiteral(":/CC/images/interface/fight/foreground.png"))
-            .scaled(800, 440));
+            .scaled(800, 440),
+        false);
     labelFightPlateformTop->SetPixmap(
         QPixmap(
             QStringLiteral(":/CC/images/interface/fight/plateform-front.png"))
-            .scaled(260, 90));
+            .scaled(260, 90),
+        false);
     labelFightPlateformBottom->SetPixmap(
         QPixmap(QStringLiteral(
                     ":/CC/images/interface/fight/plateform-background.png"))
-            .scaled(230, 90));
+            .scaled(230, 90),
+        false);
     return;
   }
   unsigned int index = 0;
@@ -2699,7 +2707,8 @@ void Battle::ConfigureBattleground() {
         if (QFile(baseSearch + "/background.png").exists()) {
           labelFightBackground->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/background.png"))
-                  .scaled(800, 440));
+                  .scaled(800, 440),
+              false);
         } else if (QFile(baseSearch + "/background.jpg").exists()) {
           const QList<QByteArray> &supportedImageFormats =
               QImageReader::supportedImageFormats();
@@ -2707,55 +2716,62 @@ void Battle::ConfigureBattleground() {
               supportedImageFormats.contains("jpg"))
             labelFightBackground->SetPixmap(
                 QPixmap(baseSearch + QStringLiteral("/background.jpg"))
-                    .scaled(800, 440));
+                    .scaled(800, 440),
+                false);
         } else
           labelFightBackground->SetPixmap(
               QPixmap(
                   QStringLiteral(":/CC/images/interface/fight/background.png"))
-                  .scaled(800, 440));
+                  .scaled(800, 440),
+              false);
 
         if (QFile(baseSearch + "/foreground.png").exists())
           labelFightForeground->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/foreground.png"))
-                  .scaled(800, 440));
+                  .scaled(800, 440),
+              false);
         else if (QFile(baseSearch + "/foreground.gif").exists())
           labelFightForeground->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/foreground.gif"))
-                  .scaled(800, 440));
+                  .scaled(800, 440),
+              false);
         else
           labelFightForeground->SetPixmap(
               QPixmap(
                   QStringLiteral(":/CC/images/interface/fight/foreground.png"))
-                  .scaled(800, 440));
+                  .scaled(800, 440),
+              false);
 
         if (QFile(baseSearch + "/plateform-front.png").exists())
           labelFightPlateformTop->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/plateform-front.png"))
-                  .scaled(260, 90));
+                  .scaled(260, 90),
+              false);
         else if (QFile(baseSearch + "/plateform-front.gif").exists())
           labelFightPlateformTop->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/plateform-front.gif"))
-                  .scaled(260, 90));
+                  .scaled(260, 90),
+              false);
         else
           labelFightPlateformTop->SetPixmap(
               QPixmap(QStringLiteral(
                           ":/CC/images/interface/fight/plateform-front.png"))
-                  .scaled(260, 90));
+                  .scaled(260, 90),
+              false);
 
         if (QFile(baseSearch + "/plateform-background.png").exists())
           labelFightPlateformBottom->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/plateform-background.png"))
-                  .scaled(230, 90));
+                  .scaled(230, 90),
+              false);
         else if (QFile(baseSearch + "/plateform-background.gif").exists())
           labelFightPlateformBottom->SetPixmap(
               QPixmap(baseSearch + QStringLiteral("/plateform-background.gif"))
-                  .scaled(230, 90));
+                  .scaled(230, 90),
+              false);
         else
           labelFightPlateformBottom->SetPixmap(
-              QPixmap(
-                  QStringLiteral(
-                      ":/CC/images/interface/fight/plateform-background.png"))
-                  .scaled(230, 90));
+              ":/CC/images/interface/fight/plateform-background.png", false);
       } else {
         labelFightBackgroundPix = QPixmap(
             QStringLiteral(":/CC/images/interface/fight/background.png"));
@@ -2765,21 +2781,13 @@ void Battle::ConfigureBattleground() {
             ":/CC/images/interface/fight/plateform-background.png"));
 
         labelFightBackground->SetPixmap(
-            QPixmap(
-                QStringLiteral(":/CC/images/interface/fight/background.png"))
-                .scaled(800, 440));
+            ":/CC/images/interface/fight/background.png", false);
         labelFightForeground->SetPixmap(
-            QPixmap(
-                QStringLiteral(":/CC/images/interface/fight/foreground.png"))
-                .scaled(800, 440));
+            ":/CC/images/interface/fight/foreground.png", false);
         labelFightPlateformTop->SetPixmap(
-            QPixmap(QStringLiteral(
-                        ":/CC/images/interface/fight/plateform-front.png"))
-                .scaled(260, 90));
+            ":/CC/images/interface/fight/plateform-front.png", false);
         labelFightPlateformBottom->SetPixmap(
-            QPixmap(QStringLiteral(
-                        ":/CC/images/interface/fight/plateform-background.png"))
-                .scaled(230, 90));
+            ":/CC/images/interface/fight/plateform-background.png", false);
       }
       return;
     }
@@ -2792,12 +2800,10 @@ void Battle::ConfigureBattleground() {
   labelFightPlateformBottomPix = QPixmap(
       QStringLiteral(":/CC/images/interface/fight/plateform-background.png"));
 
-  labelFightBackground->SetPixmap(
-      QPixmap(QStringLiteral(":/CC/images/interface/fight/background.png"))
-          .scaled(800, 440));
-  labelFightForeground->SetPixmap(
-      QPixmap(QStringLiteral(":/CC/images/interface/fight/foreground.png"))
-          .scaled(800, 440));
+  labelFightBackground->SetPixmap(":/CC/images/interface/fight/background.png",
+                                  false);
+  labelFightForeground->SetPixmap(":/CC/images/interface/fight/foreground.png",
+                                  false);
   labelFightPlateformTop->SetPixmap(
       QPixmap(QStringLiteral(":/CC/images/interface/fight/plateform-front.png"))
           .scaled(260, 90));

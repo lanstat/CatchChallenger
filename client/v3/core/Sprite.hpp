@@ -19,6 +19,7 @@ class Sprite : public Node, public Stateful {
   };
 
   void SetPixmap(const QString &file_name);
+  void SetPixmap(const QString &file_name, bool preserve_size);
   void SetPixmap(const QPixmap pixmap);
   void SetPixmap(const QPixmap pixmap, bool preserve_size);
   QPixmap Pixmap() const;

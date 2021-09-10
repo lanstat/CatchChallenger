@@ -4,7 +4,7 @@
 
 #include <QThread>
 
-#include "../qt/solo/InternalServer.hpp"
+#include "entities/solo/InternalServer.hpp"
 #include "scenes/battle/Battle.hpp"
 #include "scenes/leading/Leading.hpp"
 #include "scenes/map/Map.hpp"

@@ -3,9 +3,6 @@
 
 #ifdef CATCHCHALLENGER_SOLO
   #include <QStandardPaths>
-
-  #include "../../qt/Settings.hpp"
-  #include "../../qt/solo/InternalServer.hpp"
 #endif
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/Version.hpp"
@@ -300,6 +297,10 @@ void SceneManager::SetTargetFPS(int targetFPS) {
 
 void SceneManager::OnError(std::string error) {}
 
-void SceneManager::OnDisconnect() {}
+void SceneManager::OnDisconnect() {
+#ifdef CATCHCHALLENGER_SOLO
+  if (Globals::InternalServer != nullptr) Globals::InternalServer->stop();
+#endif
+}
 
 void SceneManager::ShowAlert(QString message) {}

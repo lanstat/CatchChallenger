@@ -10,6 +10,7 @@
 #include "ActionManager.hpp"
 
 Node::Node(Node *parent) {
+  class_name_ = __func__;
   on_click_ = nullptr;
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   visible_ = true;
@@ -57,8 +58,8 @@ void Node::AddChild(Node *child) {
 
 void Node::RemoveChild(Node *child) {
   if (child == nullptr) return;
-  child->SetParent(nullptr);
   child->OnExit();
+  child->SetParent(nullptr);
   node_to_delete_.push_back(child);
 
   CleanNodeToDelete();
@@ -108,6 +109,10 @@ int Node::X() { return bounding_rect_.x(); }
 int Node::Y() { return bounding_rect_.y(); }
 
 void Node::SetSize(int w, int h) {
+  if (scale_ > 0) {
+    w = w * scale_;
+    h = h * scale_;
+  }
   bounding_rect_.setWidth(w);
   bounding_rect_.setHeight(h);
   OnResize();
@@ -264,7 +269,7 @@ std::vector<Node *> Node::Children() { return children_; }
 void Node::SetScale(qreal value) {
   scale_ = value;
   const auto rect = BoundingRect();
-  SetSize(rect.width() * value, rect.height() * value);
+  SetSize(rect.width(), rect.height());
 }
 
 qreal Node::Scale() { return scale_; }
@@ -277,3 +282,7 @@ void Node::Draw(QPainter *painter) {
 }
 
 void Node::OnResize() {}
+
+std::string Node::ClassName() const {
+  return class_name_;
+}

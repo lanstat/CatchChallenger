@@ -12,7 +12,9 @@
 #include "Node.hpp"
 #include "SceneManager.hpp"
 
-Scene::Scene(Node *parent) : Node(parent) {}
+Scene::Scene(Node *parent) : Node(parent) {
+  class_name_ = __func__;
+}
 
 Scene::~Scene() {}
 

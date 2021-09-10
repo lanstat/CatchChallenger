@@ -408,7 +408,8 @@ SOURCES += \
     $$PWD/entities/render/TileLayerItem.cpp \
     $$PWD/entities/render/TriggerAnimation.cpp \
     $$PWD/entities/ChatParsing.cpp \
-    $$PWD/entities/Map_client.cpp
+    $$PWD/entities/Map_client.cpp \
+    $$PWD/entities/Utils.cpp
 HEADERS  += \
     $$PWD/entities/render/MapController.hpp \
     $$PWD/entities/render/MapControllerMP.hpp \
@@ -430,7 +431,8 @@ HEADERS  += \
     $$PWD/entities/ClientStructures.hpp \
     $$PWD/entities/DisplayStructures.hpp \
     $$PWD/entities/ChatParsing.hpp \
-    $$PWD/entities/Map_client.hpp
+    $$PWD/entities/Map_client.hpp \
+    $$PWD/entities/Utils.hpp
 
 wasm: {
     DEFINES += NOTCPSOCKET
@@ -472,7 +474,7 @@ SOURCES += \
     $$PWD/../tarcompressed/ZstdDecode.cpp \
     $$PWD/../qt/fight/interface/ClientFightEngine.cpp \
     $$PWD/../qt/ExtraSocket.cpp \
-    $$PWD/../qt/Settings.cpp \
+    $$PWD/Settings.cpp \
     $$PWD/core/AssetsLoader.cpp \
     $$PWD/core/AssetsLoaderThread.cpp \
     $$PWD/core/Logger.cpp \
@@ -493,7 +495,7 @@ HEADERS  += \
     $$PWD/../tarcompressed/ZstdDecode.hpp \
     $$PWD/../qt/fight/interface/ClientFightEngine.hpp \
     $$PWD/../qt/ExtraSocket.hpp \
-    $$PWD/../qt/Settings.hpp \
+    $$PWD/Settings.hpp \
     $$PWD/core/AssetsLoader.hpp \
     $$PWD/core/AssetsLoaderThread.hpp \
     $$PWD/core/Logger.hpp \

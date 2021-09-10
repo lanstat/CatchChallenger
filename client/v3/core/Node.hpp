@@ -35,6 +35,7 @@ class Node {
   Node *Parent();
   /** Get the root node */
   Node *Root();
+  std::string ClassName() const;
   QRectF MapRectToScene(QRectF inner) const;
   /** Start an action */
   void RunAction(Action *action);
@@ -81,6 +82,7 @@ class Node {
   std::function<void(Node *)> on_click_;
   std::vector<Node *> children_;
   Node *parent_;
+  std::string class_name_;
   QString node_type_;
 
   explicit Node(Node *parent = nullptr);

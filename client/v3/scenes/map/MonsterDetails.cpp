@@ -195,7 +195,7 @@ void MonsterDetails::OnScreenResize() {
 
   int hp_bar_width = hp_bar->Width();
   int hp_bar_height = hp_bar->Height();
-  tempY += monsterDetailsCatched->Height() * monsterDetailsCatched->Scale();
+  tempY = monsterDetailsName->Y() + monsterDetailsName->Height() + 30;
   unsigned int tempBarW =
       hp_text->Width() + space + hp_bar_width * hp_bar->Scale();
   unsigned int tempX =
@@ -236,7 +236,7 @@ void MonsterDetails::NewLanguage() {
 }
 
 void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
-  /// TODO monsterDetailsBuffs
+  // TODO(alphaonex86): monsterDetailsBuffs
 
   QLinearGradient gradient1(0, 0, 0, 100);
   QLinearGradient gradient2(0, 0, 0, 100);
@@ -342,10 +342,8 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
 
   hp_bar->SetMaximum(stat.hp);
   hp_bar->SetValue(monster.hp);
-  hp_bar->SetSize(50, 8);
   xp_bar->SetMaximum(maxXp);
   xp_bar->SetValue(monster.remaining_xp);
-  xp_bar->SetSize(50, 8);
 
   QString detailsString;
   detailsString += tr("Speed: %1").arg(stat.speed) + "<br />";
@@ -449,4 +447,5 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
           index++;
       }
   }*/
+  ReDraw();
 }
