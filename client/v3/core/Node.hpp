@@ -12,7 +12,7 @@ class ActionManager;
 
 class Node {
  public:
-  ~Node();
+  virtual ~Node();
 
   void SetPos(int x, int y);
   void SetX(int x);

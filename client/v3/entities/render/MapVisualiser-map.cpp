@@ -28,7 +28,9 @@ void MapVisualiser::destroyMap(Map_full *map) {
     n.second->deleteLater();
   }
   map->doors.clear();
-  if (map->tiledMap != NULL) mapItem->removeMap(map->tiledMap);
+  if (map->tiledMap != NULL) {
+    mapItem->removeMap(map->tiledMap);
+  }
   if (all_map.find(map->logicalMap.map_file) != all_map.cend()) {
     all_map[map->logicalMap.map_file] = NULL;
     all_map.erase(map->logicalMap.map_file);
@@ -578,10 +580,16 @@ void MapVisualiser::removeUnusedMap() {
 
 void MapVisualiser::hideNotloadedMap() {
   // undisplay the map not in dirrect contact with the current_map
-  for (const auto &n : all_map)
-    if (n.second->logicalMap.map_file != current_map)
-      if (!n.second->displayed) mapItem->removeMap(n.second->tiledMap);
-  for (const auto &n : old_all_map) mapItem->removeMap(n.second->tiledMap);
+  for (const auto &n : all_map) {
+    if (n.second->logicalMap.map_file != current_map) {
+      if (!n.second->displayed) {
+        mapItem->removeMap(n.second->tiledMap);
+      } 
+    }
+  }
+  for (const auto &n : old_all_map) {
+    mapItem->removeMap(n.second->tiledMap);
+  }
 }
 
 void MapVisualiser::passMapIntoOld() {

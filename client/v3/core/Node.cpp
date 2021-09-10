@@ -29,7 +29,11 @@ Node::Node(Node *parent) {
 }
 
 Node::~Node() {
-  delete node_cache_;
+  if (node_cache_ != nullptr) {
+    delete node_cache_;
+  }
+  node_cache_ = nullptr;
+
   if (parent_) {
     parent_->RemoveChild(this);
   }

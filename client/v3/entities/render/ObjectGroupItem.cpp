@@ -3,6 +3,7 @@
 #include <QtCore/qmath.h>
 
 #include <QDebug>
+#include <iostream>
 
 #include "MapObjectItem.hpp"
 
@@ -18,7 +19,8 @@ ObjectGroupItem::ObjectGroupItem(Tiled::ObjectGroup *objectGroup, Node *parent)
   QList<Tiled::MapObject *> objects = mObjectGroup->objects();
   int index = 0;
   while (index < objects.size()) {
-    MapObjectItem *mapObjectItem = MapObjectItem::Create(objects.at(index), this);
+    MapObjectItem *mapObjectItem =
+        MapObjectItem::Create(objects.at(index), this);
     mapObjectItem->SetZValue(qCeil(objects.at(index)->y()));
     MapObjectItem::objectLink[objects.at(index)] = mapObjectItem;
     index++;

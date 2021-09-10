@@ -49,16 +49,8 @@ class OverMap : public QObject, public Scene {
   void keyPressEvent(QKeyEvent *event, bool &eventTriggerGeneral) override;
   void keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) override;
   */
-  void lineEdit_chat_text_returnPressed();
   void buyClicked();
   void IG_dialog_close();
-  void comboBox_chat_type_currentIndexChanged(int index);
-  void new_system_text(const CatchChallenger::Chat_type &chat_type,
-                       const std::string &text);
-  void new_chat_text(CatchChallenger::Chat_type chat_type, std::string text,
-                     std::string pseudo,
-                     CatchChallenger::Player_type player_type);
-  void removeNumberForFlood();
 
   void openMonster(Node *item);
   void updatePlayerNumber(const uint16_t &number, const uint16_t &max_players);
@@ -70,9 +62,6 @@ class OverMap : public QObject, public Scene {
   void OnExit() override;
 
  protected:
-  QTimer stopFlood;
-  int numberForFlood;
-  std::string lastMessageSend;
   ConnectionManager *connexionManager;
   MonsterDetails *monsterDetails;
 
@@ -89,13 +78,6 @@ class OverMap : public QObject, public Scene {
   Sprite *playersCountBack;
   UI::Label *playersCount;
 
-  Sprite *chatBack;
-  UI::Label *chatText;
-  UI::Input *chatInput;
-  UI::Combo *chatType;
-  UI::Button *chat;
-  UI::Label *chatOver;
-
   UI::Button *bag;
   UI::Label *bagOver;
   UI::Button *buy;
@@ -111,7 +93,6 @@ class OverMap : public QObject, public Scene {
   UI::Button *IG_dialog_quit;
   QString IG_dialog_nameString;
   QString IG_dialog_textString;
-  Sprite *labelSlow;
 
   Sprite *tipBack;
   UI::Label *tip;
@@ -127,8 +108,6 @@ class OverMap : public QObject, public Scene {
 
   void OnScreenResize() override;
 
- private:
-  void updateChat();
 };
 }  // namespace Scenes
 #endif  // MULTI_H

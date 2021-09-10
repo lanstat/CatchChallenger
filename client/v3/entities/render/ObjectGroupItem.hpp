@@ -27,7 +27,7 @@
 class ObjectGroupItem : public Node {
  public:
   static ObjectGroupItem* Create(Tiled::ObjectGroup *objectGroup, Node *parent = nullptr);
-  ~ObjectGroupItem();
+  virtual ~ObjectGroupItem();
   void Draw(QPainter *) override;
   bool isVisible() const;
   void addObject(Tiled::MapObject *object);

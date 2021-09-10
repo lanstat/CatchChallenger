@@ -32,15 +32,6 @@ OverMap::OverMap() {
       Sprite::Create(":/CC/images/interface/multicount.png", this);
   playersCount = UI::Label::Create(this);
 
-  chatBack = Sprite::Create(":/CC/images/interface/chatBackground.png", this);
-  chatText = UI::Label::Create(this);
-  chatInput = UI::Input::Create(this);
-  chatType = UI::Combo::Create(":/CC/images/interface/button.png", this);
-  chatType->SetZValue(5);
-  chat = UI::Button::Create(":/CC/images/interface/chat.png", this);
-  chatOver = UI::Label::Create(QColor(255, 255, 255), QColor(80, 71, 38), this);
-  chat->SetCheckable(true);
-
   bag = UI::Button::Create(":/CC/images/interface/bag.png", this);
   bagOver = UI::Label::Create(QColor(255, 255, 255), QColor(80, 71, 38), this);
   buy = UI::Button::Create(":/CC/images/interface/buy.png", this);
@@ -71,7 +62,6 @@ OverMap::OverMap() {
       Sprite::Create(":/CC/images/interface/chatBackground.png", this);
   persistant_tip = UI::Label::Create(persistant_tipBack);
 
-  labelSlow = Sprite::Create(":/CC/images/multi/slow.png", this);
 
   if (false) {
     {
@@ -102,26 +92,7 @@ OverMap::OverMap() {
           abort();*/
   newLanguage();
 
-  /*
-  if (!connect(&stopFlood, &QTimer::timeout, this,
-               &OverMap::removeNumberForFlood, Qt::QueuedConnection))
-    abort();
-  if (!connect(
-          chatType,
-          static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
-          this, &OverMap::comboBox_chat_type_currentIndexChanged))
-    abort();
-  if (!connect(chatInput, &LineEdit::returnPressed, this,
-               &OverMap::lineEdit_chat_text_returnPressed))
-    abort();
-  if (!connect(IG_dialog_quit, &CustomButton::clicked, this,
-               &OverMap::IG_dialog_close))
-    abort();
-  */
   buy->SetOnClick(std::bind(&OverMap::buyClicked, this));
-
-  stopFlood.setSingleShot(false);
-  stopFlood.start(1500);
 }
 
 OverMap::~OverMap() {}
@@ -135,7 +106,6 @@ void OverMap::resetAll() {
 
 void OverMap::setVar(CCMap *ccmap) {
   (void)ccmap;
-  lastMessageSend.clear();
   connect(connexionManager->client,
           &CatchChallenger::Api_protocol_Qt::Qtnumber_of_player, this,
           &OverMap::updatePlayerNumber, Qt::UniqueConnection);
@@ -147,24 +117,6 @@ void OverMap::setVar(CCMap *ccmap) {
     const auto &info = connexionManager->client->get_player_informations_ro();
     have_current_player_info(info);
   }
-  chatType->Clear();
-  chatType->AddItem(tr("All"));
-  // chatType->setItemData(0, 0, 99);
-  chatType->AddItem(tr("Local"));
-  // chatType->setItemData(1, 1, 99);
-  /*if(haveClan)
-  {
-      chatType->addItem(tr("Clan"));
-      chatType->setItemData(2,2,99);
-  }*/
-  numberForFlood = 0;
-  connect(connexionManager->client,
-          &CatchChallenger::Api_protocol_Qt::Qtnew_chat_text, this,
-          &OverMap::new_chat_text, Qt::UniqueConnection);
-  connect(connexionManager->client,
-          &CatchChallenger::Api_protocol_Qt::Qtnew_system_text, this,
-          &OverMap::new_system_text, Qt::UniqueConnection);
-  updateChat();
 }
 
 void OverMap::have_current_player_info(
@@ -212,14 +164,8 @@ void OverMap::updatePlayerNumber(const uint16_t &number,
 
 void OverMap::newLanguage() {
   // name->setHtml(tr(""));
-  chatOver->SetText(tr("Chat"));
   bagOver->SetText(tr("Bag"));
   buyOver->SetText(tr("Buy"));
-  /*
-  chatType->setItemText(0, tr("All"));
-  chatType->setItemText(1, tr("Local"));
-  if (chatType->count() > 2) chatType->setItemText(2, tr("Clan"));
-  */
 }
 
 void OverMap::OnScreenResize() {
@@ -288,48 +234,6 @@ void OverMap::OnScreenResize() {
   int physicalDpiX = 300;
 
   unsigned int xLeft = space;
-  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
-    chat->SetSize(84 / 2, 93 / 2);
-    chatOver->SetVisible(false);
-  } else {
-    chat->SetSize(84, 93);
-    chatOver->SetVisible(physicalDpiX < 200);
-  }
-  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
-    chatBack->SetSize(200, 200);
-    chatInput->SetWidth(140);
-    chatType->SetWidth(60);
-  } else {
-    chatBack->SetSize(300, 400);
-    chatInput->SetWidth(200);
-    chatType->SetWidth(100);
-  }
-  unsigned int chatX = xLeft;
-  unsigned int chatY = bounding_rect_.height() - space - chat->Height();
-  chat->SetPos(chatX, chatY);
-  xLeft += chat->Width() + space;
-  if (chatOver->IsVisible()) {
-    chatOver->SetPixelSize(18);
-    chatOver->SetPos(chatX + chat->Width() / 2 - chatOver->Width() / 2,
-                     bounding_rect_.height() - space - chatOver->Height());
-  }
-  chatBack->SetVisible(chat->IsChecked());
-  chatText->SetVisible(chat->IsChecked());
-  chatInput->SetVisible(chat->IsChecked());
-  chatType->SetVisible(chat->IsChecked());
-  if (chat->IsChecked()) {
-    unsigned int y = chatY - 3 - chatInput->Height();
-    chatInput->SetPos(space, y);
-    chatType->SetPos(space + chatInput->Width() + 2, y);
-
-    y -= 3 + chatBack->Height();
-    chatBack->SetPos(space, y);
-    chatText->SetPos(space + space, y + space);
-  }
-  if (labelSlow->IsVisible()) {
-    labelSlow->SetPos(xLeft, chatY);
-    xLeft += labelSlow->Pixmap().width() + space;
-  }
 
   // compose from right to left
   unsigned int xRight = bounding_rect_.width() - space;
@@ -543,169 +447,6 @@ void OverMap::mouseMoveEventXY(
 */
 
 void OverMap::IG_dialog_close() { IG_dialog_textString.clear(); }
-
-void OverMap::lineEdit_chat_text_returnPressed() {
-  auto &playerInformations =
-      connexionManager->client->get_player_informations();
-  QString text = chatInput->Value();
-  text.remove("\n");
-  text.remove("\r");
-  text.remove("\t");
-  if (text.isEmpty()) return;
-  if (text.contains(QRegularExpression("^ +$"))) {
-    chatInput->Clear();
-    connexionManager->client->add_system_text(CatchChallenger::Chat_type_system,
-                                              "Space text not allowed");
-    return;
-  }
-  if (text.size() > 256) {
-    chatInput->Clear();
-    connexionManager->client->add_system_text(CatchChallenger::Chat_type_system,
-                                              "Message too long");
-    return;
-  }
-  if (!text.startsWith('/')) {
-    if (text.toStdString() == lastMessageSend) {
-      chatInput->Clear();
-      connexionManager->client->add_system_text(
-          CatchChallenger::Chat_type_system, "Send message like as previous");
-      return;
-    }
-    if (numberForFlood > 2) {
-      chatInput->Clear();
-      connexionManager->client->add_system_text(
-          CatchChallenger::Chat_type_system, "Stop flood");
-      return;
-    }
-  }
-  numberForFlood++;
-  lastMessageSend = text.toStdString();
-  chatInput->SetValue(QString());
-  if (!text.startsWith("/pm ")) {
-    CatchChallenger::Chat_type chat_type;
-    switch (chatType->ItemData(chatType->CurrentIndex(), 99)) {
-      default:
-      case 0:
-        chat_type = CatchChallenger::Chat_type_all;
-        break;
-      case 1:
-        chat_type = CatchChallenger::Chat_type_local;
-        break;
-      case 2:
-        chat_type = CatchChallenger::Chat_type_clan;
-        break;
-    }
-    connexionManager->client->sendChatText(chat_type, text.toStdString());
-    if (!text.startsWith('/'))
-      connexionManager->client->add_chat_text(
-          chat_type, text.toStdString(),
-          connexionManager->client->player_informations.public_informations
-              .pseudo,
-          connexionManager->client->player_informations.public_informations
-              .type);
-  } else if (text == "/clan_leave") {
-    actionClan.push_back(ActionClan_Leave);
-    connexionManager->client->leaveClan();
-  } else if (text == "/clan_dissolve") {
-    actionClan.push_back(ActionClan_Dissolve);
-    connexionManager->client->dissolveClan();
-  } else if (!text.startsWith("/clan_invite ")) {
-    text.remove(0, std::string("/clan_invite ").size());
-    if (!text.isEmpty()) {
-      actionClan.push_back(ActionClan_Invite);
-      connexionManager->client->inviteClan(text.toStdString());
-    }
-  } else if (!text.startsWith("/clan_eject ")) {
-    text.remove(0, std::string("/clan_eject ").size());
-    if (!text.isEmpty()) {
-      actionClan.push_back(ActionClan_Eject);
-      connexionManager->client->ejectClan(text.toStdString());
-    }
-  } else if (text == "/clan_informations") {
-    if (!haveClanInformations)
-      connexionManager->client->add_system_text(
-          CatchChallenger::Chat_type::Chat_type_system, "No clan information");
-    else if (clanName.empty() || playerInformations.clan == 0)
-      connexionManager->client->add_system_text(
-          CatchChallenger::Chat_type::Chat_type_system, "No clan");
-    else
-      connexionManager->client->add_system_text(
-          CatchChallenger::Chat_type::Chat_type_system, "Name: " + clanName);
-  } else if (text.contains(QRegularExpression("^/pm [^ ]+ .+$"))) {
-    QString pseudo = text;
-    pseudo.replace(QRegularExpression("^/pm ([^ ]+) .+$"), "\\1");
-    text.replace(QRegularExpression("^/pm [^ ]+ (.+)$"), "\\1");
-    connexionManager->client->sendPM(text.toStdString(), pseudo.toStdString());
-    connexionManager->client->add_chat_text(
-        CatchChallenger::Chat_type_pm, text.toStdString(),
-        tr("To: ").toStdString() + pseudo.toStdString(),
-        CatchChallenger::Player_type_normal);
-  }
-  updateChat();
-}
-
-void OverMap::comboBox_chat_type_currentIndexChanged(int index) {
-  Q_UNUSED(index)
-  updateChat();
-}
-
-void OverMap::new_system_text(const CatchChallenger::Chat_type &chat_type,
-                              const std::string &text) {
-  updateChat();
-}
-
-void OverMap::new_chat_text(CatchChallenger::Chat_type chat_type,
-                            std::string text, std::string pseudo,
-                            CatchChallenger::Player_type player_type) {
-  updateChat();
-}
-
-void OverMap::updateChat() {
-  const std::vector<CatchChallenger::Api_protocol::ChatEntry> &chat_list =
-      connexionManager->client->getChatContent();
-  QString nameHtml;
-  unsigned int index = 0;
-  while (index < chat_list.size()) {
-    const CatchChallenger::Api_protocol::ChatEntry &entry = chat_list.at(index);
-    bool addPlayerInfo = true;
-    if (entry.chat_type == CatchChallenger::Chat_type_system ||
-        entry.chat_type == CatchChallenger::Chat_type_system_important)
-      addPlayerInfo = false;
-    if (!addPlayerInfo)
-      nameHtml +=
-          QString::fromStdString(CatchChallenger::ChatParsing::new_chat_message(
-              std::string(), CatchChallenger::Player_type_normal,
-              entry.chat_type, entry.text));
-    else
-      nameHtml +=
-          QString::fromStdString(CatchChallenger::ChatParsing::new_chat_message(
-              entry.player_pseudo, entry.player_type, entry.chat_type,
-              entry.text));
-    index++;
-  }
-  chatText->SetText(nameHtml);
-}
-
-void OverMap::removeNumberForFlood() {
-  if (numberForFlood <= 0) return;
-  numberForFlood--;
-}
-
-/*
-void OverMap::keyPressEvent(QKeyEvent *event, bool &eventTriggerGeneral) {
-  if (chat->isChecked() && chatInput->hasFocus())
-    chatInput->keyPressEvent(event);
-  else
-    eventTriggerGeneral = false;
-}
-
-void OverMap::keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) {
-  if (chat->isChecked() && chatInput->hasFocus())
-    chatInput->keyReleaseEvent(event);
-  else
-    eventTriggerGeneral = false;
-}
-*/
 
 void OverMap::buyClicked() {
   QDesktopServices::openUrl(tr("https://shop.first-world.info/en/") +

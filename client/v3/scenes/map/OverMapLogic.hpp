@@ -76,7 +76,6 @@ class OverMapLogic : public OverMap {
   void selectObject(const ObjectType &objectType);
   void objectSelection(const bool &ok, const uint16_t &itemId = 0,
                        const uint32_t &quantity = 1);
-  void lastReplyTime(const uint32_t &time);
   void bag_open();
   void inventoryNext();
   void inventoryBack();
@@ -112,8 +111,6 @@ class OverMapLogic : public OverMap {
   void addQuery(const QueryType &queryType);
   void removeQuery(const QueryType &queryType);
   void updateQueryList();
-  void updateTheTurtle();
-  void detectSlowDown();
   bool stopped_in_front_of_check_bot(CatchChallenger::Map_client *map,
                                      uint8_t x, uint8_t y);
 
@@ -281,8 +278,6 @@ class OverMapLogic : public OverMap {
   std::vector<QueryType> queryList;
 
   QTimer checkQueryTime;
-  int lastReplyTimeValue;
-  QTime lastReplyTimeSince;
   uint32_t worseQueryTime;
   uint8_t lastStepUsed;
 

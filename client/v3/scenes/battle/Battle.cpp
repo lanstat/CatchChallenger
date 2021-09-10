@@ -2655,8 +2655,6 @@ void Battle::OnActionEscapeClick(Node *) {
 void Battle::OnActionReturnClick(Node *) { ShowActionBarTab(1); }
 
 void Battle::ConfigureBattleground() {
-  std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-            << "warning!" << std::endl;
   const auto &playerInformations = client_->get_player_informations_ro();
   // map not located
   if (zone_collision_.walkOn.size() == 0) {

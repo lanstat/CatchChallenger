@@ -364,8 +364,6 @@ void Menu::OnEnter() {
   if (!is_loaded_) return;
   solo_->RegisterEvents();
   multi_->RegisterEvents();
-  intptr_t point = reinterpret_cast<intptr_t>(this);
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< point << std::endl;
 }
 
 void Menu::OnExit() {

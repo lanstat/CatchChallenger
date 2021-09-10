@@ -39,13 +39,9 @@ crafting = nullptr;
   playerIndex = 0;
 
   multiplayer = true;
-  lastReplyTimeValue = 0;
   worseQueryTime = 0;
 
   checkQueryTime.start(200);
-  if (!connect(&checkQueryTime, &QTimer::timeout, this,
-               &OverMapLogic::detectSlowDown))
-    abort();
   tip_timeout.setInterval(8000);
   gain_timeout.setInterval(500);
   tip_timeout.setSingleShot(true);
@@ -117,7 +113,6 @@ void OverMapLogic::setVar(CCMap *ccmap) {
 
 void OverMapLogic::resetAll() {
   lastStepUsed = 0;
-  lastReplyTimeValue = 0;
   worseQueryTime = 0;
   add_to_inventoryGainList.clear();
   add_to_inventoryGainTime.clear();
@@ -153,20 +148,6 @@ void OverMapLogic::resetAll() {
   objectInUsing.clear();
   monster_to_deposit.clear();
   monster_to_withdraw.clear();
-}
-
-void OverMapLogic::lastReplyTime(const uint32_t &time) {
-  // ui->labelLastReplyTime->setText(tr("Last reply time: %1ms").arg(time));
-  if (lastReplyTimeValue <= 700 || lastReplyTimeSince.elapsed() > 15 * 1000) {
-    lastReplyTimeValue = time;
-    lastReplyTimeSince.restart();
-  } else {
-    if (time > 700) {
-      lastReplyTimeValue = time;
-      lastReplyTimeSince.restart();
-    }
-  }
-  updateTheTurtle();
 }
 
 void OverMapLogic::pathFindingNotFound() { showTip("No path to go here"); }
@@ -251,10 +232,6 @@ void OverMapLogic::setIG_dialog(QString text, QString name) {
 
 void OverMapLogic::connectAllSignals() {
   // for bug into solo player: Api_client_real -> Api_protocol
-  if (!connect(connexionManager->client,
-               &CatchChallenger::Api_client_real::QtlastReplyTime, this,
-               &OverMapLogic::lastReplyTime, Qt::UniqueConnection))
-    abort();
   if (!connect(connexionManager->client,
                &CatchChallenger::Api_client_real::QtclanActionFailed, this,
                &OverMapLogic::clanActionFailed, Qt::UniqueConnection))
@@ -1142,60 +1119,6 @@ void OverMapLogic::updateQueryList() {
   }
   persistant_tipString = queryStringList.join("<br />");
   persistant_tip->SetText(persistant_tipString);
-}
-
-void OverMapLogic::detectSlowDown() {
-  if (connexionManager->client == nullptr) return;
-  uint32_t queryCount = 0;
-  worseQueryTime = 0;
-  std::vector<std::string> middleQueryList;
-  const std::map<uint8_t, uint64_t> &values =
-      connexionManager->client->getQuerySendTimeList();
-  queryCount += values.size();
-  for (const auto n : values) {
-    middleQueryList.push_back(std::to_string(n.first));
-    std::time_t result = std::time(nullptr);
-    if ((uint64_t)result >= n.second) {
-      const uint32_t &time = result - n.second;
-      if (time > worseQueryTime) worseQueryTime = time;
-    }
-  }
-  /*if(queryCount>0)
-      ui->labelQueryList->setText(
-                  tr("Running query: %1 (%3 and %4), query with worse time:
-  %2ms") .arg(queryCount) .arg(worseQueryTime)
-                  .arg(QString::fromStdString(stringimplode(connexionManager->client->getQueryRunningList(),';')))
-                  .arg(QString::fromStdString(stringimplode(middleQueryList,";")))
-                  );
-  else
-      ui->labelQueryList->setText(tr("No query running"));*/
-  updateTheTurtle();
-}
-
-void OverMapLogic::updateTheTurtle() {
-  if (!multiplayer) {
-    if (!labelSlow->IsVisible()) return;
-    labelSlow->SetVisible(false);
-    return;
-  }
-  if (lastReplyTimeValue > 700 && lastReplyTimeSince.elapsed() < 15 * 1000) {
-    // qDebug() << "The last query was slow:" << lastReplyTimeValue << ">" <<
-    // 700 << " && " << lastReplyTimeSince.elapsed() << "<" << 15*1000;
-    if (labelSlow->IsVisible()) return;
-    labelSlow->SetToolTip(
-        tr("The last query was slow (%1ms)").arg(lastReplyTimeValue));
-    labelSlow->SetVisible(true);
-    return;
-  }
-  if (worseQueryTime > 700) {
-    if (labelSlow->IsVisible()) return;
-    labelSlow->SetToolTip(
-        tr("Remain query in suspend (%1ms ago)").arg(worseQueryTime));
-    labelSlow->SetVisible(true);
-    return;
-  }
-  if (!labelSlow->IsVisible()) return;
-  labelSlow->SetVisible(false);
 }
 
 bool OverMapLogic::stopped_in_front_of_check_bot(
