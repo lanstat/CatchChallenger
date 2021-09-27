@@ -19,18 +19,19 @@ class Node {
   void SetY(int y);
   int X();
   int Y();
-  void SetSize(int width, int height);
-  void SetWidth(int w);
-  void SetHeight(int h);
+  virtual void SetSize(int width, int height);
+  virtual void SetWidth(int w);
+  virtual void SetHeight(int h);
   int Width();
   int Height();
-  virtual void OnResize();
   void SetVisible(bool visible);
   bool IsVisible();
   void SetEnabled(bool enabled);
   bool IsEnabled() const;
   int Data(int role);
+  std::string DataStr(int role);
   void SetData(int role, int value);
+  void SetData(int role, std::string value);
   void SetParent(Node *parent);
   Node *Parent();
   /** Get the root node */
@@ -43,12 +44,13 @@ class Node {
   Action *GetAction(int tag);
   bool HasRunningActions();
   void SetOnClick(const std::function<void(Node *)> &callback);
+  void SetOnResize(const std::function<void(Node *)> &callback);
   void TestMode();
   void SetToolTip(QString text);
   QString ToolTip();
   QString NodeType();
   void SetZValue(int index);
-  void ReArrangeChild(Node * node);
+  void ReArrangeChild(Node *node);
   int ZValue();
   void AddChild(Node *node);
   /** Remove a child from the node */
@@ -59,6 +61,7 @@ class Node {
   void ShouldCache(bool cache);
   void SetScale(qreal value);
   qreal Scale();
+  virtual void OnChildResize(Node *child);
   virtual void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                      QWidget *);
   virtual QRectF BoundingRect() const;
@@ -80,16 +83,19 @@ class Node {
   QRectF bounding_rect_;
   ActionManager *action_manager_;
   std::function<void(Node *)> on_click_;
+  std::function<void(Node *)> on_resize_;
   std::vector<Node *> children_;
   Node *parent_;
   std::string class_name_;
   QString node_type_;
 
   explicit Node(Node *parent = nullptr);
+  virtual void OnResize();
 
  private:
   QPixmap *node_cache_;
   std::unordered_map<int, int> data_;
+  std::unordered_map<int, std::string> data_str_;
   uint unique_id_;
   bool in_test_;
   QString tooltip_;

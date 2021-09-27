@@ -96,7 +96,6 @@ class OverMapLogic : public OverMap {
                     uint8_t y) const;
   void errorWithTheCurrentMap();
   void currentMapLoaded();
-  void setIG_dialog(QString text, QString name = QString());
   void addCash(const uint32_t &cash);
   void removeCash(const uint32_t &cash);
 

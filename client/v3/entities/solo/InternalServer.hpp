@@ -21,6 +21,7 @@ class InternalServer : public QtServer {
   explicit InternalServer();
   virtual ~InternalServer();
   virtual void run();
+  void Stopped();
  private slots:
   // starting function
   void start_internal_server();

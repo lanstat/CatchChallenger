@@ -12,6 +12,7 @@
 Node::Node(Node *parent) {
   class_name_ = __func__;
   on_click_ = nullptr;
+  on_resize_ = nullptr;
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   visible_ = true;
   enabled_ = true;
@@ -120,16 +121,20 @@ void Node::SetSize(int w, int h) {
   bounding_rect_.setWidth(w);
   bounding_rect_.setHeight(h);
   OnResize();
+
+  if (parent_ != nullptr) {
+    parent_->OnChildResize(this);
+  }
+
+  if (on_resize_) {
+    on_resize_(this);
+  }
   ReDraw();
 }
 
-void Node::SetHeight(int h) {
-  SetSize(Width(), h);
-}
+void Node::SetHeight(int h) { Node::SetSize(Width(), h); }
 
-void Node::SetWidth(int w) {
-  SetSize(w, Height());
-}
+void Node::SetWidth(int w) { Node::SetSize(w, Height()); }
 
 int Node::Height() { return bounding_rect_.height(); }
 
@@ -150,6 +155,10 @@ void Node::SetOnClick(const std::function<void(Node *)> &callback) {
 void Node::SetData(int role, int value) { data_[role] = value; }
 
 int Node::Data(int role) { return data_[role]; }
+
+void Node::SetData(int role, std::string value) { data_str_[role] = value; }
+
+std::string Node::DataStr(int role) { return data_str_[role]; }
 
 void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                  QWidget *widget) {
@@ -287,6 +296,10 @@ void Node::Draw(QPainter *painter) {
 
 void Node::OnResize() {}
 
-std::string Node::ClassName() const {
-  return class_name_;
+std::string Node::ClassName() const { return class_name_; }
+
+void Node::OnChildResize(Node *child) {}
+
+void Node::SetOnResize(const std::function<void(Node *)> &callback) {
+  on_resize_ = callback;
 }

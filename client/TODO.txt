@@ -1,0 +1,1 @@
+Refresh monsterpreview when some monsters heal/damage in the map

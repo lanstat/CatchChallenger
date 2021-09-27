@@ -6,8 +6,8 @@
 
 #include "../core/EventManager.hpp"
 
-using UI::Dialog;
 using std::placeholders::_1;
+using UI::Dialog;
 
 Dialog::Dialog() {
   on_close_ = nullptr;
@@ -17,6 +17,7 @@ Dialog::Dialog() {
 
   x_ = -1;
   y_ = -1;
+  dialog_size_ = QSize(900, 400);
   title_background_->SetPixmap(":/CC/images/interface/label.png");
 
   QLinearGradient gradient1(0, 0, 0, 100);
@@ -37,8 +38,8 @@ Dialog::~Dialog() {
 
 void Dialog::OnScreenResize() {
   bool forcedCenter = true;
-  int idealW = 900;
-  int idealH = 400;
+  int idealW = dialog_size_.width();
+  int idealH = dialog_size_.height();
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
     idealW /= 2;
     idealH /= 2;
@@ -84,14 +85,18 @@ void Dialog::OnScreenResize() {
                  y_ - trect.height() / 2);
 
   content_boundary_ = QRectF(x_ + 30, y_ + 60, idealW - 60, idealH - 100);
+  content_plain_boundary_ = QRectF(x_ + 20, y_ + 20, idealW - 40, idealH - 40);
 }
 
 void Dialog::Draw(QPainter *painter) {
   painter->fillRect(0, 0, bounding_rect_.width(), bounding_rect_.height(),
                     QColor(0, 0, 0, 120));
   background_->Paint(painter, nullptr, nullptr);
-  title_background_->Paint(painter, nullptr, nullptr);
-  title_->Paint(painter, nullptr, nullptr);
+
+  if (title_->Text().size() > 0) {
+    title_background_->Paint(painter, nullptr, nullptr);
+    title_->Paint(painter, nullptr, nullptr);
+  }
 
   RecalculateActionButtons();
 }
@@ -184,6 +189,11 @@ void Dialog::Close() {
   }
 }
 
-QRectF Dialog::ContentBoundary() const {
-  return content_boundary_;
+QRectF Dialog::ContentBoundary() const { return content_boundary_; }
+
+QRectF Dialog::ContentPlainBoundary() const { return content_plain_boundary_; }
+
+void Dialog::SetDialogSize(int w, int h) {
+  dialog_size_.setHeight(h);
+  dialog_size_.setWidth(w);
 }

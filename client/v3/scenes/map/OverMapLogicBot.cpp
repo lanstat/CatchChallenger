@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "../../../general/base/CommonDatapackServerSpec.hpp"
-#include "../../base/ConnectionManager.hpp"
 #include "../../Language.hpp"
+#include "../../base/ConnectionManager.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "OverMapLogic.hpp"
 
@@ -116,8 +116,9 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
             text->Attribute("lang") == language && text->GetText() != NULL) {
           std::string textToShow = text->GetText();
           textToShow = parseHtmlToDisplay(textToShow);
-          setIG_dialog(QString::fromStdString(textToShow),
-                       QString::fromStdString(actualBot.name));
+          npc_talk_->SetData(QString::fromStdString(textToShow),
+                             QString::fromStdString(actualBot.name));
+          AddChild(npc_talk_);
           return;
         }
         text = text->NextSiblingElement("text");
@@ -129,13 +130,14 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
         if (text->GetText() != NULL) {
           std::string textToShow = text->GetText();
           textToShow = parseHtmlToDisplay(textToShow);
-          setIG_dialog(QString::fromStdString(textToShow),
-                       QString::fromStdString(actualBot.name));
+          npc_talk_->SetData(QString::fromStdString(textToShow),
+                             QString::fromStdString(actualBot.name));
+          AddChild(npc_talk_);
           return;
         }
       text = text->NextSiblingElement("text");
     }
-    showTip(tr("Bot text not found, repport this error please").toStdString());
+    showTip(tr("Bot text not found, report this error please").toStdString());
     return;
   } else if (strcmp(stepXml->Attribute("type"), "shop") == 0) {
     if (stepXml->Attribute("shop") == NULL) {
@@ -275,8 +277,9 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
                 .toStdString();
       textToShow += "</ul>";
     }
-    setIG_dialog(QString::fromStdString(textToShow),
-                 QString::fromStdString(actualBot.name));
+    npc_talk_->SetData(QString::fromStdString(textToShow),
+                       QString::fromStdString(actualBot.name));
+    AddChild(npc_talk_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "clan") == 0) {
     std::string textToShow;
@@ -296,8 +299,9 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
                        .arg(tr("You are already into a clan. Use the clan "
                                "dongle into the player information."))
                        .toStdString();
-    setIG_dialog(QString::fromStdString(textToShow),
-                 QString::fromStdString(actualBot.name));
+    npc_talk_->SetData(QString::fromStdString(textToShow),
+                       QString::fromStdString(actualBot.name));
+    AddChild(npc_talk_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "warehouse") == 0) {
     /*monster_to_withdraw.clear();
@@ -591,8 +595,9 @@ void OverMapLogic::showQuestText(const uint32_t &textId) {
     index++;
   }
   std::string textToShow = parseHtmlToDisplay(text);
-  setIG_dialog(QString::fromStdString(textToShow),
-               QString::fromStdString(actualBot.name));
+  npc_talk_->SetData(QString::fromStdString(textToShow),
+                     QString::fromStdString(actualBot.name));
+  AddChild(npc_talk_);
 }
 
 bool OverMapLogic::haveNextStepQuestRequirements(
@@ -685,7 +690,8 @@ void OverMapLogic::on_IG_dialog_text_linkActivated(const QString &rawlink) {
 }
 
 void OverMapLogic::IG_dialog_text_linkActivated(const std::string &rawlink) {
-  setIG_dialog(QString());
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "okkk" << std::endl;
+  RemoveChild(npc_talk_);
   std::vector<std::string> stringList = stringsplit(rawlink, ';');
   unsigned int index = 0;
   while (index < stringList.size()) {

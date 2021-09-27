@@ -247,6 +247,7 @@ SOURCES += \
     $$PWD/ui/Dialog.cpp \
     $$PWD/ui/Checkbox.cpp \
     $$PWD/ui/MessageDialog.cpp \
+    $$PWD/ui/ThemedButton.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -299,6 +300,8 @@ SOURCES += \
     $$PWD/scenes/shared/player/Player.cpp \
     $$PWD/scenes/shared/monster/MonsterItem.cpp \
     $$PWD/scenes/shared/monster/MonsterBag.cpp \
+    $$PWD/scenes/shared/npctalk/NpcTalk.cpp \
+    $$PWD/scenes/test/Test.cpp \
     #$$PWD/scenes/player/Quests.cpp \
     #$$PWD/scenes/player/Reputations.cpp \
     $$PWD/scenes/leading/Leading.cpp \
@@ -325,7 +328,9 @@ HEADERS  += \
     $$PWD/ui/Dialog.hpp \
     $$PWD/ui/Checkbox.hpp \
     $$PWD/ui/MessageDialog.hpp \
+    $$PWD/ui/ThemedButton.hpp \
     $$PWD/core/uthash.h \
+    $$PWD/core/Vector.hpp \
     $$PWD/core/Node.hpp \
     $$PWD/core/Stateful.hpp \
     $$PWD/core/Sprite.hpp \
@@ -370,6 +375,8 @@ HEADERS  += \
     $$PWD/scenes/shared/player/Player.hpp \
     $$PWD/scenes/shared/monster/MonsterItem.hpp \
     $$PWD/scenes/shared/monster/MonsterBag.hpp \
+    $$PWD/scenes/shared/npctalk/NpcTalk.hpp \
+    $$PWD/scenes/test/Test.hpp \
     #$$PWD/scenes/player/Quests.hpp \
     #$$PWD/scenes/player/Reputations.hpp \
     $$PWD/scenes/leading/Leading.hpp \
@@ -515,7 +522,7 @@ TRANSLATIONS    = $$PWD/../resources/languages/en/translation.ts \
 
 #define CATCHCHALLENGER_SOLO
 contains(DEFINES, CATCHCHALLENGER_SOLO) {
-include(../../server/catchchallenger-server-qt.pri)
+include(entities/solo/solo-server.pri)
 QT       += sql
 }
 

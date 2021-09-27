@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#include "../test/Test.hpp"
+
 using Scenes::Leading;
 
 Leading::Leading() {
@@ -12,6 +14,10 @@ Leading::Leading() {
 
   menu_ = Menu::Create();
   PushForeground(menu_);
+
+  // Activate when you want to test single widget
+  //auto test = Test::Create();
+  //PushForeground(test);
 }
 
 Leading::~Leading() {

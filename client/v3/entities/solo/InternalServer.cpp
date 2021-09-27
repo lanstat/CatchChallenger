@@ -11,6 +11,7 @@
 #include <QSqlError>
 #include <QString>
 #include <QTimer>
+#include <iostream>
 
 #include "../../../general/base/FacilityLib.hpp"
 #include "../../../server/base/GlobalServerData.hpp"
@@ -103,4 +104,8 @@ void InternalServer::run() {
 void InternalServer::removeOneClient() {
   QtServer::removeOneClient();
   check_if_now_stopped();
+}
+
+void InternalServer::Stopped() {
+  emit try_stop_server();
 }

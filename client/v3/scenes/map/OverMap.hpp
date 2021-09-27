@@ -15,6 +15,7 @@
 #include "../../ui/Combo.hpp"
 #include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
+#include "../shared/npctalk/NpcTalk.hpp"
 #include "CCMap.hpp"
 #include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
@@ -50,7 +51,6 @@ class OverMap : public QObject, public Scene {
   void keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) override;
   */
   void buyClicked();
-  void IG_dialog_close();
 
   void openMonster(Node *item);
   void updatePlayerNumber(const uint16_t &number, const uint16_t &max_players);
@@ -87,12 +87,7 @@ class OverMap : public QObject, public Scene {
   UI::Label *gain;
   QString gainString;
 
-  Sprite *IG_dialog_textBack;
-  UI::Label *IG_dialog_name;
-  UI::Label *IG_dialog_text;
-  UI::Button *IG_dialog_quit;
-  QString IG_dialog_nameString;
-  QString IG_dialog_textString;
+  NpcTalk *npc_talk_;
 
   Sprite *tipBack;
   UI::Label *tip;
@@ -107,7 +102,6 @@ class OverMap : public QObject, public Scene {
   bool haveClanInformations;
 
   void OnScreenResize() override;
-
 };
 }  // namespace Scenes
 #endif  // MULTI_H

@@ -3,6 +3,7 @@
 
 #ifdef CATCHCHALLENGER_SOLO
   #include <QStandardPaths>
+  #include "../../../server/base/QtServer.hpp"
 #endif
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/Version.hpp"
@@ -171,6 +172,7 @@ void SceneManager::mouseMoveEvent(QMouseEvent *event) {
 
 void SceneManager::closeEvent(QCloseEvent *event) {
 #ifdef CATCHCHALLENGER_SOLO
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "close" << std::endl;
   if (Globals::InternalServer != nullptr) {
     hide();
     if (connection_ != nullptr)
@@ -299,7 +301,7 @@ void SceneManager::OnError(std::string error) {}
 
 void SceneManager::OnDisconnect() {
 #ifdef CATCHCHALLENGER_SOLO
-  if (Globals::InternalServer != nullptr) Globals::InternalServer->stop();
+  if (Globals::InternalServer != nullptr) Globals::InternalServer->Stopped();
 #endif
 }
 

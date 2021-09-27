@@ -20,6 +20,7 @@ class Dialog : public Scene {
   void SetTitle(const QString &text);
   QString Title() const;
   void Close();
+  void SetDialogSize(int w, int h);
 
   void OnEnter() override;
   void OnExit() override;
@@ -29,6 +30,7 @@ class Dialog : public Scene {
 
   int x_;
   int y_;
+  QSizeF dialog_size_;
   Sprite *background_;
 
   void OnScreenSD() override;
@@ -38,6 +40,7 @@ class Dialog : public Scene {
   void Draw(QPainter *painter) override;
   void RecalculateActionButtons();
   QRectF ContentBoundary() const;
+  QRectF ContentPlainBoundary() const;
   virtual void OnActionClick(Node *node) = 0;
 
  private:
@@ -45,6 +48,7 @@ class Dialog : public Scene {
   Label *title_;
   Sprite *title_background_;
   QRectF content_boundary_;
+  QRectF content_plain_boundary_;
 
   std::function<void()> on_close_;
 

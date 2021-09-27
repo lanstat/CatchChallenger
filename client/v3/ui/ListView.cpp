@@ -8,6 +8,7 @@
 #include "../core/Node.hpp"
 
 using UI::ListView;
+using std::placeholders::_1;
 
 ListView::ListView(Node *parent) : Node(parent) {
   content_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
@@ -16,6 +17,7 @@ ListView::ListView(Node *parent) : Node(parent) {
   is_slider_pressed_ = false;
   is_horizontal_ = false;
   is_drawable_ = false;
+  is_processing_resize_ = false;
   spacing_ = 0;
   ShouldCache(false);
 }
@@ -64,7 +66,18 @@ void ListView::Draw(QPainter *painter) {
 
 void ListView::AddItem(Node *node) {
   node->SetParent(nullptr);
+  node->SetOnResize(std::bind(&ListView::OnChildResize, this, _1));
   items_.push_back(node);
+  ReCalculateSize();
+  ReDraw();
+}
+
+void ListView::AddItems(std::vector<Node *> nodes) {
+  for (auto node : nodes) {
+    node->SetParent(nullptr);
+    node->SetOnResize(std::bind(&ListView::OnChildResize, this, _1));
+    items_.push_back(node);
+  }
   ReCalculateSize();
   ReDraw();
 }
@@ -242,6 +255,7 @@ void ListView::MousePressEvent(const QPointF &point, bool &press_validated) {
   const QRectF &b2 = BoundingRect();
   const QRectF &t2 = MapRectToScene(b2);
   if (t2.contains(point)) {
+    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "entro" << std::endl;
     QPointF tmp = QPointF(point.x() - t2.x(), point.y() - t2.y());
     if (show_slider_ && slider_rect_.contains(tmp)) {
       press_validated = true;
@@ -249,7 +263,8 @@ void ListView::MousePressEvent(const QPointF &point, bool &press_validated) {
     } else {
       QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                  content_rect_.y() + point.y() - t2.y());
-      for (auto item : items_) {
+      auto items = items_;
+      for (auto item : items) {
         item->MousePressEvent(auxiliar, press_validated);
       }
     }
@@ -265,7 +280,8 @@ void ListView::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
   if (t2.contains(point)) {
     QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                content_rect_.y() + point.y() - t2.y());
-    for (auto item : items_) {
+    auto items = items_;
+    for (auto item : items) {
       item->MouseReleaseEvent(auxiliar, prev_validated);
     }
   }
@@ -317,4 +333,11 @@ void ListView::UnRegisterEvents() {
 void ListView::SetItemSpacing(int value) {
   spacing_ = value;
   ReCalculateSize();
+}
+
+void ListView::OnChildResize(Node *node) {
+  if (is_processing_resize_) return;
+  is_processing_resize_ = true;
+  ReCalculateSize();
+  is_processing_resize_ = false;
 }

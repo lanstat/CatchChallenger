@@ -4,8 +4,15 @@
 
 #include "../core/Scene.hpp"
 
+struct NodeParsed {
+  std::vector<Node*> nodes;
+};
+
 class Utils {
  public:
   static Node* GetCurrentScene(Node* node);
+  static NodeParsed HTML2Node(const QString& html);
+  static NodeParsed HTML2Node(const QString& html,
+                              std::function<void(Node*)> on_click);
 };
 #endif  // CLIENT_V3_ENTITIES_UTILS_HPP_

@@ -48,12 +48,7 @@ OverMap::OverMap() {
   gainBack = Sprite::Create(":/CC/images/interface/chatBackground.png", this);
   gain = UI::Label::Create(gainBack);
 
-  IG_dialog_textBack =
-      Sprite::Create(":/CC/images/interface/message.png", this);
-  IG_dialog_name = UI::Label::Create(IG_dialog_textBack);
-  IG_dialog_text = UI::Label::Create(IG_dialog_textBack);
-  IG_dialog_quit = UI::Button::Create(":/CC/images/interface/closedialog.png",
-                                      IG_dialog_textBack);
+  npc_talk_ = NpcTalk::Create();
 
   tipBack = Sprite::Create(":/CC/images/interface/chatBackground.png", this);
   tip = UI::Label::Create(tipBack);
@@ -62,17 +57,10 @@ OverMap::OverMap() {
       Sprite::Create(":/CC/images/interface/chatBackground.png", this);
   persistant_tip = UI::Label::Create(persistant_tipBack);
 
-
   if (false) {
     {
       gainString = "gain";
       gain->SetText(gainString);
-    }
-    {
-      IG_dialog_nameString = "Name";
-      IG_dialog_name->SetText(IG_dialog_nameString);
-      IG_dialog_textString = "Text";
-      IG_dialog_text->SetText(IG_dialog_textString);
     }
     {
       tipString = "tip";
@@ -282,39 +270,6 @@ void OverMap::OnScreenResize() {
     gain->SetPos(space, space);
   }
 
-  IG_dialog_textBack->SetVisible(!IG_dialog_textString.isEmpty());
-  IG_dialog_name->SetVisible(IG_dialog_textBack->IsVisible());
-  IG_dialog_text->SetVisible(IG_dialog_textBack->IsVisible());
-  IG_dialog_quit->SetVisible(IG_dialog_textBack->IsVisible());
-  if (IG_dialog_textBack->IsVisible()) {
-    const QRectF &b1 = IG_dialog_name->BoundingRect();
-    const QRectF &b2 = IG_dialog_text->BoundingRect();
-    int width = b2.width();
-    int height = b1.height() + 10 + b2.height();
-    if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
-      if (width < 350) width = 350;
-      if (height < 200) height = 200;
-      IG_dialog_quit->SetSize(84 / 3, 93 / 3);
-    } else {
-      if (width < 600) width = 600;
-      if (height < 400) height = 400;
-      IG_dialog_quit->SetSize(84 / 2, 93 / 2);
-    }
-    IG_dialog_textBack->SetSize(width, height);
-
-    int x = bounding_rect_.width() / 2 - IG_dialog_textBack->Width() / 2;
-    int y = bounding_rect_.height() / 2 - IG_dialog_textBack->Height() / 2;
-    IG_dialog_textBack->SetPos(x, y);
-    if (IG_dialog_nameString.isEmpty()) {
-      IG_dialog_text->SetPos(8, 8);
-    } else {
-      IG_dialog_name->SetPos(8, 8);
-      IG_dialog_text->SetPos(8, 8 + space + IG_dialog_name->Height());
-    }
-    IG_dialog_quit->SetPos(
-        IG_dialog_textBack->Width() - IG_dialog_quit->Width(), 0);
-  }
-
   int yMiddle = bounding_rect_.height() - space;
 
   persistant_tipBack->SetVisible(!persistant_tipString.isEmpty());
@@ -445,8 +400,6 @@ void OverMap::mouseMoveEventXY(
   }
 }
 */
-
-void OverMap::IG_dialog_close() { IG_dialog_textString.clear(); }
 
 void OverMap::buyClicked() {
   QDesktopServices::openUrl(tr("https://shop.first-world.info/en/") +

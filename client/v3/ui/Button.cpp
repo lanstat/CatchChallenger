@@ -37,6 +37,13 @@ void Button::SetSize(int w, int h) {
   ReDraw();
 }
 
+void Button::SetWidth(int w) {
+  if (bounding_rect_.width() == w) return;
+  Node::SetWidth(w);
+  label_->SetWidth(bounding_rect_.width());
+  ReDraw();
+}
+
 void Button::SetPos(int x, int y) {
   if (bounding_rect_.x() == x && bounding_rect_.y() == y) return;
   Node::SetPos(x, y);

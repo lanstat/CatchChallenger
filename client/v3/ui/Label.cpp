@@ -59,6 +59,9 @@ Label *Label::Create(QLinearGradient pen, QLinearGradient border,
 }
 
 void Label::Draw(QPainter *painter) {
+  if (text_.isEmpty()) {
+    return;
+  }
   const unsigned int h = bounding_rect_.height();
   const unsigned int w = bounding_rect_.width();
 
@@ -96,9 +99,7 @@ void Label::SetText(const std::string &text) {
   SetText(QString::fromStdString(text));
 }
 
-QString Label::Text() const {
-  return text_;
-}
+QString Label::Text() const { return text_; }
 
 void Label::SetPixelSize(uint8_t size) {
   int tempsize = size * 1.5;
@@ -110,38 +111,103 @@ void Label::SetPixelSize(uint8_t size) {
 }
 
 void Label::UpdateTextPath() {
-  const QString &text = text_;
+  if (text_.isEmpty()) {
+    return;
+  }
   if (text_path_ != nullptr) delete text_path_;
   QPainterPath temp_path;
+  int line_height = 5;
   if (font_height_ == 0) {
     temp_path.addText(0, 0, *font_,
                       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOQPRSTUVWXYZ");
 
-    font_height_ = temp_path.boundingRect().height();
+    font_height_ = temp_path.boundingRect().height() + line_height;
     temp_path.clear();
   }
-  temp_path.addText(0, 0, *font_, text_);
-  QRectF rect = temp_path.boundingRect();
+  QStringList lines = text_.split("\n");
   text_path_ = new QPainterPath();
   auto pen_width = GetPenWidth() * 2;
 
   if (auto_size_) {
-    Node::SetSize(rect.width() + pen_width, font_height_ + pen_width);
-    text_path_->addText((pen_width / 2) - 2, font_height_, *font_, text);
-  } else {
-    Node::SetHeight(font_height_ + pen_width);
-    switch (alignment_) {
-      case Qt::AlignCenter:
-        text_path_->addText(bounding_rect_.width() / 2 - rect.width() / 2,
-                            font_height_, *font_, text);
-        break;
-      case Qt::AlignRight:
-        text_path_->addText(bounding_rect_.width() - rect.width() - pen_width,
-                            font_height_, *font_, text);
-        break;
-      default:
-        text_path_->addText((pen_width / 2) - 2, font_height_, *font_, text);
+    QRectF rect = temp_path.boundingRect();
+    int max_width = 0;
+    int max_height = 0;
+    for (auto iter = lines.begin(); iter != lines.end(); ++iter) {
+      temp_path.addText(0, 0, *font_, (*iter));
+      QRectF rect = temp_path.boundingRect();
+      if (rect.width() > max_width) {
+        max_width = rect.width();
+      }
     }
+    for (auto iter = lines.begin(); iter != lines.end(); ++iter) {
+      max_height += font_height_;
+      text_path_->addText((pen_width / 2) - 2, max_height, *font_, (*iter));
+    }
+    Node::SetSize(max_width + pen_width, max_height + pen_width);
+  } else {
+    int max_height = 0;
+    auto bounding = BoundingRect();
+    for (auto iter = lines.begin(); iter != lines.end(); ++iter) {
+      QString line = (*iter);
+      temp_path.addText(0, 0, *font_, line);
+      QRectF rect = temp_path.boundingRect();
+      if (rect.width() > bounding.width()) {
+        // It process the line that excess label max width
+        int max_char = line.size() * bounding.width() / rect.width();
+        QString aux = line;
+        do {
+          if (aux.size() < max_char) {
+            max_char = aux.size();
+          }
+          QString tmp = QString();
+          if (aux.at(max_char) == " ") {
+            tmp = aux.left(max_char);
+            aux.remove(0, max_char);
+          } else {
+            int pivot = aux.lastIndexOf(" ", max_char);
+            if (pivot >= 0) {
+              tmp = aux.left(pivot);
+              aux.remove(0, pivot);
+            } else {
+              tmp = aux;
+              aux = QString();
+            }
+          }
+          aux = aux.trimmed();
+          temp_path.clear();
+          temp_path.addText(0, 0, *font_, tmp);
+          rect = temp_path.boundingRect();
+          max_height += font_height_;
+          switch (alignment_) {
+            case Qt::AlignCenter:
+              text_path_->addText(bounding.width() / 2 - rect.width() / 2,
+                                  max_height, *font_, tmp);
+              break;
+            case Qt::AlignRight:
+              text_path_->addText(bounding.width() - rect.width() - pen_width,
+                                  max_height, *font_, tmp);
+              break;
+            default:
+              text_path_->addText((pen_width / 2) - 2, max_height, *font_, tmp);
+          }
+        } while (!aux.isEmpty());
+      } else {
+        max_height += font_height_;
+        switch (alignment_) {
+          case Qt::AlignCenter:
+            text_path_->addText(bounding.width() / 2 - rect.width() / 2,
+                                max_height, *font_, line);
+            break;
+          case Qt::AlignRight:
+            text_path_->addText(bounding.width() - rect.width() - pen_width,
+                                max_height, *font_, line);
+            break;
+          default:
+            text_path_->addText((pen_width / 2) - 2, max_height, *font_, line);
+        }
+      }
+    }
+    Node::SetHeight(max_height + pen_width);
   }
 }
 

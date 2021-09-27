@@ -15,6 +15,7 @@ class ListView : public Node {
 
   /** Add an item to the listview */
   void AddItem(Node *node);
+  void AddItems(std::vector<Node *> nodes);
   Node *GetItem(uint8_t index);
   void RemoveItem(uint8_t index);
   uint8_t Count();
@@ -33,6 +34,7 @@ class ListView : public Node {
   void Draw(QPainter *painter) override;
   void RegisterEvents() override;
   void UnRegisterEvents() override;
+  void OnChildResize(Node *node) override;
 
  private:
   QPixmap slider_rail_;
@@ -49,6 +51,7 @@ class ListView : public Node {
   Node *selected_item_;
   bool is_horizontal_;
   bool is_drawable_;
+  bool is_processing_resize_;
 
   explicit ListView(Node *parent = nullptr);
 

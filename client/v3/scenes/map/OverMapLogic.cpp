@@ -5,11 +5,11 @@
 
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../../general/base/FacilityLib.hpp"
+#include "../../Globals.hpp"
 #include "../../base/ConnectionManager.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AudioPlayer.hpp"
 #include "../../core/SceneManager.hpp"
-#include "../../Globals.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
 #include "../above/inventory/Inventory.hpp"
@@ -21,8 +21,9 @@
 #include "CCMap.hpp"
 
 using Scenes::OverMapLogic;
+using std::placeholders::_1;
 
-OverMapLogic::OverMapLogic() {
+OverMapLogic::OverMapLogic() : OverMap() {
   /*
 inventory = nullptr;
 plant = nullptr;
@@ -47,6 +48,9 @@ crafting = nullptr;
   tip_timeout.setSingleShot(true);
   gain_timeout.setSingleShot(true);
 
+  npc_talk_->SetOnItemClick(
+      std::bind(&OverMapLogic::IG_dialog_text_linkActivated, this, _1));
+
   if (!connect(&tip_timeout, &QTimer::timeout, this, &OverMapLogic::tipTimeout))
     abort();
   if (!connect(&gain_timeout, &QTimer::timeout, this,
@@ -60,7 +64,7 @@ crafting = nullptr;
     abort();
 }
 
-OverMapLogic* OverMapLogic::Create() {
+OverMapLogic *OverMapLogic::Create() {
   return new (std::nothrow) OverMapLogic();
 }
 
@@ -221,13 +225,6 @@ void OverMapLogic::stopped_in_front_of(CatchChallenger::Map_client *map,
       }
     }
   }
-}
-
-void OverMapLogic::setIG_dialog(QString text, QString name) {
-  this->IG_dialog_textString = text;
-  this->IG_dialog_nameString = name;
-  this->IG_dialog_text->SetText(text);
-  this->IG_dialog_name->SetText(name);
 }
 
 void OverMapLogic::connectAllSignals() {
@@ -416,7 +413,7 @@ void OverMapLogic::selectObject(const ObjectType &objectType) {}
 
 void OverMapLogic::actionOn(CatchChallenger::Map_client *map, uint8_t x,
                             uint8_t y) {
-  setIG_dialog(QString());
+  RemoveChild(npc_talk_);
   if (actionOnCheckBot(map, x, y))
     return;
   else if (CatchChallenger::MoveOnTheMap::isDirt(*map, x, y)) {
@@ -508,9 +505,7 @@ void OverMapLogic::actionOn(CatchChallenger::Map_client *map, uint8_t x,
   }
 }
 
-void OverMapLogic::actionOnNothing() { 
-  setIG_dialog(QString()); 
-}
+void OverMapLogic::actionOnNothing() { RemoveChild(npc_talk_); }
 
 int32_t OverMapLogic::havePlant(CatchChallenger::Map_client *map, uint8_t x,
                                 uint8_t y) const {
