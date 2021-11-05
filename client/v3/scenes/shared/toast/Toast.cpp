@@ -9,14 +9,13 @@
 
 using Scenes::Toast;
 using UI::BlueLabel;
-using UI::ListView;
+using UI::Column;
 using UI::Row;
 
 Toast::Toast(Node *parent) : Node(parent) {
   background_ = Sprite::Create(":/CC/images/interface/tip.png", this);
-  content_ = ListView::Create(this);
+  content_ = Column::Create(this);
   content_->SetX(7);
-  content_->SetSize(400, 400);
   SetSize(background_->Width(), background_->Height());
 }
 
@@ -35,7 +34,7 @@ void Toast::SetContent(const std::vector<std::string> &content) {
   prev_rendered_ = content.at(0);
 
   int space = 5;
-  content_->Clear();
+  content_->RemoveAllChildrens();
   for (auto it = begin(content); it != end(content); it++) {
     QString str = QString::fromStdString((*it));
     if (str.contains("<img ")) {
@@ -47,20 +46,20 @@ void Toast::SetContent(const std::vector<std::string> &content) {
       row->AddChild(item);
       auto label = BlueLabel::Create();
       label->SetPixelSize(10);
-      label->SetText(parts.first());
+      label->SetText(Utils::RemoveHTMLEntities(parts.first()));
       row->AddChild(label);
-      content_->AddItem(row);
+      content_->AddChild(row);
     } else {
       auto item = BlueLabel::Create();
       item->SetPixelSize(10);
-      item->SetText(str);
-      content_->AddItem(item);
+      item->SetText(Utils::RemoveHTMLEntities(str));
+      content_->AddChild(item);
     }
   }
-  // background_->Strech(7, 7, 7, label_->Width() + space + 7,
-  // label_->Height() + space);
-  // auto scene = Utils::GetCurrentScene(this);
-  // SetX(scene->Width() / 2 - label_->Width() / 2);
+  background_->Strech(7, 7, 7, content_->Width() + space + 7,
+                      content_->Height() + space);
+  auto scene = Utils::GetCurrentScene(this);
+  SetX(scene->Width() / 2 - background_->Width() / 2);
 }
 
 void Toast::Draw(QPainter *painter) {}

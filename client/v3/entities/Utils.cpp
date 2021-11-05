@@ -25,7 +25,8 @@ NodeParsed Utils::HTML2Node(const QString &html,
                             std::function<void(Node *)> on_click) {
   QRegExp new_line("<br(\\s*)(\\/|)>");
   QRegExp anchor("<a\\s+href=\"(.+)\">(.+)</a>");
-  auto lines = html.split(new_line);
+  QString tmp = RemoveHTMLEntities(html);
+  auto lines = tmp.split(new_line);
   auto records = std::vector<Node *>();
   NodeParsed response;
   for (auto iter = lines.begin(); iter != lines.end(); ++iter) {
@@ -58,4 +59,17 @@ QPixmap Utils::B64Png2Pixmap(const QString &b64) {
   QByteArray by = QByteArray::fromBase64(b64.toUtf8());
   QImage image = QImage::fromData(by, "PNG");
   return QPixmap::fromImage(image);
+}
+
+QString Utils::RemoveHTMLEntities(const QString &html) {
+  QString tmp = html;
+  tmp.replace(QString("<ul>"),QString(""))
+    .replace(QString("</ul>"),QString(""))
+    .replace(QString("<li>"),QString(""))
+    .replace(QString("</li>"),QString(""))
+    .replace(QString("<i>"),QString(""))
+    .replace(QString("</i>"),QString(""))
+    .replace(QString("<b>"),QString(""))
+    .replace(QString("</b>"),QString(""));
+  return tmp;
 }

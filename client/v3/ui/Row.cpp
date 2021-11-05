@@ -29,16 +29,18 @@ void Row::ReCalculateSize() {
   if (children_.size() == 0) return;
   int x = 0;
   int height = 0;
+  int width = 0;
   for (auto item : children_) {
     item->SetX(x);
     item->SetY(0);
-    bounding_rect_.setWidth(item->Width() + x);
+    width += item->Width() + x;
     if (item->Height() > height) {
       height = item->Height();
-      bounding_rect_.setHeight(height);
     }
     x = x + item->Width() + spacing_;
   }
+
+  SetSize(width, height);
 }
 
 void Row::SetItemSpacing(int value) {

@@ -55,6 +55,8 @@ class Node {
   void AddChild(Node *node);
   /** Remove a child from the node */
   void RemoveChild(Node *node);
+  /** Remove all childrens from the node */
+  void RemoveAllChildrens(bool release = true);
   std::vector<Node *> Children();
   /** Invalidate cache */
   void ReDraw();

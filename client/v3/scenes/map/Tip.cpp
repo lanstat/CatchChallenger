@@ -31,8 +31,10 @@ void Tip::SetText(const std::string &text) {
             << std::endl;
   if (text_ == text) return;
 
+  text_ = text;
+
   int space = 5;
-  label_->SetText(text);
+  label_->SetText(Utils::RemoveHTMLEntities(QString::fromStdString(text)));
   background_->Strech(7, 7, 7, label_->Width() + space + 7,
                       label_->Height() + space);
   auto scene = Utils::GetCurrentScene(this);

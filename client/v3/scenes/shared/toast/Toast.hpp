@@ -5,7 +5,7 @@
 #include "../../../core/Node.hpp"
 #include "../../../core/Sprite.hpp"
 #include "../../../ui/ThemedLabel.hpp"
-#include "../../../ui/ListView.hpp"
+#include "../../../ui/Column.hpp"
 
 namespace Scenes {
 class Toast : public Node {
@@ -21,7 +21,7 @@ class Toast : public Node {
 
  private:
   Sprite *background_;
-  UI::ListView *content_;
+  UI::Column *content_;
   std::string prev_rendered_;
 
   Toast(Node *parent);

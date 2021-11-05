@@ -303,3 +303,15 @@ void Node::OnChildResize(Node *child) {}
 void Node::SetOnResize(const std::function<void(Node *)> &callback) {
   on_resize_ = callback;
 }
+
+void Node::RemoveAllChildrens(bool release) {
+  if (!children_.empty()) {
+    std::vector<Node *> tmp = children_;
+    children_.clear();
+    if (release) {
+      for (auto it = begin(tmp); it != end(tmp); it++) {
+        delete (*it);
+      }
+    }
+  }
+}
