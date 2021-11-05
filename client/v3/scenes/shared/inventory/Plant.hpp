@@ -1,68 +1,49 @@
-#ifndef Plant_H
-#define Plant_H
+// Copyright 2021 CatchChallenger
+#ifndef CLIENT_V3_SCENES_SHARED_INVENTORY_PLANT_HPP_
+#define CLIENT_V3_SCENES_SHARED_INVENTORY_PLANT_HPP_
 
-#include <QObject>
-#include <QTreeWidget>
-#include "../../ImagesStrechMiddle.hpp"
-#include "../../ScreenInput.hpp"
-#include "../../CustomButton.hpp"
-#include "../../CustomText.hpp"
-#include "../../CCGraphicsTextItem.hpp"
-#include "../../CCSliderH.hpp"
-#include "../../LineEdit.hpp"
-#include "../../SpinBox.hpp"
+#include "../../../base/ConnectionManager.hpp"
+#include "../../../ui/Button.hpp"
+#include "../../../core/Sprite.hpp"
+#include "../../../ui/Dialog.hpp"
+#include "../../../ui/ListView.hpp"
+#include "../../../ui/Label.hpp"
 
-class ConnexionManager;
+namespace Scenes {
+class Plant : public UI::Dialog {
+ public:
+  static Plant *Create();
+  ~Plant();
 
-class Plant : public ScreenInput
-{
-    Q_OBJECT
-public:
-    explicit Plant();
-    ~Plant();
+  void OnScreenResize() override;
+  void SetVar(const bool inSelection, const int lastItemSelected = -1);
 
-    void resizeEvent(QResizeEvent * e);
-    QRectF boundingRect() const override;
-    void paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *widget = nullptr) override;
-    void mousePressEventXY(const QPointF &p,bool &pressValidated,bool &callParentClass) override;
-    void mouseReleaseEventXY(const QPointF &p, bool &pressValidated,bool &callParentClass) override;
-    void keyPressEvent(QKeyEvent * event, bool &eventTriggerGeneral) override;
-    void keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) override;
-    void removeAbove();
-    void setVar(ConnexionManager *connexionManager,const bool inSelection,const int lastItemSelected=-1);
+  void SetOnNext(std::function<void()> callback);
+  void SetOnBack(std::function<void()> callback);
+  void SetOnUseItem(std::function<void(uint16_t)> callback);
 
-    void on_inventory_itemSelectionChanged();
-    void inventoryUse_slot();
-private slots:
-    void newLanguage();
-    void updatePlant();
-    static QPixmap setCanvas(const QPixmap &image,unsigned int size);
-    static QPixmap setCanvas(const QImage &image,unsigned int size);
-private:
-    ImagesStrechMiddle *wdialog;
-    CustomButton *quit;
-    CustomText *title;
-    QGraphicsPixmapItem label;
+ private:
+  UI::Button *quit;
+  UI::Button *next;
+  UI::Button *back;
 
-    CustomButton *next;
-    CustomButton *back;
+  UI::ListView *plantList;
 
-    QTreeWidget *plantList;
-    QGraphicsProxyWidget *plantListProxy;
+  Sprite *descriptionBack;
+  UI::Label *inventory_description;
+  UI::Button *inventoryUse;
 
-    ImagesStrechMiddle *descriptionBack;
-    QGraphicsTextItem *inventory_description;
-    CustomButton *inventoryUse;
+  ConnectionManager *connexionManager;
+  bool inSelection;
+  uint8_t lastItemSize;
+  int lastItemSelected;
 
-    ConnexionManager *connexionManager;
-    bool inSelection;
-    uint8_t lastItemSize;
-    int lastItemSelected;
-signals:
-    void setAbove(ScreenInput *widget);//first plan popup
-    void sendNext();
-    void sendBack();
-    void useItem(uint16_t item);
+  void NewLanguage();
+  void updatePlant();
+  void inventoryUse_slot();
+  void on_inventory_itemSelectionChanged(Node *item);
+  static QPixmap setCanvas(const QPixmap &image, unsigned int size);
+  static QPixmap setCanvas(const QImage &image, unsigned int size);
 };
-
-#endif // OPTIONSDIALOG_H
+}  // namespace Scenes
+#endif  // CLIENT_V3_SCENES_SHARED_INVENTORY_PLANT_HPP_

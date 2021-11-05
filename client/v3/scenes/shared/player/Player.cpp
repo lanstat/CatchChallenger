@@ -61,7 +61,7 @@ void Player::OnScreenResize() {
     space /= 2;
   }
 
-  int tempY = space + y_;
+  int tempY = space + 30;
   name_label->SetPos(space, tempY);
   name_value->SetPos(idealW / 2, tempY);
   tempY += name_label->Height() + space;

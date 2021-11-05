@@ -30,21 +30,21 @@ Button *Button::Create(QString pix, Node *parent) {
   return instance;
 }
 
-void Button::SetSize(int w, int h) {
+void Button::SetSize(qreal w, qreal h) {
   if (bounding_rect_.width() == w && bounding_rect_.height() == h) return;
   Node::SetSize(w, h);
   label_->SetWidth(bounding_rect_.width());
   ReDraw();
 }
 
-void Button::SetWidth(int w) {
+void Button::SetWidth(qreal w) {
   if (bounding_rect_.width() == w) return;
   Node::SetWidth(w);
   label_->SetWidth(bounding_rect_.width());
   ReDraw();
 }
 
-void Button::SetPos(int x, int y) {
+void Button::SetPos(qreal x, qreal y) {
   if (bounding_rect_.x() == x && bounding_rect_.y() == y) return;
   Node::SetPos(x, y);
 }

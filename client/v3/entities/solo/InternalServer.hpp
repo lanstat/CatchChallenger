@@ -26,6 +26,7 @@ class InternalServer : public QtServer {
   // starting function
   void start_internal_server();
   void timerGiftSlot();
+  void DDOSTimerSlot();
 
  protected:
   QString sqlitePath();
@@ -36,6 +37,7 @@ class InternalServer : public QtServer {
 
  private:
   QTimer timerGift;
+  QTimer ddos_timer_;
 };
 }  // namespace CatchChallenger
 

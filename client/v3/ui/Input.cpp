@@ -10,6 +10,7 @@
 using UI::Input;
 
 Input::Input(Node *parent) : Node(parent) {
+  on_text_change_ = nullptr;
   label_ = Label::Create();
   background_ = Sprite::Create(":/CC/images/interface/input.png");
   inner_padding_ = QPointF(14, 11);
@@ -17,6 +18,7 @@ Input::Input(Node *parent) : Node(parent) {
 
 Input::~Input() {
   UnRegisterEvents();
+  on_text_change_ = nullptr;
   delete label_;
   delete background_;
 }
@@ -68,6 +70,9 @@ void Input::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
   if (event->key() > 31 && event->key() < 127) {
     text_ = text_ + event->text();
     label_->SetText(text_);
+    if (on_text_change_) {
+      on_text_change_(text_.toStdString());
+    }
     ReDraw();
   }
 }
@@ -87,7 +92,7 @@ void Input::Draw(QPainter *painter) {
   label_->Paint(painter, nullptr, nullptr);
 }
 
-void Input::SetSize(int width, int height) {
+void Input::SetSize(qreal width, qreal height) {
   if (width == Width() && height == Height()) return;
   Node::SetSize(width, height);
   inner_padding_ = background_->Strech(14, 11, 10, Width(), Height());
@@ -127,4 +132,8 @@ void Input::SetMode(InputMode mode) {
 
 void Input::SetMaxLength(int size) {
 
+}
+
+void Input::SetOnTextChange(std::function<void (std::string)> callback) {
+  on_text_change_ = callback;
 }

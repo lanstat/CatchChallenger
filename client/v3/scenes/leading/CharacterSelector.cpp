@@ -8,12 +8,15 @@
 #include "../../../../general/base/CommonSettingsCommon.hpp"
 #include "../../FacilityLibClient.hpp"
 #include "../../Globals.hpp"
+#include "../../base/ConnectionManager.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../../core/StackedScene.hpp"
 #include "Loading.hpp"
 
 using Scenes::CharacterSelector;
+using std::placeholders::_1;
+using std::placeholders::_2;
 
 CharacterSelector::CharacterSelector() {
   serverSelected = 0;
@@ -90,10 +93,7 @@ void CharacterSelector::add_clicked() {
   }
   if (addCharacter == nullptr) {
     addCharacter = AddCharacter::Create();
-    /*
-    if (!connect(addCharacter, &AddCharacter::removeAbove, this,
-                 &CharacterSelector::add_finished))
-      abort();*/
+    addCharacter->SetOnClose(std::bind(&CharacterSelector::add_finished, this));
   }
   addCharacter->setDatapack(connection_->client->datapackPathBase());
   AddChild(addCharacter);
@@ -119,11 +119,7 @@ void CharacterSelector::add_finished() {
           profileIndex);
   if (newGame == nullptr) {
     newGame = NewGame::Create();
-    /*
-    if (!connect(newGame, &NewGame::removeAbove, this,
-                 &CharacterSelector::newGame_finished))
-      abort();
-    */
+    newGame->SetOnClose(std::bind(&CharacterSelector::newGame_finished, this));
   }
   newGame->setDatapack(datapackPath + DATAPACK_BASE_PATH_SKIN,
                        datapackPath + DATAPACK_BASE_PATH_MONSTERS,
@@ -291,12 +287,11 @@ void CharacterSelector::connectToSubServer(
     const std::vector<std::vector<CatchChallenger::CharacterEntry> >
         &characterEntryList) {
   Globals::GetMapScene();
-  /*
-  if (!connect(connexionManager->client,
-               &CatchChallenger::Api_protocol_Qt::QtnewCharacterId, this,
-               &CharacterSelector::newCharacterId))
-    abort()
-  */
+  if (!QObject::connect(
+          ConnectionManager::GetInstance()->client,
+          &CatchChallenger::Api_protocol_Qt::QtnewCharacterId,
+          std::bind(&CharacterSelector::newCharacterId, this, _1, _2)))
+    abort();
   // detect character group to display only characters in this group
   this->serverSelected = indexSubServer;
   this->characterListForSelection = characterEntryList;

@@ -7,7 +7,7 @@
 #include "LocalClientHandlerWithoutSender.hpp"
 #include "ClientNetworkReadWithoutSender.hpp"
 #ifdef CATCHCHALLENGER_SOLO
-#include "../../client/qt/QFakeServer.hpp"
+#include "../../client/v3/entities/solo/QFakeServer.hpp"
 #endif
 
 using namespace CatchChallenger;
@@ -304,7 +304,8 @@ bool QtServer::check_if_now_stopped()
     stat=Down;
     is_started(false);
 
-    unload_the_data();
+    // TODO(lanstat): Check corrupted size exception
+    // unload_the_data();
     return true;
 }
 

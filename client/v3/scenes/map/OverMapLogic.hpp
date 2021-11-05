@@ -6,6 +6,7 @@
 #include "../../entities/DisplayStructures.hpp"
 #include "../../entities/Map_client.hpp"
 #include "../../entities/render/MapVisualiserPlayer.hpp"
+#include "../../ui/LinkedDialog.hpp"
 #include "../shared/player/Player.hpp"
 #include "OverMap.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
@@ -13,7 +14,6 @@
 
   #include "../../../qt/QInfiniteBuffer.hpp"
 #endif
-#include <QListWidgetItem>
 #include <vector>
 
 namespace Scenes {
@@ -21,7 +21,7 @@ class OverMapLogic : public OverMap {
   Q_OBJECT
 
  public:
-  static OverMapLogic* Create();
+  static OverMapLogic *Create();
   void resetAll();
   void setVar(CCMap *ccmap) override;
   void OnEnter() override;
@@ -261,10 +261,10 @@ class OverMapLogic : public OverMap {
  private:
   CCMap *ccmap;
   bool multiplayer;
-  // Inventory *inventory;
+  UI::LinkedDialog *inventory_tabs_;
   // Plant *plant;
   // Crafting *crafting;
-  int inventoryIndex;
+  // int inventoryIndex;
 
   Player *player;
   // Reputations *reputations;

@@ -40,6 +40,13 @@ InternalServer::InternalServer() : QtServer() {
     }
   } else
     Settings::settings->setValue("gift", currentDate);
+
+  ddos_timer_.setInterval(5000);
+  ddos_timer_.setSingleShot(true);
+  if (!connect(&ddos_timer_, &QTimer::timeout, this,
+               &InternalServer::DDOSTimerSlot, Qt::QueuedConnection))
+    abort();
+  ddos_timer_.start();
 }
 
 void InternalServer::serverIsReady() {
@@ -52,6 +59,13 @@ void InternalServer::serverIsReady() {
 void InternalServer::timerGiftSlot() {
   if (isListen() && !isStopped())
     Client::timeRangeEvent(QDateTime::currentMSecsSinceEpoch() / 1000);
+}
+
+void InternalServer::DDOSTimerSlot() {
+  if (isListen() && !isStopped()) {
+    ddosTimer();
+    ddos_timer_.start();
+  }
 }
 
 /** call only when the server is down
@@ -106,6 +120,4 @@ void InternalServer::removeOneClient() {
   check_if_now_stopped();
 }
 
-void InternalServer::Stopped() {
-  emit try_stop_server();
-}
+void InternalServer::Stopped() { emit try_stop_server(); }

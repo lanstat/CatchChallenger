@@ -96,6 +96,7 @@
         <file>images/interface/sliderV.png</file>
         <file>images/interface/sliderBarH.png</file>
         <file>images/interface/sliderBarV.png</file>
+        <file>images/interface/tip.png</file>
         <file>images/multi/slow.png</file>
         <file>images/multi/busy.png</file>
         <file>images/multi/warning.png</file>
@@ -105,6 +106,7 @@
         <file>images/interface/next.png</file>
         <file>images/interface/delete.png</file>
         <file>images/interface/cancel.png</file>
+        <file>images/interface/green-square.png</file>
         <file>images/interface/buy.png</file>
         <file>images/interface/cup.png</file>
         <file>images/interface/save.png</file>

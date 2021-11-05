@@ -27,7 +27,7 @@ class Combo : public Node {
   void AddItem(const QString &item);
   int ItemData(uint8_t index, int role);
   void SetItemData(uint8_t index, int role, int value);
-  void SetSize(int width, int height);
+  void SetSize(qreal width, qreal height);
   void RegisterEvents() override;
   void UnRegisterEvents() override;
   size_t Count() const;

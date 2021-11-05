@@ -7,10 +7,11 @@
 #include "../core/EventManager.hpp"
 #include "../core/Node.hpp"
 
-using UI::ListView;
 using std::placeholders::_1;
+using UI::ListView;
 
 ListView::ListView(Node *parent) : Node(parent) {
+  node_type_ = __func__;
   content_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   slider_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
   show_slider_ = false;
@@ -255,7 +256,6 @@ void ListView::MousePressEvent(const QPointF &point, bool &press_validated) {
   const QRectF &b2 = BoundingRect();
   const QRectF &t2 = MapRectToScene(b2);
   if (t2.contains(point)) {
-    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "entro" << std::endl;
     QPointF tmp = QPointF(point.x() - t2.x(), point.y() - t2.y());
     if (show_slider_ && slider_rect_.contains(tmp)) {
       press_validated = true;
@@ -264,7 +264,11 @@ void ListView::MousePressEvent(const QPointF &point, bool &press_validated) {
       QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                  content_rect_.y() + point.y() - t2.y());
       auto items = items_;
+      has_dirty_items_ = false;
       for (auto item : items) {
+        if (has_dirty_items_) {
+          break;
+        }
         item->MousePressEvent(auxiliar, press_validated);
       }
     }
@@ -281,7 +285,11 @@ void ListView::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
     QPointF auxiliar = QPointF(content_rect_.x() + point.x() - t2.x(),
                                content_rect_.y() + point.y() - t2.y());
     auto items = items_;
+    has_dirty_items_ = false;
     for (auto item : items) {
+      if (has_dirty_items_) {
+        break;
+      }
       item->MouseReleaseEvent(auxiliar, prev_validated);
     }
   }
@@ -305,6 +313,7 @@ void ListView::MouseMoveEvent(const QPointF &point) {
 }
 
 void ListView::Clear() {
+  has_dirty_items_ = true;
   for (std::vector<Node *>::iterator it = items_.begin(); it != items_.end();
        ++it) {
     delete *it;

@@ -25,9 +25,9 @@ class Button : public Node {
   void SetEnabled(bool enabled);
   void SetCheckable(bool checkable);
   bool IsChecked() const;
-  void SetSize(int width, int height);
-  void SetWidth(int width);
-  void SetPos(int x, int y);
+  void SetSize(qreal width, qreal height);
+  void SetWidth(qreal width);
+  void SetPos(qreal x, qreal y);
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;

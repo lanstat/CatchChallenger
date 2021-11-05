@@ -10,9 +10,9 @@
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AudioPlayer.hpp"
 #include "../../core/SceneManager.hpp"
+#include "../shared/inventory/Inventory.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
-#include "../above/inventory/Inventory.hpp"
 #include "../above/inventory/Plant.hpp"
 #include "../above/player/FinishedQuests.hpp"
 #include "../above/player/Quests.hpp"
@@ -20,16 +20,17 @@
 */
 #include "CCMap.hpp"
 
+using Scenes::Inventory;
 using Scenes::OverMapLogic;
 using std::placeholders::_1;
 
 OverMapLogic::OverMapLogic() : OverMap() {
+  inventory_tabs_ = UI::LinkedDialog::Create();
+  inventory_tabs_->AddItem(Inventory::Create());
   /*
-inventory = nullptr;
 plant = nullptr;
 crafting = nullptr;
 */
-  inventoryIndex = 0;
 
   player = nullptr;
   /*
@@ -44,7 +45,7 @@ crafting = nullptr;
 
   checkQueryTime.start(200);
   tip_timeout.setInterval(8000);
-  gain_timeout.setInterval(500);
+  gain_timeout.setInterval(5000);
   tip_timeout.setSingleShot(true);
   gain_timeout.setSingleShot(true);
 
@@ -108,11 +109,8 @@ void OverMapLogic::setVar(CCMap *ccmap) {
 
   OverMap::setVar(ccmap);
 
-  /*
-  if (!connect(bag, &CustomButton::clicked, this, &OverMapLogic::bag_open))
-    abort();
-  */
-  playerBackground->SetOnClick(std::bind(&OverMapLogic::player_open, this));
+  bag->SetOnClick(std::bind(&OverMapLogic::bag_open, this));
+  player_portrait_->SetOnClick(std::bind(&OverMapLogic::player_open, this));
 }
 
 void OverMapLogic::resetAll() {
@@ -292,8 +290,10 @@ void OverMapLogic::connectAllSignals() {
     abort();
 
   // inventory
-  /*if(!connect(connexionManager->client,&CatchChallenger::Api_client_real::Qthave_inventory,
-     this,&OverMapLogic::have_inventory)) abort();*/
+  // if (!connect(connexionManager->client,
+  //&CatchChallenger::Api_client_real::Qthave_inventory, this,
+  //&OverMapLogic::have_inventory))
+  // abort();
   if (!connect(connexionManager->client,
                &CatchChallenger::Api_client_real::Qtadd_to_inventory, this,
                &OverMapLogic::add_to_inventory_slot))
@@ -565,24 +565,10 @@ void OverMapLogic::errorWithTheCurrentMap() {
 }
 
 void OverMapLogic::bag_open() {
-  /*
-if (inventory == nullptr) {
-  inventory = new Inventory();
-  if (!connect(inventory, &Inventory::setAbove, this,
-               &OverMapLogic::setAbove))
-    abort();
-  if (!connect(inventory, &Inventory::sendNext, this,
-               &OverMapLogic::inventoryNext))
-    abort();
-  if (!connect(inventory, &Inventory::sendBack, this,
-               &OverMapLogic::inventoryBack))
-    abort();
-}
-inventory->setVar(connexionManager, Inventory::ObjectType::ObjectType_All,
-                  false);
-setAbove(inventory);
-inventoryIndex = 0;
-*/
+  inventory_tabs_->SetCurrentItem(0);
+  static_cast<Inventory *>(inventory_tabs_->CurrentItem())
+      ->SetVar(Inventory::ObjectType::ObjectType_All, false);
+  AddChild(inventory_tabs_);
 }
 
 void OverMapLogic::inventoryNext() {
@@ -1040,15 +1026,12 @@ void OverMapLogic::gainTimeout() {
 }
 
 void OverMapLogic::showTip(const std::string &tip) {
-  tipString = QString::fromStdString(tip);
-  this->tip->SetText(tipString);
+  tip_->SetText(tip);
+  tip_->SetVisible(true);
   tip_timeout.start();
 }
 
-void OverMapLogic::hideTip() {
-  tipString.clear();
-  this->tip->SetText(QString());
-}
+void OverMapLogic::hideTip() { tip_->SetVisible(false); }
 
 void OverMapLogic::showPlace(const std::string &place) {
   add_to_inventoryGainExtraList.push_back(place);
@@ -1066,23 +1049,23 @@ void OverMapLogic::showGain() {
 }
 
 void OverMapLogic::hideGain() {
-  gainString.clear();
-  gain->SetText(QString());
+  toast_->SetVisible(false);
 }
 
 void OverMapLogic::composeAndDisplayGain() {
-  std::string text;
-  text += stringimplode(add_to_inventoryGainExtraList, "<br />");
-  if (!add_to_inventoryGainList.empty() && !text.empty()) text += "<br />";
-  if (add_to_inventoryGainList.size() > 1)
-    text += tr("You have obtained: ").toStdString() + "<ul><li>" +
-            stringimplode(add_to_inventoryGainList, "</li><li>") + "</li></ul>";
-  else if (!add_to_inventoryGainList.empty())
-    text += tr("You have obtained: ").toStdString() +
-            stringimplode(add_to_inventoryGainList, "");
-  // std::cout << "Show gain: \"" << text << "\"" << std::endl;
-  gainString = QString::fromStdString(text);
-  gain->SetText(gainString);
+  std::vector<std::string> buffer = add_to_inventoryGainExtraList;
+  if (add_to_inventoryGainList.size() > 1) {
+    buffer.push_back(tr("You have obtained: ").toStdString());
+    buffer.insert(buffer.end(), add_to_inventoryGainList.begin(),
+                  add_to_inventoryGainList.end());
+  } else if (!add_to_inventoryGainList.empty()) {
+    buffer.push_back(tr("You have obtained: ").toStdString());
+    buffer.insert(buffer.end(), add_to_inventoryGainList.begin(),
+                  add_to_inventoryGainList.end());
+  }
+
+  toast_->SetContent(buffer);
+  toast_->SetVisible(true);
 }
 
 void OverMapLogic::addQuery(const QueryType &queryType) {
@@ -2679,10 +2662,12 @@ void OverMapLogic::removeCash(const uint32_t &cash) {
 
 void OverMapLogic::OnEnter() {
   OverMap::OnEnter();
-  playerBackground->RegisterEvents();
+  player_portrait_->RegisterEvents();
+  bag->RegisterEvents();
 }
 
 void OverMapLogic::OnExit() {
-  playerBackground->UnRegisterEvents();
+  player_portrait_->UnRegisterEvents();
+  bag->UnRegisterEvents();
   OverMap::OnExit();
 }

@@ -22,7 +22,7 @@ MonsterDetails::MonsterDetails() {
 
   monsterDetailsImage = Sprite::Create(this);
 
-  monsterDetailsSkills = UI::ListView::Create();
+  monsterDetailsSkills = UI::ListView::Create(this);
 
   monsterDetailsCatched = Sprite::Create(this);
   QLinearGradient gradient1(0, 0, 0, 100);
@@ -305,7 +305,7 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
         extraInfo << tr("Habitat: %1")
                          .arg(QString::fromStdString(monsterExtraInfo.habitat));
     }
-    typeString = extraInfo.join(QStringLiteral("<br />"));
+    typeString = extraInfo.join(QStringLiteral("\n"));
   }
   monsterDetailsName->SetText(QString::fromStdString(monsterExtraInfo.name));
   // monsterDetailsDescription->setText(QString::fromStdString(monsterExtraInfo.description));
@@ -346,14 +346,14 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
   xp_bar->SetValue(monster.remaining_xp);
 
   QString detailsString;
-  detailsString += tr("Speed: %1").arg(stat.speed) + "<br />";
-  detailsString += tr("Attack: %1").arg(stat.attack) + "<br />";
-  detailsString += tr("Defense: %1").arg(stat.defense) + "<br />";
-  detailsString += tr("SP attack: %1").arg(stat.special_attack) + "<br />";
-  detailsString += tr("SP defense: %1").arg(stat.special_defense) + "<br />";
+  detailsString += tr("Speed: %1").arg(stat.speed) + "\n";
+  detailsString += tr("Attack: %1").arg(stat.attack) + "\n";
+  detailsString += tr("Defense: %1").arg(stat.defense) + "\n";
+  detailsString += tr("SP attack: %1").arg(stat.special_attack) + "\n";
+  detailsString += tr("SP defense: %1").arg(stat.special_defense) + "\n";
   if (CommonSettingsServer::commonSettingsServer.useSP)
-    detailsString += tr("Skill point: %1").arg(monster.sp) + "<br />";
-  if (!typeString.isEmpty()) detailsString += "<br />" + typeString;
+    detailsString += tr("Skill point: %1").arg(monster.sp) + "\n";
+  if (!typeString.isEmpty()) detailsString += "\n" + typeString;
   details->SetText(detailsString);
   // skill
   monsterDetailsSkills->Clear();
@@ -363,6 +363,7 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
       const CatchChallenger::PlayerMonster::PlayerSkill &monsterSkill =
           monster.skills.at(indexSkill);
       auto item = UI::Label::Create();
+      item->SetPixelSize(12);
       if (QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.find(
               monsterSkill.skill) ==
           QtDatapackClientLoader::datapackLoader->monsterSkillsExtra.cend()) {

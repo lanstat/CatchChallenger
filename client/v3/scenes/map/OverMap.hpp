@@ -19,6 +19,9 @@
 #include "CCMap.hpp"
 #include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
+#include "PlayerPortrait.hpp"
+#include "Tip.hpp"
+#include "../shared/toast/Toast.hpp"
 
 namespace Scenes {
 class OverMap : public QObject, public Scene {
@@ -65,11 +68,7 @@ class OverMap : public QObject, public Scene {
   ConnectionManager *connexionManager;
   MonsterDetails *monsterDetails;
 
-  Sprite *playerBackground;
-  bool playerBackgroundBig;
-  Sprite *playerImage;
-  UI::Label *name;
-  UI::Label *cash;
+  PlayerPortrait *player_portrait_;
   std::vector<MapMonsterPreview *> monsters;
   QPointF m_startPress;
   bool wasDragged;
@@ -83,15 +82,11 @@ class OverMap : public QObject, public Scene {
   UI::Button *buy;
   UI::Label *buyOver;
 
-  Sprite *gainBack;
-  UI::Label *gain;
-  QString gainString;
+  Toast* toast_;
 
   NpcTalk *npc_talk_;
 
-  Sprite *tipBack;
-  UI::Label *tip;
-  QString tipString;
+  Tip* tip_;
 
   Sprite *persistant_tipBack;
   UI::Label *persistant_tip;

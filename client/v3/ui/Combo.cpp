@@ -16,6 +16,8 @@ Combo::Combo(QString pix, Node *parent) : Node(parent) {
 
   label_ = Label::Create(this);
   label_->SetAlignment(Qt::AlignCenter);
+  label_->SetWidth(BoundingRect().width());
+  label_->SetY(BoundingRect().height() / 2 - 10 - label_->Height() / 2);
 }
 
 Combo *Combo::Create(QString pix, Node *parent) {
@@ -105,12 +107,13 @@ void Combo::SetOnSelectChange(std::function<void(uint8_t)> callback) {
   on_select_change_ = callback;
 }
 
-void Combo::SetSize(int width, int height) {
+void Combo::SetSize(qreal width, qreal height) {
   if (width == bounding_rect_.width() && height == bounding_rect_.height())
     return;
   Node::SetSize(width, height);
 
-  label_->SetSize(width, height);
+  label_->SetWidth(width);
+  label_->SetY(height / 2 - (3 + label_->Height() / 2));
 }
 
 void Combo::RegisterEvents() {
@@ -125,9 +128,7 @@ size_t Combo::Count() const { return items_.size(); }
 
 void Combo::Clear() { items_.clear(); }
 
-int Combo::ItemData(uint8_t index, int role) {
-  return item_data_[index][role];
-}
+int Combo::ItemData(uint8_t index, int role) { return item_data_[index][role]; }
 
 void Combo::SetItemData(uint8_t index, int role, int value) {
   std::unordered_map<int, int> item;

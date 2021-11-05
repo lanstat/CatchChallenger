@@ -18,7 +18,7 @@ MessageDialog::~MessageDialog() {
   delete message_;
 }
 
-MessageDialog* MessageDialog::Create() {
+MessageDialog *MessageDialog::Create() {
   return new (std::nothrow) MessageDialog();
 }
 

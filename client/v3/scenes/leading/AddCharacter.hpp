@@ -28,6 +28,8 @@ class AddCharacter : public UI::Dialog {
   void on_comboBox_currentIndexChanged(int index);
   void newLanguage();
   void OnActionClick(Node *node) override;
+  void OnEnter() override;
+  void OnExit() override;
 
  protected:
   void OnScreenResize();

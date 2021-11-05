@@ -1,0 +1,66 @@
+// Copyright 2021 CatchChallenger
+#include "Row.hpp"
+
+#include <iostream>
+
+#include "../core/Node.hpp"
+
+using UI::Row;
+
+Row::Row(Node *parent) : Node(parent) {
+  node_type_ = __func__;
+  is_processing_resize_ = false;
+  spacing_ = 0;
+}
+
+Row::~Row() {
+  for (auto item : children_) {
+    delete item;  
+  }
+  children_.clear();
+}
+
+Row *Row::Create(Node *parent) {
+  Row *instance = new (std::nothrow) Row(parent);
+  return instance;
+}
+
+void Row::ReCalculateSize() {
+  if (children_.size() == 0) return;
+  int x = 0;
+  int height = 0;
+  for (auto item : children_) {
+    item->SetX(x);
+    item->SetY(0);
+    bounding_rect_.setWidth(item->Width() + x);
+    if (item->Height() > height) {
+      height = item->Height();
+      bounding_rect_.setHeight(height);
+    }
+    x = x + item->Width() + spacing_;
+  }
+}
+
+void Row::SetItemSpacing(int value) {
+  spacing_ = value;
+  ReCalculateSize();
+}
+
+void Row::OnChildResize(Node *node) {
+  if (is_processing_resize_) return;
+  is_processing_resize_ = true;
+  ReCalculateSize();
+  is_processing_resize_ = false;
+}
+
+void Row::AddChild(Node *node) {
+  Node::AddChild(node);
+  ReCalculateSize();
+}
+
+void Row::RemoveChild(Node *node) {
+  Node::RemoveChild(node);
+  ReCalculateSize();
+}
+
+void Row::Draw(QPainter *painter) {}

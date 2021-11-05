@@ -47,7 +47,7 @@ void PathFinding::searchPath(
   }
   tryCancel = false;
   std::unordered_map<std::string, SimplifiedMapForPathFinding *>
-      simplifiedMapList;
+      map_list;
   // load the data
   for (const auto &n : all_map) {
     const Map_full *const map = n.second;
@@ -69,18 +69,21 @@ void PathFinding::searchPath(
                map->logicalMap.parsed_layer.simplifiedMap,
                simplifiedMap->width * simplifiedMap->height);
       }
-      simplifiedMapList[n.first] = simplifiedMap;
+      map_list[n.first] = simplifiedMap;
     }
   }
   // resolv the border
-  for (const auto &n : simplifiedMapList) {
+  for (const auto &n : map_list) {
     const std::string &mapString = n.first;
-    SimplifiedMapForPathFinding *simplifiedMap = simplifiedMapList[mapString];
+    SimplifiedMapForPathFinding *simplifiedMap = map_list[mapString];
+    if (simplifiedMap == nullptr) {
+      continue;
+    }
     if (all_map.find(
             all_map.at(mapString)->logicalMap.border_semi.bottom.fileName) !=
         all_map.cend()) {
       simplifiedMap->border.bottom.map =
-          simplifiedMapList[all_map.at(mapString)
+          map_list[all_map.at(mapString)
                                 ->logicalMap.border_semi.bottom.fileName];
       simplifiedMap->border.bottom.x_offset =
           all_map
@@ -95,7 +98,7 @@ void PathFinding::searchPath(
             all_map.at(mapString)->logicalMap.border_semi.left.fileName) !=
         all_map.cend()) {
       simplifiedMap->border.left.map =
-          simplifiedMapList[all_map.at(mapString)
+          map_list[all_map.at(mapString)
                                 ->logicalMap.border_semi.left.fileName];
       simplifiedMap->border.left.y_offset =
           all_map
@@ -110,7 +113,7 @@ void PathFinding::searchPath(
             all_map.at(mapString)->logicalMap.border_semi.right.fileName) !=
         all_map.cend()) {
       simplifiedMap->border.right.map =
-          simplifiedMapList[all_map.at(mapString)
+          map_list[all_map.at(mapString)
                                 ->logicalMap.border_semi.right.fileName];
       simplifiedMap->border.right.y_offset =
           all_map
@@ -125,7 +128,7 @@ void PathFinding::searchPath(
             all_map.at(mapString)->logicalMap.border_semi.top.fileName) !=
         all_map.cend()) {
       simplifiedMap->border.top.map =
-          simplifiedMapList[all_map.at(mapString)
+          map_list[all_map.at(mapString)
                                 ->logicalMap.border_semi.top.fileName];
       simplifiedMap->border.top.x_offset =
           all_map
@@ -140,7 +143,7 @@ void PathFinding::searchPath(
   // load for thread and unload if needed
   {
     QMutexLocker locker(&mutex);
-    this->simplifiedMapList = simplifiedMapList;
+    this->simplifiedMapList = map_list;
   }
   emit emitSearchPath(destination_map, destination_x, destination_y,
                       current_map, x, y, items);

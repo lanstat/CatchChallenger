@@ -17,6 +17,7 @@ class Leading : public StackedScene {
 
   ParallaxForest* background_;
   Menu* menu_;
+  Options* options_;
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_LEADING_LEADING_HPP_

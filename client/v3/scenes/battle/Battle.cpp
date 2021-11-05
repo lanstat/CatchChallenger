@@ -3073,7 +3073,6 @@ void Battle::OnExperienceGainDone() {
     doNextAction();
     return;
   }
-  qDebug() << "asdas";
   doNextAction();
   return;
 }

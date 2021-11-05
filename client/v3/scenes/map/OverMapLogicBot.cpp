@@ -98,7 +98,7 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
   lastStepUsed = step;
   isInQuest = false;
   if (actualBot.step.find(step) == actualBot.step.cend()) {
-    showTip(tr("Error into the bot, repport this error please").toStdString());
+    showTip(tr("Error into the bot, report this error please").toStdString());
     return;
   }
   const tinyxml2::XMLElement *stepXml = actualBot.step.at(step);
@@ -110,7 +110,7 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     const std::string language("en");
 #endif
     auto text = stepXml->FirstChildElement("text");
-    if (!language.empty() && language != "en")
+    if (!language.empty() && language != "en") {
       while (text != NULL) {
         if (text->Attribute("lang") != NULL &&
             text->Attribute("lang") == language && text->GetText() != NULL) {
@@ -123,6 +123,7 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
         }
         text = text->NextSiblingElement("text");
       }
+    }
     text = stepXml->FirstChildElement("text");
     while (text != NULL) {
       if (text->Attribute("lang") == NULL ||
@@ -367,6 +368,7 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
       showTip(tr("The factory is not found").toStdString());
       return;
     }
+    // TODO(lanstat): Verify in refineer on Megalopolis
     /*ui->factoryResources->clear();
     ui->factoryProducts->clear();
     ui->factoryStatus->setText(tr("Waiting of status"));
@@ -690,7 +692,6 @@ void OverMapLogic::on_IG_dialog_text_linkActivated(const QString &rawlink) {
 }
 
 void OverMapLogic::IG_dialog_text_linkActivated(const std::string &rawlink) {
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "okkk" << std::endl;
   RemoveChild(npc_talk_);
   std::vector<std::string> stringList = stringsplit(rawlink, ';');
   unsigned int index = 0;

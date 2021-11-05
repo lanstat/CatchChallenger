@@ -103,17 +103,17 @@ void Node::StartAllActions() {
 
 QRectF Node::BoundingRect() const { return bounding_rect_; }
 
-void Node::SetPos(int x, int y) { bounding_rect_.moveTo(x, y); }
+void Node::SetPos(qreal x, qreal y) { bounding_rect_.moveTo(x, y); }
 
-void Node::SetX(int x) { bounding_rect_.moveLeft(x); }
+void Node::SetX(qreal x) { bounding_rect_.moveLeft(x); }
 
-void Node::SetY(int y) { bounding_rect_.moveTop(y); }
+void Node::SetY(qreal y) { bounding_rect_.moveTop(y); }
 
-int Node::X() { return bounding_rect_.x(); }
+qreal Node::X() { return bounding_rect_.x(); }
 
-int Node::Y() { return bounding_rect_.y(); }
+qreal Node::Y() { return bounding_rect_.y(); }
 
-void Node::SetSize(int w, int h) {
+void Node::SetSize(qreal w, qreal h) {
   if (scale_ > 0) {
     w = w * scale_;
     h = h * scale_;
@@ -132,13 +132,13 @@ void Node::SetSize(int w, int h) {
   ReDraw();
 }
 
-void Node::SetHeight(int h) { Node::SetSize(Width(), h); }
+void Node::SetHeight(qreal h) { Node::SetSize(Width(), h); }
 
-void Node::SetWidth(int w) { Node::SetSize(w, Height()); }
+void Node::SetWidth(qreal w) { Node::SetSize(w, Height()); }
 
-int Node::Height() { return bounding_rect_.height(); }
+qreal Node::Height() { return bounding_rect_.height(); }
 
-int Node::Width() { return bounding_rect_.width(); }
+qreal Node::Width() { return bounding_rect_.width(); }
 
 void Node::SetVisible(bool visible) { visible_ = visible; }
 
@@ -291,7 +291,7 @@ QString Node::NodeType() { return node_type_; }
 
 void Node::Draw(QPainter *painter) {
   std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-            << "~nooo" << std::endl;
+            << node_type_.toStdString() << "~nooo" << std::endl;
 }
 
 void Node::OnResize() {}

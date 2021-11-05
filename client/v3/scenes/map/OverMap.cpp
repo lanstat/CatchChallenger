@@ -2,8 +2,6 @@
 #include "OverMap.hpp"
 
 #include <QDesktopServices>
-#include <QHeaderView>
-#include <QTreeWidgetItem>
 #include <iostream>
 #include <utility>
 
@@ -21,12 +19,8 @@ OverMap::OverMap() {
   wasDragged = false;
   monsterDetails = nullptr;
 
-  playerBackground = Sprite::Create(":/CC/images/interface/playerui.png", this);
-  playerBackgroundBig = true;
-  playerBackground->SetVisible(false);
-  playerImage = Sprite::Create(playerBackground);
-  name = UI::Label::Create(playerBackground);
-  cash = UI::Label::Create(playerBackground);
+  player_portrait_ = PlayerPortrait::Create(this);
+  player_portrait_->SetPos(0, 0);
 
   playersCountBack =
       Sprite::Create(":/CC/images/interface/multicount.png", this);
@@ -45,27 +39,19 @@ OverMap::OverMap() {
     buyOver = UI::Label::Create(gradient1, gradient2, this);
   }
 
-  gainBack = Sprite::Create(":/CC/images/interface/chatBackground.png", this);
-  gain = UI::Label::Create(gainBack);
+  toast_ = Toast::Create(this);
+  toast_->SetVisible(false);
 
   npc_talk_ = NpcTalk::Create();
 
-  tipBack = Sprite::Create(":/CC/images/interface/chatBackground.png", this);
-  tip = UI::Label::Create(tipBack);
+  tip_ = Tip::Create(this);
+  tip_->SetVisible(false);
 
   persistant_tipBack =
       Sprite::Create(":/CC/images/interface/chatBackground.png", this);
   persistant_tip = UI::Label::Create(persistant_tipBack);
 
   if (false) {
-    {
-      gainString = "gain";
-      gain->SetText(gainString);
-    }
-    {
-      tipString = "tip";
-      tip->SetText(tipString);
-    }
     {
       persistant_tipString = "persistant_tip";
       persistant_tip->SetText(persistant_tipString);
@@ -83,7 +69,12 @@ OverMap::OverMap() {
   buy->SetOnClick(std::bind(&OverMap::buyClicked, this));
 }
 
-OverMap::~OverMap() {}
+OverMap::~OverMap() {
+  delete tip_;
+  tip_ = nullptr;
+  delete player_portrait_;
+  player_portrait_ = nullptr;
+}
 
 void OverMap::resetAll() {
   for (auto it = begin(monsters); it != end(monsters); it++) {
@@ -110,17 +101,9 @@ void OverMap::setVar(CCMap *ccmap) {
 void OverMap::have_current_player_info(
     const CatchChallenger::Player_private_and_public_informations
         &informations) {
-  playerBackground->SetVisible(true);
-  QPixmap pPixm = QString::fromStdString(
-      QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
-          informations.public_informations.skinId));
-  if (playerBackgroundBig == true)
-    pPixm = pPixm.scaledToHeight(pPixm.height() * 2, Qt::FastTransformation);
-  playerImage->SetPixmap(pPixm);
-  name->SetText(informations.public_informations.pseudo);
-  std::cout << "info.public_informations.pseudo: "
-            << informations.public_informations.pseudo << std::endl;
-  cash->SetText(QString::number(informations.cash));
+  player_portrait_->SetVisible(true);
+  player_portrait_->SetInformation(informations);
+
   for (auto it = begin(monsters); it != end(monsters); it++) {
     delete *it;
   }
@@ -151,66 +134,22 @@ void OverMap::updatePlayerNumber(const uint16_t &number,
 }
 
 void OverMap::newLanguage() {
-  // name->setHtml(tr(""));
   bagOver->SetText(tr("Bag"));
   buyOver->SetText(tr("Buy"));
 }
 
 void OverMap::OnScreenResize() {
   unsigned int space = 10;
-  if (playerBackground->IsVisible()) {
-    if (playerBackgroundBig == true &&
-        (bounding_rect_.width() < 800 || bounding_rect_.height() < 600)) {
-      playerBackgroundBig = false;
-      playerBackground->SetPixmap(":/CC/images/interface/playeruiL.png");
 
-      const auto &informations =
-          connexionManager->client->get_player_informations_ro();
-      QPixmap pPixm = QString::fromStdString(
-          QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
-              informations.public_informations.skinId));
-      playerImage->SetPixmap(pPixm);
+  player_portrait_->SetPos(space, space);
 
-    } else if (playerBackgroundBig == false && bounding_rect_.width() > 800 &&
-               bounding_rect_.height() > 600) {
-      playerBackgroundBig = true;
-      playerBackground->SetPixmap(":/CC/images/interface/playerui.png");
-
-      const auto &informations =
-          connexionManager->client->get_player_informations_ro();
-      QPixmap pPixm = QString::fromStdString(
-          QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
-              informations.public_informations.skinId));
-      pPixm = pPixm.scaledToHeight(pPixm.height() * 2, Qt::FastTransformation);
-      playerImage->SetPixmap(pPixm);
-    }
-    if (playerBackgroundBig == true)
-      playerImage->SetPos(0, -10);
-    else
-      playerImage->SetPos(0, -5);
-    playerBackground->SetPos(space, space);
-    if (playerBackgroundBig) {
-      name->SetPos(playerBackground->X() + 160, playerBackground->Y() + 10);
-      cash->SetPos(playerBackground->X() + 220, playerBackground->Y() + 57);
-      name->SetVisible(true);
-      cash->SetVisible(true);
-    } else {
-      name->SetVisible(false);
-      cash->SetVisible(false);
-    }
-    int tempx = playerBackground->X() + playerBackground->Width() + space;
-    if (playerBackgroundBig != true)
-      tempx = playerBackground->X() + playerBackground->Width();
-    unsigned int monsterIndex = 0;
-    while (monsterIndex < monsters.size()) {
-      MapMonsterPreview *m = monsters.at(monsterIndex);
-      if (playerBackgroundBig == true)
-        m->SetPos(tempx, playerBackground->Y());
-      else
-        m->SetPos(tempx, 0);
-      tempx += space + 56;
-      monsterIndex++;
-    }
+  int tempx = player_portrait_->X() + player_portrait_->Width();
+  unsigned int monsterIndex = 0;
+  while (monsterIndex < monsters.size()) {
+    MapMonsterPreview *m = monsters.at(monsterIndex);
+    m->SetPos(tempx, player_portrait_->Y());
+    tempx += space + 56;
+    monsterIndex++;
   }
 
   playersCountBack->SetPos(
@@ -261,15 +200,6 @@ void OverMap::OnScreenResize() {
   }
   Q_UNUSED(xRight);
 
-  gainBack->SetVisible(!gainString.isEmpty());
-  gain->SetVisible(gainBack->IsVisible());
-  if (gainBack->IsVisible()) {
-    const QRectF &f = gain->BoundingRect();
-    gainBack->SetSize(f.width() + space * 2, f.height() + space * 2);
-    gainBack->SetPos(bounding_rect_.width() / 2 - gainBack->Width() / 2, space);
-    gain->SetPos(space, space);
-  }
-
   int yMiddle = bounding_rect_.height() - space;
 
   persistant_tipBack->SetVisible(!persistant_tipString.isEmpty());
@@ -283,18 +213,8 @@ void OverMap::OnScreenResize() {
         yMiddle - persistant_tipBack->Height());
     yMiddle -= (f.height() + space * 2 + space);
   }
-
-  tipBack->SetVisible(!tipString.isEmpty());
-  tip->SetVisible(tipBack->IsVisible());
-  if (tipBack->IsVisible()) {
-    const QRectF &f = tip->BoundingRect();
-    tipBack->SetSize(f.width() + space * 2, f.height() + space * 2);
-
-    tip->SetPos(space, space);
-    tipBack->SetPos(bounding_rect_.width() / 2 - tipBack->Width() / 2,
-                    yMiddle - tipBack->Height());
-    yMiddle -= (f.height() + space * 2 + space);
-  }
+  tip_->SetY(150);
+  toast_->SetY(150);
 }
 
 void OverMap::OnEnter() {
@@ -302,6 +222,8 @@ void OverMap::OnEnter() {
     item->RegisterEvents();
   }
   buy->RegisterEvents();
+  tip_->RegisterEvents();
+  toast_->RegisterEvents();
 }
 
 void OverMap::OnExit() {
@@ -309,6 +231,8 @@ void OverMap::OnExit() {
     item->UnRegisterEvents();
   }
   buy->UnRegisterEvents();
+  tip_->UnRegisterEvents();
+  toast_->UnRegisterEvents();
 }
 
 /*

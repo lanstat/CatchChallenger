@@ -36,6 +36,8 @@ class NewGame : public UI::Dialog {
   void on_pseudo_textChanged(const QString &);
   void newLanguage();
   void OnActionClick(Node *node) override;
+  void OnEnter() override;
+  void OnExit() override;
 
  protected:
   void OnScreenResize() override;

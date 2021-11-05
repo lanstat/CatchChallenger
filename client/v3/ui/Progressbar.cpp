@@ -20,6 +20,7 @@ Progressbar::Progressbar(Node *parent)
   max_ = 0;
 
   text_ = UI::Label::Create(QColor(255, 255, 255), QColor(5, 40, 0), this);
+  text_->SetText(QString::fromStdString("0"));
   text_->SetPixelSize(11);
   text_->SetAlignment(Qt::AlignCenter);
   text_->SetWidth(bounding_rect_.width());

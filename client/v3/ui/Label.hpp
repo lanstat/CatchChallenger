@@ -29,8 +29,8 @@ class Label : public Node {
   void SetBorderColor(QColor color);
   void SetBorderColor(QLinearGradient gradient);
   void SetAlignment(Qt::Alignment alignment);
-  void SetSize(int w, int h);
-  void SetWidth(int w);
+  void SetSize(qreal w, qreal h);
+  void SetWidth(qreal w);
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;

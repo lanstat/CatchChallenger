@@ -36,26 +36,28 @@ class ListView : public Node {
   void UnRegisterEvents() override;
   void OnChildResize(Node *node) override;
 
- private:
+ protected:
+  QRectF slider_rect_;
+  int spacing_;
   QPixmap slider_rail_;
   QPixmap slider_;
-  QPixmap content_;
-  QRectF content_rect_;
-  QRectF slider_rect_;
   bool show_slider_;
-  bool is_slider_pressed_;
   qreal content_scale_;
-  int spacing_;
-
+  QRectF content_rect_;
+  QPixmap content_;
   std::vector<Node *> items_;
-  Node *selected_item_;
   bool is_horizontal_;
   bool is_drawable_;
-  bool is_processing_resize_;
 
   explicit ListView(Node *parent = nullptr);
+  virtual void ReCalculateSize();
 
-  void ReCalculateSize();
+ private:
+  bool is_slider_pressed_;
+
+  Node *selected_item_;
+  bool is_processing_resize_;
+  bool has_dirty_items_;
 };
 }  // namespace UI
 #endif  // CLIENT_QTOPENGL_UI_LISTVIEW_HPP_

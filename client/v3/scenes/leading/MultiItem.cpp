@@ -62,8 +62,8 @@ void MultiItem::Draw(QPainter *painter) {
   auto text = UI::Label::Create(QColor(255, 255, 255), QColor(30, 25, 17));
   text->SetWidth(bounding_rect_.width());
   text->SetAlignment(Qt::AlignCenter);
-  text->SetY(17);
   text->SetText(name_);
+  text->SetY(Height() / 2 - text->Height() / 2);
 
   background->Draw(painter);
 

@@ -11,6 +11,7 @@
 #include "../../ui/Label.hpp"
 #include "Multi.hpp"
 #include "Solo.hpp"
+#include "Options.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -53,6 +54,7 @@ class Menu : public Scene {
 
   Multi *multi_scene_;
   Solo *solo_scene_;
+  Options *option_scene_;
 
   void ChangeLanguage();
   void OnAssetsDataParsed();

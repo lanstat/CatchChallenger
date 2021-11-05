@@ -53,3 +53,9 @@ NodeParsed Utils::HTML2Node(const QString &html,
   response.nodes = records;
   return response;
 }
+
+QPixmap Utils::B64Png2Pixmap(const QString &b64) {
+  QByteArray by = QByteArray::fromBase64(b64.toUtf8());
+  QImage image = QImage::fromData(by, "PNG");
+  return QPixmap::fromImage(image);
+}

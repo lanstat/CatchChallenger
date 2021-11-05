@@ -284,13 +284,13 @@ void Label::SetAlignment(Qt::Alignment alignment) {
   ReDraw();
 }
 
-void Label::SetSize(int w, int h) {
+void Label::SetSize(qreal w, qreal h) {
   Node::SetSize(w, h);
   auto_size_ = false;
   UpdateTextPath();
 }
 
-void Label::SetWidth(int w) {
+void Label::SetWidth(qreal w) {
   auto_size_ = false;
   Node::SetWidth(w);
   UpdateTextPath();

@@ -172,7 +172,6 @@ void SceneManager::mouseMoveEvent(QMouseEvent *event) {
 
 void SceneManager::closeEvent(QCloseEvent *event) {
 #ifdef CATCHCHALLENGER_SOLO
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "close" << std::endl;
   if (Globals::InternalServer != nullptr) {
     hide();
     if (connection_ != nullptr)

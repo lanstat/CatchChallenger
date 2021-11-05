@@ -91,6 +91,10 @@ void Loading::UpdateProgression() {
 }
 
 void Loading::Progression(uint32_t size, uint32_t total) {
+  if (total == 0) {
+    progressbar->SetValue(0);
+    return;
+  }
   if (size <= total) {
     lastProgression = size * 100 / total;
     if (timerProgression < lastProgression)

@@ -2,7 +2,6 @@
 #define Inventory_H
 
 #include <QObject>
-#include <QListWidget>
 #include "../../ImagesStrechMiddle.hpp"
 #include "../../ScreenInput.hpp"
 #include "../../CustomButton.hpp"

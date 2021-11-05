@@ -2,6 +2,7 @@
 #include "NewGame.hpp"
 
 #include <vector>
+#include <iostream>
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonSettingsCommon.hpp"
@@ -9,7 +10,7 @@
 
 using Scenes::NewGame;
 
-NewGame::NewGame() {
+NewGame::NewGame(): UI::Dialog() {
   ok = false;
 
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
@@ -18,6 +19,7 @@ NewGame::NewGame() {
   previous = UI::Button::Create(":/CC/images/interface/back.png", this);
   next = UI::Button::Create(":/CC/images/interface/next.png", this);
   uipseudo = UI::Input::Create(this);
+  uipseudo->SetSize(200, 40);
 
   warning = UI::Label::Create(this);
   warning->SetVisible(false);
@@ -49,6 +51,7 @@ NewGame* NewGame::Create() {
 }
 
 void NewGame::OnScreenResize() {
+  UI::Dialog::OnScreenResize();
   if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
     quit->SetSize(83 / 2, 94 / 2);
     validate->SetSize(83 / 2, 94 / 2);
@@ -81,13 +84,13 @@ void NewGame::OnScreenResize() {
     auto p = centerImages.at(index);
     QPixmap pix = p->Pixmap();
     if (p != nullptr && !pix.isNull()) {
-      p->SetPos(xTot, background_->Height() / 2 - pix.height() / 2);
+      p->SetPos(400, 400);
       xTot += pix.width();
     }
     if (index > 0) xTot += space;
     index++;
   }
-  uipseudo->SetPos(background_->Width() / 2 - uipseudo->Width() / 2,
+  uipseudo->SetPos(BoundingRect().width() / 2 - uipseudo->Width() / 2,
                    y_ + background_->Height() - uipseudo->Height() - space -
                        validate->Height() / 2);
 }
@@ -208,7 +211,7 @@ void NewGame::updateSkin() {
       QImage scaledSkin = skin.scaled(160, 160, Qt::IgnoreAspectRatio);
       QPixmap pixmap;
       pixmap.convertFromImage(scaledSkin);
-      auto item = Sprite::Create();
+      auto item = Sprite::Create(this);
       item->SetPixmap(pixmap);
       centerImages.push_back(item);
       skinLoaded = true;
@@ -303,4 +306,14 @@ void NewGame::on_previous_clicked() {
     updateSkin();
   } else
     return;
+}
+
+void NewGame::OnEnter() {
+  UI::Dialog::OnEnter();
+  uipseudo->RegisterEvents();
+}
+
+void NewGame::OnExit() {
+  uipseudo->UnRegisterEvents();
+  UI::Dialog::OnExit();
 }

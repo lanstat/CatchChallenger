@@ -1,12 +1,15 @@
 // Copyright 2021 CatchChallenger
 #include "AddCharacter.hpp"
 
+#include <iostream>
+
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/DatapackGeneralLoader.hpp"
 #include "../../../../general/base/tinyXML2/tinyxml2.hpp"
 #include "../../Language.hpp"
 
 using Scenes::AddCharacter;
+using std::placeholders::_1;
 
 AddCharacter::AddCharacter() {
   ok = false;
@@ -15,16 +18,11 @@ AddCharacter::AddCharacter() {
   validate = UI::Button::Create(":/CC/images/interface/validate.png", this);
 
   comboBox = UI::Combo::Create(":/CC/images/interface/button.png", this);
+  comboBox->SetSize(200, 30);
   description = UI::Label::Create(this);
 
-  /*
-  if (!connect(
-          comboBox,
-          static_cast<void (ComboBox::*)(int)>(&ComboBox::currentIndexChanged),
-          this, &AddCharacter::on_comboBox_currentIndexChanged,
-          Qt::QueuedConnection))
-    abort();
-  */
+  comboBox->SetOnSelectChange(
+      std::bind(&AddCharacter::on_comboBox_currentIndexChanged, this, _1));
 
   AddActionButton(quit);
   AddActionButton(validate);
@@ -39,11 +37,12 @@ AddCharacter::~AddCharacter() {
   delete description;
 }
 
-AddCharacter* AddCharacter::Create() {
+AddCharacter *AddCharacter::Create() {
   return new (std::nothrow) AddCharacter();
 }
 
 void AddCharacter::OnScreenResize() {
+  Dialog::OnScreenResize();
   auto font = description->GetFont();
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
     quit->SetSize(83 / 2, 94 / 2);
@@ -68,8 +67,10 @@ void AddCharacter::OnScreenResize() {
     comboBox->SetWidth(400);
   }
 
-  comboBox->SetPos(bounding_rect_.width() / 2 - comboBox->Width() / 2,
-                   y_ + 20 + space);
+  auto content = ContentBoundary();
+
+  comboBox->SetPos(BoundingRect().width() / 2 - comboBox->Width() / 2,
+                   content.y() + 20);
   description->SetPos(bounding_rect_.width() / 2 - description->Width() / 2,
                       bounding_rect_.height() / 2 - description->Height() / 2 +
                           comboBox->Height());
@@ -242,4 +243,14 @@ void AddCharacter::OnActionClick(Node *node) {
   } else if (node == validate) {
     on_ok_clicked();
   }
+}
+
+void AddCharacter::OnEnter() {
+  Dialog::OnEnter();
+  comboBox->RegisterEvents();
+}
+
+void AddCharacter::OnExit() {
+  comboBox->UnRegisterEvents();
+  Dialog::OnExit();
 }

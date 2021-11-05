@@ -53,6 +53,14 @@ int listener_sort(HashElementType *a, HashElementType *b) {
 
 HashSceneType *EventManager::AddListener(HashSceneType *scene, Node *listener,
                                          bool paused) {
+  // Verify if the listener added it will be delete, if true the prevent the
+  // delete
+  if (current_target_ != nullptr && current_target_salvaged_ &&
+      listener == current_target_->target) {
+    current_target_->paused = false;
+    current_target_salvaged_ = false;
+  }
+
   HashSceneType *root_scene = nullptr;
   auto *root = Utils::GetCurrentScene(listener);
   HASH_FIND_PTR(scene, &root, root_scene);
@@ -328,10 +336,11 @@ void EventManager::PrintData() {
     Logger::Log(QString("Scene %1 z: %2").arg(point).arg(scene->z));
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
       intptr_t point_1 = reinterpret_cast<intptr_t>(elt->target);
-      Logger::Log(QString("Listener %1 z: %2 paused: %3")
+      Logger::Log(QString("Listener %1(%4) z: %2 paused: %3")
                       .arg(point_1)
                       .arg(elt->z)
-                      .arg(elt->paused));
+                      .arg(elt->paused)
+                      .arg(elt->target->NodeType()));
       elt = (HashElementType *)(elt->hh.next);
     }
 

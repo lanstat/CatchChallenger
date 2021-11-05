@@ -30,7 +30,7 @@ class Input : public Node {
   void MouseMoveEvent(const QPointF &point) override;
   void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
   void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
-  void SetSize(int width, int height);
+  void SetSize(qreal width, qreal height);
   void SetMode(InputMode mode);
   QString Value() const;
   void SetValue(const QString &value);
@@ -39,6 +39,7 @@ class Input : public Node {
   void SetFont(const QFont &font);
   void RegisterEvents() override;
   void UnRegisterEvents() override;
+  void SetOnTextChange(std::function<void(std::string)> callback);
 
   void Draw(QPainter *painter) override;
 
@@ -51,6 +52,8 @@ class Input : public Node {
   Sprite *background_;
   InputMode mode_;
   QPointF inner_padding_;
+
+  std::function<void(std::string)> on_text_change_;
 
   explicit Input(Node *parent = nullptr);
 };

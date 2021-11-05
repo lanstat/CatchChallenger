@@ -19,5 +19,5 @@ class YellowButton : public UI::Button {
  private:
   YellowButton(Node *parent = nullptr);
 };
-}  // namespace Scenes
+}  // namespace UI
 #endif  // CLIENT_V3_UI_THEMEDBUTTON_HPP_

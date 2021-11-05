@@ -14,16 +14,16 @@ class Node {
  public:
   virtual ~Node();
 
-  void SetPos(int x, int y);
-  void SetX(int x);
-  void SetY(int y);
-  int X();
-  int Y();
-  virtual void SetSize(int width, int height);
-  virtual void SetWidth(int w);
-  virtual void SetHeight(int h);
-  int Width();
-  int Height();
+  void SetPos(qreal x, qreal y);
+  void SetX(qreal x);
+  void SetY(qreal y);
+  qreal X();
+  qreal Y();
+  virtual void SetSize(qreal width, qreal height);
+  virtual void SetWidth(qreal w);
+  virtual void SetHeight(qreal h);
+  qreal Width();
+  qreal Height();
   void SetVisible(bool visible);
   bool IsVisible();
   void SetEnabled(bool enabled);

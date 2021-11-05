@@ -121,6 +121,7 @@ void Menu::Initialize() {
 
   solo_scene_ = nullptr;
   multi_scene_ = nullptr;
+  option_scene_ = nullptr;
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   if (!Settings::settings->contains("audioVolume"))
@@ -348,7 +349,10 @@ void Menu::GoToMulti() {
   static_cast<StackedScene *>(Parent())->PushForeground(multi_scene_);
 }
 
-void Menu::GoToOptions() {}
+void Menu::GoToOptions() {
+  if (!option_scene_) option_scene_ = Options::Create();
+  AddChild(option_scene_);
+}
 
 void Menu::GoToDebug() {}
 
@@ -364,12 +368,14 @@ void Menu::OnEnter() {
   if (!is_loaded_) return;
   solo_->RegisterEvents();
   multi_->RegisterEvents();
+  options_->RegisterEvents();
 }
 
 void Menu::OnExit() {
   if (!is_loaded_) return;
   solo_->UnRegisterEvents();
   multi_->UnRegisterEvents();
+  options_->UnRegisterEvents();
 }
 
 void Menu::OnAssetsDataParsed() {

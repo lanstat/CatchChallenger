@@ -248,6 +248,11 @@ SOURCES += \
     $$PWD/ui/Checkbox.cpp \
     $$PWD/ui/MessageDialog.cpp \
     $$PWD/ui/ThemedButton.cpp \
+    $$PWD/ui/ThemedLabel.cpp \
+    $$PWD/ui/GridView.cpp \
+    $$PWD/ui/LinkedDialog.cpp \
+    $$PWD/ui/Slider.cpp \
+    $$PWD/ui/Row.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -293,14 +298,18 @@ SOURCES += \
     $$PWD/scenes/map/OverMapLogicFactory.cpp \
     $$PWD/scenes/map/OverMapLogicShop.cpp \
     $$PWD/scenes/map/OverMapLogicTrade.cpp \
+    $$PWD/scenes/map/PlayerPortrait.cpp \
+    $$PWD/scenes/map/Tip.cpp \
     #$$PWD/scenes/inventory/Crafting.cpp \
-    #$$PWD/scenes/inventory/Inventory.cpp \
-    #$$PWD/scenes/inventory/Plant.cpp \
     #$$PWD/scenes/player/FinishedQuests.cpp \
     $$PWD/scenes/shared/player/Player.cpp \
     $$PWD/scenes/shared/monster/MonsterItem.cpp \
     $$PWD/scenes/shared/monster/MonsterBag.cpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.cpp \
+    $$PWD/scenes/shared/inventory/Inventory.cpp \
+    $$PWD/scenes/shared/inventory/InventoryItem.cpp \
+    $$PWD/scenes/shared/toast/Toast.cpp \
+    #$$PWD/scenes/shared/inventory/Plant.cpp \
     $$PWD/scenes/test/Test.cpp \
     #$$PWD/scenes/player/Quests.cpp \
     #$$PWD/scenes/player/Reputations.cpp \
@@ -315,6 +324,7 @@ SOURCES += \
     $$PWD/scenes/leading/NewGame.cpp \
     $$PWD/scenes/leading/AddCharacter.cpp \
     $$PWD/scenes/leading/CharacterSelector.cpp \
+    $$PWD/scenes/leading/Options.cpp \
     $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
     $$PWD/Language.hpp \
@@ -329,6 +339,11 @@ HEADERS  += \
     $$PWD/ui/Checkbox.hpp \
     $$PWD/ui/MessageDialog.hpp \
     $$PWD/ui/ThemedButton.hpp \
+    $$PWD/ui/ThemedLabel.hpp \
+    $$PWD/ui/GridView.hpp \
+    $$PWD/ui/LinkedDialog.hpp \
+    $$PWD/ui/Slider.hpp \
+    $$PWD/ui/Row.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Vector.hpp \
     $$PWD/core/Node.hpp \
@@ -368,14 +383,18 @@ HEADERS  += \
     $$PWD/scenes/map/MonsterDetails.hpp \
     $$PWD/scenes/map/OverMap.hpp \
     $$PWD/scenes/map/OverMapLogic.hpp \
+    $$PWD/scenes/map/PlayerPortrait.hpp \
+    $$PWD/scenes/map/Tip.hpp \
     #$$PWD/scenes/inventory/Crafting.hpp \
-    #$$PWD/scenes/inventory/Inventory.hpp \
-    #$$PWD/scenes/inventory/Plant.hpp \
     #$$PWD/scenes/player/FinishedQuests.hpp \
     $$PWD/scenes/shared/player/Player.hpp \
     $$PWD/scenes/shared/monster/MonsterItem.hpp \
     $$PWD/scenes/shared/monster/MonsterBag.hpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.hpp \
+    $$PWD/scenes/shared/inventory/Inventory.hpp \
+    $$PWD/scenes/shared/inventory/InventoryItem.hpp \
+    $$PWD/scenes/shared/toast/Toast.hpp \
+    #$$PWD/scenes/shared/inventory/Plant.cpp \
     $$PWD/scenes/test/Test.hpp \
     #$$PWD/scenes/player/Quests.hpp \
     #$$PWD/scenes/player/Reputations.hpp \
@@ -390,6 +409,7 @@ HEADERS  += \
     $$PWD/scenes/leading/NewGame.hpp \
     $$PWD/scenes/leading/AddCharacter.hpp \
     $$PWD/scenes/leading/CharacterSelector.hpp \
+    $$PWD/scenes/leading/Options.hpp \
     $$PWD/scenes/leading/Menu.hpp
 
 SOURCES += \
