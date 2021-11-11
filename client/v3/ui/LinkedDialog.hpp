@@ -16,12 +16,13 @@ class LinkedDialog : public Dialog {
   void RemoveItem(Node *item);
   void SetCurrentItem(int index);
   void OnScreenResize() override;
-  void SetOnNext(std::function<void()> callback);
-  void SetOnBack(std::function<void()> callback);
+  void SetOnNext(std::function<void(int)> callback);
+  void SetOnBack(std::function<void(int)> callback);
   void SetOnUseItem(std::function<void(uint16_t)> callback);
   void OnEnter() override;
   void OnExit() override;
   Node* CurrentItem();
+  Node* Item(int index);
 
  private:
   Button *quit_;
@@ -31,8 +32,8 @@ class LinkedDialog : public Dialog {
   Node* current_item_;
   int current_index_;
 
-  std::function<void()> on_next_;
-  std::function<void()> on_back_;
+  std::function<void(int)> on_next_;
+  std::function<void(int)> on_back_;
   std::function<void(uint16_t)> on_use_item_;
 
   LinkedDialog();

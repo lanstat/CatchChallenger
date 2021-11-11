@@ -11,7 +11,7 @@ std::string ChatParsing::new_chat_message(const std::string &pseudo,
                                           const std::string &text,
                                           const bool withLink) {
   std::string returned_html;
-  returned_html += "<div style=\"";
+  returned_html += "<p style=\"margin:0;";
   switch (chat_type) {
     case Chat_type_local:  // local
       returned_html += "font-style:italic;";
@@ -25,7 +25,7 @@ std::string ChatParsing::new_chat_message(const std::string &pseudo,
       returned_html += "color:#5C255F;";
       break;
     case Chat_type_system:  // system
-      returned_html += "color:#707070;font-style:italic;font-size:small;";
+      returned_html += "color:#cccccc;font-style:italic;";
       break;
     case Chat_type_system_important:  // system importance: hight
       returned_html += "color:#60BF20;";
@@ -77,7 +77,7 @@ std::string ChatParsing::new_chat_message(const std::string &pseudo,
     else
       returned_html += pseudo + ": " + toSmilies(toHtmlEntities(text));
   }
-  returned_html += "</div>";
+  returned_html += "</p>";
   return returned_html;
 }
 
@@ -94,28 +94,28 @@ std::string ChatParsing::toHtmlEntities(const std::string &text) {
 std::string ChatParsing::toSmilies(const std::string &text) {
   std::string newstring = text;
   stringreplaceAll(newstring, ":)",
-                   "<img src=\":/images/smiles/face-smile.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-smile.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":|",
-                   "<img src=\":/images/smiles/face-plain.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-plain.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":(",
-                   "<img src=\":/images/smiles/face-sad.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-sad.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":P",
-                   "<img src=\":/images/smiles/face-raspberry.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-raspberry.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":p",
-                   "<img src=\":/images/smiles/face-raspberry.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-raspberry.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":D",
-                   "<img src=\":/images/smiles/face-laugh.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-laugh.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ":o",
-                   "<img src=\":/images/smiles/face-surprise.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-surprise.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   stringreplaceAll(newstring, ";)",
-                   "<img src=\":/images/smiles/face-wink.png\" alt=\"\" "
+                   "<img src=\":/CC/images/smiles/face-wink.png\" alt=\"\" "
                    "style=\"vertical-align:middle;\" />");
   return newstring;
 }

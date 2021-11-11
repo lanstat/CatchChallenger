@@ -1,6 +1,8 @@
 // Copyright 2021 CatchChallenger
 #include "LinkedDialog.hpp"
 
+#include <iostream>
+
 using UI::LinkedDialog;
 
 LinkedDialog::LinkedDialog() : Dialog() {
@@ -39,7 +41,7 @@ LinkedDialog* LinkedDialog::Create() {
 void LinkedDialog::OnScreenResize() {
   Dialog::OnScreenResize();
 
-  auto boundary = ContentPlainBoundary();
+  auto boundary = ContentBoundary();
   for (auto item : items_) {
     item->SetPos(boundary.x(), boundary.y());
     item->SetSize(boundary.width(), boundary.height());
@@ -51,7 +53,7 @@ void LinkedDialog::AddItem(Node* item) {
     current_item_ = item;
   }
 
-  auto boundary = ContentPlainBoundary();
+  auto boundary = ContentBoundary();
   item->SetPos(boundary.x(), boundary.y());
   item->SetSize(boundary.width(), boundary.height());
   items_.push_back(item);
@@ -59,11 +61,11 @@ void LinkedDialog::AddItem(Node* item) {
 
 void LinkedDialog::RemoveItem(Node* item) {}
 
-void LinkedDialog::SetOnNext(std::function<void()> callback) {
+void LinkedDialog::SetOnNext(std::function<void(int)> callback) {
   on_next_ = callback;
 }
 
-void LinkedDialog::SetOnBack(std::function<void()> callback) {
+void LinkedDialog::SetOnBack(std::function<void(int)> callback) {
   on_back_ = callback;
 }
 
@@ -81,24 +83,25 @@ void LinkedDialog::OnActionClick(Node* node) {
     if (current_index_ >= items_.size()) {
       current_index_ = 0;
     }
-    if (on_next_) on_next_();
+    if (on_next_) on_next_(current_index_);
   } else if (node == back_) {
     current_index_--;
     if (current_index_ < 0) {
       current_index_ = items_.size() - 1;
     }
-    if (on_back_) on_back_();
+    if (on_back_) on_back_(current_index_);
   }
   if (current_item_ != nullptr) {
     current_item_->UnRegisterEvents();
     RemoveChild(current_item_);
   }
   current_item_ = items_.at(current_index_);
-  current_item_->RegisterEvents();
   AddChild(current_item_);
+  current_item_->RegisterEvents();
 }
 
 void LinkedDialog::OnEnter() {
+  UI::Dialog::OnEnter();
   if (current_item_ != nullptr) {
     current_item_->RegisterEvents();
   }
@@ -108,6 +111,7 @@ void LinkedDialog::OnExit() {
   if (current_item_ != nullptr) {
     current_item_->UnRegisterEvents();
   }
+  UI::Dialog::OnExit();
 }
 
 void LinkedDialog::SetCurrentItem(int index) {
@@ -126,4 +130,8 @@ void LinkedDialog::SetCurrentItem(int index) {
 
 Node* LinkedDialog::CurrentItem() {
   return current_item_;
+}
+
+Node* LinkedDialog::Item(int index) {
+  return items_.at(index);
 }

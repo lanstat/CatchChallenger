@@ -3,27 +3,23 @@
 #define CLIENT_V3_SCENES_SHARED_PLAYER_PLAYER_HPP_
 
 #include "../../../base/ConnectionManager.hpp"
+#include "../../../core/Node.hpp"
 #include "../../../ui/Button.hpp"
-#include "../../../ui/Dialog.hpp"
 #include "../../../ui/Label.hpp"
 
 namespace Scenes {
-class Player : public UI::Dialog {
+class Player : public Node {
  public:
   ~Player();
   static Player* Create();
 
-  void OnActionClick(Node *);
   void newLanguage();
 
-  void OnScreenResize() override;
-  void OnEnter() override;
-  void OnExit() override;
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
+  void OnResize() override;
 
  private:
-  UI::Button *quit;
-  UI::Button *next;
-  UI::Button *back;
 
   UI::Label *name_label;
   UI::Label *name_value;

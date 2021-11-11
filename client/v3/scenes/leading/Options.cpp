@@ -19,10 +19,11 @@ Options::Options() : UI::Dialog() {
   volumeText = UI::Label::Create(this);
   volumeSlider = UI::Slider::Create(this);
   volumeSlider->SetValue(Settings::settings->value("audioVolume").toUInt());
+  volumeSlider->SetMaximum(100);
   productKeyText = UI::Label::Create(this);
   productKeyInput = UI::Input::Create(this);
   buy = UI::Button::Create(":/CC/images/interface/buy.png", this);
-  //buy->UpdateTextPercent(75);
+  buy->SetSize(42, 46);
 
   languagesText = UI::Label::Create(this);
   languagesList = UI::Combo::Create(":/CC/images/interface/button.png", this);
@@ -32,8 +33,6 @@ Options::Options() : UI::Dialog() {
   languagesList->SetPos(100, 200);
 
   {
-    volumeSlider->SetValue(
-        Settings::settings->value("keyaudioVolume").toUInt());
     QString key = Settings::settings->value("key").toString();
     productKeyInput->SetValue(key);
     // if (Ultimate::ultimate.isUltimate())
@@ -50,15 +49,10 @@ Options::Options() : UI::Dialog() {
       languagesList->SetCurrentIndex(0);
   }
 
-  volumeSlider->SetOnValueChange(
-      std::bind(&Options::volumeSliderChange, this));
-  productKeyInput->SetOnTextChange(
-      std::bind(&Options::productKeyChange, this));
+  volumeSlider->SetOnValueChange(std::bind(&Options::volumeSliderChange, this));
+  productKeyInput->SetOnTextChange(std::bind(&Options::productKeyChange, this));
   languagesList->SetOnSelectChange(
       std::bind(&Options::languagesChange, this, _1));
-  // if (!connect(&Language::language, &Language::newLanguage, this,
-  //&OptionsDialog::newLanguage, Qt::QueuedConnection))
-  // abort();
   buy->SetOnClick(std::bind(&Options::openBuy, this));
 
   newLanguage();
@@ -68,9 +62,7 @@ Options::Options() : UI::Dialog() {
 
 Options::~Options() { delete buy; }
 
-Options* Options::Create() {
-  return new (std::nothrow) Options();
-}
+Options* Options::Create() { return new (std::nothrow) Options(); }
 
 void Options::OnScreenResize() {
   UI::Dialog::OnScreenResize();
@@ -83,27 +75,22 @@ void Options::OnScreenResize() {
 
   auto content = ContentBoundary();
   int x = content.x() + 20;
-  int x_1 = content.x() + 100;
+  int x_1 = content.x() + 300;
   int y = content.y() + 20;
-
-  // const unsigned int &productKeyBackgroundNewWidth =
-  // idealW - productKeyTextRect.width() - wdialog->currentBorderSize() * 4 -
-  // 10 - buy->width();
-  // productKeyInput->setMaximumSize(productKeyBackgroundNewWidth,
-  // productKeyBackgroundNewHeight);
-  // productKeyInput->setMinimumSize(productKeyBackgroundNewWidth,
-  // productKeyBackgroundNewHeight);
+  int width = content.x() + content.width();
 
   {
     volumeText->SetPos(x, y);
     volumeSlider->SetPos(x_1, y);
-    volumeSlider->SetWidth(content.width() - x_1);
+    volumeSlider->SetSize(width - x_1, volumeText->Height());
     y += volumeText->Height() + 10;
   }
   {
     productKeyText->SetPos(x, y);
     productKeyInput->SetPos(x_1, y);
-    buy->SetPos(content.width() - buy->Width(), y);
+    productKeyInput->SetSize(width - x_1, productKeyText->Height());
+
+    buy->SetPos(width - buy->Width(), y);
     y += productKeyText->Height() + 10;
   }
   {
@@ -115,9 +102,9 @@ void Options::OnScreenResize() {
 
 void Options::volumeSliderChange() {
 #ifndef CATCHCHALLENGER_NOAUDIO
-  AudioPlayer::GetInstance()->SetVolume(volumeSlider->Value());
+  AudioPlayer::GetInstance()->SetVolume((int)volumeSlider->Value());
 #endif
-  Settings::settings->setValue("audioVolume", volumeSlider->Value());
+  Settings::settings->setValue("audioVolume", (int)volumeSlider->Value());
 }
 
 void Options::productKeyChange() {
@@ -175,7 +162,7 @@ void Options::OnExit() {
   UI::Dialog::OnExit();
 }
 
-void Options::OnActionClick(Node *node) {
+void Options::OnActionClick(Node* node) {
   if (node == quit_) {
     Close();
     Parent()->RemoveChild(this);

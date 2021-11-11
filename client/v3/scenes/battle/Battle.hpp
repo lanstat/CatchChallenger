@@ -28,7 +28,7 @@
 /*
 #include "../above/inventory/Inventory.hpp"
 */
-#include "../shared/monster/MonsterBag.hpp"
+#include "../shared/inventory/MonsterBag.hpp"
 
 namespace Scenes {
 class Battle : public Scene {

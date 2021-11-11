@@ -1,14 +1,15 @@
 // Copyright 2021 CatchChallenger
 #include "Login.hpp"
 
-#include <QLineEdit>
-#include <algorithm>
+#include <QDesktopServices>
 #include <iostream>
 #include <string>
 
 #include "../../../qt/BlacklistPassword.hpp"
+#include "../../ui/ThemedButton.hpp"
 
 using Scenes::Login;
+using std::placeholders::_1;
 
 Login::Login() {
   validated = false;
@@ -21,9 +22,7 @@ Login::Login() {
   remember = UI::Checkbox::Create(this);
   remember->SetChecked(true);
   rememberText = UI::Label::Create(this);
-  htmlText = UI::Label::Create(this);
-  // htmlText->setOpenExternalLinks(true);
-  // htmlText->setTextInteractionFlags(Qt::TextBrowserInteraction);
+  htmlText = UI::Column::Create(this);
 
   server_select =
       UI::Button::Create(":/CC/images/interface/validate.png", this);
@@ -63,13 +62,31 @@ void Login::setAuth(const QStringList &list) {
 }
 
 void Login::setLinks(const QString &site_page, const QString &register_page) {
-  QStringList links;
-  if (!site_page.isEmpty())
-    links.append("<a href=\"" + site_page + "\">" + tr("Web site") + "</a>");
-  if (!register_page.isEmpty())
-    links.append("<a href=\"" + register_page + "\">" + tr("Register") +
-                 "</a>");
-  htmlText->SetText(links.join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+  htmlText->RemoveAllChildrens();
+  if (!site_page.isEmpty()) {
+    auto btn = UI::GreenButton::Create();
+    btn->SetText(tr("Web site"));
+    btn->SetHeight(30);
+    btn->SetPixelSize(12);
+    btn->SetData(99, site_page.toStdString());
+    btn->SetOnClick(std::bind(&Login::OnLinkClick, this, _1));
+    htmlText->AddChild(btn);
+  }
+  if (!register_page.isEmpty()) {
+    auto btn = UI::GreenButton::Create();
+    btn->SetText(tr("Register"));
+    btn->SetHeight(30);
+    btn->SetPixelSize(12);
+    btn->SetData(99, register_page.toStdString());
+    btn->SetOnClick(std::bind(&Login::OnLinkClick, this, _1));
+    htmlText->AddChild(btn);
+  }
+}
+
+void Login::OnLinkClick(Node *node) {
+  if (!QDesktopServices::openUrl(
+          QUrl(QString::fromStdString(node->DataStr(99)))))
+    std::cerr << "Link() failed" << std::endl;
 }
 
 QStringList Login::getAuth() {
@@ -126,7 +143,6 @@ void Login::OnScreenResize() {
   loginText->SetFont(font);
   passwordText->SetFont(font);
   rememberText->SetFont(font);
-  htmlText->SetFont(font);
 
   unsigned int productKeyBackgroundNewHeight = 50;
   if (background_->Width() < 600 || background_->Height() < 640) {
@@ -146,7 +162,7 @@ void Login::OnScreenResize() {
   int space = 10;
 
   {
-    loginText->SetPos(inner_rect.x() + border_size * 2, inner_rect.y() * 1.5);
+    loginText->SetPos(inner_rect.x() + border_size * 2, inner_rect.y());
     const unsigned int volumeSliderW = loginText->X() + loginTextRect.width();
     login->SetPos(volumeSliderW, loginText->Y());
     login->SetSize(inner_rect.width() - loginTextRect.width() - border_size * 4,
@@ -236,4 +252,14 @@ void Login::OnActionClick(Node *node) {
   } else if (node == server_select) {
     validate();
   }
+}
+
+void Login::OnEnter() {
+  UI::Dialog::OnEnter();
+  htmlText->RegisterEvents();
+}
+
+void Login::OnExit() {
+  htmlText->UnRegisterEvents();
+  UI::Dialog::OnExit();
 }

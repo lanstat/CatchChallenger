@@ -46,9 +46,9 @@ void Sprite::SetPixmap(const QString &file_name, bool preserve_size) {
   SetPixmap(*AssetsLoader::GetInstance()->GetImage(file_name), preserve_size);
 }
 
-void Sprite::SetPixmap(const QPixmap pixmap) { SetPixmap(pixmap, true); }
+void Sprite::SetPixmap(const QPixmap &pixmap) { SetPixmap(pixmap, true); }
 
-void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
+void Sprite::SetPixmap(const QPixmap &pixmap, bool preserve_size) {
   if (preserve_size) {
     cache_ = pixmap;
     Node::SetSize(cache_.width(), cache_.height());
@@ -60,7 +60,7 @@ void Sprite::SetPixmap(const QPixmap pixmap, bool preserve_size) {
   ReDraw();
 }
 
-void Sprite::SetSize(int width, int height) {
+void Sprite::SetSize(qreal width, qreal height) {
   if (!cache_.isNull()) {
     cache_ = cache_.scaled(width, height, Qt::IgnoreAspectRatio,
                            Qt::SmoothTransformation);

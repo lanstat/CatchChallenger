@@ -27,6 +27,7 @@ Dialog::Dialog() {
   gradient2.setColorAt(0, QColor(64, 28, 2));
   gradient2.setColorAt(1, QColor(64, 28, 2));
   title_ = UI::Label::Create(gradient2, gradient1);
+  title_->SetAlignment(Qt::AlignCenter);
 }
 
 Dialog::~Dialog() {
@@ -80,11 +81,10 @@ void Dialog::OnScreenResize() {
     title_->SetPixelSize(30);
   }
 
-  const QRectF trect = title_->BoundingRect();
-  title_->SetPos(x_ + (idealW - title_->BoundingRect().width()) / 2,
-                 y_ - trect.height() / 2);
+  title_->SetPos(x_, y_ - 30);
+  title_->SetWidth(idealW);
 
-  content_boundary_ = QRectF(x_ + 30, y_ + 60, idealW - 60, idealH - 100);
+  content_boundary_ = QRectF(x_ + 30, y_ + 60, idealW - 60, idealH - 120);
   content_plain_boundary_ = QRectF(x_ + 20, y_ + 20, idealW - 40, idealH - 40);
 }
 

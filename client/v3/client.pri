@@ -304,14 +304,18 @@ SOURCES += \
     #$$PWD/scenes/inventory/Crafting.cpp \
     #$$PWD/scenes/player/FinishedQuests.cpp \
     $$PWD/scenes/shared/player/Player.cpp \
-    $$PWD/scenes/shared/monster/MonsterItem.cpp \
-    $$PWD/scenes/shared/monster/MonsterBag.cpp \
+    $$PWD/scenes/shared/inventory/MonsterItem.cpp \
+    $$PWD/scenes/shared/inventory/MonsterBag.cpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.cpp \
     $$PWD/scenes/shared/inventory/Inventory.cpp \
     $$PWD/scenes/shared/inventory/InventoryItem.cpp \
     $$PWD/scenes/shared/toast/Toast.cpp \
-    #$$PWD/scenes/shared/inventory/Plant.cpp \
+    $$PWD/scenes/shared/inventory/Plant.cpp \
+    $$PWD/scenes/shared/inventory/PlantItem.cpp \
+    $$PWD/scenes/shared/shop/Shop.cpp \
+    $$PWD/scenes/shared/chat/Chat.cpp \
     $$PWD/scenes/test/Test.cpp \
+    $$PWD/scenes/test/TestItem.cpp \
     #$$PWD/scenes/player/Quests.cpp \
     #$$PWD/scenes/player/Reputations.cpp \
     $$PWD/scenes/leading/Leading.cpp \
@@ -390,14 +394,18 @@ HEADERS  += \
     #$$PWD/scenes/inventory/Crafting.hpp \
     #$$PWD/scenes/player/FinishedQuests.hpp \
     $$PWD/scenes/shared/player/Player.hpp \
-    $$PWD/scenes/shared/monster/MonsterItem.hpp \
-    $$PWD/scenes/shared/monster/MonsterBag.hpp \
+    $$PWD/scenes/shared/inventory/MonsterItem.hpp \
+    $$PWD/scenes/shared/inventory/MonsterBag.hpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.hpp \
     $$PWD/scenes/shared/inventory/Inventory.hpp \
     $$PWD/scenes/shared/inventory/InventoryItem.hpp \
     $$PWD/scenes/shared/toast/Toast.hpp \
-    #$$PWD/scenes/shared/inventory/Plant.cpp \
+    $$PWD/scenes/shared/inventory/Plant.hpp \
+    $$PWD/scenes/shared/inventory/PlantItem.hpp \
+    $$PWD/scenes/shared/shop/Shop.hpp \
+    $$PWD/scenes/shared/chat/Chat.hpp \
     $$PWD/scenes/test/Test.hpp \
+    $$PWD/scenes/test/TestItem.hpp \
     #$$PWD/scenes/player/Quests.hpp \
     #$$PWD/scenes/player/Reputations.hpp \
     $$PWD/scenes/leading/Leading.hpp \
@@ -438,6 +446,7 @@ SOURCES += \
     $$PWD/entities/render/TriggerAnimation.cpp \
     $$PWD/entities/ChatParsing.cpp \
     $$PWD/entities/Map_client.cpp \
+    $$PWD/entities/PlayerInfo.cpp \
     $$PWD/entities/Utils.cpp
 HEADERS  += \
     $$PWD/entities/render/MapController.hpp \
@@ -461,6 +470,7 @@ HEADERS  += \
     $$PWD/entities/DisplayStructures.hpp \
     $$PWD/entities/ChatParsing.hpp \
     $$PWD/entities/Map_client.hpp \
+    $$PWD/entities/PlayerInfo.hpp \
     $$PWD/entities/Utils.hpp
 
 wasm: {

@@ -16,12 +16,13 @@
 #include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
 #include "../shared/npctalk/NpcTalk.hpp"
+#include "../shared/toast/Toast.hpp"
+#include "../shared/chat/Chat.hpp"
 #include "CCMap.hpp"
 #include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
 #include "PlayerPortrait.hpp"
 #include "Tip.hpp"
-#include "../shared/toast/Toast.hpp"
 
 namespace Scenes {
 class OverMap : public QObject, public Scene {
@@ -81,12 +82,12 @@ class OverMap : public QObject, public Scene {
   UI::Label *bagOver;
   UI::Button *buy;
   UI::Label *buyOver;
+  Chat *chat_;
 
-  Toast* toast_;
+  Toast *toast_;
 
   NpcTalk *npc_talk_;
-
-  Tip* tip_;
+  Tip *tip_;
 
   Sprite *persistant_tipBack;
   UI::Label *persistant_tip;

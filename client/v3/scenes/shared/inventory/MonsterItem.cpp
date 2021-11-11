@@ -66,7 +66,9 @@ void MonsterItem::LoadMonster() {
   }
 }
 
-void MonsterItem::RegisterEvents() { select_->RegisterEvents(); }
+void MonsterItem::RegisterEvents() { 
+  select_->RegisterEvents(); 
+}
 
 void MonsterItem::UnRegisterEvents() { select_->UnRegisterEvents(); }
 

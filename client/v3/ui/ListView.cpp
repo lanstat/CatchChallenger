@@ -36,7 +36,7 @@ ListView *ListView::Create(Node *parent) {
 
 void ListView::Draw(QPainter *painter) {
   if (bounding_rect_.isEmpty()) return;
-  if (items_.size() == 0 || !is_drawable_) return;
+  if (items_.size() == 0 || !is_drawable_ || content_.width() == 0) return;
 
   int x1 = 0;
   int y1 = 0;

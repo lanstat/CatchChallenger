@@ -8,67 +8,43 @@
 #include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/SceneManager.hpp"
 #include "../../../ui/MessageDialog.hpp"
+#include "../../../ui/LinkedDialog.hpp"
 #include "MonsterItem.hpp"
 
 using CatchChallenger::PlayerMonster;
 using Scenes::MonsterBag;
 
 MonsterBag::MonsterBag() {
-  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
-
   monster_list_ = UI::ListView::Create(this);
   monster_list_->SetItemSpacing(10);
 
-  newLanguage();
-
   connection_manager_ = ConnectionManager::GetInstance();
   client_ = connection_manager_->client;
-
-  AddActionButton(quit_);
 }
 
 MonsterBag::~MonsterBag() {
-  delete quit_;
+  delete monster_list_;
+  monster_list_ = nullptr;
 }
 
 MonsterBag *MonsterBag::Create() { return new (std::nothrow) MonsterBag(); }
 
 void MonsterBag::Draw(QPainter *painter) {
-  UI::Dialog::Draw(painter);
-
-  auto inner = ContentBoundary();
   auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
-  b2->Strech(24, 22, 20, inner.width(), inner.height());
-  b2->SetPos(inner.x(), inner.y());
+  b2->Strech(24, 22, 20, Width(), Height());
+  b2->SetPos(0, 0);
   b2->Paint(painter, nullptr, nullptr);
 }
 
-void MonsterBag::OnScreenResize() {
-  UI::Dialog::OnScreenResize();
-  if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
-    quit_->SetSize(83 / 2, 94 / 2);
-  } else {
-    quit_->SetSize(83, 94);
-  }
-
-  auto inner = ContentBoundary();
-  monster_list_->SetPos(inner.x() + 20, inner.y() + 20);
-  monster_list_->SetSize(inner.width() - 40, inner.height() - 40);
-}
-
-void MonsterBag::newLanguage() { SetTitle(tr("Monsters")); }
-
-void MonsterBag::OnCloseClicked() {
-  ClearSelection();
-  Parent()->RemoveChild(this);
+void MonsterBag::OnResize() {
+  monster_list_->SetPos(20, 20);
+  monster_list_->SetSize(Width() - 40, Height() - 40);
+  ReDraw();
 }
 
 void MonsterBag::LoadMonster() {
   const std::vector<PlayerMonster> &monsters = client_->getPlayerMonster();
 
-#ifdef DEBUG_BASEWINDOWS
-  qDebug() << "MonsterBag::LoadMonster()";
-#endif
   monster_list_->Clear();
   auto i = monsters.begin();
   while (i != monsters.cend()) {
@@ -82,15 +58,13 @@ void MonsterBag::OnSelectWidget() {}
 
 void MonsterBag::OnAcceptClicked() {
   if (19 == client_->getCurrentMonster()->monster) {
-    ShowMessageDialog(tr("Warning"),
-                      tr("The monster selected is already on battle"));
+    ShowMessageDialog(QObject::tr("Warning"),
+                      QObject::tr("The monster selected is already on battle"));
     return;
   }
-  OnCloseClicked();
 }
 
 void MonsterBag::ClearSelection() {
-  // monster_list_->selectionModel()->clearSelection();
 }
 
 void MonsterBag::ShowMessageDialog(const QString &title,
@@ -105,17 +79,12 @@ void MonsterBag::ShowMessageDialog(const QString &title,
   AddChild(message_dialog_);
 }
 
-void MonsterBag::OnEnter() {
-  UI::Dialog::OnEnter();
+void MonsterBag::RegisterEvents() {
+  static_cast<UI::LinkedDialog *>(Parent())->SetTitle(QObject::tr("MONSTERS"));
   LoadMonster();
   monster_list_->RegisterEvents();
 }
 
-void MonsterBag::OnExit() {
+void MonsterBag::UnRegisterEvents() {
   monster_list_->UnRegisterEvents();
-  UI::Dialog::OnExit();
-}
-
-void MonsterBag::OnActionClick(Node * node) {
-  OnCloseClicked();
 }

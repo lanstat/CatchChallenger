@@ -73,3 +73,13 @@ QString Utils::RemoveHTMLEntities(const QString &html) {
     .replace(QString("</b>"),QString(""));
   return tmp;
 }
+
+QImage Utils::CropToContent(const QImage &buffer, QColor stop) {
+  int pivot = 0;
+  QColor aux;
+  do {
+    pivot++;
+    aux = buffer.pixel(10, pivot);
+  } while (aux != stop && pivot < buffer.height());
+  return buffer.copy(0, 0, buffer.width(), pivot);
+}

@@ -3,6 +3,7 @@
 #define CLIENT_V3_UI_SLIDER_HPP_
 
 #include "../core/Node.hpp"
+#include "../core/Sprite.hpp"
 
 namespace UI {
 class Slider : public Node {
@@ -26,15 +27,16 @@ class Slider : public Node {
 
  private:
   bool is_slider_pressed_;
-  QRectF slider_rect_;
-  QPixmap slider_rail_;
-  QPixmap slider_;
-  bool is_horizontal_;
+  Sprite *slider_;
   std::function<void(qreal)> on_value_change_;
   qreal value_;
   qreal maximum_;
 
   explicit Slider(Node *parent = nullptr);
+  void ReCalculateSliderPosition();
+
+ protected:
+  void OnResize() override;
 };
 }  // namespace UI
 #endif  // CLIENT_V3_UI_SLIDER_HPP_

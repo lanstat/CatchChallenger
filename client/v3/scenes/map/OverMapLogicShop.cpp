@@ -4,18 +4,14 @@
 
 using Scenes::OverMapLogic;
 
-void OverMapLogic::haveShopList(
-    const std::vector<CatchChallenger::ItemToSellOrBuy> &items) {
-  abort();
-}
-
 void OverMapLogic::haveBuyObject(const CatchChallenger::BuyStat &stat,
                                  const uint32_t &newPrice) {
   const CatchChallenger::ItemToSellOrBuy &itemToSellOrBuy = itemsToBuy.front();
   // std::unordered_map<uint32_t,uint32_t> items;
   switch (stat) {
     case CatchChallenger::BuyStat_Done:
-      add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      //add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      showTip(QStringLiteral("You buy<br>%1 x %2").arg(itemToSellOrBuy.quantity).arg(1).toStdString());
       break;
     case CatchChallenger::BuyStat_BetterPrice:
       if (newPrice == 0) {

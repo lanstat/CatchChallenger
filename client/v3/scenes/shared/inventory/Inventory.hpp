@@ -40,8 +40,9 @@ class Inventory : public Node {
   void inventoryUse_slot();
   void inventoryDestroy_slot();
   void updateInventory(uint8_t targetSize);
-  void OnEnter() override;
-  void OnExit() override;
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
+  void OnResize() override;
   void Draw(QPainter *painter) override;
 
  private:

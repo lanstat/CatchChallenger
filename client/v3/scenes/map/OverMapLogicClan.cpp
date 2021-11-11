@@ -7,6 +7,7 @@
 #include "../../Language.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "OverMapLogic.hpp"
+#include "../../entities/PlayerInfo.hpp"
 
 using Scenes::OverMapLogic;
 
@@ -70,6 +71,9 @@ void OverMapLogic::clanDissolved() {
   CatchChallenger::Player_private_and_public_informations &playerInformations =
       connexionManager->client->get_player_informations();
   haveClanInformations = false;
+  auto info = PlayerInfo::GetInstance();
+  info->HaveClanInformation = false;
+  info->ClanName = "";
   clanName.clear();
   playerInformations.clan = 0;
   updateClanDisplay();
@@ -86,6 +90,9 @@ void OverMapLogic::updateClanDisplay() {
 
 void OverMapLogic::clanInformations(const std::string &name) {
   haveClanInformations = true;
+  auto info = PlayerInfo::GetInstance();
+  info->HaveClanInformation = true;
+  info->ClanName = name;
   clanName = name;
   updateClanDisplay();
 }

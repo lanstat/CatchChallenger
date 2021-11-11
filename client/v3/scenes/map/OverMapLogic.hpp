@@ -7,7 +7,7 @@
 #include "../../entities/Map_client.hpp"
 #include "../../entities/render/MapVisualiserPlayer.hpp"
 #include "../../ui/LinkedDialog.hpp"
-#include "../shared/player/Player.hpp"
+#include "../shared/shop/Shop.hpp"
 #include "OverMap.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -162,7 +162,6 @@ class OverMapLogic : public OverMap {
   // void on_inventory_itemActivated(QListWidgetItem *item);
   void objectUsed(const CatchChallenger::ObjectUsage &objectUsage);
   // shop
-  void haveShopList(const std::vector<CatchChallenger::ItemToSellOrBuy> &items);
   void haveBuyObject(const CatchChallenger::BuyStat &stat,
                      const uint32_t &newPrice);
   void haveSellObject(const CatchChallenger::SoldStat &stat,
@@ -266,7 +265,6 @@ class OverMapLogic : public OverMap {
   // Crafting *crafting;
   // int inventoryIndex;
 
-  Player *player;
   // Reputations *reputations;
   // Quests *quests;
   // FinishedQuests *finishedQuests;
@@ -314,6 +312,7 @@ class OverMapLogic : public OverMap {
   std::string zonecatchName;
   bool zonecatch;
   // shop
+  Shop *shop_;
   uint32_t tempQuantityForSell;
   bool waitToSell;
   std::vector<CatchChallenger::ItemToSellOrBuy> itemsToSell, itemsToBuy;
@@ -321,6 +320,7 @@ class OverMapLogic : public OverMap {
   std::vector<uint32_t> monster_to_deposit, monster_to_withdraw;
 
   OverMapLogic();
+  void OnInventoryNav(int index);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_OVERMAPLOGIC_HPP_

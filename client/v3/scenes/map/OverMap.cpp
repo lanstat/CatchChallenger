@@ -43,6 +43,7 @@ OverMap::OverMap() {
   toast_->SetVisible(false);
 
   npc_talk_ = NpcTalk::Create();
+  chat_ = Chat::Create(this);
 
   tip_ = Tip::Create(this);
   tip_->SetVisible(false);
@@ -74,6 +75,8 @@ OverMap::~OverMap() {
   tip_ = nullptr;
   delete player_portrait_;
   player_portrait_ = nullptr;
+  delete chat_;
+  chat_ = nullptr;
 }
 
 void OverMap::resetAll() {
@@ -215,6 +218,9 @@ void OverMap::OnScreenResize() {
   }
   tip_->SetY(150);
   toast_->SetY(150);
+
+  chat_->SetPos(10, Height() - 210);
+  chat_->SetSize(400, 200);
 }
 
 void OverMap::OnEnter() {
@@ -224,6 +230,7 @@ void OverMap::OnEnter() {
   buy->RegisterEvents();
   tip_->RegisterEvents();
   toast_->RegisterEvents();
+  chat_->RegisterEvents();
 }
 
 void OverMap::OnExit() {
@@ -233,6 +240,7 @@ void OverMap::OnExit() {
   buy->UnRegisterEvents();
   tip_->UnRegisterEvents();
   toast_->UnRegisterEvents();
+  chat_->UnRegisterEvents();
 }
 
 /*

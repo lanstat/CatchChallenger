@@ -954,8 +954,9 @@ const QtDatapackClientLoader::QtMonsterExtra &QtDatapackClientLoader::getMonster
 
 const QtDatapackClientLoader::QtItemExtra &QtDatapackClientLoader::getImageExtra(const uint16_t &id)
 {
-    if(QtitemsExtra.find(id)!=QtitemsExtra.cend())
+    if(QtitemsExtra.find(id)!=QtitemsExtra.cend()) {
         return QtitemsExtra.at(id);
+    }
     else
     {
         if(ImageitemsExtra.find(id)!=ImageitemsExtra.cend())

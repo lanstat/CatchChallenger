@@ -14,6 +14,7 @@
 #include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/Checkbox.hpp"
+#include "../../ui/Column.hpp"
 
 namespace Scenes {
 class Login : public UI::Dialog {
@@ -30,6 +31,8 @@ class Login : public UI::Dialog {
   void newLanguage();
   void validate();
   void OnActionClick(Node *node) override;
+  void OnEnter() override;
+  void OnExit() override;
 
  protected:
   void OnScreenResize() override;
@@ -42,14 +45,16 @@ class Login : public UI::Dialog {
   UI::Input *password;
   UI::Checkbox *remember;
   UI::Label *rememberText;
-  UI::Label *htmlText;
+  UI::Column *htmlText;
 
   UI::Button *back;
   UI::Button *server_select;
 
   QStringList m_auth;
   bool validated;
+
   Login();
+  void OnLinkClick(Node* node);
 };
 }  // namespace Scenes
 

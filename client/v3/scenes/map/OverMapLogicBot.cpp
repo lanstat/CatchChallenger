@@ -156,54 +156,18 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
         CatchChallenger::CommonDatapackServerSpec::commonDatapackServerSpec
             .shops.cend()) {
       showTip(tr("Shop not found").toStdString());
+
       return;
     }
-    /*        if(actualBot.properties.find("skin")!=actualBot.properties.cend())
-            {
-                QPixmap
-       skin(QString::fromStdString(getFrontSkinPath(actualBot.properties.at("skin"))));
-                if(!skin.isNull())
-                {
-                    ui->shopSellerImage->setPixmap(skin.scaled(160,160));
-                    ui->shopSellerImage->setVisible(true);
-                }
-                else
-                    ui->shopSellerImage->setVisible(false);
-            }
-            else
-                ui->shopSellerImage->setVisible(false);
-            ui->stackedWidget->setCurrentWidget(ui->page_shop);
-            ui->shopItemList->clear();
-            on_shopItemList_itemSelectionChanged();
-            #ifndef CATCHCHALLENGER_CLIENT_INSTANT_SHOP
-            ui->shopDescription->setText(tr("Waiting the shop content"));
-            ui->shopBuy->setVisible(false);
-            qDebug() << "goToBotStep(),
-       connexionManager->client->getShopList(shopId): " << shopId;
-            connexionManager->client->getShopList(shopId);
-            #else
-            {
-                std::vector<ItemToSellOrBuy> items;
-                const Shop
-       &shop=CommonDatapackServerSpec::commonDatapackServerSpec.shops.at(shopId);
-                unsigned int index=0;
-                while(index<shop.items.size())
-                {
-                    if(shop.prices.at(index)>0)
-                    {
-                        ItemToSellOrBuy newItem;
-                        newItem.object=shop.items.at(index);
-                        newItem.price=shop.prices.at(index);
-                        newItem.quantity=0;
-                        items << newItem;
-                    }
-                    index++;
-                }
-                haveShopList(items);
-            }
-            #endif*/
+    if (shop_ == nullptr) {
+      shop_ = Shop::Create();
+    }
+    shop_->SetSeller(actualBot, shopId);
+    AddChild(shop_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "sell") == 0) {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "butt" << std::endl;
     if (stepXml->Attribute("shop") == NULL) {
       showTip(tr("Shop called but missing informations").toStdString());
       return;
@@ -305,6 +269,8 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     AddChild(npc_talk_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "warehouse") == 0) {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "warehouse" << std::endl;
     /*monster_to_withdraw.clear();
     monster_to_deposit.clear();
     change_warehouse_items.clear();
@@ -340,6 +306,8 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     return;*/
     abort();
   } else if (strcmp(stepXml->Attribute("type"), "market") == 0) {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "market" << std::endl;
     /*ui->marketMonster->clear();
     ui->marketObject->clear();
     ui->marketOwnMonster->clear();
@@ -368,6 +336,8 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
       showTip(tr("The factory is not found").toStdString());
       return;
     }
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "industry" << std::endl;
     // TODO(lanstat): Verify in refineer on Megalopolis
     /*ui->factoryResources->clear();
     ui->factoryProducts->clear();

@@ -4,58 +4,30 @@
 #include <QPainter>
 #include <iostream>
 
+#include "../../../ui/LinkedDialog.hpp"
+
 using Scenes::Player;
 
 Player::Player() {
-  quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
-  next = UI::Button::Create(":/CC/images/interface/next.png", this);
-  back = UI::Button::Create(":/CC/images/interface/back.png", this);
+  name_label = UI::Label::Create(this);
+  name_value = UI::Label::Create(this);
+  cash_label = UI::Label::Create(this);
+  cash_value = UI::Label::Create(this);
+  type_label = UI::Label::Create(this);
+  type_value = UI::Label::Create(this);
 
-  name_label = UI::Label::Create(background_);
-  name_value = UI::Label::Create(background_);
-  cash_label = UI::Label::Create(background_);
-  cash_value = UI::Label::Create(background_);
-  type_label = UI::Label::Create(background_);
-  type_value = UI::Label::Create(background_);
-
-  /*
-  if (!connect(&Language::language, &Language::newLanguage, this,
-               &Player::newLanguage, Qt::QueuedConnection))
-    abort();
-  if (!connect(next, &CustomButton::clicked, this, &Player::sendNext,
-               Qt::QueuedConnection))
-    abort();
-  if (!connect(back, &CustomButton::clicked, this, &Player::sendBack,
-               Qt::QueuedConnection))
-    abort();
-  */
   connexionManager = ConnectionManager::GetInstance();
 
   newLanguage();
-
-  AddActionButton(back);
-  AddActionButton(next);
-  AddActionButton(quit);
 }
 
 Player::~Player() {
-  delete quit;
-  delete next;
-  delete back;
 }
 
 Player *Player::Create() { return new (std::nothrow) Player(); }
 
-void Player::OnActionClick(Node *node) {
-  if (node == quit) {
-    Parent()->RemoveChild(this);
-    Close();
-  }
-}
-
-void Player::OnScreenResize() {
-  UI::Dialog::OnScreenResize();
-  int idealW = background_->Width();
+void Player::OnResize() {
+  int idealW = BoundingRect().width();
   unsigned int space = 30;
   if (BoundingRect().width() < 800 || BoundingRect().height() < 600) {
     space /= 2;
@@ -73,14 +45,13 @@ void Player::OnScreenResize() {
 }
 
 void Player::newLanguage() {
-  SetTitle(tr("PLAYER"));
-  name_label->SetText(tr("Name: "));
-  cash_label->SetText(tr("Cash: "));
-  type_label->SetText(tr("Type: "));
+  name_label->SetText(QObject::tr("Name: "));
+  cash_label->SetText(QObject::tr("Cash: "));
+  type_label->SetText(QObject::tr("Type: "));
 }
 
-void Player::OnEnter() {
-  UI::Dialog::OnEnter();
+void Player::RegisterEvents() {
+  static_cast<UI::LinkedDialog *>(Parent())->SetTitle(QObject::tr("PLAYER"));
   const CatchChallenger::Player_private_and_public_informations
       &playerInformations =
           connexionManager->client->get_player_informations_ro();
@@ -90,18 +61,18 @@ void Player::OnEnter() {
   switch (playerInformations.public_informations.type) {
     default:
     case CatchChallenger::Player_type_normal:
-      type_value->SetText(tr("Normal player"));
+      type_value->SetText(QObject::tr("Normal player"));
       break;
     case CatchChallenger::Player_type_premium:
-      type_value->SetText(tr("Premium player"));
+      type_value->SetText(QObject::tr("Premium player"));
       break;
     case CatchChallenger::Player_type_dev:
-      type_value->SetText(tr("Developer player"));
+      type_value->SetText(QObject::tr("Developer player"));
       break;
     case CatchChallenger::Player_type_gm:
-      type_value->SetText(tr("Admin"));
+      type_value->SetText(QObject::tr("Admin"));
       break;
   }
 }
 
-void Player::OnExit() { UI::Dialog::OnExit(); }
+void Player::UnRegisterEvents() { }

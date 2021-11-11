@@ -11,6 +11,9 @@
 #include "../../core/AudioPlayer.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../shared/inventory/Inventory.hpp"
+#include "../shared/inventory/Plant.hpp"
+#include "../shared/inventory/MonsterBag.hpp"
+#include "../shared/player/Player.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
 #include "../above/inventory/Plant.hpp"
@@ -26,19 +29,25 @@ using std::placeholders::_1;
 
 OverMapLogic::OverMapLogic() : OverMap() {
   inventory_tabs_ = UI::LinkedDialog::Create();
+
+  inventory_tabs_->AddItem(Player::Create());
   inventory_tabs_->AddItem(Inventory::Create());
+  inventory_tabs_->AddItem(MonsterBag::Create());
+  inventory_tabs_->AddItem(Plant::Create());
+  inventory_tabs_->SetOnBack(
+      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+  inventory_tabs_->SetOnNext(
+      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
   /*
 plant = nullptr;
 crafting = nullptr;
 */
 
-  player = nullptr;
   /*
   reputations = nullptr;
   quests = nullptr;
   finishedQuests = nullptr;
   */
-  playerIndex = 0;
 
   multiplayer = true;
   worseQueryTime = 0;
@@ -48,6 +57,8 @@ crafting = nullptr;
   gain_timeout.setInterval(5000);
   tip_timeout.setSingleShot(true);
   gain_timeout.setSingleShot(true);
+
+  shop_ = nullptr;
 
   npc_talk_->SetOnItemClick(
       std::bind(&OverMapLogic::IG_dialog_text_linkActivated, this, _1));
@@ -354,10 +365,6 @@ void OverMapLogic::connectAllSignals() {
     abort();
   // shop
   if (!connect(connexionManager->client,
-               &CatchChallenger::Api_client_real::QthaveShopList, this,
-               &OverMapLogic::haveShopList))
-    abort();
-  if (!connect(connexionManager->client,
                &CatchChallenger::Api_client_real::QthaveSellObject, this,
                &OverMapLogic::haveSellObject))
     abort();
@@ -565,10 +572,19 @@ void OverMapLogic::errorWithTheCurrentMap() {
 }
 
 void OverMapLogic::bag_open() {
-  inventory_tabs_->SetCurrentItem(0);
-  static_cast<Inventory *>(inventory_tabs_->CurrentItem())
-      ->SetVar(Inventory::ObjectType::ObjectType_All, false);
+  auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
+  item->SetVar(Inventory::ObjectType::ObjectType_All, false);
+  inventory_tabs_->SetCurrentItem(1);
   AddChild(inventory_tabs_);
+}
+
+void OverMapLogic::OnInventoryNav(int index) {
+  switch (index) {
+    case 1:
+      auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
+      item->SetVar(Inventory::ObjectType::ObjectType_All, false);
+      break;
+  }
 }
 
 void OverMapLogic::inventoryNext() {
@@ -704,18 +720,8 @@ inventoryIndex--;
 }
 
 void OverMapLogic::player_open() {
-  if (player == nullptr) {
-    player = Player::Create();
-    /*
-    if (!connect(player, &Player::setAbove, this, &OverMapLogic::setAbove))
-      abort();
-    if (!connect(player, &Player::sendNext, this, &OverMapLogic::playerNext))
-      abort();
-    if (!connect(player, &Player::sendBack, this, &OverMapLogic::playerBack))
-      abort();*/
-  }
-  playerIndex = 0;
-  AddChild(player);
+  inventory_tabs_->SetCurrentItem(0);
+  AddChild(inventory_tabs_);
 }
 
 void OverMapLogic::playerNext() {
@@ -1048,9 +1054,7 @@ void OverMapLogic::showGain() {
   gain_timeout.start();
 }
 
-void OverMapLogic::hideGain() {
-  toast_->SetVisible(false);
-}
+void OverMapLogic::hideGain() { toast_->SetVisible(false); }
 
 void OverMapLogic::composeAndDisplayGain() {
   std::vector<std::string> buffer = add_to_inventoryGainExtraList;

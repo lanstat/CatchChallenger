@@ -23,11 +23,8 @@ Inventory::Inventory() : Node(nullptr) {
 
   inventory = UI::GridView::Create(this);
   inventory->SetItemSpacing(5);
-  inventory->TestMode();
-  // if (!connect(inventory, &QListWidget::itemSelectionChanged, this,
-  //&Inventory::on_inventory_itemSelectionChanged))
 
-  descriptionBack = Sprite::Create(":/CC/images/interface/b1.png", this);
+  descriptionBack = Sprite::Create(this);
   inventory_description = UI::Label::Create(this);
   inventoryDestroy =
       UI::Button::Create(":/CC/images/interface/delete.png", this);
@@ -47,50 +44,7 @@ Inventory::~Inventory() {
 
 Inventory *Inventory::Create() { return new (std::nothrow) Inventory(); }
 
-void Inventory::Draw(QPainter *painter) {
-  (void)painter;
-  auto font = inventory_description->GetFont();
-  int space = 30;
-  if (BoundingRect().width() < 800 || BoundingRect().height() < 600) {
-    inventoryDestroy->SetSize(83 / 2, 94 / 2);
-    inventoryUse->SetSize(83 / 2, 94 / 2);
-    updateInventory(24);
-  } else {
-    inventoryDestroy->SetSize(83, 94);
-    inventoryUse->SetSize(83, 94);
-    font.setPixelSize(18);
-    if (BoundingRect().width() > 1400 && BoundingRect().height() > 800) {
-      if (itemCount < 7)
-        updateInventory(96);
-      else
-        updateInventory(64);
-    } else {
-      if (itemCount < 7)
-        updateInventory(48);
-      else
-        updateInventory(24);
-    }
-  }
-
-  auto bounds = BoundingRect();
-  inventory->SetPos(0, 0);
-  inventory->SetSize(bounds.width(), bounds.height());
-
-  int yTemp = bounds.height() - inventoryDestroy->Height() - 20;
-  int xTemp = bounds.x();
-  inventoryDestroy->SetPos(xTemp, yTemp);
-  xTemp += inventoryDestroy->Width() + space / 2;
-  descriptionBack->SetPos(xTemp, yTemp);
-  inventory_description->SetPos(xTemp + 32 + space / 3, yTemp + 32);
-  inventory_description->SetWidth(descriptionBack->Width() - 64);
-  int xTempUse = bounds.x() + bounds.width() - space -
-                 inventoryUse->Width();
-  inventoryUse->SetPos(xTempUse, yTemp);
-  descriptionBack->SetSize(xTempUse - xTemp - space / 2,
-                           inventoryDestroy->Height());
-
-  inventory_description->SetFont(font);
-}
+void Inventory::Draw(QPainter *painter) { (void)painter; }
 
 void Inventory::SetVar(const Inventory::ObjectType &waitedObjectType,
                        const bool inSelection, const int lastItemSelected) {
@@ -102,6 +56,7 @@ void Inventory::SetVar(const Inventory::ObjectType &waitedObjectType,
       &playerInformations =
           connexionManager->client->get_player_informations_ro();
   itemCount = playerInformations.items.size();
+  updateInventory(64);
 }
 
 void Inventory::updateInventory(uint8_t targetSize) {
@@ -206,6 +161,7 @@ void Inventory::on_inventory_itemSelectionChanged() {
   const QtDatapackClientLoader::ItemExtra &content =
       QtDatapackClientLoader::datapackLoader->itemsExtra.at(lastItemSelected);
   inventoryDestroy->SetEnabled(!inSelection);
+  inventory_description->SetVisible(true);
   inventory_description->SetText(QString::fromStdString(content.description));
 
   bool isRecipe = false;
@@ -280,10 +236,45 @@ void Inventory::OnItemClick(Node *node) {
   }
 }
 
-void Inventory::OnEnter() {
+void Inventory::RegisterEvents() {
   static_cast<UI::LinkedDialog *>(Parent())->SetTitle(QObject::tr(
       "Bag", "You can translate by inventory if the word is shorter"));
   inventory->RegisterEvents();
+  auto items = inventory->Items();
+  for (auto item : items) {
+    static_cast<InventoryItem *>(item)->SetSelected(false);
+  }
 }
 
-void Inventory::OnExit() { inventory->UnRegisterEvents(); }
+void Inventory::UnRegisterEvents() { inventory->UnRegisterEvents(); }
+
+void Inventory::OnResize() {
+  auto font = inventory_description->GetFont();
+  int space = 30;
+  if (BoundingRect().width() < 800 || BoundingRect().height() < 600) {
+    inventoryDestroy->SetSize(83 / 2, 94 / 2);
+    inventoryUse->SetSize(83 / 2, 94 / 2);
+  } else {
+    inventoryDestroy->SetSize(83, 94);
+    inventoryUse->SetSize(83, 94);
+    font.setPixelSize(18);
+  }
+
+  auto bounds = BoundingRect();
+  inventory->SetPos(0, 0);
+  inventory->SetSize(bounds.width(), bounds.height());
+
+  int yTemp = bounds.height() - inventoryDestroy->Height() - 20;
+  int xTemp = 0;
+  inventoryDestroy->SetPos(xTemp, yTemp);
+  xTemp += inventoryDestroy->Width() + space / 2;
+  descriptionBack->SetPos(xTemp, yTemp);
+  inventory_description->SetPos(xTemp + 10, yTemp + 10);
+  inventory_description->SetPixelSize(12);
+  inventoryUse->SetPos(bounds.width() - inventoryUse->Width(), yTemp);
+  int pos = inventoryUse->X() - space -
+            (inventoryDestroy->X() + inventoryDestroy->Width());
+  descriptionBack->SetPixmap(":/CC/images/interface/b1-trimmed.png");
+  descriptionBack->Strech(18, 16, 10, pos, inventoryDestroy->Height());
+  inventory_description->SetWidth(descriptionBack->Width());
+}

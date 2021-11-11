@@ -66,3 +66,15 @@ void Column::RemoveChild(Node *node) {
 }
 
 void Column::Draw(QPainter *painter) {}
+
+void Column::RegisterEvents() {
+  for (auto item : children_) {
+    item->RegisterEvents();
+  }
+}
+
+void Column::UnRegisterEvents() {
+  for (auto item : children_) {
+    item->UnRegisterEvents();
+  }
+}

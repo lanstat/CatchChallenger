@@ -28,7 +28,7 @@ void GridView::ReCalculateSize() {
   const auto item_height = item_size_.height();
 
   if (!is_horizontal_) {
-    content_rect_ = QRectF(0.0, 0.0, Width() - 22, 0.0);
+    content_rect_ = QRectF(0.0, 0.0, Width() - 22, item_height);
 
     if (items_.size() == 0) return;
     for (auto item : items_) {

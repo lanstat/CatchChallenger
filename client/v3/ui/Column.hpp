@@ -20,6 +20,8 @@ class Column : public Node {
 
   void Draw(QPainter *painter) override;
   void OnChildResize(Node *node) override;
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
 
  protected:
   int spacing_;

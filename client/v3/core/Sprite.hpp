@@ -20,10 +20,10 @@ class Sprite : public Node, public Stateful {
 
   void SetPixmap(const QString &file_name);
   void SetPixmap(const QString &file_name, bool preserve_size);
-  void SetPixmap(const QPixmap pixmap);
-  void SetPixmap(const QPixmap pixmap, bool preserve_size);
+  void SetPixmap(const QPixmap &pixmap);
+  void SetPixmap(const QPixmap &pixmap, bool preserve_size);
   QPixmap Pixmap() const;
-  void SetSize(int width, int height);
+  void SetSize(qreal width, qreal height) override;
   void Strech(unsigned int border_size, int width, int height);
   /** Scale the sprite to specified size, returns padding scaled */
   QPointF Strech(unsigned int scaled_x, unsigned int scaled_y,
