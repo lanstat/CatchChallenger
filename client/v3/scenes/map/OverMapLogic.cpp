@@ -156,8 +156,6 @@ void OverMapLogic::resetAll() {
   zonecatch = false;
   tempQuantityForSell = 0;
   waitToSell = false;
-  itemsToSell.clear();
-  itemsToBuy.clear();
   objectInUsing.clear();
   monster_to_deposit.clear();
   monster_to_withdraw.clear();
@@ -362,15 +360,6 @@ void OverMapLogic::connectAllSignals() {
   if (!connect(connexionManager->client,
                &CatchChallenger::Api_client_real::QtobjectUsed, this,
                &OverMapLogic::objectUsed))
-    abort();
-  // shop
-  if (!connect(connexionManager->client,
-               &CatchChallenger::Api_client_real::QthaveSellObject, this,
-               &OverMapLogic::haveSellObject))
-    abort();
-  if (!connect(connexionManager->client,
-               &CatchChallenger::Api_client_real::QthaveBuyObject, this,
-               &OverMapLogic::haveBuyObject))
     abort();
   // factory
   if (!connect(connexionManager->client,

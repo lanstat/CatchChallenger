@@ -25,23 +25,29 @@ class Shop : public UI::Dialog {
   void OnScreenResize() override;
 
   void SetSeller(const CatchChallenger::Bot &bot, uint16_t shop_id);
-  void SetOnItemClick(std::function<void(std::string)> callback);
+  void SetMeAsSeller(uint16_t shop_id);
+  void SetOnTransactionFinish(std::function<void(std::string)> callback);
   void Close();
 
  private:
   Shop();
   void OnItemClick(Node *node);
   void HaveShopList(const std::vector<CatchChallenger::ItemToSellOrBuy> &items);
+  void HaveBuyObject(const CatchChallenger::BuyStat &stat,
+                     const uint32_t &newPrice);
+  void HaveSellObject(const CatchChallenger::SoldStat &stat,
+                      const uint32_t &newPrice);
 
   Sprite *portrait_;
   UI::Button *quit_;
   UI::Button *buy_;
   UI::Label *seller_name_;
   UI::ListView *content_;
-  std::function<void(std::string)> on_item_click_;
+  std::function<void(std::string)> on_transaction_finish_;
   ConnectionManager *connexionManager;
   uint16_t shop_id_;
   Node *selected_item_;
+  bool is_buy_mode_;
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_SHARED_SHOP_SHOP_HPP_

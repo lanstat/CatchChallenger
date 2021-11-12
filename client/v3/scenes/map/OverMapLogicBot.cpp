@@ -9,6 +9,7 @@
 #include "OverMapLogic.hpp"
 
 using Scenes::OverMapLogic;
+using std::placeholders::_1;
 
 bool OverMapLogic::botHaveQuest(const uint16_t &botId) const {
   const CatchChallenger::Player_private_and_public_informations
@@ -161,13 +162,12 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     }
     if (shop_ == nullptr) {
       shop_ = Shop::Create();
+      shop_->SetOnTransactionFinish(std::bind(&OverMapLogic::showTip, this, _1));
     }
     shop_->SetSeller(actualBot, shopId);
     AddChild(shop_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "sell") == 0) {
-    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-              << "butt" << std::endl;
     if (stepXml->Attribute("shop") == NULL) {
       showTip(tr("Shop called but missing informations").toStdString());
       return;
@@ -178,22 +178,13 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
       showTip(tr("Shop called but wrong id").toStdString());
       return;
     }
-    /*if(actualBot.properties.find("skin")!=actualBot.properties.cend())
-    {
-        QPixmap
-    skin=QString::fromStdString(getFrontSkinPath(actualBot.properties.at("skin")));
-        if(!skin.isNull())
-        {
-            ui->shopSellerImage->setPixmap(skin.scaled(160,160));
-            ui->shopSellerImage->setVisible(true);
-        }
-        else
-            ui->shopSellerImage->setVisible(false);
+
+    if (shop_ == nullptr) {
+      shop_ = Shop::Create();
+      shop_->SetOnTransactionFinish(std::bind(&OverMapLogic::showTip, this, _1));
     }
-    else
-        ui->shopSellerImage->setVisible(false);
-    waitToSell=true;
-    selectObject(ObjectType_Sell);*/
+    shop_->SetMeAsSeller(shopId);
+    AddChild(shop_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "learn") == 0) {
     selectObject(ObjectType_MonsterToLearn);

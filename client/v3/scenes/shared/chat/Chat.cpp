@@ -68,7 +68,9 @@ void Chat::RegisterEvents() {
   EventManager::GetInstance()->AddKeyboardListener(this);
 }
 
-void Chat::UnRegisterEvents() {}
+void Chat::UnRegisterEvents() {
+  EventManager::GetInstance()->RemoveListener(this);
+}
 
 void Chat::SendMessage(std::string message) {
   auto &playerInformations =

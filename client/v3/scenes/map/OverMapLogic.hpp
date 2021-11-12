@@ -161,11 +161,6 @@ class OverMapLogic : public OverMap {
   // void load_inventory();
   // void on_inventory_itemActivated(QListWidgetItem *item);
   void objectUsed(const CatchChallenger::ObjectUsage &objectUsage);
-  // shop
-  void haveBuyObject(const CatchChallenger::BuyStat &stat,
-                     const uint32_t &newPrice);
-  void haveSellObject(const CatchChallenger::SoldStat &stat,
-                      const uint32_t &newPrice);
   // factory
   void updateFactoryStatProduction(
       const CatchChallenger::IndustryStatus &industryStatus,

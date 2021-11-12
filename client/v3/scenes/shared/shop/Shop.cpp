@@ -4,18 +4,20 @@
 #include <iostream>
 
 #include "../../../../../general/base/CommonDatapackServerSpec.hpp"
+#include "../../../Globals.hpp"
 #include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Logger.hpp"
 #include "../../../entities/Utils.hpp"
 #include "../../../ui/Row.hpp"
-#include "../../test/TestItem.hpp"
+#include "ShopItem.hpp"
 
 using Scenes::Shop;
 using std::placeholders::_1;
+using std::placeholders::_2;
 
 Shop::Shop() {
-  on_item_click_ = nullptr;
+  on_transaction_finish_ = nullptr;
   selected_item_ = nullptr;
   SetDialogSize(600, 500);
   portrait_ = Sprite::Create(this);
@@ -24,10 +26,22 @@ Shop::Shop() {
   buy_ = UI::Button::Create(":/CC/images/interface/buy.png", this);
   content_ = UI::ListView::Create(this);
   connexionManager = ConnectionManager::GetInstance();
+
   if (!QObject::connect(connexionManager->client,
                         &CatchChallenger::Api_client_real::QthaveShopList,
                         std::bind(&Shop::HaveShopList, this, _1)))
     abort();
+  if (!QObject::connect(connexionManager->client,
+                        &CatchChallenger::Api_client_real::QthaveSellObject,
+                        std::bind(&Shop::HaveSellObject, this, _1, _2)))
+    abort();
+  if (!QObject::connect(connexionManager->client,
+                        &CatchChallenger::Api_client_real::QthaveBuyObject,
+                        std::bind(&Shop::HaveBuyObject, this, _1, _2)))
+    abort();
+
+  is_buy_mode_ = true;
+
   AddActionButton(buy_);
   AddActionButton(quit_);
 }
@@ -45,7 +59,7 @@ Shop *Shop::Create() { return new (std::nothrow) Shop(); }
 
 void Shop::Draw(QPainter *painter) {
   UI::Dialog::Draw(painter);
-  auto inner = ContentPlainBoundary();
+  auto inner = ContentBoundary();
   auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
   b2->Strech(24, 22, 20, 160, 160);
   b2->SetPos(inner.x(), inner.y());
@@ -72,6 +86,9 @@ void Shop::OnExit() {
 
 void Shop::SetSeller(const CatchChallenger::Bot &bot, uint16_t shop_id) {
   shop_id_ = shop_id;
+  SetTitle(tr("Buy"));
+  is_buy_mode_ = true;
+  content_->Clear();
   if (bot.properties.find("skin") != bot.properties.cend()) {
     QPixmap skin(QString::fromStdString(
         QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
@@ -112,14 +129,50 @@ void Shop::SetSeller(const CatchChallenger::Bot &bot, uint16_t shop_id) {
 #endif
 }
 
+void Shop::SetMeAsSeller(uint16_t shop_id) {
+  shop_id_ = shop_id;
+  content_->Clear();
+  SetTitle(tr("Sell"));
+  is_buy_mode_ = false;
+  const CatchChallenger::Player_private_and_public_informations &player_info =
+      connexionManager->client->get_player_informations_ro();
+  auto i = player_info.items.begin();
+  while (i != player_info.items.cend()) {
+    if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(i->first) !=
+            QtDatapackClientLoader::datapackLoader->itemsExtra.cend() &&
+        CatchChallenger::CommonDatapack::commonDatapack.items.item.at(i->first)
+                .price > 0) {
+      int price = CatchChallenger::CommonDatapack::commonDatapack.items.item
+                      .at(i->first)
+                      .price /
+                  2;
+      auto node = ShopItem::Create(i->first, i->second, price);
+
+      node->SetOnClick(std::bind(&Shop::OnItemClick, this, _1));
+      node->SetData(90, shop_id_);
+      node->SetData(91, i->first);
+      node->SetData(92, i->second);
+      node->SetData(93, price);
+      content_->AddItem(node);
+    }
+    ++i;
+  }
+}
+
 void Shop::OnActionClick(Node *node) {
   if (node == quit_) {
     Close();
   } else if (node == buy_) {
     if (selected_item_ != nullptr) {
-      connexionManager->client->buyObject(
-          selected_item_->Data(90), selected_item_->Data(91),
-          selected_item_->Data(92), selected_item_->Data(93));
+      if (is_buy_mode_) {
+        connexionManager->client->buyObject(selected_item_->Data(90),
+                                            selected_item_->Data(91), 1,
+                                            selected_item_->Data(93));
+      } else {
+        connexionManager->client->sellObject(selected_item_->Data(90),
+                                             selected_item_->Data(91), 1,
+                                             selected_item_->Data(93));
+      }
     }
   }
 }
@@ -127,10 +180,11 @@ void Shop::OnActionClick(Node *node) {
 void Shop::OnScreenResize() {
   UI::Dialog::OnScreenResize();
 
-  auto content = ContentPlainBoundary();
+  auto content = ContentBoundary();
 
-  content_->SetPos(content.x() + 190, content.y() + 20);
-  content_->SetSize(content.width() - 190, content.height());
+  content_->SetPos(content.x() + 190, content.y() + 15);
+  content_->SetSize(content.width() - 200, content.height() - 25);
+  content_->SetItemSpacing(5);
   portrait_->SetPos(content.x(), content.y());
   seller_name_->SetPos(content.x(), content.y() + 180);
 }
@@ -141,8 +195,10 @@ void Shop::OnItemClick(Node *node) {
   selected_item_ = node;
   auto items = content_->Items();
   for (auto item : items) {
-    if (node == item) continue;
-    static_cast<TestItem *>(item)->SetSelected(false);
+    if (node == item) {
+      continue;
+    }
+    static_cast<ShopItem *>(item)->SetSelected(false);
   }
 }
 
@@ -151,16 +207,8 @@ void Shop::HaveShopList(
   seller_name_->SetVisible(false);
 
   for (auto it = begin(items); it != end(items); it++) {
-    auto node = Scenes::TestItem::Create();
+    auto node = ShopItem::Create((*it).object, 99, (*it).price);
 
-    auto item =
-        QtDatapackClientLoader::datapackLoader->itemsExtra.at((*it).object);
-    QPixmap p =
-        QtDatapackClientLoader::datapackLoader->getImageExtra((*it).object)
-            .image;
-    p = p.scaledToHeight(32);
-    node->SetPixmap(p);
-    node->SetText(QString::fromStdString(item.name));
     node->SetOnClick(std::bind(&Shop::OnItemClick, this, _1));
     node->SetData(90, shop_id_);
     node->SetData(91, (*it).object);
@@ -168,4 +216,87 @@ void Shop::HaveShopList(
     node->SetData(93, (*it).price);
     content_->AddItem(node);
   }
+}
+
+void Shop::HaveBuyObject(const CatchChallenger::BuyStat &stat,
+                         const uint32_t &new_price) {
+  QString message;
+  ShopItem *item = static_cast<ShopItem *>(selected_item_);
+  switch (stat) {
+    case CatchChallenger::BuyStat_Done:
+      // add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      message = QStringLiteral("You buy\n%1 x %2")
+                    .arg(1)
+                    .arg(QString::fromStdString(item->Name()));
+      break;
+    case CatchChallenger::BuyStat_BetterPrice:
+      if (new_price == 0) {
+        Logger::Log(QString("haveSellObject() Can't buy at 0$!"));
+        return;
+      }
+      // addCash(itemToSellOrBuy.price);
+      // removeCash(newPrice * itemToSellOrBuy.quantity);
+      // add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      break;
+    case CatchChallenger::BuyStat_HaveNotQuantity:
+      // addCash(itemToSellOrBuy.price);
+      message = tr("Sorry but have not the quantity of this item");
+      break;
+    case CatchChallenger::BuyStat_PriceHaveChanged:
+      // addCash(itemToSellOrBuy.price);
+      message = tr("Sorry but now the price is worse");
+      break;
+    default:
+      Logger::Log(QString("haveBuyObject(stat) have unknow value"));
+      break;
+  }
+  if (on_transaction_finish_) {
+    on_transaction_finish_(message.toStdString());
+  }
+
+  Close();
+}
+
+void Shop::HaveSellObject(const CatchChallenger::SoldStat &stat,
+                          const uint32_t &new_price) {
+  QString message;
+  ShopItem *item = static_cast<ShopItem *>(selected_item_);
+  switch (stat) {
+    case CatchChallenger::SoldStat_Done:
+      // addCash(itemsToSell.front().price * itemsToSell.front().quantity);
+      message = tr("Item sold");
+      break;
+    case CatchChallenger::SoldStat_BetterPrice:
+      if (new_price == 0) {
+        Logger::Log(
+            QString("haveSellObject() the price 0$ can't be better price!"));
+        return;
+      }
+      // addCash(newPrice * itemsToSell.front().quantity);
+      message = tr("Item sold at better price");
+      break;
+    case CatchChallenger::SoldStat_WrongQuantity:
+      // add_to_inventory(itemsToSell.front().object,
+      // itemsToSell.front().quantity, false);
+      message = tr("Sorry but have not the quantity of this item");
+      break;
+    case CatchChallenger::SoldStat_PriceHaveChanged:
+      // add_to_inventory(itemsToSell.front().object,
+      // itemsToSell.front().quantity, false);
+      message = tr("Sorry but now the price is worse");
+      break;
+    default:
+      Logger::Log(QString("haveBuyObject(stat) have unknow value"));
+      break;
+  }
+
+  if (on_transaction_finish_) {
+    on_transaction_finish_(message.toStdString());
+  }
+
+  Close();
+}
+
+void Shop::SetOnTransactionFinish(std::function<void(std::string)> callback) {
+  on_transaction_finish_ = callback;
 }

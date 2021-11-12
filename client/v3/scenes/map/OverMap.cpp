@@ -241,6 +241,7 @@ void OverMap::OnExit() {
   tip_->UnRegisterEvents();
   toast_->UnRegisterEvents();
   chat_->UnRegisterEvents();
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdasd" << std::endl;
 }
 
 /*
