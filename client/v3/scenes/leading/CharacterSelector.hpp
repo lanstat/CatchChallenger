@@ -28,7 +28,7 @@ class CharacterSelector : public Scene {
   void select_clicked();
   void remove_clicked();
   void newLanguage();
-  void updateCharacterList();
+  void updateCharacterList(bool prevent_auto_select = false);
   void connectToSubServer(
       const int indexSubServer,
       const std::vector<std::vector<CatchChallenger::CharacterEntry>>

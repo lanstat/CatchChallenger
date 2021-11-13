@@ -17,7 +17,10 @@
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
+#include "../../core/Logger.hpp"
 #include "../../core/SceneManager.hpp"
+#include "../shared/inventory/Inventory.hpp"
+#include "../shared/inventory/MonsterBag.hpp"
 
 using Scenes::Battle;
 using namespace CatchChallenger;
@@ -83,10 +86,12 @@ Battle::Battle() : Scene(nullptr) {
   escapeSuccess = false;
 
   message_dialog_ = nullptr;
-  /*
-  inventory_ = nullptr;
-  */
-  monsters_bag_ = nullptr;
+  linked_ = UI::LinkedDialog::Create(false);
+  linked_->AddItem(MonsterBag::Create());
+  auto item = Inventory::Create();
+  item->SetVar(Inventory::ObjectType_UseInFight, true);
+  item->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1));
+  linked_->AddItem(item);
 
   trap_ = nullptr;
 
@@ -97,10 +102,8 @@ Battle::Battle() : Scene(nullptr) {
 
 Battle::~Battle() {
   if (message_dialog_) delete message_dialog_;
-  if (monsters_bag_) delete monsters_bag_;
-  /*
-  delete inventory_;
-  */
+  delete linked_;
+  linked_ = nullptr;
 }
 
 Battle *Battle::Create() { return new (std::nothrow) Battle(); }
@@ -139,8 +142,8 @@ QPixmap Battle::GetBackSkin(const uint32_t &skinId) {
   /*const QPixmap skin(QString::fromStdString(getBackSkinPath(skinId)));
   if(!skin.isNull())
       return skin;*/
-  return *AssetsLoader::GetInstance()->GetImage(
-      ":/CC/images/player_default/back2.png");
+  return QPixmap(QString::fromStdString(
+      QtDatapackClientLoader::datapackLoader->getBackSkinPath(skinId)));
 }
 
 void Battle::ShowActionBarTab(int index) {
@@ -1025,10 +1028,11 @@ void Battle::battleAcceptedByOtherFull(
   }
   prepareFight();
   battleType = BattleType_OtherPlayer;
-  // stackedWidget->setCurrentWidget(page_battle);
 
   // skinFolderList=FacilityLib::skinIdList(client->get_datapack_base_name()+QStringLiteral(DATAPACK_BASE_PATH_SKIN));
-  QPixmap otherFrontImage = getFrontSkin(battleInformations.skinId);
+  QPixmap otherFrontImage = QPixmap(QString::fromStdString(
+      QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
+          battleInformations.skinId)));
 
   // reset the other player info
   enemy_->SetPixmap(otherFrontImage.scaled(160, 160));
@@ -1240,28 +1244,17 @@ void Battle::ShowMessageDialog(const QString &title, const QString &message) {
 }
 
 void Battle::ShowMonsterDialog() {
-  if (monsters_bag_ == nullptr) {
-    monsters_bag_ = MonsterBag::Create();
-  }
-  AddChild(monsters_bag_);
+  linked_->SetCurrentItem(0);
+  AddChild(linked_);
 }
 
 void Battle::ShowBagDialog() {
-  /*
-  if (inventory_ == nullptr) {
-    inventory_ = new Inventory();
-    // inventory_->SetParent(this);
-    if (!connect(inventory_, &Inventory::useItem, this, &Battle::UseBagItem))
-      abort();
-  }
-  inventory_->setVar(connexionManager,
-                     Inventory::ObjectType::ObjectType_UseInFight, true);
-  // emit setAbove(inventory_);
-  */
+  linked_->SetCurrentItem(1);
+  AddChild(linked_);
 }
 
 void Battle::UseBagItem(uint16_t item) {
-  // emit setAbove(nullptr);
+  RemoveChild(linked_);
 
   const CatchChallenger::Player_private_and_public_informations
       &playerInformations = client_->get_player_informations_ro();
@@ -1304,29 +1297,6 @@ void Battle::UseBagItem(uint16_t item) {
     } else {
       ShowMessageDialog(tr("Warning"), tr("Can't be used now!"));
     }
-  }
-}
-
-QPixmap Battle::getFrontSkin(const std::string &skinName) {
-  (void)skinName;
-  /*
-    if(frontSkinCacheString.find(skinName)!=frontSkinCacheString.cend())
-        return frontSkinCacheString.at(skinName);
-    const QPixmap skin(QString::fromStdString(getFrontSkinPath(skinName)));
-    if(!skin.isNull())
-        frontSkinCacheString[skinName]=skin;
-    else
-        frontSkinCacheString[skinName]=QPixmap(":/CC/images/player_default/front.png");
-    return frontSkinCacheString.at(skinName);*/
-  return QPixmap(":/CC/images/player_default/front.png");
-}
-
-QPixmap Battle::getFrontSkin(const uint32_t &skinId) {
-  if (skinId < (uint32_t)QtDatapackClientLoader::datapackLoader->skins.size()) {
-    return getFrontSkin(
-        QtDatapackClientLoader::datapackLoader->skins.at(skinId));
-  } else {
-    return getFrontSkin(std::string());
   }
 }
 
@@ -1410,12 +1380,12 @@ void Battle::ConfigureFighters() {
   enemy_->StoreState(kReadyForBattle);
 
   enemy_buff_ = UI::ListView::Create(enemy_background_);
-  // enemy_buff_->SetHorizontal(true);
   enemy_buff_->SetPos(200, 20);
   enemy_buff_->SetSize(180, 16);
 }
 
 void Battle::ConfigureCommons() {
+  status_label_->SetText(QString());
   status_timeout_ = Sequence::Create(
       Delay::Create(1500),
       CallFunc::Create(std::bind(&Battle::OnStatusActionDone, this)), nullptr);
@@ -2555,7 +2525,7 @@ void Battle::MonsterCatch(const bool &success) {
   waiting_server_reply_ = false;
   is_trap_success_ = success;
 
-  qDebug() << "Trap success: " << success;
+  Logger::Log(QStringLiteral("Trap success: %1").arg(success));
 
   if (!is_trap_success_) {
 #ifdef CATCHCHALLENGER_DEBUG_FIGHT
@@ -2581,7 +2551,8 @@ void Battle::MonsterCatch(const bool &success) {
       informations.warehouse_playerMonster.push_back(
           client_->playerMonster_catchInProgress.front());
     } else {
-      qDebug() << "mob: " << client_->playerMonster_catchInProgress.front().id;
+      Logger::Log(QStringLiteral("mob: %1").arg(
+          client_->playerMonster_catchInProgress.front().id));
       client_->addPlayerMonster(client_->playerMonster_catchInProgress.front());
     }
   }
@@ -3321,7 +3292,9 @@ void Battle::BotFightFullDiffered() {
   battleType = BattleType_Bot;
   QPixmap botImage;
   if (actualBot.properties.find("skin") != actualBot.properties.cend()) {
-    botImage = getFrontSkin(actualBot.properties.at("skin"));
+    botImage = QPixmap(QString::fromStdString(
+        QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
+            std::stoi(actualBot.properties.at("skin")))));
   } else {
     botImage = QPixmap(QStringLiteral(":/CC/images/player_default/front.png"));
   }

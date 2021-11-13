@@ -34,6 +34,7 @@ class Combo : public Node {
   void Clear();
 
   void Draw(QPainter *painter) override;
+  void OnResize() override;
 
  protected:
   explicit Combo(QString pix, Node *parent = nullptr);

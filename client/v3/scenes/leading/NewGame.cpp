@@ -1,8 +1,8 @@
 // Copyright 2021 CatchChallenger
 #include "NewGame.hpp"
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonSettingsCommon.hpp"
@@ -10,7 +10,7 @@
 
 using Scenes::NewGame;
 
-NewGame::NewGame(): UI::Dialog() {
+NewGame::NewGame() : UI::Dialog() {
   ok = false;
 
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
@@ -23,12 +23,6 @@ NewGame::NewGame(): UI::Dialog() {
 
   warning = UI::Label::Create(this);
   warning->SetVisible(false);
-
-  /*
-  if (!connect(uipseudo, &LineEdit::returnPressed, this,
-               &NewGame::on_pseudo_returnPressed, Qt::QueuedConnection))
-    abort();
-  */
 
   AddActionButton(quit);
   AddActionButton(previous);
@@ -46,9 +40,7 @@ NewGame::~NewGame() {
   delete uipseudo;
 }
 
-NewGame* NewGame::Create() {
-  return new (std::nothrow) NewGame();
-}
+NewGame *NewGame::Create() { return new (std::nothrow) NewGame(); }
 
 void NewGame::OnScreenResize() {
   UI::Dialog::OnScreenResize();
@@ -78,21 +70,21 @@ void NewGame::OnScreenResize() {
     if (p != nullptr && !pix.isNull()) wTot += pix.width();
     index++;
   }
+  uipseudo->SetPos(BoundingRect().width() / 2 - uipseudo->Width() / 2,
+                   y_ + background_->Height() - uipseudo->Height() - space -
+                       validate->Height() / 2);
   int xTot = BoundingRect().width() / 2 - wTot / 2;
   index = 0;
   while (index < centerImages.size()) {
     auto p = centerImages.at(index);
     QPixmap pix = p->Pixmap();
     if (p != nullptr && !pix.isNull()) {
-      p->SetPos(400, 400);
+      p->SetPos(Width() / 2 - p->Width() / 2, uipseudo->Y() - p->Height() - 30);
       xTot += pix.width();
     }
     if (index > 0) xTot += space;
     index++;
   }
-  uipseudo->SetPos(BoundingRect().width() / 2 - uipseudo->Width() / 2,
-                   y_ + background_->Height() - uipseudo->Height() - space -
-                       validate->Height() / 2);
 }
 
 void NewGame::newLanguage() { SetTitle(tr("Select")); }
@@ -213,6 +205,8 @@ void NewGame::updateSkin() {
       pixmap.convertFromImage(scaledSkin);
       auto item = Sprite::Create(this);
       item->SetPixmap(pixmap);
+      item->SetPos(Width() / 2 - item->Width() / 2,
+                   uipseudo->Y() - item->Height() - 30);
       centerImages.push_back(item);
       skinLoaded = true;
 

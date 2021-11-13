@@ -464,6 +464,18 @@ std::string QtDatapackClientLoader::getFrontSkinPath(const uint32_t &skinId) con
     return ":/CC/images/player_default/front.png";
 }
 
+std::string QtDatapackClientLoader::getBackSkinPath(const uint32_t &skinId) const
+{
+    /// \todo merge it cache string + id
+    const std::vector<std::string> &skinFolderList=QtDatapackClientLoader::datapackLoader->skins;
+    //front image
+    if(skinId<(uint32_t)skinFolderList.size())
+        return getSkinPath(skinFolderList.at(skinId),"back");
+    else
+        qDebug() << "The skin id: "+QString::number(skinId)+", into a list of: "+QString::number(skinFolderList.size())+" item(s) into BaseWindow::updatePlayerImage()";
+    return ":/CC/images/player_default/back.png";
+}
+
 void QtDatapackClientLoader::parseMonstersExtra()
 {
     uint64_t imagens=0;

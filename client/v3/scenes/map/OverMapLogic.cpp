@@ -9,14 +9,14 @@
 #include "../../base/ConnectionManager.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AudioPlayer.hpp"
+#include "../../core/Logger.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../shared/inventory/Inventory.hpp"
-#include "../shared/inventory/Plant.hpp"
 #include "../shared/inventory/MonsterBag.hpp"
+#include "../shared/inventory/Plant.hpp"
 #include "../shared/player/Player.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
-#include "../above/inventory/Plant.hpp"
 #include "../above/player/FinishedQuests.hpp"
 #include "../above/player/Quests.hpp"
 #include "../above/player/Reputations.hpp"
@@ -28,18 +28,8 @@ using Scenes::OverMapLogic;
 using std::placeholders::_1;
 
 OverMapLogic::OverMapLogic() : OverMap() {
-  inventory_tabs_ = UI::LinkedDialog::Create();
-
-  inventory_tabs_->AddItem(Player::Create());
-  inventory_tabs_->AddItem(Inventory::Create());
-  inventory_tabs_->AddItem(MonsterBag::Create());
-  inventory_tabs_->AddItem(Plant::Create());
-  inventory_tabs_->SetOnBack(
-      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
-  inventory_tabs_->SetOnNext(
-      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+  CreateInventoryTabs();
   /*
-plant = nullptr;
 crafting = nullptr;
 */
 
@@ -444,7 +434,10 @@ void OverMapLogic::actionOn(CatchChallenger::Map_client *map, uint8_t x,
       seedInWaiting.y = y;
       seed_in_waiting.push_back(seedInWaiting);
 
-      selectObject(ObjectType_Seed);
+      auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
+      item->SetVar(Inventory::ObjectType::ObjectType_Seed, true);
+      inventory_tabs_->SetCurrentItem(1);
+      AddChild(inventory_tabs_);
     }
     return;
   } else if (map->itemsOnMap.find(std::pair<uint8_t, uint8_t>(x, y)) !=
@@ -1628,10 +1621,7 @@ void OverMapLogic::botFightCollision(CatchChallenger::Map_client *map,
   SceneManager::GetInstance()->PushScene(battle);
 }
 
-void OverMapLogic::BattleFinished() {
-  // TODO(lanstat): revisar porque el mapa queda atascado;
-  // emit setForeground(this);
-}
+void OverMapLogic::BattleFinished() {}
 
 void OverMapLogic::cityCapture(const uint32_t &remainingTime,
                                const uint8_t &type) {
@@ -2477,61 +2467,6 @@ void OverMapLogic::objectSelection(const bool &ok, const uint16_t &itemId,
                   ui->tradePlayerMonsters->addItem(item);*/
     } break;
     case ObjectType_Seed: {
-      /*            ui->stackedWidget->setCurrentWidget(ui->page_map);
-                  ui->inventoryUse->setText(tr("Select"));
-                  ui->plantUse->setVisible(false);
-                  if(!ok)
-                  {
-                      seed_in_waiting.pop_back();
-                      break;
-                  }
-                  if(QtDatapackClientLoader::datapackLoader->itemToPlants.find(itemId)==
-                          QtDatapackClientLoader::datapackLoader->itemToPlants.cend())
-                  {
-                      qDebug() << "Item is not a plant";
-                      QMessageBox::critical(this,tr("Error"),tr("Internal
-         error")+", file: "+QString(__FILE__)+":"+QString::number(__LINE__));
-                      seed_in_waiting.pop_back();
-                      return;
-                  }
-                  const uint8_t
-         &plantId=QtDatapackClientLoader::datapackLoader->itemToPlants.at(itemId);
-                  if(!haveReputationRequirements(CatchChallenger::CommonDatapack::commonDatapack.plants.at(plantId).requirements.reputation))
-                  {
-                      qDebug() << "You don't have the requirements to plant the
-         seed"; QMessageBox::critical(this,tr("Error"),tr("You don't have the
-         requirements to plant the seed")); seed_in_waiting.pop_back(); return;
-                  }
-                  if(havePlant(&mapController->getMap(mapController->current_map)->logicalMap,mapController->getX(),mapController->getY())>=0)
-                  {
-                      qDebug() << "Too slow to select a seed, have plant now";
-                      showTip(tr("Sorry, but now the dirt is not free to
-         plant").toStdString()); seed_in_waiting.pop_back(); return;
-                  }
-                  if(playerInformations.items.find(itemId)==playerInformations.items.cend())
-                  {
-                      qDebug() << "item id is not into the inventory";
-                      seed_in_waiting.pop_back();
-                      break;
-                  }
-                  remove_to_inventory(itemId);
-
-                  const SeedInWaiting seedInWaiting=seed_in_waiting.back();
-                  seed_in_waiting.back().seedItemId=itemId;
-                  insert_plant(mapController->getMap(seedInWaiting.map)->logicalMap.id,
-                               seedInWaiting.x,seedInWaiting.y,plantId,
-                               static_cast<uint16_t>(CommonDatapack::commonDatapack.plants.at(plantId).fruits_seconds)
-                               );
-                  addQuery(QueryType_Seed);
-                  load_plant_inventory();
-                  load_inventory();
-                  qDebug() << QStringLiteral("send seed for: %1").arg(plantId);
-                  emit useSeed(plantId);
-                  client->seed_planted(true);
-                  client->insert_plant(mapController->getMap(seedInWaiting.map)->logicalMap.id,
-                                       seedInWaiting.x,seedInWaiting.y,plantId,
-                                       static_cast<uint16_t>(CommonDatapack::commonDatapack.plants.at(plantId).fruits_seconds)
-                                       );*/
     } break;
     case ObjectType_UseInFight: {
       /*            ui->inventoryUse->setText(tr("Select"));
@@ -2663,4 +2598,87 @@ void OverMapLogic::OnExit() {
   player_portrait_->UnRegisterEvents();
   bag->UnRegisterEvents();
   OverMap::OnExit();
+}
+
+void OverMapLogic::CreateInventoryTabs() {
+  inventory_tabs_ = UI::LinkedDialog::Create();
+
+  inventory_tabs_->AddItem(Player::Create());
+  auto item = Inventory::Create();
+  inventory_tabs_->AddItem(item);
+  inventory_tabs_->AddItem(MonsterBag::Create());
+  inventory_tabs_->AddItem(Plant::Create());
+  inventory_tabs_->SetOnBack(
+      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+  inventory_tabs_->SetOnNext(
+      std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+}
+
+void OverMapLogic::OnUseItem(Inventory::ObjectType type,
+                             const uint16_t &item_id,
+                             const uint32_t &quantity) {
+  //CatchChallenger::Player_private_and_public_informations &playerInformations =
+      //connexionManager->client->get_player_informations();
+  //switch (type) {
+    //case Inventory::ObjectType_Seed:
+      //if (QtDatapackClientLoader::datapackLoader->itemToPlants.find(item_id) ==
+          //QtDatapackClientLoader::datapackLoader->itemToPlants.cend()) {
+        //Logger::Log(QString("Item is not a plant"));
+        //// QMessageBox::critical(this,tr("Error"),tr("Internal
+        //// error")+", file: "+QString(__FILE__)+":"+QString::number(__LINE__));
+        //seed_in_waiting.pop_back();
+        //return;
+      //}
+      //const uint8_t &plant_id =
+          //QtDatapackClientLoader::datapackLoader->itemToPlants.at(item_id);
+      //if (!haveReputationRequirements(
+              //CatchChallenger::CommonDatapack::commonDatapack.plants
+                  //.at(plant_id)
+                  //.requirements.reputation)) {
+        //Logger::Log(
+            //QString("You don't have the requirements to plant the seed"));
+        //// QMessageBox::critical(this,tr(" Error
+        ////"),tr(" You don't have the requirements to plant the seed
+        ////"));
+        //seed_in_waiting.pop_back();
+        //return;
+      //}
+      //if (havePlant(
+              //&mapController->getMap(mapController->current_map)->logicalMap,
+              //mapController->getX(), mapController->getY()) >= 0) {
+        //Logger::Log("Too slow to select a seed, have plant now");
+        //showTip(
+            //tr("Sorry, but now the dirt is not free to plant").toStdString());
+        //seed_in_waiting.pop_back();
+        //return;
+      //}
+      //if (playerInformations.items.find(item_id) ==
+          //playerInformations.items.cend()) {
+        //Logger::Log(QString("item id is not into the inventory"));
+        //seed_in_waiting.pop_back();
+        //break;
+      //}
+      ////remove_to_inventory(itemId);
+
+      //const SeedInWaiting seedInWaiting = seed_in_waiting.back();
+      //seed_in_waiting.back().seedItemId = item_id;
+      //insert_plant(mapController->getMap(seedInWaiting.map)->logicalMap.id,
+                   //seedInWaiting.x, seedInWaiting.y, plantId,
+                   //static_cast<uint16_t>(
+                       //CommonDatapack::commonDatapack.plants.at(plant_id)
+                           //.fruits_seconds));
+      //addQuery(QueryType_Seed);
+      ////load_plant_inventory();
+      ////load_inventory();
+      //Logger::Log(QStringLiteral("send seed for: %1").arg(plant_id));
+      //emit useSeed(plant_id);
+      //connexionManager->client->seed_planted(true);
+      //connexionManager->client->insert_plant(
+          //mapController->getMap(seedInWaiting.map)->logicalMap.id,
+          //seedInWaiting.x, seedInWaiting.y, plant_id,
+          //static_cast<uint16_t>(
+              //CommonDatapack::commonDatapack.plants.at(plant_id)
+                  //.fruits_seconds));
+      //break;
+  //}
 }

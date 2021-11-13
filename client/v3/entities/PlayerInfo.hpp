@@ -2,23 +2,33 @@
 #ifndef CLIENT_V3_ENTITIES_PLAYERINFO_HPP_
 #define CLIENT_V3_ENTITIES_PLAYERINFO_HPP_
 
-#include <string>
+#include <QObject>
 #include <functional>
+#include <string>
+
+#include "../../../general/base/GeneralStructures.hpp"
+#include "../base/ConnectionManager.hpp"
 
 class PlayerInfo {
  public:
   static PlayerInfo* GetInstance();
+
   std::string ClanName;
   bool HaveClanInformation;
-  std::string PlayerName;
-  int Money;
 
+  ~PlayerInfo();
+  CatchChallenger::Player_private_and_public_informations& GetInformation();
+  const CatchChallenger::Player_private_and_public_informations&
+  GetInformationRO();
   void Notify();
-  void AddObserver(std::function<void()> callback);
 
  private:
   static PlayerInfo* instance_;
+  ConnectionManager* connection_manager_;
 
   PlayerInfo();
+
+ //signals:
+  //void OnUpdateInfo(PlayerInfo* info);
 };
 #endif  // CLIENT_V3_ENTITIES_PLAYERINFO_HPP_

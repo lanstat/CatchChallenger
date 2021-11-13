@@ -22,13 +22,10 @@
 #include "../../entities/Map_client.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
+#include "../../ui/LinkedDialog.hpp"
 #include "../../ui/ListView.hpp"
 #include "../../ui/MessageDialog.hpp"
 #include "../../ui/Progressbar.hpp"
-/*
-#include "../above/inventory/Inventory.hpp"
-*/
-#include "../shared/inventory/MonsterBag.hpp"
 
 namespace Scenes {
 class Battle : public Scene {
@@ -104,8 +101,7 @@ class Battle : public Scene {
   BattleType battleType;
   DoNextActionStep doNextActionStep;
 
-  // Inventory *inventory_;
-  MonsterBag *monsters_bag_;
+  UI::LinkedDialog *linked_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
   UI::MessageDialog *message_dialog_;
@@ -241,8 +237,6 @@ class Battle : public Scene {
   void botFightFull(const uint16_t &fightId);
   void prepareFight();
   QPixmap GetBackSkin(const uint32_t &skinId);
-  QPixmap getFrontSkin(const std::string &skinName);
-  QPixmap getFrontSkin(const uint32_t &skinId);
   void load_monsters();
 
   void init_other_monster_display();

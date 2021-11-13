@@ -1,11 +1,14 @@
 // Copyright 2021 CatchChallenger
 #include "PlayerInfo.hpp"
 
-PlayerInfo *PlayerInfo::instance_ = nullptr;
+PlayerInfo* PlayerInfo::instance_ = nullptr;
 
-PlayerInfo::PlayerInfo() {
-  HaveClanInformation = false;
+PlayerInfo::PlayerInfo() { 
+  HaveClanInformation = false; 
+  connection_manager_ = ConnectionManager::GetInstance();
 }
+
+PlayerInfo::~PlayerInfo() {}
 
 PlayerInfo* PlayerInfo::GetInstance() {
   if (instance_ == nullptr) {
@@ -14,10 +17,16 @@ PlayerInfo* PlayerInfo::GetInstance() {
   return instance_;
 }
 
-void PlayerInfo::Notify() {
-
+CatchChallenger::Player_private_and_public_informations
+&PlayerInfo::GetInformation() {
+  return connection_manager_->client->get_player_informations();
 }
 
-void PlayerInfo::AddObserver(std::function<void()> callback) {
+const CatchChallenger::Player_private_and_public_informations&
+PlayerInfo::GetInformationRO() {
+  return connection_manager_->client->get_player_informations_ro();
+}
 
+void PlayerInfo::Notify() {
+  //emit OnUpdateInfo(this);
 }

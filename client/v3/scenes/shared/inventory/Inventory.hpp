@@ -39,11 +39,12 @@ class Inventory : public Node {
   void on_inventory_itemSelectionChanged();
   void inventoryUse_slot();
   void inventoryDestroy_slot();
-  void updateInventory(uint8_t targetSize);
   void RegisterEvents() override;
   void UnRegisterEvents() override;
   void OnResize() override;
   void Draw(QPainter *painter) override;
+  void SetOnUseItem(std::function<void(uint16_t)> callback);
+  void SetOnDeleteItem(std::function<void(uint16_t)> callback);
 
  private:
   UI::GridView *inventory;
@@ -59,12 +60,13 @@ class Inventory : public Node {
   uint8_t lastItemSize;
   uint8_t itemCount;
   int lastItemSelected;
+  std::function<void(uint16_t)> on_use_item_;
+  std::function<void(uint16_t)> on_delete_item_;
 
   Inventory();
 
-  void useItem(uint16_t item);
-  void deleteItem(uint16_t item);
   void OnItemClick(Node *node);
+  void UpdateInventory(uint8_t targetSize, bool force);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_SHARED_INVENTORY_INVENTORY_HPP_

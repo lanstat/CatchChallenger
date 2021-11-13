@@ -48,6 +48,7 @@ void Inventory::Draw(QPainter *painter) { (void)painter; }
 
 void Inventory::SetVar(const Inventory::ObjectType &waitedObjectType,
                        const bool inSelection, const int lastItemSelected) {
+  bool force = waitedObjectType != this->waitedObjectType;
   this->inSelection = inSelection;
   this->waitedObjectType = waitedObjectType;
   this->lastItemSelected = lastItemSelected;
@@ -56,11 +57,11 @@ void Inventory::SetVar(const Inventory::ObjectType &waitedObjectType,
       &playerInformations =
           connexionManager->client->get_player_informations_ro();
   itemCount = playerInformations.items.size();
-  updateInventory(64);
+  UpdateInventory(64, force);
 }
 
-void Inventory::updateInventory(uint8_t targetSize) {
-  if (lastItemSize == targetSize) return;
+void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
+  if (!force && lastItemSize == targetSize) return;
   lastItemSize = targetSize;
   const CatchChallenger::Player_private_and_public_informations
       &playerInformations =
@@ -68,10 +69,6 @@ void Inventory::updateInventory(uint8_t targetSize) {
   inventory_description->SetEnabled(false);
   inventoryUse->SetEnabled(false);
   inventoryDestroy->SetEnabled(false);
-  auto parent = static_cast<UI::LinkedDialog *>(Parent());
-  // TODO(lanstat): hide buttons from selection
-  // back->SetVisible(!inSelection);
-  // next->SetVisible(!inSelection);
   inventory->Clear();
   inventory->SetItemSize(targetSize, targetSize);
   itemCount = playerInformations.items.size();
@@ -141,11 +138,17 @@ void Inventory::updateInventory(uint8_t targetSize) {
 }
 
 void Inventory::inventoryUse_slot() {
-  if (lastItemSelected != 1) return;
+  if (lastItemSelected < 0) return;
+  if (on_use_item_) {
+    on_use_item_(lastItemSelected);
+  }
 }
 
 void Inventory::inventoryDestroy_slot() {
-  if (lastItemSelected != 1) return;
+  if (lastItemSelected < 0) return;
+  if (on_delete_item_) {
+    on_delete_item_(lastItemSelected);
+  }
 }
 
 void Inventory::on_inventory_itemSelectionChanged() {
@@ -244,9 +247,15 @@ void Inventory::RegisterEvents() {
   for (auto item : items) {
     static_cast<InventoryItem *>(item)->SetSelected(false);
   }
+  inventoryDestroy->RegisterEvents();
+  inventoryUse->RegisterEvents();
 }
 
-void Inventory::UnRegisterEvents() { inventory->UnRegisterEvents(); }
+void Inventory::UnRegisterEvents() {
+  inventory->UnRegisterEvents();
+  inventoryDestroy->UnRegisterEvents();
+  inventoryUse->UnRegisterEvents();
+}
 
 void Inventory::OnResize() {
   auto font = inventory_description->GetFont();
@@ -277,4 +286,12 @@ void Inventory::OnResize() {
   descriptionBack->SetPixmap(":/CC/images/interface/b1-trimmed.png");
   descriptionBack->Strech(18, 16, 10, pos, inventoryDestroy->Height());
   inventory_description->SetWidth(descriptionBack->Width());
+}
+
+void Inventory::SetOnUseItem(std::function<void(uint16_t)> callback) {
+  on_use_item_ = callback;
+}
+
+void Inventory::SetOnDeleteItem(std::function<void(uint16_t)> callback) {
+  on_delete_item_ = callback;
 }

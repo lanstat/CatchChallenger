@@ -77,6 +77,7 @@ class QtDatapackClientLoader
   std::string getSkinPath(const std::string &skinName,
                           const std::string &type) const;
   std::string getFrontSkinPath(const uint32_t &skinId) const;
+  std::string getBackSkinPath(const uint32_t &skinId) const;
   std::vector<QPixmap> GetSkillAnimation(uint16_t id);
 
  protected:

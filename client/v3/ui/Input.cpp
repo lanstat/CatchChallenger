@@ -66,14 +66,28 @@ void Input::MouseMoveEvent(const QPointF &point) { (void)point; }
 
 void Input::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
   if (!focus_) return;
+  bool should_notify = false;
 
   if (event->key() > 31 && event->key() < 127) {
     text_ = text_ + event->text();
+    should_notify = true;
+  } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+    text_.clear();
+    should_notify = true;
+  } else if (event->key() == Qt::Key_Delete ||
+             event->key() == Qt::Key_Backspace) {
+    if (text_.isEmpty()) {
+      return;
+    }
+    text_.remove(text_.size() - 1, 1);
+    should_notify = true;
+  }
+  if (should_notify) {
     label_->SetText(text_);
+    ReDraw();
     if (on_text_change_) {
       on_text_change_(text_.toStdString());
     }
-    ReDraw();
   }
 }
 
@@ -106,9 +120,7 @@ void Input::SetValue(const QString &value) {
   ReDraw();
 }
 
-void Input::Clear() {
-  SetValue("");
-}
+void Input::Clear() { SetValue(""); }
 
 void Input::SetPlaceholder(const QString &value) { placeholder_ = value; }
 
@@ -126,14 +138,10 @@ void Input::UnRegisterEvents() {
   EventManager::GetInstance()->RemoveListener(this);
 }
 
-void Input::SetMode(InputMode mode) {
-  mode_ = mode;
-}
+void Input::SetMode(InputMode mode) { mode_ = mode; }
 
-void Input::SetMaxLength(int size) {
+void Input::SetMaxLength(int size) {}
 
-}
-
-void Input::SetOnTextChange(std::function<void (std::string)> callback) {
+void Input::SetOnTextChange(std::function<void(std::string)> callback) {
   on_text_change_ = callback;
 }

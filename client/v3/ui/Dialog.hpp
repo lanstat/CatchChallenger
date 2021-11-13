@@ -16,6 +16,7 @@ class Dialog : public Scene {
 
   void SetOnClose(std::function<void()> callback);
   void AddActionButton(Button *action);
+  void InsertActionButton(Button *action, int pos);
   void RemoveActionButton(Button *action);
   void SetTitle(const QString &text);
   QString Title() const;

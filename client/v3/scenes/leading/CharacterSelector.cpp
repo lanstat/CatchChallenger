@@ -298,7 +298,7 @@ void CharacterSelector::connectToSubServer(
   updateCharacterList();
 }
 
-void CharacterSelector::updateCharacterList() {
+void CharacterSelector::updateCharacterList(bool prevent_auto_select) {
   const std::vector<CatchChallenger::ServerFromPoolForDisplay>
       &serverOrdenedList = connection_->client->getServerOrdenedList();
   // do a crash due to reference
@@ -382,7 +382,7 @@ void CharacterSelector::updateCharacterList() {
              charaterCount ==
                  CommonSettingsCommon::commonSettingsCommon.max_character) {
     selected_character_ = characterEntryList->Items().at(0);
-    select_clicked();
+    if (!prevent_auto_select) select_clicked();
   }
 }
 
@@ -398,7 +398,7 @@ void CharacterSelector::newCharacterId(const uint8_t &returnCode,
     const uint8_t charactersGroupIndex =
         serverOrdenedList.at(serverSelected).charactersGroupIndex;
     characterListForSelection[charactersGroupIndex].push_back(characterEntry);
-    updateCharacterList();
+    updateCharacterList(true);
     /*
     characterEntryList->item(characterEntryList->Count() - 1)
         ->setSelected(true);
@@ -406,9 +406,12 @@ void CharacterSelector::newCharacterId(const uint8_t &returnCode,
     if (characterEntryList->Count() >=
             CommonSettingsCommon::commonSettingsCommon.min_character &&
         characterEntryList->Count() <=
-            CommonSettingsCommon::commonSettingsCommon.max_character)
+            CommonSettingsCommon::commonSettingsCommon.max_character) {
       select_clicked();
+    }
   } else {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "erro" << std::endl;
     if (returnCode == 0x01)
       ShowAlert(tr("This pseudo is already taken"));
     else if (returnCode == 0x02)

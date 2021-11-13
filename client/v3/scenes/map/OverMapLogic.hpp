@@ -7,6 +7,7 @@
 #include "../../entities/Map_client.hpp"
 #include "../../entities/render/MapVisualiserPlayer.hpp"
 #include "../../ui/LinkedDialog.hpp"
+#include "../shared/inventory/Inventory.hpp"
 #include "../shared/shop/Shop.hpp"
 #include "OverMap.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
@@ -316,6 +317,9 @@ class OverMapLogic : public OverMap {
 
   OverMapLogic();
   void OnInventoryNav(int index);
+  void CreateInventoryTabs();
+  void OnUseItem(Inventory::ObjectType type, const uint16_t &item_id,
+                 const uint32_t &quantity);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_OVERMAPLOGIC_HPP_

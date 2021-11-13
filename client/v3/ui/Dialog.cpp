@@ -128,9 +128,22 @@ void Dialog::OnExit() {
 }
 
 void Dialog::AddActionButton(Button *action) {
-  action->SetParent(this);
+  AddChild(action);
   action->SetOnClick(std::bind(&Dialog::OnActionButton, this, _1));
   actions_.push_back(action);
+  ReDraw();
+}
+
+void Dialog::InsertActionButton(Button *action, int pos) {
+  action->SetParent(this);
+  action->SetOnClick(std::bind(&Dialog::OnActionButton, this, _1));
+  auto iter = actions_.begin();
+  int index = 0;
+  while (index < actions_.size()) {
+    index++;
+    ++iter;
+  }
+  actions_.insert(iter, action);
   ReDraw();
 }
 

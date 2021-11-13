@@ -16,8 +16,6 @@ Combo::Combo(QString pix, Node *parent) : Node(parent) {
 
   label_ = Label::Create(this);
   label_->SetAlignment(Qt::AlignCenter);
-  label_->SetWidth(BoundingRect().width());
-  label_->SetY(BoundingRect().height() / 2 - 10 - label_->Height() / 2);
 }
 
 Combo *Combo::Create(QString pix, Node *parent) {
@@ -89,6 +87,7 @@ void Combo::AddItem(const QString &item) {
   if (items_.size() == 1) {
     current_index_ = 0;
     label_->SetText(item);
+    label_->SetY(BoundingRect().height() / 2 - label_->Height() / 2);
   }
 }
 
@@ -108,12 +107,9 @@ void Combo::SetOnSelectChange(std::function<void(uint8_t)> callback) {
 }
 
 void Combo::SetSize(qreal width, qreal height) {
-  if (width == bounding_rect_.width() && height == bounding_rect_.height())
-    return;
+  auto bounding = BoundingRect();
+  if (width == bounding.width() && height == bounding.height()) return;
   Node::SetSize(width, height);
-
-  label_->SetWidth(width);
-  label_->SetY(height / 2 - (3 + label_->Height() / 2));
 }
 
 void Combo::RegisterEvents() {
@@ -134,4 +130,10 @@ void Combo::SetItemData(uint8_t index, int role, int value) {
   std::unordered_map<int, int> item;
   item[role] = value;
   item_data_[index] = item;
+}
+
+void Combo::OnResize() {
+  auto bounding = BoundingRect();
+  label_->SetWidth(bounding.width());
+  label_->SetY(bounding.height() / 2 - label_->Height() / 2);
 }

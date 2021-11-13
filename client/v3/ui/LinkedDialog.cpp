@@ -5,18 +5,21 @@
 
 using UI::LinkedDialog;
 
-LinkedDialog::LinkedDialog() : Dialog() {
+LinkedDialog::LinkedDialog(bool show_navigation) : Dialog() {
   current_item_ = nullptr;
   on_next_ = nullptr;
   on_back_ = nullptr;
   on_use_item_ = nullptr;
+  show_navigation_ = show_navigation;
 
-  quit_ = Button::Create(":/CC/images/interface/cancel.png", this);
-  next_ = Button::Create(":/CC/images/interface/next.png", this);
-  back_ = Button::Create(":/CC/images/interface/back.png", this);
+  quit_ = Button::Create(":/CC/images/interface/cancel.png");
+  next_ = Button::Create(":/CC/images/interface/next.png");
+  back_ = Button::Create(":/CC/images/interface/back.png");
 
-  AddActionButton(back_);
-  AddActionButton(next_);
+  if (show_navigation_) {
+    AddActionButton(back_);
+    AddActionButton(next_);
+  }
   AddActionButton(quit_);
 }
 
@@ -34,8 +37,8 @@ LinkedDialog::~LinkedDialog() {
   current_item_ = nullptr;
 }
 
-LinkedDialog* LinkedDialog::Create() {
-  return new (std::nothrow) LinkedDialog();
+LinkedDialog* LinkedDialog::Create(bool show_navigation) {
+  return new (std::nothrow) LinkedDialog(show_navigation);
 }
 
 void LinkedDialog::OnScreenResize() {
@@ -134,4 +137,16 @@ Node* LinkedDialog::CurrentItem() {
 
 Node* LinkedDialog::Item(int index) {
   return items_.at(index);
+}
+
+void LinkedDialog::ShowNavigation(bool show) {
+  if (show == show_navigation_) return;
+  show_navigation_ = show;
+  if (show_navigation_) {
+    InsertActionButton(next_, 0);
+    InsertActionButton(back_, 0);
+  } else {
+    RemoveActionButton(back_);
+    RemoveActionButton(next_);
+  }
 }
