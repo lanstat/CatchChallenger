@@ -8,6 +8,7 @@
 #include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Logger.hpp"
+#include "../../../entities/PlayerInfo.hpp"
 #include "../../../entities/Utils.hpp"
 #include "../../../ui/Row.hpp"
 #include "ShopItem.hpp"
@@ -91,8 +92,8 @@ void Shop::SetSeller(const CatchChallenger::Bot &bot, uint16_t shop_id) {
   content_->Clear();
   if (bot.properties.find("skin") != bot.properties.cend()) {
     QPixmap skin(QString::fromStdString(
-        QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
-            std::stoi(bot.properties.at("skin")))));
+        QtDatapackClientLoader::datapackLoader->getSkinPath(
+            bot.properties.at("skin"), "front")));
     if (!skin.isNull()) {
       portrait_->SetPixmap(skin.scaled(160, 160));
       portrait_->SetVisible(true);
@@ -149,10 +150,6 @@ void Shop::SetMeAsSeller(uint16_t shop_id) {
       auto node = ShopItem::Create(i->first, i->second, price);
 
       node->SetOnClick(std::bind(&Shop::OnItemClick, this, _1));
-      node->SetData(90, shop_id_);
-      node->SetData(91, i->first);
-      node->SetData(92, i->second);
-      node->SetData(93, price);
       content_->AddItem(node);
     }
     ++i;
@@ -164,14 +161,13 @@ void Shop::OnActionClick(Node *node) {
     Close();
   } else if (node == buy_) {
     if (selected_item_ != nullptr) {
+      ShopItem *item = static_cast<ShopItem *>(selected_item_);
       if (is_buy_mode_) {
-        connexionManager->client->buyObject(selected_item_->Data(90),
-                                            selected_item_->Data(91), 1,
-                                            selected_item_->Data(93));
+        connexionManager->client->buyObject(shop_id_, item->ObjectId(), 1,
+                                            item->Price());
       } else {
-        connexionManager->client->sellObject(selected_item_->Data(90),
-                                             selected_item_->Data(91), 1,
-                                             selected_item_->Data(93));
+        connexionManager->client->sellObject(shop_id_, item->ObjectId(), 1,
+                                             item->Price());
       }
     }
   }
@@ -210,10 +206,6 @@ void Shop::HaveShopList(
     auto node = ShopItem::Create((*it).object, 99, (*it).price);
 
     node->SetOnClick(std::bind(&Shop::OnItemClick, this, _1));
-    node->SetData(90, shop_id_);
-    node->SetData(91, (*it).object);
-    node->SetData(92, 1);
-    node->SetData(93, (*it).price);
     content_->AddItem(node);
   }
 }
@@ -222,11 +214,15 @@ void Shop::HaveBuyObject(const CatchChallenger::BuyStat &stat,
                          const uint32_t &new_price) {
   QString message;
   ShopItem *item = static_cast<ShopItem *>(selected_item_);
+  auto info = PlayerInfo::GetInstance();
+  int quantity = 1;
+
   switch (stat) {
     case CatchChallenger::BuyStat_Done:
-      // add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      info->AddCash(new_price * quantity * -1);
+      info->AddInventory(item->ObjectId(), quantity);
       message = QStringLiteral("You buy\n%1 x %2")
-                    .arg(1)
+                    .arg(quantity)
                     .arg(QString::fromStdString(item->Name()));
       break;
     case CatchChallenger::BuyStat_BetterPrice:
@@ -234,9 +230,8 @@ void Shop::HaveBuyObject(const CatchChallenger::BuyStat &stat,
         Logger::Log(QString("haveSellObject() Can't buy at 0$!"));
         return;
       }
-      // addCash(itemToSellOrBuy.price);
-      // removeCash(newPrice * itemToSellOrBuy.quantity);
-      // add_to_inventory(itemToSellOrBuy.object, itemToSellOrBuy.quantity);
+      info->AddCash(new_price * quantity * -1);
+      info->AddInventory(item->ObjectId(), quantity);
       break;
     case CatchChallenger::BuyStat_HaveNotQuantity:
       // addCash(itemToSellOrBuy.price);
@@ -250,6 +245,8 @@ void Shop::HaveBuyObject(const CatchChallenger::BuyStat &stat,
       Logger::Log(QString("haveBuyObject(stat) have unknow value"));
       break;
   }
+
+  info->Notify();
   if (on_transaction_finish_) {
     on_transaction_finish_(message.toStdString());
   }
@@ -261,9 +258,13 @@ void Shop::HaveSellObject(const CatchChallenger::SoldStat &stat,
                           const uint32_t &new_price) {
   QString message;
   ShopItem *item = static_cast<ShopItem *>(selected_item_);
+  auto info = PlayerInfo::GetInstance();
+  int quantity = 1;
+
   switch (stat) {
     case CatchChallenger::SoldStat_Done:
-      // addCash(itemsToSell.front().price * itemsToSell.front().quantity);
+      info->AddCash(item->Price() * quantity);
+      info->RemoveInventory(item->ObjectId(), quantity);
       message = tr("Item sold");
       break;
     case CatchChallenger::SoldStat_BetterPrice:
@@ -272,7 +273,8 @@ void Shop::HaveSellObject(const CatchChallenger::SoldStat &stat,
             QString("haveSellObject() the price 0$ can't be better price!"));
         return;
       }
-      // addCash(newPrice * itemsToSell.front().quantity);
+      info->AddCash(new_price * quantity);
+      info->RemoveInventory(item->ObjectId(), quantity);
       message = tr("Item sold at better price");
       break;
     case CatchChallenger::SoldStat_WrongQuantity:
@@ -290,6 +292,7 @@ void Shop::HaveSellObject(const CatchChallenger::SoldStat &stat,
       break;
   }
 
+  info->Notify();
   if (on_transaction_finish_) {
     on_transaction_finish_(message.toStdString());
   }

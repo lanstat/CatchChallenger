@@ -300,6 +300,7 @@ SOURCES += \
     $$PWD/scenes/map/OverMapLogicTrade.cpp \
     $$PWD/scenes/map/PlayerPortrait.cpp \
     $$PWD/scenes/map/Tip.cpp \
+    $$PWD/scenes/map/MonsterThumb.cpp \
     #$$PWD/scenes/inventory/Crafting.cpp \
     #$$PWD/scenes/player/FinishedQuests.cpp \
     $$PWD/scenes/shared/player/Player.cpp \
@@ -390,6 +391,7 @@ HEADERS  += \
     $$PWD/scenes/map/OverMap.hpp \
     $$PWD/scenes/map/OverMapLogic.hpp \
     $$PWD/scenes/map/PlayerPortrait.hpp \
+    $$PWD/scenes/map/MonsterThumb.hpp \
     $$PWD/scenes/map/Tip.hpp \
     #$$PWD/scenes/inventory/Crafting.hpp \
     #$$PWD/scenes/player/FinishedQuests.hpp \

@@ -13,6 +13,9 @@ class ShopItem : public Node {
                           uint32_t price);
   void SetSelected(bool selected);
   std::string Name();
+  uint16_t ObjectId();
+  uint32_t Quantity();
+  uint32_t Price();
 
   void Draw(QPainter *painter) override;
   void OnResize() override;

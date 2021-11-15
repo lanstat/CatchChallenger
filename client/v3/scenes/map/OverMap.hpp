@@ -19,8 +19,8 @@
 #include "../shared/toast/Toast.hpp"
 #include "../shared/chat/Chat.hpp"
 #include "CCMap.hpp"
-#include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
+#include "MonsterThumb.hpp"
 #include "PlayerPortrait.hpp"
 #include "Tip.hpp"
 
@@ -56,7 +56,6 @@ class OverMap : public QObject, public Scene {
   */
   void buyClicked();
 
-  void openMonster(Node *item);
   void updatePlayerNumber(const uint16_t &number, const uint16_t &max_players);
   void have_current_player_info(
       const CatchChallenger::Player_private_and_public_informations
@@ -67,13 +66,9 @@ class OverMap : public QObject, public Scene {
 
  protected:
   ConnectionManager *connexionManager;
-  MonsterDetails *monsterDetails;
 
   PlayerPortrait *player_portrait_;
-  std::vector<MapMonsterPreview *> monsters;
-  QPointF m_startPress;
-  bool wasDragged;
-  MapMonsterPreview *monstersDragged;
+  MonsterThumb *monster_thumb_;
 
   Sprite *playersCountBack;
   UI::Label *playersCount;

@@ -5,6 +5,7 @@
 #include "../../../base/ConnectionManager.hpp"
 #include "../../../core/Node.hpp"
 #include "../../../core/Sprite.hpp"
+#include "../../../entities/PlayerInfo.hpp"
 #include "../../../ui/Button.hpp"
 #include "../../../ui/GridView.hpp"
 #include "../../../ui/Label.hpp"
@@ -43,7 +44,8 @@ class Inventory : public Node {
   void UnRegisterEvents() override;
   void OnResize() override;
   void Draw(QPainter *painter) override;
-  void SetOnUseItem(std::function<void(uint16_t)> callback);
+  void SetOnUseItem(
+      std::function<void(ObjectType, uint16_t, uint32_t)> callback);
   void SetOnDeleteItem(std::function<void(uint16_t)> callback);
 
  private:
@@ -60,13 +62,14 @@ class Inventory : public Node {
   uint8_t lastItemSize;
   uint8_t itemCount;
   int lastItemSelected;
-  std::function<void(uint16_t)> on_use_item_;
+  std::function<void(ObjectType, uint16_t, uint32_t)> on_use_item_;
   std::function<void(uint16_t)> on_delete_item_;
 
   Inventory();
 
   void OnItemClick(Node *node);
   void UpdateInventory(uint8_t targetSize, bool force);
+  void OnUpdateInfo(PlayerInfo *info);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_SHARED_INVENTORY_INVENTORY_HPP_

@@ -257,9 +257,13 @@ void Login::OnActionClick(Node *node) {
 void Login::OnEnter() {
   UI::Dialog::OnEnter();
   htmlText->RegisterEvents();
+  login->RegisterEvents();
+  password->RegisterEvents();
 }
 
 void Login::OnExit() {
   htmlText->UnRegisterEvents();
+  login->UnRegisterEvents();
+  password->UnRegisterEvents();
   UI::Dialog::OnExit();
 }

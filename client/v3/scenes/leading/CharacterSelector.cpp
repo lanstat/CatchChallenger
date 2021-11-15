@@ -45,11 +45,6 @@ CharacterSelector::CharacterSelector() {
   select->SetOnClick(std::bind(&CharacterSelector::select_clicked, this));
   back->SetOnClick(std::bind(&CharacterSelector::backSubServer, this));
 
-  /*
-  if (!connect(characterEntryList, &QListWidget::itemSelectionChanged, this,
-               &CharacterSelector::itemSelectionChanged))
-    abort();
-  */
   newLanguage();
 
   // need be the last
@@ -73,6 +68,7 @@ CharacterSelector *CharacterSelector::Create() {
 }
 
 void CharacterSelector::OnCharacterClick(Node *node) {
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asd" << std::endl;
   selected_character_ = node;
   select->SetEnabled(true);
   remove->SetEnabled(characterEntryList->Count() >
@@ -365,6 +361,9 @@ void CharacterSelector::updateCharacterList(bool prevent_auto_select) {
             "/front.png"));
       else
         item->SetIcon(":/CC/images/player_default/front.png");
+      std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asda" << std::endl;
+      item->SetOnClick(
+          std::bind(&CharacterSelector::OnCharacterClick, this, _1));
       characterEntryList->AddItem(item);
       index++;
     }
@@ -431,6 +430,7 @@ void CharacterSelector::OnEnter() {
   remove->RegisterEvents();
   select->RegisterEvents();
   back->RegisterEvents();
+  characterEntryList->RegisterEvents();
 }
 
 void CharacterSelector::OnExit() {
@@ -439,6 +439,7 @@ void CharacterSelector::OnExit() {
   remove->UnRegisterEvents();
   select->UnRegisterEvents();
   back->UnRegisterEvents();
+  characterEntryList->UnRegisterEvents();
 }
 
 void CharacterSelector::GoToMap() {

@@ -33,6 +33,9 @@ Inventory::Inventory() : Node(nullptr) {
   inventoryUse->SetOnClick(std::bind(&Inventory::inventoryUse_slot, this));
   inventoryDestroy->SetOnClick(
       std::bind(&Inventory::inventoryDestroy_slot, this));
+
+  QObject::connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
+                   std::bind(&Inventory::OnUpdateInfo, this, _1));
 }
 
 Inventory::~Inventory() {
@@ -140,7 +143,7 @@ void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
 void Inventory::inventoryUse_slot() {
   if (lastItemSelected < 0) return;
   if (on_use_item_) {
-    on_use_item_(lastItemSelected);
+    on_use_item_(waitedObjectType, lastItemSelected, 1);
   }
 }
 
@@ -288,10 +291,13 @@ void Inventory::OnResize() {
   inventory_description->SetWidth(descriptionBack->Width());
 }
 
-void Inventory::SetOnUseItem(std::function<void(uint16_t)> callback) {
+void Inventory::SetOnUseItem(
+    std::function<void(ObjectType, uint16_t, uint32_t)> callback) {
   on_use_item_ = callback;
 }
 
 void Inventory::SetOnDeleteItem(std::function<void(uint16_t)> callback) {
   on_delete_item_ = callback;
 }
+
+void Inventory::OnUpdateInfo(PlayerInfo *info) { lastItemSize = 0; }

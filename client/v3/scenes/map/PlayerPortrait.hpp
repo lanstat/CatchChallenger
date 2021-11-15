@@ -4,6 +4,7 @@
 
 #include "../../../../general/base/GeneralStructures.hpp"
 #include "../../core/Node.hpp"
+#include "../../entities/PlayerInfo.hpp"
 
 namespace Scenes {
 class PlayerPortrait : public Node {
@@ -24,6 +25,7 @@ class PlayerPortrait : public Node {
   QString cash_;
 
   PlayerPortrait(Node *parent);
+  void OnUpdateInfo(PlayerInfo *info);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_PLAYERPORTRAIT_HPP_

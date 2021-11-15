@@ -10,10 +10,13 @@ class MapMonsterPreview : public Node {
  public:
   ~MapMonsterPreview();
   static MapMonsterPreview *Create(const CatchChallenger::PlayerMonster &m,
-                                   Node *parent = nullptr);
-  void SetInDrag(bool drag);
+                                   int index, Node *parent = nullptr);
   bool IsPressed();
   const CatchChallenger::PlayerMonster &GetMonster() const;
+  void DrawContent();
+  int Index();
+  void SetOnDrop(std::function<void(Node *)> callback);
+
   void Draw(QPainter *painter) override;
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
@@ -25,8 +28,11 @@ class MapMonsterPreview : public Node {
   CatchChallenger::PlayerMonster monster_;
   bool pressed_;
   bool drag_;
+  QPixmap cache_;
+  int index_;
+  std::function<void(Node *)> on_drop_;
 
-  MapMonsterPreview(const CatchChallenger::PlayerMonster &m,
+  MapMonsterPreview(const CatchChallenger::PlayerMonster &m, int index,
                     Node *parent = nullptr);
   void SetPressed(const bool &pressed);
 };

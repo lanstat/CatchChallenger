@@ -15,9 +15,7 @@ using std::placeholders::_1;
 
 OverMap::OverMap() {
   connexionManager = ConnectionManager::GetInstance();
-  monstersDragged = nullptr;
-  wasDragged = false;
-  monsterDetails = nullptr;
+  monster_thumb_ = MonsterThumb::Create(this);
 
   player_portrait_ = PlayerPortrait::Create(this);
   player_portrait_->SetPos(0, 0);
@@ -59,12 +57,6 @@ OverMap::OverMap() {
     }
   }
 
-  /*    if(!connect(back,&CustomButton::clicked,this,&OverMap::backMulti))
-          abort();
-      if(!connect(server_select,&CustomButton::clicked,this,&OverMap::server_select_clicked))
-          abort();
-      if(!connect(serverList,&QTreeWidget::itemSelectionChanged,this,&OverMap::itemSelectionChanged))
-          abort();*/
   newLanguage();
 
   buy->SetOnClick(std::bind(&OverMap::buyClicked, this));
@@ -80,10 +72,7 @@ OverMap::~OverMap() {
 }
 
 void OverMap::resetAll() {
-  for (auto it = begin(monsters); it != end(monsters); it++) {
-    delete (*it);
-  }
-  monsters.clear();
+  monster_thumb_->Reset();
 }
 
 void OverMap::setVar(CCMap *ccmap) {
@@ -107,27 +96,10 @@ void OverMap::have_current_player_info(
   player_portrait_->SetVisible(true);
   player_portrait_->SetInformation(informations);
 
-  for (auto it = begin(monsters); it != end(monsters); it++) {
-    delete *it;
-  }
-  monsters.clear();
-  for (CatchChallenger::PlayerMonster m : informations.playerMonster) {
-    auto *t = MapMonsterPreview::Create(m, this);
-    t->SetOnClick(std::bind(&OverMap::openMonster, this, _1));
-    monsters.push_back(t);
-  }
+  monster_thumb_->LoadMonsters(informations);
   std::pair<uint16_t, uint16_t> t =
       connexionManager->client->getLast_number_of_player();
   playersCount->SetText(QString::number(t.first));
-}
-
-void OverMap::openMonster(Node *item) {
-  MapMonsterPreview *m = static_cast<MapMonsterPreview *>(item);
-  if (monsterDetails == nullptr) {
-    monsterDetails = MonsterDetails::Create();
-  }
-  monsterDetails->SetMonster(m->GetMonster());
-  AddChild(monsterDetails);
 }
 
 void OverMap::updatePlayerNumber(const uint16_t &number,
@@ -147,13 +119,8 @@ void OverMap::OnScreenResize() {
   player_portrait_->SetPos(space, space);
 
   int tempx = player_portrait_->X() + player_portrait_->Width();
-  unsigned int monsterIndex = 0;
-  while (monsterIndex < monsters.size()) {
-    MapMonsterPreview *m = monsters.at(monsterIndex);
-    m->SetPos(tempx, player_portrait_->Y());
-    tempx += space + 56;
-    monsterIndex++;
-  }
+
+  monster_thumb_->SetPos(tempx, space);
 
   playersCountBack->SetPos(
       bounding_rect_.width() - space - playersCountBack->Width(), space);
@@ -224,23 +191,19 @@ void OverMap::OnScreenResize() {
 }
 
 void OverMap::OnEnter() {
-  for (auto item : monsters) {
-    item->RegisterEvents();
-  }
   buy->RegisterEvents();
   tip_->RegisterEvents();
   toast_->RegisterEvents();
   chat_->RegisterEvents();
+  monster_thumb_->RegisterEvents();
 }
 
 void OverMap::OnExit() {
-  for (auto item : monsters) {
-    item->UnRegisterEvents();
-  }
   buy->UnRegisterEvents();
   tip_->UnRegisterEvents();
   toast_->UnRegisterEvents();
   chat_->UnRegisterEvents();
+  monster_thumb_->UnRegisterEvents();
 }
 
 /*
@@ -293,20 +256,6 @@ void OverMap::mouseReleaseEventXY(const QPointF &p, bool &pressValidated,
   if (IG_dialog_textBack->isVisible() && f.contains(p)) {
     IG_dialog_quit->mouseReleaseEventXY(p, pressValidated);
     pressValidated = true;
-  }
-  if (chat->isChecked()) {
-    const QRectF &b = QRectF(
-        chatBack->x(), chatBack->y(), chatBack->width(),
-        chatBack->height() + 5 + chatInput->height() + 5 + chat->height());
-    const QRectF &t = mapRectToScene(b);
-    if (t.contains(p)) {
-      pressValidated = true;
-      callParentClass = true;
-    }
-    const QRectF &b2 = QRectF(chatInput->x(), chatInput->y(),
-                              chatInput->width(), chatInput->height());
-    const QRectF &t2 = mapRectToScene(b2);
-    if (!t2.contains(p)) chatInput->clearFocus();
   }
 
   playerBackground->mouseReleaseEventXY(p, pressValidated);

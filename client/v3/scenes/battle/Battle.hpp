@@ -26,6 +26,7 @@
 #include "../../ui/ListView.hpp"
 #include "../../ui/MessageDialog.hpp"
 #include "../../ui/Progressbar.hpp"
+#include "../shared/inventory/Inventory.hpp"
 
 namespace Scenes {
 class Battle : public Scene {
@@ -244,7 +245,8 @@ class Battle : public Scene {
   void ShowMessageDialog(const QString &title, const QString &message);
   void ShowBagDialog();
   void ShowMonsterDialog();
-  void UseBagItem(uint16_t);
+  void UseBagItem(Scenes::Inventory::ObjectType type, uint16_t item,
+                  uint32_t quantity);
   void newError(std::string error, std::string detailedError);
   void error(std::string error);
 

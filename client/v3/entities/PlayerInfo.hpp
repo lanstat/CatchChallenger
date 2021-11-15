@@ -9,7 +9,8 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../base/ConnectionManager.hpp"
 
-class PlayerInfo {
+class PlayerInfo : public QObject {
+  Q_OBJECT
  public:
   static PlayerInfo* GetInstance();
 
@@ -21,14 +22,18 @@ class PlayerInfo {
   const CatchChallenger::Player_private_and_public_informations&
   GetInformationRO();
   void Notify();
+  void AddInventory(uint16_t item_id, uint32_t quantity);
+  void AddInventory(const std::unordered_map<uint16_t, uint32_t> &items);
+  void RemoveInventory(uint16_t item_id, uint32_t quantity);
+  void AddCash(uint32_t value);
+
+ signals:
+  void OnUpdateInfo(PlayerInfo* info);
 
  private:
   static PlayerInfo* instance_;
   ConnectionManager* connection_manager_;
 
   PlayerInfo();
-
- //signals:
-  //void OnUpdateInfo(PlayerInfo* info);
 };
 #endif  // CLIENT_V3_ENTITIES_PLAYERINFO_HPP_

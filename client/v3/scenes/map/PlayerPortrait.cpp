@@ -10,9 +10,12 @@
 #include "../../ui/Label.hpp"
 
 using Scenes::PlayerPortrait;
+using std::placeholders::_1;
 
 PlayerPortrait::PlayerPortrait(Node *parent) : Node(parent) {
   SetSize(450, 150);
+  QObject::connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
+                   std::bind(&PlayerPortrait::OnUpdateInfo, this, _1));
 }
 
 PlayerPortrait *PlayerPortrait::Create(Node *parent) {
@@ -90,4 +93,10 @@ void PlayerPortrait::RegisterEvents() {
 
 void PlayerPortrait::UnRegisterEvents() {
   EventManager::GetInstance()->RemoveListener(this);
+  //QObject::disconnect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
+                      //std::bind(&PlayerPortrait::OnUpdateInfo, this, _1));
+}
+
+void PlayerPortrait::OnUpdateInfo(PlayerInfo *info) {
+  SetInformation(info->GetInformationRO());
 }

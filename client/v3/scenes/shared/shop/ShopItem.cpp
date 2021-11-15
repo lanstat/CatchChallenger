@@ -113,3 +113,15 @@ void ShopItem::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
 std::string ShopItem::Name() {
   return name_;
 }
+
+uint16_t ShopItem::ObjectId() {
+  return object_id_;
+}
+
+uint32_t ShopItem::Quantity() {
+  return quantity_;
+}
+
+uint32_t ShopItem::Price() {
+  return price_;
+}

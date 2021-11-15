@@ -19,13 +19,14 @@
 #include "../../core/EventManager.hpp"
 #include "../../core/Logger.hpp"
 #include "../../core/SceneManager.hpp"
-#include "../shared/inventory/Inventory.hpp"
 #include "../shared/inventory/MonsterBag.hpp"
 
 using Scenes::Battle;
 using namespace CatchChallenger;
 using CatchChallenger::PublicPlayerMonster;
 using std::placeholders::_1;
+using std::placeholders::_2;
+using std::placeholders::_3;
 
 Battle::Battle() : Scene(nullptr) {
   labelFightBackground = Sprite::Create(this);
@@ -90,7 +91,7 @@ Battle::Battle() : Scene(nullptr) {
   linked_->AddItem(MonsterBag::Create());
   auto item = Inventory::Create();
   item->SetVar(Inventory::ObjectType_UseInFight, true);
-  item->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1));
+  item->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1, _2, _3));
   linked_->AddItem(item);
 
   trap_ = nullptr;
@@ -1253,7 +1254,7 @@ void Battle::ShowBagDialog() {
   AddChild(linked_);
 }
 
-void Battle::UseBagItem(uint16_t item) {
+void Battle::UseBagItem(Inventory::ObjectType type, uint16_t item, uint32_t quantity) {
   RemoveChild(linked_);
 
   const CatchChallenger::Player_private_and_public_informations
