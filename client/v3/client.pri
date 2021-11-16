@@ -254,6 +254,7 @@ SOURCES += \
     $$PWD/ui/Slider.cpp \
     $$PWD/ui/Row.cpp \
     $$PWD/ui/Column.cpp \
+    $$PWD/ui/SelectableItem.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -351,6 +352,7 @@ HEADERS  += \
     $$PWD/ui/Slider.hpp \
     $$PWD/ui/Row.hpp \
     $$PWD/ui/Column.hpp \
+    $$PWD/ui/SelectableItem.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Vector.hpp \
     $$PWD/core/Node.hpp \

@@ -4,30 +4,24 @@
 
 #include "../../../../../general/base/GeneralStructures.hpp"
 #include "../../../base/ConnectionManager.hpp"
-#include "../../../core/Node.hpp"
+#include "../../../ui/SelectableItem.hpp"
 #include "../../../core/Sprite.hpp"
-#include "../../../ui/Button.hpp"
-#include "../../../ui/Label.hpp"
 
 namespace Scenes {
-class MonsterItem : public Node {
+class MonsterItem : public UI::SelectableItem {
  public:
   ~MonsterItem();
   static MonsterItem *Create(CatchChallenger::PlayerMonster monster);
 
-  void Draw(QPainter *painter) override;
-  void RegisterEvents() override;
-  void UnRegisterEvents() override;
-
+  void DrawContent(QPainter *painter) override;
   void OnResize() override;
 
  private:
-  Sprite *icon_;
-  UI::Button *select_;
   CatchChallenger::PlayerMonster monster_;
   ConnectionManager *connection_manager_;
   CatchChallenger::Api_protocol_Qt *client_;
   QString name_;
+  Sprite *icon_;
 
   MonsterItem(CatchChallenger::PlayerMonster monster);
   void LoadMonster();

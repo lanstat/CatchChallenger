@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "../../base/ConnectionManager.hpp"
-#include "../../core/EventManager.hpp"
+#include "../../entities/PlayerInfo.hpp"
 
 using Scenes::MonsterThumb;
 using std::placeholders::_1;
@@ -74,13 +74,14 @@ void MonsterThumb::UnRegisterEvents() {
 }
 
 void MonsterThumb::OnDropMonster(Node *item) {
-  auto connection = ConnectionManager::GetInstance();
+  auto info = PlayerInfo::GetInstance();
   MapMonsterPreview *current = static_cast<MapMonsterPreview *>(item);
   int position = 0;
   std::sort(monsters_.begin(), monsters_.end(),
             [](MapMonsterPreview *a, MapMonsterPreview *b) {
               return a->X() < b->X();
             });
+
   for (auto it = begin(monsters_); it != end(monsters_); it++) {
     if (current->GetMonster().monster == (*it)->GetMonster().monster) {
       break;
@@ -88,13 +89,23 @@ void MonsterThumb::OnDropMonster(Node *item) {
     position++;
   }
   if (position != current->Index()) {
-    if (position < current->Index()) {
-      connection->client->monsterMoveDown(current->Index() - position);
+    auto connection = ConnectionManager::GetInstance();
+    std::vector<CatchChallenger::PlayerMonster> monsters =
+        info->GetInformationRO().playerMonster;
+    if (position > current->Index()) {
+      connection->client->monsterMoveDown(current->Index() + 1);
+      std::rotate(monsters.begin() + current->Index(),
+                  monsters.begin() + current->Index() + 1,
+                  monsters.begin() + position + 1);
     } else {
-      connection->client->monsterMoveUp(position - current->Index());
+      connection->client->monsterMoveUp(current->Index() + 1);
+      std::rotate(monsters.rend() - current->Index() - 1,
+                  monsters.rend() - current->Index(),
+                  monsters.rend() - position);
     }
+    info->UpdateMonsters(monsters);
   }
-  LoadMonsters(connection->client->get_player_informations_ro());
+  LoadMonsters(info->GetInformationRO());
 }
 
 void MonsterThumb::Reset() {

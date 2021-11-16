@@ -30,7 +30,8 @@ class Chat : public Node {
   ConnectionManager *connexionManager;
   PlayerInfo *player_info_;
   uint16_t input_height_;
-  QPixmap log_;
+  QPixmap *log_;
+  QString log_content_;
   uint8_t flood_;
 
   QString text_;
@@ -49,6 +50,8 @@ class Chat : public Node {
                           CatchChallenger::Player_type player_type);
   void LastReplyTime(const uint32_t &time);
   void RemoveNumberForFlood();
+  void DrawContent();
+  void ReDrawContent();
 };
 }  // namespace Scenes
 

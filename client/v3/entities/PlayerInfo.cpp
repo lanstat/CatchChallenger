@@ -79,3 +79,9 @@ void PlayerInfo::RemoveInventory(uint16_t item_id, uint32_t quantity) {
     }
   }
 }
+
+void PlayerInfo::UpdateMonsters(
+    std::vector<CatchChallenger::PlayerMonster> monsters) {
+  auto &info = GetInformation();
+  info.playerMonster = monsters;
+}

@@ -8,9 +8,9 @@
 
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/CommonSettingsServer.hpp"
+#include "../../qt/Settings.hpp"
 #include "../cc/Api_client_real.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
-#include "../../qt/Settings.hpp"
 
 using std::placeholders::_1;
 
@@ -564,6 +564,39 @@ void ConnectionManager::error(QAbstractSocket::SocketError socketError) {
                "The SSL/TLS handshake failed, so the connection was closed") +
            additionalText)
               .toStdString());
+      break;
+    case QAbstractSocket::ProxyConnectionRefusedError:
+      errorString((tr("Could not contact the proxy server because the "
+                      "connection to that server was denied") +
+                   additionalText)
+                      .toStdString());
+      break;
+    case QAbstractSocket::ProxyConnectionClosedError:
+      errorString(
+          (tr("The connection to the proxy server was closed unexpectedly "
+              "(before the connection to the final peer was established)") +
+           additionalText)
+              .toStdString());
+      break;
+    case QAbstractSocket::ProxyConnectionTimeoutError:
+      errorString(
+          (tr("The connection to the proxy server timed out or the proxy "
+              "server stopped responding in the authentication phase") +
+           additionalText)
+              .toStdString());
+      break;
+    case QAbstractSocket::ProxyNotFoundError:
+      errorString((tr("The proxy address set with setProxy() (or the "
+                      "application proxy) was not found") +
+                   additionalText)
+                      .toStdString());
+      break;
+    case QAbstractSocket::ProxyProtocolError:
+      errorString((tr("The connection negotiation with the proxy server "
+                      "failed, because the response from the proxy server "
+                      "could not be understood") +
+                   additionalText)
+                      .toStdString());
       break;
     default:
       errorString((QObject::tr("Connection error: %1").arg(socketError) +
