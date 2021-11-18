@@ -4,11 +4,12 @@
 
 #include <vector>
 
-#include "../../../qt/FeedNews.hpp"
+#include "../../entities/FeedNews.hpp"
 #include "../../core/Scene.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
+#include "../../ui/ListView.hpp"
 #include "Multi.hpp"
 #include "Solo.hpp"
 #include "Options.hpp"
@@ -16,7 +17,7 @@
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
 
-  #include "../../../qt/QInfiniteBuffer.hpp"
+  #include "../../QInfiniteBuffer.hpp"
 #endif
 
 namespace Scenes {
@@ -40,7 +41,7 @@ class Menu : public Scene {
   UI::Button *website_;
   UI::Button *debug_;
   Sprite *news_;
-  UI::Label *news_text_;
+  UI::ListView *news_list_;
   Sprite *news_wait_;
   UI::Button *news_update_;
   UI::Label *warning_;
@@ -77,6 +78,7 @@ class Menu : public Scene {
   void GoToMulti();
   void GoToOptions();
   void GoToDebug();
+  void OnClickLink(Node *node);
 };
 }  // namespace Scenes
 #endif  // CLIENT_QTOPENGL_SCENES_LEADING_MENU_HPP_

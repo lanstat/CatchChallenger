@@ -28,7 +28,8 @@ class SceneManager : public QGraphicsView {
 
   void PushScene(Scene *scene);
   Scene *PopScene();
-  void ShowAlert(QString message);
+  void ShowOverlay(Node* overlay);
+  void RemoveOverlay();
 
  protected:
   void resizeEvent(QResizeEvent *event) override;
@@ -47,6 +48,7 @@ class SceneManager : public QGraphicsView {
   ConnectionManager *connection_;
   QGraphicsScene *graphic_scene_;
   std::vector<Scene *> scene_stack_;
+  Node *overlay_;
 
   uint8_t wait_render_time_;
   QTimer timer_render_;

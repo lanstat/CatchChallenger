@@ -12,9 +12,12 @@ class MessageDialog : public Dialog {
   ~MessageDialog();
   static MessageDialog *Create();
 
+  void Draw(QPainter *painter) override;
   void OnScreenResize() override;
   void SetMessage(const QString &text);
   void newLanguage();
+  void Show(const QString &title, const QString &message);
+  void Show(const QString &message);
 
  protected:
   void OnActionClick(Node *node);

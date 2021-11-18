@@ -61,6 +61,7 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
     }
     // else use the CPU only
   }
+  overlay_ = nullptr;
   draw_times_ = 0;
   action_manager_ = ActionManager::GetInstance();
   event_manager_ = EventManager::GetInstance();
@@ -304,4 +305,18 @@ void SceneManager::OnDisconnect() {
 #endif
 }
 
-void SceneManager::ShowAlert(QString message) {}
+void SceneManager::ShowOverlay(Node* overlay) {
+  auto current = scene_stack_.back();
+  if (overlay_  && overlay_ != overlay) {
+    current->RemoveChild(overlay_);
+  }
+  overlay_ = overlay;
+  current->AddChild(overlay_);
+}
+
+void SceneManager::RemoveOverlay() {
+  if (overlay_) {
+    overlay_->Parent()->RemoveChild(overlay_);
+  }
+  overlay_ = nullptr;
+}

@@ -87,7 +87,3 @@ void Scene::OnScreenHD() {}
 void Scene::OnScreenHDR() {}
 
 void Scene::OnScreenResize() {}
-
-void Scene::ShowAlert(QString message) {
-  SceneManager::GetInstance()->ShowAlert(message);
-}

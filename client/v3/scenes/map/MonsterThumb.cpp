@@ -46,6 +46,8 @@ void MonsterThumb::LoadMonsters(
     tempx -= space;
   }
   SetSize(tempx, height);
+  UnRegisterEvents();
+  RegisterEvents();
 }
 
 void MonsterThumb::Draw(QPainter *painter) {}

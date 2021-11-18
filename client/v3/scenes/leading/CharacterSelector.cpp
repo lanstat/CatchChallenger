@@ -12,6 +12,7 @@
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../../core/StackedScene.hpp"
+#include "CharacterItem.hpp"
 #include "Loading.hpp"
 
 using Scenes::CharacterSelector;
@@ -68,7 +69,6 @@ CharacterSelector *CharacterSelector::Create() {
 }
 
 void CharacterSelector::OnCharacterClick(Node *node) {
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asd" << std::endl;
   selected_character_ = node;
   select->SetEnabled(true);
   remove->SetEnabled(characterEntryList->Count() >
@@ -84,7 +84,8 @@ void CharacterSelector::add_clicked() {
            .at(serverOrdenedList.at(serverSelected).charactersGroupIndex)
            .size()) >=
       CommonSettingsCommon::commonSettingsCommon.max_character) {
-    ShowAlert(tr("You have already the max characters count"));
+    Globals::GetAlertDialog()->Show(
+        tr("You have already the max characters count"));
     return;
   }
   if (addCharacter == nullptr) {
@@ -121,10 +122,11 @@ void CharacterSelector::add_finished() {
                        datapackPath + DATAPACK_BASE_PATH_MONSTERS,
                        profile.monstergroup, profile.forcedskin);
   if (!newGame->haveSkin()) {
-    ShowAlert(tr("Sorry but no skin found into: %1")
-                  .arg(QFileInfo(QString::fromStdString(datapackPath) +
-                                 DATAPACK_BASE_PATH_SKIN)
-                           .absoluteFilePath()));
+    Globals::GetAlertDialog()->Show(
+        tr("Sorry but no skin found into: %1")
+            .arg(QFileInfo(QString::fromStdString(datapackPath) +
+                           DATAPACK_BASE_PATH_SKIN)
+                     .absoluteFilePath()));
     return;
   }
   AddChild(newGame);
@@ -160,7 +162,7 @@ void CharacterSelector::newGame_finished() {
            .at(serverOrdenedList.at(serverSelected).charactersGroupIndex)
            .size()) >= CommonSettingsCommon::commonSettingsCommon.max_character)
     add->SetEnabled(false);
-  ShowAlert(tr("Creating your new character"));
+  Globals::GetAlertDialog()->Show(tr("Creating your new character"));
 }
 
 void CharacterSelector::remove_clicked() {
@@ -170,7 +172,7 @@ void CharacterSelector::remove_clicked() {
   const uint32_t &character_id = selected_character_->Data(99);
   const uint32_t &delete_time_left = selected_character_->Data(98);
   if (delete_time_left > 0) {
-    ShowAlert(tr("Deleting already planned"));
+    Globals::GetAlertDialog()->Show(tr("Deleting already planned"));
     return;
   }
   connection_->client->removeCharacter(
@@ -194,11 +196,12 @@ void CharacterSelector::remove_clicked() {
     index++;
   }
   updateCharacterList();
-  ShowAlert(tr("Your charater will be deleted into %1")
-                .arg(QString::fromStdString(
-                    CatchChallenger::FacilityLibClient::timeToString(
-                        CommonSettingsCommon::commonSettingsCommon
-                            .character_delete_time))));
+  Globals::GetAlertDialog()->Show(
+      tr("Your charater will be deleted into %1")
+          .arg(QString::fromStdString(
+              CatchChallenger::FacilityLibClient::timeToString(
+                  CommonSettingsCommon::commonSettingsCommon
+                      .character_delete_time))));
 }
 
 void CharacterSelector::select_clicked() {
@@ -331,11 +334,11 @@ void CharacterSelector::updateCharacterList(bool prevent_auto_select) {
       const CatchChallenger::CharacterEntry &characterEntry =
           characterListForSelection.at(charactersGroupIndex).at(index);
 
-      auto item = UI::Button::Create(":/CC/images/interface/button.png");
+      auto item = CharacterItem::Create();
       item->SetData(99, characterEntry.character_id);
       item->SetData(98, characterEntry.delete_time_left);
-      // item->setData(97,characterEntry.mapId);
-      std::string text = characterEntry.pseudo + "\n";
+      item->SetTitle(QString::fromStdString(characterEntry.pseudo));
+      std::string text;
       if (characterEntry.played_time > 0)
         text += tr("%1 played")
                     .arg(QString::fromStdString(
@@ -350,18 +353,18 @@ void CharacterSelector::updateCharacterList(bool prevent_auto_select) {
                                CatchChallenger::FacilityLibClient::timeToString(
                                    characterEntry.delete_time_left)))
                            .toStdString();
-      item->SetText(QString::fromStdString(text));
+      item->SetSubTitle(QString::fromStdString(text));
       if (characterEntry.skinId <
           QtDatapackClientLoader::datapackLoader->skins.size())
-        item->SetIcon(QIcon(
+        item->SetIcon(
             QString::fromStdString(connection_->client->datapackPathBase()) +
             DATAPACK_BASE_PATH_SKIN +
-            QString::fromStdString(QtDatapackClientLoader::datapackLoader->skins
-                                       .at(characterEntry.skinId)) +
-            "/front.png"));
+            QString::fromStdString(
+                QtDatapackClientLoader::datapackLoader->skins.at(
+                    characterEntry.skinId)) +
+            "/front.png");
       else
-        item->SetIcon(":/CC/images/player_default/front.png");
-      std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asda" << std::endl;
+        item->SetIcon(QString(":/CC/images/player_default/front.png"));
       item->SetOnClick(
           std::bind(&CharacterSelector::OnCharacterClick, this, _1));
       characterEntryList->AddItem(item);
@@ -409,14 +412,13 @@ void CharacterSelector::newCharacterId(const uint8_t &returnCode,
       select_clicked();
     }
   } else {
-    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-              << "erro" << std::endl;
     if (returnCode == 0x01)
-      ShowAlert(tr("This pseudo is already taken"));
+      Globals::GetAlertDialog()->Show(tr("This pseudo is already taken"));
     else if (returnCode == 0x02)
-      ShowAlert(tr("Have already the max caraters taken"));
+      Globals::GetAlertDialog()->Show(
+          tr("Have already the max caraters taken"));
     else
-      ShowAlert(tr("Unable to create the character"));
+      Globals::GetAlertDialog()->Show(tr("Unable to create the character"));
   }
 }
 

@@ -19,7 +19,7 @@ SOURCES += \
     $$PWD/../opusfile/internal.c \
     $$PWD/../opusfile/opusfile.c \
     $$PWD/../opusfile/stream.c \
-    $$PWD/../qt/QInfiniteBuffer.cpp
+    $$PWD/QInfiniteBuffer.cpp
 
 SOURCES += \
     $$PWD/../libopus/silk/ana_filt_bank_1.c \
@@ -164,8 +164,7 @@ HEADERS  += \
     $$PWD/../libogg/os_types.h \
     $$PWD/../opusfile/internal.h \
     $$PWD/../opusfile/opusfile.h \
-    $$PWD/../qt/Audio.hpp \
-    $$PWD/../qt/QInfiniteBuffer.hpp
+    $$PWD/QInfiniteBuffer.hpp
 
 HEADERS  += \
     $$PWD/../libopus/include/opus.h \
@@ -275,7 +274,7 @@ SOURCES += \
     $$PWD/action/Blink.cpp \
     $$PWD/action/CallFunc.cpp \
     $$PWD/action/RepeatForever.cpp \
-    $$PWD/../qt/BlacklistPassword.cpp \
+    $$PWD/entities/BlacklistPassword.cpp \
     $$PWD/FacilityLibClient.cpp \
     $$PWD/cc/Api_client_real.cpp \
     $$PWD/cc/Api_client_real_base.cpp \
@@ -331,6 +330,7 @@ SOURCES += \
     $$PWD/scenes/leading/NewGame.cpp \
     $$PWD/scenes/leading/AddCharacter.cpp \
     $$PWD/scenes/leading/CharacterSelector.cpp \
+    $$PWD/scenes/leading/CharacterItem.cpp \
     $$PWD/scenes/leading/Options.cpp \
     $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
@@ -375,7 +375,7 @@ HEADERS  += \
     $$PWD/action/Blink.hpp \
     $$PWD/action/CallFunc.hpp \
     $$PWD/action/RepeatForever.hpp \
-    $$PWD/../qt/BlacklistPassword.hpp \
+    $$PWD/entities/BlacklistPassword.hpp \
     $$PWD/FacilityLibClient.hpp \
     $$PWD/cc/Api_client_real.hpp \
     $$PWD/cc/Api_client_virtual.hpp \
@@ -424,6 +424,7 @@ HEADERS  += \
     $$PWD/scenes/leading/NewGame.hpp \
     $$PWD/scenes/leading/AddCharacter.hpp \
     $$PWD/scenes/leading/CharacterSelector.hpp \
+    $$PWD/scenes/leading/CharacterItem.hpp \
     $$PWD/scenes/leading/Options.hpp \
     $$PWD/scenes/leading/Menu.hpp
 
@@ -511,8 +512,8 @@ SOURCES += \
     $$PWD/Ultimate.cpp \
     $$PWD/../qt/QtDatapackChecksum.cpp \
     $$PWD/../qt/QZstdDecodeThread.cpp \
-    $$PWD/../qt/InternetUpdater.cpp \
-    $$PWD/../qt/FeedNews.cpp \
+    $$PWD/entities/InternetUpdater.cpp \
+    $$PWD/entities/FeedNews.cpp \
     $$PWD/../qt/ConnectedSocket.cpp \
     $$PWD/../tarcompressed/TarDecode.cpp \
     $$PWD/../tarcompressed/ZstdDecode.cpp \
@@ -532,8 +533,8 @@ HEADERS  += \
     $$PWD/Ultimate.hpp \
     $$PWD/../qt/QtDatapackChecksum.hpp \
     $$PWD/../qt/QZstdDecodeThread.hpp \
-    $$PWD/../qt/InternetUpdater.hpp \
-    $$PWD/../qt/FeedNews.hpp \
+    $$PWD/entities/InternetUpdater.hpp \
+    $$PWD/entities/FeedNews.hpp \
     $$PWD/../qt/ConnectedSocket.hpp \
     $$PWD/../tarcompressed/TarDecode.hpp \
     $$PWD/../tarcompressed/ZstdDecode.hpp \

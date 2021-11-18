@@ -17,7 +17,6 @@ class Scene : public Node {
 
   void RegisterMouseListener(Node *node);
   void RegisterKeyboardListerner(Node *node);
-  void ShowAlert(QString message);
   void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;
 

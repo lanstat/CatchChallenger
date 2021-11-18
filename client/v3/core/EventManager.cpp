@@ -13,7 +13,7 @@
 typedef struct HashElement {
   Node *target;
   int z;
-  bool paused;
+  int8_t paused;
   bool must_remove;
   UT_hash_handle hh;
 } HashElementType;
@@ -57,8 +57,8 @@ HashSceneType *EventManager::AddListener(HashSceneType *scene, Node *listener,
   // delete
   if (current_target_ != nullptr && current_target_salvaged_ &&
       listener == current_target_->target) {
-    current_target_->paused = false;
-    current_target_salvaged_ = false;
+    current_target_->paused = 0;
+    current_target_salvaged_ = 0;
   }
 
   HashSceneType *root_scene = nullptr;
@@ -77,7 +77,7 @@ HashSceneType *EventManager::AddListener(HashSceneType *scene, Node *listener,
   HASH_FIND_PTR(root_scene->listeners, &listener, element);
   if (!element) {
     element = (HashElementType *)calloc(sizeof(*element), 1);
-    element->paused = paused;
+    element->paused = paused ? 1 : 0;
     element->target = listener;
     element->z = listener->ZValue();
     HASH_ADD_PTR(root_scene->listeners, target, element);
@@ -166,7 +166,7 @@ void EventManager::MousePressEvent(const QPointF &point,
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (!current_target_->paused) {
+      if (current_target_->paused == 0) {
         current_target_->target->MousePressEvent(point, press_validated);
       }
 
@@ -195,7 +195,7 @@ void EventManager::MouseReleaseEvent(const QPointF &point,
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (!current_target_->paused) {
+      if (current_target_->paused == 0) {
         current_target_->target->MouseReleaseEvent(point, prev_validated);
       }
 
@@ -220,7 +220,7 @@ void EventManager::MouseMoveEvent(const QPointF &point) {
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (!current_target_->paused) {
+      if (current_target_->paused == 0) {
         current_target_->target->MouseMoveEvent(point);
       }
 
@@ -245,7 +245,7 @@ void EventManager::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (!current_target_->paused) {
+      if (current_target_->paused == 0) {
         current_target_->target->KeyPressEvent(event, event_trigger);
       }
 
@@ -270,7 +270,7 @@ void EventManager::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (!current_target_->paused) {
+      if (current_target_->paused == 0) {
         current_target_->target->KeyReleaseEvent(event, event_trigger);
       }
 
@@ -294,7 +294,7 @@ void EventManager::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 void EventManager::Lock() {
   for (HashSceneType *scene = mouse_listeners_; scene != nullptr;) {
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
-      elt->paused = true;
+      elt->paused++;
 
       elt = (HashElementType *)(elt->hh.next);
     }
@@ -302,7 +302,7 @@ void EventManager::Lock() {
   }
   for (HashSceneType *scene = keyboard_listeners_; scene != nullptr;) {
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
-      elt->paused = true;
+      elt->paused++;
 
       elt = (HashElementType *)(elt->hh.next);
     }
@@ -313,7 +313,10 @@ void EventManager::Lock() {
 void EventManager::UnLock() {
   for (HashSceneType *scene = mouse_listeners_; scene != nullptr;) {
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
-      elt->paused = false;
+      elt->paused--;
+      if (elt->paused < 0) {
+        elt->paused = 0;
+      }
 
       elt = (HashElementType *)(elt->hh.next);
     }
@@ -321,7 +324,10 @@ void EventManager::UnLock() {
   }
   for (HashSceneType *scene = keyboard_listeners_; scene != nullptr;) {
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
-      elt->paused = false;
+      elt->paused--;
+      if (elt->paused < 0) {
+        elt->paused = 0;
+      }
 
       elt = (HashElementType *)(elt->hh.next);
     }

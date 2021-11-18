@@ -139,7 +139,6 @@ void Battle::SetVariables() {
 }
 
 QPixmap Battle::GetBackSkin(const uint32_t &skinId) {
-  (void)skinId;
   /*const QPixmap skin(QString::fromStdString(getBackSkinPath(skinId)));
   if(!skin.isNull())
       return skin;*/
@@ -1304,7 +1303,6 @@ void Battle::UseBagItem(Inventory::ObjectType type, uint16_t item, uint32_t quan
 void Battle::ConfigureFighters() {
   const auto &informations = client_->player_informations.public_informations;
   playerBackImage = GetBackSkin(informations.skinId);
-  playerBackImage = playerBackImage.transformed(QTransform().scale(-1, 1));
   playerBackImage = playerBackImage.scaledToHeight(600);
   player_->SetPixmap(playerBackImage);
   player_->SetPos(-150, 290);

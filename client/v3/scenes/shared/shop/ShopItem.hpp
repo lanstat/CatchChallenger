@@ -2,32 +2,27 @@
 #ifndef CLIENT_V3_SCENES_SHARED_SHOP_SHOPITEM_HPP_
 #define CLIENT_V3_SCENES_SHARED_SHOP_SHOPITEM_HPP_
 
-#include "../../../core/Node.hpp"
+#include "../../../ui/SelectableItem.hpp"
 #include "../../../core/Sprite.hpp"
 
 namespace Scenes {
-class ShopItem : public Node {
+class ShopItem : public UI::SelectableItem {
  public:
   ~ShopItem();
   static ShopItem *Create(uint16_t object_id, uint32_t quantity,
                           uint32_t price);
-  void SetSelected(bool selected);
   std::string Name();
   uint16_t ObjectId();
   uint32_t Quantity();
   uint32_t Price();
 
-  void Draw(QPainter *painter) override;
+  void DrawContent(QPainter *painter) override;
   void OnResize() override;
-  void MousePressEvent(const QPointF &point, bool &press_validated) override;
-  void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
 
  private:
   uint16_t object_id_;
   uint32_t quantity_;
   uint32_t price_;
-  Sprite *icon_select_;
-  bool is_selected_;
 
   std::string name_;
 

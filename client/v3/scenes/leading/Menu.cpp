@@ -8,18 +8,19 @@
 
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/Version.hpp"
-#include "../../../qt/FeedNews.hpp"
-#include "../../../qt/InternetUpdater.hpp"
-#include "../../../qt/Ultimate.hpp"
 #include "../../Language.hpp"
+#include "../../Settings.hpp"
+#include "../../Ultimate.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../core/StackedScene.hpp"
-#include "../../qt/Settings.hpp"
+#include "../../entities/FeedNews.hpp"
+#include "../../entities/InternetUpdater.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
+#include "../../ui/ThemedButton.hpp"
 #include "../ParallaxForest.hpp"
 #include "Loading.hpp"
 #include "Multi.hpp"
@@ -29,6 +30,8 @@
 #endif
 
 using Scenes::Menu;
+using std::placeholders::_1;
+using std::placeholders::_2;
 
 Menu::Menu() {
   is_loaded_ = false;
@@ -48,7 +51,7 @@ Menu::Menu() {
   }
 }
 
-Menu::~Menu() { 
+Menu::~Menu() {
   delete update_;
   if (solo_scene_) delete solo_scene_;
   if (multi_scene_) delete multi_scene_;
@@ -68,16 +71,12 @@ void Menu::Initialize() {
   website_->SetText("w");
   website_->SetOutlineColor(QColor(0, 79, 154));
   website_->SetPixelSize(28);
-  // website_->UpdateTextPercent(75);
   warning_can_be_reset_ = true;
 
   have_fresh_feed_ = false;
   news_ = Sprite::Create(":/CC/images/interface/message.png", this);
-  news_text_ = UI::Label::Create(news_);
+  news_list_ = UI::ListView::Create(news_);
 
-  // newsTxt->setOpenExternalLinks(true);
-  // newsText->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
-  // newsText->setTextInteractionFlags(Qt::TextBrowserInteraction);
   // work
   UpdateNews();
   news_wait_ = Sprite::Create(news_);
@@ -92,21 +91,20 @@ void Menu::Initialize() {
   news_update_ =
       UI::Button::Create(":/CC/images/interface/greenbutton.png", news_);
   news_update_->SetOutlineColor(QColor(44, 117, 0));
-/*
 #ifndef __EMSCRIPTEN__
   InternetUpdater::internetUpdater = new InternetUpdater();
-  if (!connect(InternetUpdater::internetUpdater, &InternetUpdater::newUpdate,
-               this, &Menu::newUpdate))
+  if (!QObject::connect(InternetUpdater::internetUpdater,
+                        &InternetUpdater::newUpdate,
+                        std::bind(&Menu::NewUpdate, this, _1)))
     abort();
 #endif
   FeedNews::feedNews = new FeedNews();
-  if (!connect(FeedNews::feedNews, &FeedNews::feedEntryList, this,
-               &Menu::FeedEntryList))
+  if (!QObject::connect(FeedNews::feedNews, &FeedNews::feedEntryList,
+                        std::bind(&Menu::FeedEntryList, this, _1, _2)))
     std::cerr << "connect(RssNews::rssNews,&RssNews::rssEntryList,this,&"
                  "MenuWindow::rssEntryList) failed"
               << std::endl;
   FeedNews::feedNews->checkCache();
-  */
 #ifndef CATCHCHALLENGER_SOLO
   solo_->SetVisible(false);
 #endif
@@ -130,9 +128,6 @@ void Menu::Initialize() {
       Settings::settings->value("audioVolume").toUInt());
   const std::string &terr =
       AudioPlayer::GetInstance()->StartAmbiance(":/CC/music/loading.opus");
-  if (!terr.empty())
-    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] " << terr
-              << std::endl;
 #endif
 
   ChangeLanguage();
@@ -219,9 +214,7 @@ void Menu::OnScreenResize() {
     }
   } else {
     uint8_t border_size = 46;
-    news_->SetPos(BoundingRect().width() / 2 - news_->Width() / 2,
-                  BoundingRect().height() - news_->Height() - 5);
-    news_text_->SetPos(border_size + 2, border_size + 2);
+    news_list_->SetPos(10, 10);
     news_wait_->SetPos(news_->Width() - news_wait_->Width() - border_size - 2,
                        news_->Height() / 2 - news_wait_->Height() / 2);
     news_->SetVisible(true);
@@ -229,7 +222,7 @@ void Menu::OnScreenResize() {
     if (BoundingRect().width() < 600 || BoundingRect().height() < 480) {
       int w = BoundingRect().width() - 9 * 2;
       if (w > 300) w = 300;
-      news_->SetSize(w, 40);
+      news_->Strech(26, 26, 10, w, 40);
       news_wait_->SetVisible(BoundingRect().width() > 450 && !have_fresh_feed_);
       news_update_->SetVisible(false);
 
@@ -238,7 +231,7 @@ void Menu::OnScreenResize() {
         UpdateNews();
       }
     } else {
-      news_->SetSize(600 - 9 * 2, 120);
+      news_->Strech(26, 26, 10, 600 - 9 * 2, 180);
       news_wait_->SetVisible(!have_fresh_feed_);
       news_update_->SetSize(136, 57);
       news_update_->SetPixelSize(18);
@@ -251,6 +244,9 @@ void Menu::OnScreenResize() {
         UpdateNews();
       }
     }
+    news_->SetPos(BoundingRect().width() / 2 - news_->Width() / 2,
+                  BoundingRect().height() - news_->Height() - 5);
+    news_list_->SetSize(news_->Width() - 20, news_->Height() - 20);
   }
 }
 
@@ -286,11 +282,16 @@ void Menu::UpdateNews() {
       if (entry_list_.empty()) {
         news_->SetVisible(false);
       } else {
-        if (entry_list_.size() > 1)
-          news_text_->SetText(QStringLiteral("<a href=\"%1\">%2</a>")
-                                  .arg(entry_list_.at(0).link)
-                                  .arg(entry_list_.at(0).title));
-        news_text_->SetVisible(true);
+        news_list_->Clear();
+        if (entry_list_.size() > 1) {
+          auto item = UI::YellowButton::Create();
+          item->SetHeight(30);
+          item->SetPixelSize(10);
+          item->SetText(entry_list_.at(0).title);
+          item->SetData(99, entry_list_.at(0).link.toStdString());
+          item->SetOnClick(std::bind(&Menu::OnClickLink, this, _1));
+          news_list_->AddItem(item);
+        }
       }
       break;
     default:
@@ -298,24 +299,32 @@ void Menu::UpdateNews() {
       if (entry_list_.empty()) {
         news_->SetVisible(false);
       } else {
+        news_list_->Clear();
+        auto text = UI::Label::Create();
+        text->SetPixelSize(12);
+        text->SetText(tr("Latest news:"));
+        news_list_->AddItem(text);
         if (entry_list_.size() == 1) {
-          news_text_->SetText(tr("Latest news:") + " " +
-                              QStringLiteral("<a href=\"%1\">%2</a>")
-                                  .arg(entry_list_.at(0).link)
-                                  .arg(entry_list_.at(0).title));
+          auto item = UI::YellowButton::Create();
+          item->SetHeight(30);
+          item->SetPixelSize(10);
+          item->SetText(entry_list_.at(0).title);
+          item->SetData(99, entry_list_.at(0).link.toStdString());
+          item->SetOnClick(std::bind(&Menu::OnClickLink, this, _1));
+          news_list_->AddItem(item);
         } else {
-          QStringList entryHtmlList;
           unsigned int index = 0;
           while (index < entry_list_.size() && index < 3) {
-            entryHtmlList << QStringLiteral(" - <a href=\"%1\">%2</a>")
-                                 .arg(entry_list_.at(index).link)
-                                 .arg(entry_list_.at(index).title);
+            auto item = UI::YellowButton::Create();
+            item->SetHeight(30);
+            item->SetPixelSize(10);
+            item->SetText(entry_list_.at(index).title);
+            item->SetData(99, entry_list_.at(index).link.toStdString());
+            item->SetOnClick(std::bind(&Menu::OnClickLink, this, _1));
+            news_list_->AddItem(item);
             index++;
           }
-          news_text_->SetText(tr("Latest news:") + QStringLiteral("<br />") +
-                              entryHtmlList.join("<br />"));
         }
-        news_text_->SetVisible(true);
       }
       break;
   }
@@ -369,6 +378,9 @@ void Menu::OnEnter() {
   solo_->RegisterEvents();
   multi_->RegisterEvents();
   options_->RegisterEvents();
+  facebook_->RegisterEvents();
+  website_->RegisterEvents();
+  news_list_->RegisterEvents();
 }
 
 void Menu::OnExit() {
@@ -376,6 +388,9 @@ void Menu::OnExit() {
   solo_->UnRegisterEvents();
   multi_->UnRegisterEvents();
   options_->UnRegisterEvents();
+  facebook_->UnRegisterEvents();
+  website_->UnRegisterEvents();
+  news_list_->UnRegisterEvents();
 }
 
 void Menu::OnAssetsDataParsed() {
@@ -391,4 +406,10 @@ void Menu::OnAssetsDataParsed() {
   // Reload events
   OnScreenResize();
   OnEnter();
+}
+
+void Menu::OnClickLink(Node *node) {
+  if (!QDesktopServices::openUrl(
+        QUrl(QString::fromStdString(node->DataStr(99)))))
+    std::cerr << "Menu::OnClickLink() failed" << std::endl;
 }

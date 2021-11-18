@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-#include "../../../qt/BlacklistPassword.hpp"
+#include "../../entities/BlacklistPassword.hpp"
 #include "../../ui/ThemedButton.hpp"
 
 using Scenes::Login;

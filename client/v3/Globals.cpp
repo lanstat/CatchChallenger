@@ -11,6 +11,8 @@ Scenes::Map *Globals::map_ = nullptr;
 
 Scenes::Battle *Globals::battle_ = nullptr;
 
+UI::MessageDialog *Globals::alert_ = nullptr;
+
 Scenes::Leading *Globals::GetLeadingScene() {
   if (!leading_) {
     leading_ = Scenes::Leading::Create();
@@ -30,4 +32,11 @@ Scenes::Battle *Globals::GetBattleScene() {
     battle_ = Scenes::Battle::Create();
   }
   return battle_;
+}
+
+UI::MessageDialog *Globals::GetAlertDialog() {
+  if (!alert_) {
+    alert_ = UI::MessageDialog::Create();
+  }
+  return alert_;
 }

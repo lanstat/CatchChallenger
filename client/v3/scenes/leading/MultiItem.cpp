@@ -13,9 +13,7 @@
 using Scenes::MultiItem;
 
 MultiItem::MultiItem(const ConnectionInfo &connexionInfo)
-    : Node(), m_connexionInfo(connexionInfo) {
-  cache_ = nullptr;
-
+    : UI::SelectableItem(), m_connexionInfo(connexionInfo) {
   SetSize(200, 60);
   FetchName();
 }
@@ -48,24 +46,17 @@ void MultiItem::FetchName() {
           connexionInfoLabel.left(15) + "..." + connexionInfoLabel.right(15);
   }
   name_ = connexionInfoLabel;
-  if (cache_) {
-    delete cache_;
-    cache_ = nullptr;
-  }
+  ReDrawContent();
 }
 
-void MultiItem::Draw(QPainter *painter) {
+void MultiItem::DrawContent(QPainter *painter) {
   if (Width() == 0 || Height() == 0) return;
 
-  auto background = Sprite::Create(":/CC/images/interface/b1-trimmed.png");
-  background->Strech(20, 18, 20, Width(), Height());
   auto text = UI::Label::Create(QColor(255, 255, 255), QColor(30, 25, 17));
   text->SetWidth(bounding_rect_.width());
   text->SetAlignment(Qt::AlignCenter);
   text->SetText(name_);
   text->SetY(Height() / 2 - text->Height() / 2);
-
-  background->Draw(painter);
 
   if (m_connexionInfo.connexionCounter > 0) {
     const QPixmap &p = *AssetsLoader::GetInstance()->GetImage(
@@ -75,50 +66,7 @@ void MultiItem::Draw(QPainter *painter) {
   }
   text->Paint(painter, nullptr, nullptr);
 
-  delete background;
   delete text;
-}
-
-void MultiItem::MousePressEvent(const QPointF &point, bool &press_validated) {
-  if (press_validated) return;
-  if (!IsVisible()) return;
-  if (!IsEnabled()) return;
-
-  const QRectF &b = BoundingRect();
-  const QRectF &t = MapRectToScene(b);
-  if (t.contains(point)) {
-    press_validated = true;
-    ReDraw();
-  }
-}
-
-void MultiItem::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
-  if (prev_validated) {
-    ReDraw();
-    return;
-  }
-  if (!IsEnabled()) return;
-  const QRectF &b = BoundingRect();
-  const QRectF &t = MapRectToScene(b);
-  if (!prev_validated && IsVisible()) {
-    if (t.contains(point)) {
-      if (on_click_) {
-        on_click_(this);
-      }
-    }
-  }
-}
-
-void MultiItem::MouseMoveEvent(const QPointF &point) { (void)point; }
-
-void MultiItem::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
-  (void)event;
-  (void)event_trigger;
-}
-
-void MultiItem::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
-  (void)event;
-  (void)event_trigger;
 }
 
 ConnectionInfo MultiItem::Connection() const { return m_connexionInfo; }

@@ -71,6 +71,7 @@ Multi::Multi() : reply(nullptr) {
   warning->SetAlignment(Qt::AlignCenter);
   serverEmpty = UI::Label::Create(this);
   scrollZone = UI::ListView::Create(wdialog);
+  scrollZone->SetItemSpacing(5);
 
   server_add->SetOnClick(std::bind(&Multi::server_add_clicked, this));
   server_remove->SetOnClick(std::bind(&Multi::server_remove_clicked, this));
@@ -1014,7 +1015,11 @@ void Multi::OnSelectServer(Node *item) {
   server_edit->SetEnabled(info.isCustom);
   server_remove->SetEnabled(info.isCustom);
   server_select->SetEnabled(!selectedServer.unique_code.isEmpty());
-  ReDraw();
+  auto items = scrollZone->Items();
+  for (auto it = begin(items); it != end(items); it++) {
+    if ((*it) == item) continue;
+    static_cast<MultiItem *>((*it))->SetSelected(false);
+  }
 }
 
 void Multi::ConnectToServer(ConnectionInfo connexionInfo, QString login,
