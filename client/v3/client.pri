@@ -1,5 +1,6 @@
 include(../libcatchchallenger/lib.pri)
 include(libraries/tiled/tiled.pri)
+include(libraries/gifimage/qtgifimage.pri)
 
 QT       += gui network core widgets opengl xml
 

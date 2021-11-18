@@ -1,6 +1,6 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_ACTION_ANIMATION_HPP_
-#define CLIENT_QTOPENGL_ACTION_ANIMATION_HPP_
+#ifndef CLIENT_V3_ACTION_ANIMATION_HPP_
+#define CLIENT_V3_ACTION_ANIMATION_HPP_
 
 #include <vector>
 #include <cstdint>
@@ -34,4 +34,4 @@ class Animation : public Action {
 
   Animation();
 };
-#endif  // CLIENT_QTOPENGL_ACTION_ANIMATION_HPP_
+#endif  // CLIENT_V3_ACTION_ANIMATION_HPP_

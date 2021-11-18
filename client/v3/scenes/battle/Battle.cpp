@@ -1397,7 +1397,7 @@ void Battle::ConfigureCommons() {
 
   std::vector<QPixmap> frames;
   attack_animation_ = Sequence::Create(
-      Animation::Create(frames, 50),
+      Animation::Create(frames, 75),
       CallFunc::Create(std::bind(&Battle::OnAttackDone, this)), nullptr);
 
   both_delay_ = Sequence::Create(
@@ -1735,8 +1735,6 @@ void Battle::StartAttack() {
   // attack animation
   {
     uint32_t attack_id = client_->getFirstAttackReturn().attack;
-
-    attack_id = 0;
 
     static_cast<Animation *>(attack_animation_->ActionAt(0))
         ->SetFrames(QtDatapackClientLoader::datapackLoader->GetSkillAnimation(

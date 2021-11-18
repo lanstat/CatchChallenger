@@ -10,9 +10,10 @@
 #include "../../../general/base/DatapackGeneralLoader.hpp"
 #include "../../../general/base/Map_loader.hpp"
 #include "../../qt/QtDatapackChecksum.hpp"
-#include "../../qt/tiled/tiled_tileset.hpp"
-#include "../../qt/tiled/tiled_mapreader.hpp"
-#include "../../qt/Settings.hpp"
+#include "../../libraries/tiled/tiled_tileset.hpp"
+#include "../../libraries/tiled/tiled_mapreader.hpp"
+#include "../../libraries/gifimage/qgifimage.h"
+#include "../../Settings.hpp"
 #include "../Language.hpp"
 #ifdef CATCHCHALLENGER_CACHE_HPS
 #include "../../../general/hps/hps.h"
@@ -23,6 +24,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QByteArray>
+#include <QPainter>
 #include <QDir>
 #include <QFileInfoList>
 #include <QRegularExpression>
@@ -996,17 +998,25 @@ std::vector<QPixmap> QtDatapackClientLoader::GetSkillAnimation(uint16_t id) {
     QString file_animation =
         QString::fromStdString(
             QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
-        DATAPACK_BASE_PATH_SKILLANIMATION + QStringLiteral("%1").arg(id);
+        DATAPACK_BASE_PATH_SKILLANIMATION + QStringLiteral("%1.gif").arg(id);
 
     std::vector<QPixmap> frames;
-    if (QDir(file_animation).exists()) {
-        uint8_t index = 0;
-        QString file = file_animation + QStringLiteral("/%1.png").arg(index);
-        while (QFile(file).exists()) {
-            frames.push_back(QPixmap(file));
-            index++;
-            file = file_animation + QStringLiteral("/%1.png").arg(index);
-        }
+    if (!QFile(file_animation).exists()) {
+        file_animation = QString::fromStdString(
+            QtDatapackClientLoader::datapackLoader->getDatapackPath()) +
+        DATAPACK_BASE_PATH_SKILLANIMATION + QStringLiteral("0.gif");
+    }
+    QGifImage gif(file_animation);
+    int width = 80;
+    int height = 80;
+    for (int i=0; i<gif.frameCount(); ++i) {
+        QImage image = gif.frame(i);
+        QPixmap buffer(width, height);
+        buffer.fill(Qt::transparent);
+        QPainter *painter = new QPainter(&buffer);
+        painter->drawImage(image.offset(), image);
+        delete painter;
+        frames.push_back(buffer);
     }
     return frames;
 }
