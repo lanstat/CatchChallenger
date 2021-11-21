@@ -35,7 +35,7 @@ class AddOrEditServer : public UI::Dialog {
   void on_cancel_clicked();
   void OnEnter() override;
   void OnExit() override;
-  void OnActionClick(Node *node) override;
+  void OnActionClick(Node *node);
 
  protected:
   void OnScreenSD();

@@ -8,6 +8,7 @@
 #include "../../ui/Dialog.hpp"
 #include "../../ui/Input.hpp"
 #include "../../ui/Label.hpp"
+#include "../../ui/Row.hpp"
 
 namespace Scenes {
 class NewGame : public UI::Dialog {
@@ -35,7 +36,7 @@ class NewGame : public UI::Dialog {
   std::string skin();
   void on_pseudo_textChanged(const QString &);
   void newLanguage();
-  void OnActionClick(Node *node) override;
+  void OnActionClick(Node *node);
   void OnEnter() override;
   void OnExit() override;
 
@@ -47,7 +48,7 @@ class NewGame : public UI::Dialog {
   UI::Button *validate;
 
   UI::Button *previous;
-  QList<Sprite *> centerImages;
+  UI::Row *row_;
   UI::Button *next;
   UI::Input *uipseudo;
   UI::Label *warning;

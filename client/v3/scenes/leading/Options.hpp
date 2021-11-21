@@ -21,10 +21,8 @@ class Options : public UI::Dialog {
   void OnScreenResize() override;
   void OnEnter() override;
   void OnExit() override;
-  void OnActionClick(Node *node) override;
 
  private:
-  UI::Button *quit_;
   UI::Label *volumeText;
   UI::Slider *volumeSlider;
 

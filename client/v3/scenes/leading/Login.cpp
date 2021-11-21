@@ -11,7 +11,7 @@
 using Scenes::Login;
 using std::placeholders::_1;
 
-Login::Login() {
+Login::Login(): UI::Dialog(false) {
   validated = false;
 
   loginText = UI::Label::Create(this);
@@ -27,6 +27,8 @@ Login::Login() {
   server_select =
       UI::Button::Create(":/CC/images/interface/validate.png", this);
   back = UI::Button::Create(":/CC/images/interface/cancel.png", this);
+  back->SetOnClick(std::bind(&Login::OnActionClick, this, _1));
+  server_select->SetOnClick(std::bind(&Login::OnActionClick, this, _1));
 
   AddActionButton(back);
   AddActionButton(server_select);

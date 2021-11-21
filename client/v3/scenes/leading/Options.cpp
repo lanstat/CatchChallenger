@@ -14,8 +14,6 @@ using Scenes::Options;
 using std::placeholders::_1;
 
 Options::Options() : UI::Dialog() {
-  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
-
   volumeText = UI::Label::Create(this);
   volumeSlider = UI::Slider::Create(this);
   volumeSlider->SetValue(Settings::settings->value("audioVolume").toUInt());
@@ -56,8 +54,6 @@ Options::Options() : UI::Dialog() {
   buy->SetOnClick(std::bind(&Options::openBuy, this));
 
   newLanguage();
-
-  AddActionButton(quit_);
 }
 
 Options::~Options() { delete buy; }
@@ -160,11 +156,4 @@ void Options::OnExit() {
   buy->UnRegisterEvents();
   languagesList->UnRegisterEvents();
   UI::Dialog::OnExit();
-}
-
-void Options::OnActionClick(Node* node) {
-  if (node == quit_) {
-    Close();
-    Parent()->RemoveChild(this);
-  }
 }

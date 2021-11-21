@@ -1,6 +1,6 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_UI_DIALOG_HPP_
-#define CLIENT_QTOPENGL_UI_DIALOG_HPP_
+#ifndef CLIENT_V3_UI_DIALOG_HPP_
+#define CLIENT_V3_UI_DIALOG_HPP_
 
 #include <vector>
 
@@ -8,6 +8,7 @@
 #include "../core/Sprite.hpp"
 #include "Button.hpp"
 #include "Label.hpp"
+#include "Row.hpp"
 
 namespace UI {
 class Dialog : public Scene {
@@ -22,12 +23,13 @@ class Dialog : public Scene {
   QString Title() const;
   void Close();
   void SetDialogSize(int w, int h);
+  void ShowClose(bool show);
 
   void OnEnter() override;
   void OnExit() override;
 
  protected:
-  Dialog();
+  Dialog(bool show_close = true);
 
   int x_;
   int y_;
@@ -42,18 +44,19 @@ class Dialog : public Scene {
   void RecalculateActionButtons();
   QRectF ContentBoundary() const;
   QRectF ContentPlainBoundary() const;
-  virtual void OnActionClick(Node *node) = 0;
 
  private:
-  std::vector<Button *> actions_;
+  Row *actions_;
   Label *title_;
   Sprite *title_background_;
   QRectF content_boundary_;
   QRectF content_plain_boundary_;
+  Button *quit_;
+  bool show_close_;
 
   std::function<void()> on_close_;
 
   void OnActionButton(Node *node);
 };
 }  // namespace UI
-#endif  // CLIENT_QTOPENGL_UI_DIALOG_HPP_
+#endif  // CLIENT_V3_UI_DIALOG_HPP_

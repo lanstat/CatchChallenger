@@ -30,7 +30,7 @@ class Login : public UI::Dialog {
 
   void newLanguage();
   void validate();
-  void OnActionClick(Node *node) override;
+  void OnActionClick(Node *node);
   void OnEnter() override;
   void OnExit() override;
 

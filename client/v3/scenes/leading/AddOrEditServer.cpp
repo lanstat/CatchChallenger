@@ -17,7 +17,7 @@
 using Scenes::AddOrEditServer;
 using std::placeholders::_1;
 
-AddOrEditServer::AddOrEditServer() {
+AddOrEditServer::AddOrEditServer(): UI::Dialog(false) {
   ok = false;
   edit = false;
 

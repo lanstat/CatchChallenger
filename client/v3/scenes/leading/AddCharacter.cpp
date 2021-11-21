@@ -11,11 +11,13 @@
 using Scenes::AddCharacter;
 using std::placeholders::_1;
 
-AddCharacter::AddCharacter() {
+AddCharacter::AddCharacter(): UI::Dialog(false) {
   ok = false;
 
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
+  quit->SetOnClick(std::bind(&AddCharacter::OnActionClick, this, _1));
   validate = UI::Button::Create(":/CC/images/interface/validate.png", this);
+  validate->SetOnClick(std::bind(&AddCharacter::OnActionClick, this, _1));
 
   comboBox = UI::Combo::Create(":/CC/images/interface/button.png", this);
   comboBox->SetSize(200, 30);

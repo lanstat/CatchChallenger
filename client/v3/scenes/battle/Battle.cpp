@@ -88,11 +88,14 @@ Battle::Battle() : Scene(nullptr) {
 
   message_dialog_ = nullptr;
   linked_ = UI::LinkedDialog::Create(false);
-  linked_->AddItem(MonsterBag::Create());
-  auto item = Inventory::Create();
-  item->SetVar(Inventory::ObjectType_UseInFight, true);
-  item->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1, _2, _3));
-  linked_->AddItem(item);
+  auto monster = MonsterBag::Create();
+  monster->ShowSelectAction(true);
+  monster->SetOnSelectMonster(std::bind(&Battle::OnMonsterSelect, this, _1));
+  linked_->AddItem(monster);
+  auto inventory = Inventory::Create();
+  inventory->SetVar(Inventory::ObjectType_UseInFight, true);
+  inventory->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1, _2, _3));
+  linked_->AddItem(inventory);
 
   trap_ = nullptr;
 
@@ -1243,8 +1246,9 @@ void Battle::ShowMessageDialog(const QString &title, const QString &message) {
   AddChild(message_dialog_);
 }
 
-void Battle::ShowMonsterDialog() {
+void Battle::ShowMonsterDialog(bool show_close) {
   linked_->SetCurrentItem(0);
+  linked_->ShowClose(show_close);
   AddChild(linked_);
 }
 
@@ -1439,7 +1443,7 @@ void Battle::OnPlayerDeadDone() {
 #ifdef DEBUG_CLIENT_BATTLE
       qDebug() << "Your current monster is KO, select another";
 #endif
-      ShowMonsterDialog();
+      ShowMonsterDialog(false);
     } else {
 #ifdef DEBUG_CLIENT_BATTLE
       qDebug() << "You win";
@@ -1642,6 +1646,7 @@ void Battle::UpdateAttackSkills() {
 }
 
 void Battle::OnMonsterSelect(uint8_t monster_index) {
+  linked_->Close();
   resetPosition(true, false, true);
   // do copie here because the call of changeOfMonsterInFight apply the skill /
   // buff effect
@@ -2601,7 +2606,7 @@ void Battle::OnActionAttackClick(Node *) { ShowActionBarTab(2); }
 
 void Battle::OnActionBagClick(Node *) { ShowBagDialog(); }
 
-void Battle::OnActionMonsterClick(Node *) { ShowMonsterDialog(); }
+void Battle::OnActionMonsterClick(Node *) { ShowMonsterDialog(true); }
 
 void Battle::OnActionEscapeClick(Node *) {
   if (!client_->canDoFightAction()) {

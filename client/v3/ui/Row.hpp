@@ -9,6 +9,8 @@
 namespace UI {
 class Row : public Node {
  public:
+  enum Mode { kDisplayNoneVisible, kDefault };
+
   static Row *Create(Node *parent = nullptr);
   ~Row();
 
@@ -17,6 +19,8 @@ class Row : public Node {
   void AddChild(Node *node);
   /** Remove a child from the node */
   void RemoveChild(Node *node);
+  void InsertChild(Node *node, int pos);
+  void SetMode(Mode mode);
 
   void Draw(QPainter *painter) override;
   void OnChildResize(Node *node) override;
@@ -28,6 +32,7 @@ class Row : public Node {
 
  private:
   bool is_processing_resize_;
+  Mode mode_;
 };
 }  // namespace UI
 #endif  // CLIENT_V3_UI_ROW_HPP_

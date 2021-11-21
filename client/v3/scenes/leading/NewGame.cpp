@@ -10,7 +10,7 @@
 
 using Scenes::NewGame;
 
-NewGame::NewGame() : UI::Dialog() {
+NewGame::NewGame() : UI::Dialog(false) {
   ok = false;
 
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
@@ -18,6 +18,9 @@ NewGame::NewGame() : UI::Dialog() {
 
   previous = UI::Button::Create(":/CC/images/interface/back.png", this);
   next = UI::Button::Create(":/CC/images/interface/next.png", this);
+
+  row_ = UI::Row::Create(this);
+
   uipseudo = UI::Input::Create(this);
   uipseudo->SetSize(200, 40);
 
@@ -61,30 +64,12 @@ void NewGame::OnScreenResize() {
     space = 10;
   }
 
-  int wTot = 0;
-  int index = 0;
-  while (index < centerImages.size()) {
-    if (index > 0) wTot += space;
-    auto p = centerImages.at(index);
-    QPixmap pix = p->Pixmap();
-    if (p != nullptr && !pix.isNull()) wTot += pix.width();
-    index++;
-  }
   uipseudo->SetPos(BoundingRect().width() / 2 - uipseudo->Width() / 2,
                    y_ + background_->Height() - uipseudo->Height() - space -
                        validate->Height() / 2);
-  int xTot = BoundingRect().width() / 2 - wTot / 2;
-  index = 0;
-  while (index < centerImages.size()) {
-    auto p = centerImages.at(index);
-    QPixmap pix = p->Pixmap();
-    if (p != nullptr && !pix.isNull()) {
-      p->SetPos(Width() / 2 - p->Width() / 2, uipseudo->Y() - p->Height() - 30);
-      xTot += pix.width();
-    }
-    if (index > 0) xTot += space;
-    index++;
-  }
+
+  row_->SetPos(BoundingRect().width() / 2 - row_->Width() / 2,
+               uipseudo->Y() - row_->Height() - 30);
 }
 
 void NewGame::newLanguage() { SetTitle(tr("Select")); }
@@ -186,8 +171,8 @@ void NewGame::updateSkin() {
     return;
   }
 
-  foreach (auto item, centerImages) { delete item; }
-  centerImages.clear();
+  row_->RemoveAllChildrens();
+
   if (!paths.empty()) {
     unsigned int index = 0;
     while (index < paths.size()) {
@@ -205,13 +190,12 @@ void NewGame::updateSkin() {
       pixmap.convertFromImage(scaledSkin);
       auto item = Sprite::Create(this);
       item->SetPixmap(pixmap);
-      item->SetPos(Width() / 2 - item->Width() / 2,
-                   uipseudo->Y() - item->Height() - 30);
-      centerImages.push_back(item);
+      row_->AddChild(item);
       skinLoaded = true;
 
       index++;
     }
+    row_->SetX(BoundingRect().width() / 2 - row_->Width() / 2);
   } else {
     skinLoaded = false;
   }

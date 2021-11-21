@@ -28,7 +28,8 @@ class SceneManager : public QGraphicsView {
 
   void PushScene(Scene *scene);
   Scene *PopScene();
-  void ShowOverlay(Node* overlay);
+  Scene *CurrentScene();
+  void ShowOverlay(Node *overlay);
   void RemoveOverlay();
 
  protected:

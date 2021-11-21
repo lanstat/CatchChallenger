@@ -5,6 +5,7 @@
 
 #include "../ui/Label.hpp"
 #include "../ui/ThemedButton.hpp"
+#include "../core/SceneManager.hpp"
 
 Node *Utils::GetCurrentScene(Node *node) {
   Node *parent = node;
@@ -82,4 +83,11 @@ QImage Utils::CropToContent(const QImage &buffer, QColor stop) {
     aux = buffer.pixel(10, pivot);
   } while (aux != stop && pivot < buffer.height());
   return buffer.copy(0, 0, buffer.width(), pivot);
+}
+
+bool Utils::IsActiveInScene(Node *node) {
+  auto root = node->Root();
+
+  if (root == nullptr) return false;
+  return root == SceneManager::GetInstance()->CurrentScene();
 }

@@ -3,6 +3,7 @@
 
 #ifdef CATCHCHALLENGER_SOLO
   #include <QStandardPaths>
+
   #include "../../../server/base/QtServer.hpp"
 #endif
 #include "../../../general/base/CommonSettingsCommon.hpp"
@@ -305,9 +306,9 @@ void SceneManager::OnDisconnect() {
 #endif
 }
 
-void SceneManager::ShowOverlay(Node* overlay) {
+void SceneManager::ShowOverlay(Node *overlay) {
   auto current = scene_stack_.back();
-  if (overlay_  && overlay_ != overlay) {
+  if (overlay_ && overlay_ != overlay) {
     current->RemoveChild(overlay_);
   }
   overlay_ = overlay;
@@ -320,3 +321,5 @@ void SceneManager::RemoveOverlay() {
   }
   overlay_ = nullptr;
 }
+
+Scene *SceneManager::CurrentScene() { return scene_stack_.back(); }

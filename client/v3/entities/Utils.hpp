@@ -11,6 +11,7 @@ struct NodeParsed {
 class Utils {
  public:
   static Node* GetCurrentScene(Node* node);
+  static bool IsActiveInScene(Node* node);
   static NodeParsed HTML2Node(const QString& html);
   static NodeParsed HTML2Node(const QString& html,
                               std::function<void(Node*)> on_click);

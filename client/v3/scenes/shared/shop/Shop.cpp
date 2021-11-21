@@ -23,8 +23,8 @@ Shop::Shop() {
   SetDialogSize(600, 500);
   portrait_ = Sprite::Create(this);
   seller_name_ = UI::Label::Create(this);
-  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
   buy_ = UI::Button::Create(":/CC/images/interface/buy.png", this);
+  buy_->SetOnClick(std::bind(&Shop::OnActionClick, this, _1));
   content_ = UI::ListView::Create(this);
   connexionManager = ConnectionManager::GetInstance();
 
@@ -44,14 +44,11 @@ Shop::Shop() {
   is_buy_mode_ = true;
 
   AddActionButton(buy_);
-  AddActionButton(quit_);
 }
 
 Shop::~Shop() {
   delete portrait_;
   portrait_ = nullptr;
-  delete quit_;
-  quit_ = nullptr;
   delete content_;
   content_ = nullptr;
 }
@@ -157,9 +154,7 @@ void Shop::SetMeAsSeller(uint16_t shop_id) {
 }
 
 void Shop::OnActionClick(Node *node) {
-  if (node == quit_) {
-    Close();
-  } else if (node == buy_) {
+  if (node == buy_) {
     if (selected_item_ != nullptr) {
       ShopItem *item = static_cast<ShopItem *>(selected_item_);
       if (is_buy_mode_) {

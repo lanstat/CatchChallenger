@@ -26,7 +26,6 @@ class LinkedDialog : public Dialog {
   Node *Item(int index);
 
  private:
-  Button *quit_;
   Button *next_;
   Button *back_;
   std::vector<Node *> items_;
@@ -41,7 +40,7 @@ class LinkedDialog : public Dialog {
   LinkedDialog(bool show_navigation);
 
  protected:
-  void OnActionClick(Node *node) override;
+  void OnActionClick(Node *node);
 };
 }  // namespace UI
 #endif  // CLIENT_V3_UI_LINKEDDIALOG_HPP_

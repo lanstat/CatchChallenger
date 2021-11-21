@@ -18,7 +18,6 @@ class NpcTalk : public UI::Dialog {
   void Draw(QPainter *painter) override;
   void OnEnter() override;
   void OnExit() override;
-  void OnActionClick(Node *node) override;
   void OnScreenResize() override;
 
   void SetData(const QString &message, const QString &title);

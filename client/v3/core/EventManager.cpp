@@ -183,6 +183,7 @@ void EventManager::MousePressEvent(const QPointF &point,
       mouse_listeners_ = DeleteHashScene(mouse_listeners_, current_scene);
     }
   }
+  PrintData();
 
   current_target_ = nullptr;
 }

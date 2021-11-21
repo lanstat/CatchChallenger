@@ -196,6 +196,10 @@ void OverMap::OnEnter() {
   toast_->RegisterEvents();
   chat_->RegisterEvents();
   monster_thumb_->RegisterEvents();
+  
+  if (player_portrait_->IsVisible()) {
+    have_current_player_info(PlayerInfo::GetInstance()->GetInformationRO());
+  }
 }
 
 void OverMap::OnExit() {

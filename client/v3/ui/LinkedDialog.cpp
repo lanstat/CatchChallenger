@@ -4,28 +4,29 @@
 #include <iostream>
 
 using UI::LinkedDialog;
+using UI::Dialog;
+using std::placeholders::_1;
 
-LinkedDialog::LinkedDialog(bool show_navigation) : Dialog() {
+LinkedDialog::LinkedDialog(bool show_navigation) : Dialog(true) {
   current_item_ = nullptr;
   on_next_ = nullptr;
   on_back_ = nullptr;
   on_use_item_ = nullptr;
+
   show_navigation_ = show_navigation;
 
-  quit_ = Button::Create(":/CC/images/interface/cancel.png");
   next_ = Button::Create(":/CC/images/interface/next.png");
+  next_->SetOnClick(std::bind(&LinkedDialog::OnActionClick, this, _1));
   back_ = Button::Create(":/CC/images/interface/back.png");
+  back_->SetOnClick(std::bind(&LinkedDialog::OnActionClick, this, _1));
 
   if (show_navigation_) {
     AddActionButton(back_);
     AddActionButton(next_);
   }
-  AddActionButton(quit_);
 }
 
 LinkedDialog::~LinkedDialog() {
-  delete quit_;
-  quit_ = nullptr;
   delete next_;
   next_ = nullptr;
   delete back_;
@@ -77,11 +78,7 @@ void LinkedDialog::SetOnUseItem(std::function<void(uint16_t)> callback) {
 }
 
 void LinkedDialog::OnActionClick(Node* node) {
-  if (node == quit_) {
-    Close();
-    Parent()->RemoveChild(this);
-    return;
-  } else if (node == next_) {
+  if (node == next_) {
     current_index_++;
     if (current_index_ >= items_.size()) {
       current_index_ = 0;
@@ -143,7 +140,7 @@ void LinkedDialog::ShowNavigation(bool show) {
   if (show == show_navigation_) return;
   show_navigation_ = show;
   if (show_navigation_) {
-    InsertActionButton(next_, 0);
+    AddActionButton(next_);
     InsertActionButton(back_, 0);
   } else {
     RemoveActionButton(back_);

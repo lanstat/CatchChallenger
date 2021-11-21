@@ -244,7 +244,7 @@ class Battle : public Scene {
   void battleAcceptedByOtherFull(const BattleInformations &battleInformations);
   void ShowMessageDialog(const QString &title, const QString &message);
   void ShowBagDialog();
-  void ShowMonsterDialog();
+  void ShowMonsterDialog(bool show_close);
   void UseBagItem(Scenes::Inventory::ObjectType type, uint16_t item,
                   uint32_t quantity);
   void newError(std::string error, std::string detailedError);

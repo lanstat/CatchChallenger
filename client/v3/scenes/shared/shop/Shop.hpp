@@ -21,13 +21,13 @@ class Shop : public UI::Dialog {
   void Draw(QPainter *painter) override;
   void OnEnter() override;
   void OnExit() override;
-  void OnActionClick(Node *node) override;
   void OnScreenResize() override;
 
   void SetSeller(const CatchChallenger::Bot &bot, uint16_t shop_id);
   void SetMeAsSeller(uint16_t shop_id);
   void SetOnTransactionFinish(std::function<void(std::string)> callback);
   void Close();
+  void OnActionClick(Node *node);
 
  private:
   Shop();

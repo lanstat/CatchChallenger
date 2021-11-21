@@ -24,16 +24,21 @@ class MonsterBag : public Node {
   void SetOnSelectMonster(std::function<void(uint8_t)> callback);
   void OnSelectMonster(uint8_t monsterPosition);
   void LoadMonster();
+  void ShowSelectAction(bool show);
 
  private:
   UI::ListView *monster_list_;
   UI::MessageDialog *message_dialog_;
+  UI::Button *select_;
 
   ConnectionManager *connection_manager_;
   CatchChallenger::Api_protocol_Qt *client_;
+  bool show_select_;
+  std::function<void(uint8_t)> on_select_monster_;
+  Node *selected_item_;
 
   MonsterBag();
-  void OnSelectWidget();
+  void OnSelectItem(Node *node);
   void ShowMessageDialog(const QString &title, const QString &message);
   void ClearSelection();
 };

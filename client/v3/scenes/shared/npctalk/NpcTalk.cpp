@@ -13,16 +13,12 @@ NpcTalk::NpcTalk() {
   on_item_click_ = nullptr;
   SetDialogSize(500, 400);
   portrait_ = Sprite::Create(this);
-  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
   content_ = UI::ListView::Create(this);
-  AddActionButton(quit_);
 }
 
 NpcTalk::~NpcTalk() {
   delete portrait_;
   portrait_ = nullptr;
-  delete quit_;
-  quit_ = nullptr;
   delete content_;
   content_ = nullptr;
 }
@@ -86,12 +82,6 @@ void NpcTalk::SetButtonLabel(const QString &text) {}
 void NpcTalk::SetPortrait(const QPixmap image) {}
 
 void NpcTalk::Show() { SetVisible(true); }
-
-void NpcTalk::OnActionClick(Node *node) {
-  if (node == quit_) {
-    Close();
-  }
-}
 
 void NpcTalk::OnScreenResize() {
   UI::Dialog::OnScreenResize();

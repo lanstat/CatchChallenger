@@ -77,6 +77,8 @@ class Node {
   virtual void OnEnter();
   virtual void OnExit();
   virtual void RegisterEvents();
+  /** Unregister all events on node, always remove the events before remove
+   * parent **/
   virtual void UnRegisterEvents();
 
  protected:

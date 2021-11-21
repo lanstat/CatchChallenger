@@ -27,7 +27,7 @@ class AddCharacter : public UI::Dialog {
   int getProfileCount();
   void on_comboBox_currentIndexChanged(int index);
   void newLanguage();
-  void OnActionClick(Node *node) override;
+  void OnActionClick(Node *node);
   void OnEnter() override;
   void OnExit() override;
 

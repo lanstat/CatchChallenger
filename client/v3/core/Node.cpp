@@ -45,6 +45,7 @@ void Node::SetParent(Node *parent) { parent_ = parent; }
 Node *Node::Parent() { return parent_; }
 
 Node *Node::Root() {
+  if (parent_ == nullptr) return nullptr;
   Node *parent = parent_;
   while (parent->Parent() != nullptr) {
     parent = parent->Parent();

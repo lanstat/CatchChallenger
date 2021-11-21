@@ -5,11 +5,12 @@
 #include <iostream>
 
 #include "../core/EventManager.hpp"
+#include "../entities/Utils.hpp"
 
 using std::placeholders::_1;
 using UI::Dialog;
 
-Dialog::Dialog() {
+Dialog::Dialog(bool show_close) {
   on_close_ = nullptr;
 
   background_ = Sprite::Create(":/CC/images/interface/message.png");
@@ -28,13 +29,25 @@ Dialog::Dialog() {
   gradient2.setColorAt(1, QColor(64, 28, 2));
   title_ = UI::Label::Create(gradient2, gradient1);
   title_->SetAlignment(Qt::AlignCenter);
+
+  quit_ = Button::Create(":/CC/images/interface/closedialog.png");
+  show_close_ = show_close;
+  if (show_close_) {
+    AddChild(quit_);
+  }
+  quit_->SetOnClick(std::bind(&Dialog::Close, this));
+
+  actions_ = UI::Row::Create(this);
+  actions_->SetItemSpacing(25);
 }
 
 Dialog::~Dialog() {
   delete background_;
   delete title_;
   delete title_background_;
-  actions_.clear();
+  delete quit_;
+  delete actions_;
+  actions_ = nullptr;
 }
 
 void Dialog::OnScreenResize() {
@@ -86,6 +99,10 @@ void Dialog::OnScreenResize() {
 
   content_boundary_ = QRectF(x_ + 30, y_ + 60, idealW - 60, idealH - 120);
   content_plain_boundary_ = QRectF(x_ + 20, y_ + 20, idealW - 40, idealH - 40);
+
+  quit_->SetSize(50, 56);
+  quit_->SetPos((background_->X() + background_->Width()) - quit_->Width() / 2,
+                background_->Y() - quit_->Height() / 2);
 }
 
 void Dialog::Draw(QPainter *painter) {
@@ -114,77 +131,65 @@ void Dialog::SetOnClose(std::function<void()> callback) {
 void Dialog::OnEnter() {
   EventManager::GetInstance()->Lock();
 
-  for (auto it = begin(actions_); it != end(actions_); it++) {
+  quit_->RegisterEvents();
+  auto items = actions_->Children();
+  for (auto it = begin(items); it != end(items); it++) {
     (*it)->RegisterEvents();
   }
 }
 
 void Dialog::OnExit() {
-  for (auto it = begin(actions_); it != end(actions_); it++) {
+  auto items = actions_->Children();
+  for (auto it = begin(items); it != end(items); it++) {
     (*it)->UnRegisterEvents();
   }
 
+  quit_->UnRegisterEvents();
   EventManager::GetInstance()->UnLock();
 }
 
 void Dialog::AddActionButton(Button *action) {
-  AddChild(action);
-  action->SetOnClick(std::bind(&Dialog::OnActionButton, this, _1));
-  actions_.push_back(action);
-  ReDraw();
+  actions_->AddChild(action);
+
+  if (Utils::IsActiveInScene(this)) {
+    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< reinterpret_cast<intptr_t>(action) << std::endl;
+    action->RegisterEvents();
+  }
 }
 
 void Dialog::InsertActionButton(Button *action, int pos) {
-  action->SetParent(this);
-  action->SetOnClick(std::bind(&Dialog::OnActionButton, this, _1));
-  auto iter = actions_.begin();
-  int index = 0;
-  while (index < actions_.size()) {
-    index++;
-    ++iter;
+  actions_->InsertChild(action, pos);
+
+  if (Utils::IsActiveInScene(this)) {
+    action->RegisterEvents();
   }
-  actions_.insert(iter, action);
-  ReDraw();
 }
 
 void Dialog::RemoveActionButton(Button *action) {
-  int size = actions_.size();
-  int index = 0;
-  while (index < size) {
-    if (actions_.at(index) == action) {
-      actions_.erase(actions_.cbegin() + index);
-      break;
-    }
-    index++;
-  }
+  action->UnRegisterEvents();
+  actions_->RemoveChild(action);
   ReDraw();
 }
 
 void Dialog::RecalculateActionButtons() {
-  if (actions_.empty()) return;
+  if (actions_->Children().empty()) return;
 
-  unsigned int space = 30;
   unsigned int width = 83;
   unsigned int height = 94;
-  if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
+  auto content = BoundingRect();
+  if (content.width() < 600 || content.height() < 480) {
     width /= 2;
     height /= 2;
-    space = 10;
   }
 
-  unsigned int max_width = 0;
-  for (auto it = begin(actions_); it != end(actions_); it++) {
-    max_width += width + space;
+  auto items = actions_->Children();
+  for (auto it = begin(items); it != end(items); it++) {
     (*it)->SetSize(width, height);
   }
-  max_width -= space;
 
-  unsigned int x = bounding_rect_.width() / 2 - max_width / 2;
-  unsigned int y = (background_->Y() + background_->Height()) - height / 2;
-  for (auto it = begin(actions_); it != end(actions_); it++) {
-    (*it)->SetPos(x, y);
-    x += width + space;
-  }
+  auto content_b = ContentBoundary();
+  actions_->SetPos(BoundingRect().width() / 2 - actions_->Width() / 2,
+                   content_b.y() + content_b.height());
 }
 
 void Dialog::SetTitle(const QString &text) {
@@ -194,12 +199,11 @@ void Dialog::SetTitle(const QString &text) {
 
 QString Dialog::Title() const { return title_->Text(); }
 
-void Dialog::OnActionButton(Node *node) { OnActionClick(node); }
-
 void Dialog::Close() {
   if (on_close_) {
     on_close_();
   }
+  Parent()->RemoveChild(this);
 }
 
 QRectF Dialog::ContentBoundary() const { return content_boundary_; }
@@ -209,4 +213,9 @@ QRectF Dialog::ContentPlainBoundary() const { return content_plain_boundary_; }
 void Dialog::SetDialogSize(int w, int h) {
   dialog_size_.setHeight(h);
   dialog_size_.setWidth(w);
+}
+
+void Dialog::ShowClose(bool show) {
+  show_close_ = show;
+  quit_->SetVisible(show);
 }
