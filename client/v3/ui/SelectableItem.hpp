@@ -9,6 +9,7 @@ class SelectableItem : public Node {
  public:
   ~SelectableItem();
   void SetSelected(bool is_selected);
+  void SetDisabled(bool is_disabled);
   void ReDrawContent();
   virtual void DrawContent(QPainter *painter) = 0;
 
@@ -23,9 +24,11 @@ class SelectableItem : public Node {
 
  private:
   bool is_selected_;
+  bool is_disabled_;
   QPixmap *content_cache_;
   QString bg_unselected_;
   QString bg_selected_;
+  QString bg_disabled_;
   uint16_t strech_x_;
   uint16_t strech_y_;
   uint16_t border_size_;

@@ -12,8 +12,11 @@
 namespace Scenes {
 class MonsterBag : public Node {
  public:
+  enum Mode { kDefault, kOnBattle, kOnItemUse };
+
   ~MonsterBag();
-  static MonsterBag *Create();
+  static MonsterBag *Create(Mode mode = kDefault);
+
 
   void OnResize() override;
   void RegisterEvents() override;
@@ -25,6 +28,7 @@ class MonsterBag : public Node {
   void OnSelectMonster(uint8_t monsterPosition);
   void LoadMonster();
   void ShowSelectAction(bool show);
+  void SetMode(Mode mode);
 
  private:
   UI::ListView *monster_list_;
@@ -36,8 +40,9 @@ class MonsterBag : public Node {
   bool show_select_;
   std::function<void(uint8_t)> on_select_monster_;
   Node *selected_item_;
+  Mode mode_;
 
-  MonsterBag();
+  MonsterBag(Mode mode);
   void OnSelectItem(Node *node);
   void ShowMessageDialog(const QString &title, const QString &message);
   void ClearSelection();

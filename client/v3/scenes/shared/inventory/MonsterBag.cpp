@@ -15,17 +15,17 @@ using CatchChallenger::PlayerMonster;
 using Scenes::MonsterBag;
 using std::placeholders::_1;
 
-MonsterBag::MonsterBag() {
+MonsterBag::MonsterBag(Mode mode) {
   on_select_monster_ = nullptr;
   monster_list_ = UI::ListView::Create(this);
   monster_list_->SetItemSpacing(10);
-  show_select_ = false;
 
   select_ = UI::Button::Create(":/CC/images/interface/validate.png");
   select_->SetOnClick(std::bind(&MonsterBag::OnAcceptClicked, this));
 
   connection_manager_ = ConnectionManager::GetInstance();
   client_ = connection_manager_->client;
+  SetMode(mode);
 }
 
 MonsterBag::~MonsterBag() {
@@ -33,7 +33,9 @@ MonsterBag::~MonsterBag() {
   monster_list_ = nullptr;
 }
 
-MonsterBag *MonsterBag::Create() { return new (std::nothrow) MonsterBag(); }
+MonsterBag *MonsterBag::Create(Mode mode) {
+  return new (std::nothrow) MonsterBag(mode);
+}
 
 void MonsterBag::Draw(QPainter *painter) {
   auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
@@ -129,4 +131,21 @@ void MonsterBag::ShowSelectAction(bool show) {
 
 void MonsterBag::SetOnSelectMonster(std::function<void(uint8_t)> callback) {
   on_select_monster_ = callback;
+}
+
+void MonsterBag::SetMode(Mode mode) {
+  if (mode_ == mode) return;
+  mode_ = mode;
+
+  switch (mode_) {
+    case kOnBattle:
+      ShowSelectAction(true);
+      break;
+    case kOnItemUse:
+      ShowSelectAction(true);
+      break;
+    case kDefault:
+      ShowSelectAction(false);
+      break;
+  }
 }

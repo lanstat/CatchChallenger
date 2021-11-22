@@ -131,7 +131,9 @@ void Dialog::SetOnClose(std::function<void()> callback) {
 void Dialog::OnEnter() {
   EventManager::GetInstance()->Lock();
 
-  quit_->RegisterEvents();
+  if (show_close_) {
+    quit_->RegisterEvents();
+  }
   auto items = actions_->Children();
   for (auto it = begin(items); it != end(items); it++) {
     (*it)->RegisterEvents();
@@ -144,7 +146,9 @@ void Dialog::OnExit() {
     (*it)->UnRegisterEvents();
   }
 
-  quit_->UnRegisterEvents();
+  if (show_close_) {
+    quit_->UnRegisterEvents();
+  }
   EventManager::GetInstance()->UnLock();
 }
 
@@ -152,7 +156,6 @@ void Dialog::AddActionButton(Button *action) {
   actions_->AddChild(action);
 
   if (Utils::IsActiveInScene(this)) {
-    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< reinterpret_cast<intptr_t>(action) << std::endl;
     action->RegisterEvents();
   }
 }
@@ -203,7 +206,10 @@ void Dialog::Close() {
   if (on_close_) {
     on_close_();
   }
-  Parent()->RemoveChild(this);
+  auto parent = Parent();
+  if (parent != nullptr) {
+    parent->RemoveChild(this);
+  }
 }
 
 QRectF Dialog::ContentBoundary() const { return content_boundary_; }

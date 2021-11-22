@@ -63,6 +63,9 @@ HashSceneType *EventManager::AddListener(HashSceneType *scene, Node *listener,
 
   HashSceneType *root_scene = nullptr;
   auto *root = Utils::GetCurrentScene(listener);
+  if (root == nullptr) {
+    return nullptr;
+  }
   HASH_FIND_PTR(scene, &root, root_scene);
   if (!root_scene) {
     root_scene = (HashSceneType *)calloc(sizeof(*root_scene), 1);

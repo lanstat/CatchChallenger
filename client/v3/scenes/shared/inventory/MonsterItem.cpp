@@ -20,6 +20,9 @@ MonsterItem::MonsterItem(CatchChallenger::PlayerMonster monster)
 
   icon_->SetSize(60, 60);
   SetSize(200, 80);
+  if (monster.hp == 0) {
+    SetDisabled(true);
+  }
   LoadMonster();
 }
 

@@ -88,8 +88,7 @@ Battle::Battle() : Scene(nullptr) {
 
   message_dialog_ = nullptr;
   linked_ = UI::LinkedDialog::Create(false);
-  auto monster = MonsterBag::Create();
-  monster->ShowSelectAction(true);
+  auto monster = MonsterBag::Create(MonsterBag::kOnBattle);
   monster->SetOnSelectMonster(std::bind(&Battle::OnMonsterSelect, this, _1));
   linked_->AddItem(monster);
   auto inventory = Inventory::Create();

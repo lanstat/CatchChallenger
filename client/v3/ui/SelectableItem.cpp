@@ -13,11 +13,13 @@ SelectableItem::SelectableItem() : Node() {
   content_cache_ = nullptr;
   bg_unselected_ = QString(":/CC/images/interface/b1-trimmed.png");
   bg_selected_ = QString(":/CC/images/interface/b1-green.png");
+  bg_disabled_ = QString(":/CC/images/interface/b1-gray.png");
 
   strech_x_ = 20;
   strech_y_ = 18;
   border_size_ = 10;
   is_selected_ = false;
+  is_disabled_ = false;
 }
 
 SelectableItem::~SelectableItem() {
@@ -29,10 +31,14 @@ SelectableItem::~SelectableItem() {
 
 void SelectableItem::Draw(QPainter *painter) {
   Sprite *background;
-  if (is_selected_) {
-    background = Sprite::Create(bg_selected_);
+  if (is_disabled_) {
+    background = Sprite::Create(bg_disabled_);
   } else {
-    background = Sprite::Create(bg_unselected_);
+    if (is_selected_) {
+      background = Sprite::Create(bg_selected_);
+    } else {
+      background = Sprite::Create(bg_unselected_);
+    }
   }
   background->Strech(strech_x_, strech_y_, border_size_, Width(), Height());
   background->Paint(painter, nullptr, nullptr);
@@ -81,7 +87,7 @@ void SelectableItem::MousePressEvent(const QPointF &point,
 }
 
 void SelectableItem::MouseReleaseEvent(const QPointF &point,
-                                    bool &prev_validated) {
+                                       bool &prev_validated) {
   if (prev_validated) {
     if (is_selected_) {
       is_selected_ = false;
@@ -105,5 +111,10 @@ void SelectableItem::MouseReleaseEvent(const QPointF &point,
 
 void SelectableItem::SetSelected(bool is_selected) {
   is_selected_ = is_selected;
+  ReDraw();
+}
+
+void SelectableItem::SetDisabled(bool is_disabled) {
+  is_disabled_ = is_disabled;
   ReDraw();
 }
