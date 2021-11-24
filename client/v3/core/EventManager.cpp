@@ -28,7 +28,10 @@ typedef struct HashScene {
 EventManager *EventManager::instance_ = nullptr;
 
 EventManager::EventManager()
-    : mouse_listeners_(nullptr), keyboard_listeners_(nullptr) {}
+    : mouse_listeners_(nullptr), keyboard_listeners_(nullptr) {
+  current_target_ = nullptr;
+  current_target_salvaged_ = false;
+}
 
 EventManager::~EventManager() {}
 

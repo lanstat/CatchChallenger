@@ -1,6 +1,6 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_CORE_SPRITE_HPP_
-#define CLIENT_QTOPENGL_CORE_SPRITE_HPP_
+#ifndef CLIENT_V3_CORE_SPRITE_HPP_
+#define CLIENT_V3_CORE_SPRITE_HPP_
 
 #include <QGraphicsWidget>
 
@@ -28,6 +28,7 @@ class Sprite : public Node, public Stateful {
   /** Scale the sprite to specified size, returns padding scaled */
   QPointF Strech(unsigned int scaled_x, unsigned int scaled_y,
                  unsigned int border_size, int width, int height);
+  void SetTransformationMode(Qt::TransformationMode mode);
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
@@ -47,5 +48,6 @@ class Sprite : public Node, public Stateful {
  private:
   QPixmap cache_;
   QPixmap original_pix_;
+  Qt::TransformationMode mode_;
 };
-#endif  // CLIENT_QTOPENGL_CORE_SPRITE_HPP_
+#endif  // CLIENT_V3_CORE_SPRITE_HPP_

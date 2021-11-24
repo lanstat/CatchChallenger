@@ -4,11 +4,14 @@
 #include <QPainter>
 #include <iostream>
 
+#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 
 using Scenes::Player;
 
 Player::Player() {
+  preview_ = Sprite::Create(this);
+  preview_->SetTransformationMode(Qt::FastTransformation);
   name_label = UI::Label::Create(this);
   name_value = UI::Label::Create(this);
   cash_label = UI::Label::Create(this);
@@ -21,26 +24,27 @@ Player::Player() {
   newLanguage();
 }
 
-Player::~Player() {
-}
+Player::~Player() {}
 
 Player *Player::Create() { return new (std::nothrow) Player(); }
 
 void Player::OnResize() {
+  auto bounding = BoundingRect();
   int idealW = BoundingRect().width();
   unsigned int space = 30;
-  if (BoundingRect().width() < 800 || BoundingRect().height() < 600) {
-    space /= 2;
-  }
 
   int tempY = space + 30;
-  name_label->SetPos(space, tempY);
+  preview_->SetSize(160, 160);
+  preview_->SetPos(10, bounding.height() / 2 - preview_->Height() / 2);
+  qreal x_pos = preview_->X() + preview_->Width() + 20;
+
+  name_label->SetPos(x_pos, tempY);
   name_value->SetPos(idealW / 2, tempY);
   tempY += name_label->Height() + space;
-  cash_label->SetPos(space, tempY);
+  cash_label->SetPos(x_pos, tempY);
   cash_value->SetPos(idealW / 2, tempY);
   tempY += cash_label->Height() + space;
-  type_label->SetPos(space, tempY);
+  type_label->SetPos(x_pos, tempY);
   type_value->SetPos(idealW / 2, tempY);
 }
 
@@ -56,6 +60,9 @@ void Player::RegisterEvents() {
       &playerInformations =
           connexionManager->client->get_player_informations_ro();
 
+  preview_->SetPixmap(QString::fromStdString(
+      QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
+          playerInformations.public_informations.skinId)));
   name_value->SetText(playerInformations.public_informations.pseudo);
   cash_value->SetText(QString::number(playerInformations.cash));
   switch (playerInformations.public_informations.type) {
@@ -75,4 +82,4 @@ void Player::RegisterEvents() {
   }
 }
 
-void Player::UnRegisterEvents() { }
+void Player::UnRegisterEvents() {}

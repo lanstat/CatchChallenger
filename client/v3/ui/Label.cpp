@@ -160,7 +160,7 @@ void Label::UpdateTextPath() {
             max_char = aux.size();
           }
           QString tmp = QString();
-          if (aux.at(max_char) == " ") {
+          if (max_char < aux.size() && aux.at(max_char) == " ") {
             tmp = aux.left(max_char);
             aux.remove(0, max_char);
           } else {

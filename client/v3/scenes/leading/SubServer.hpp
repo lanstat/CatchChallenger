@@ -56,18 +56,18 @@ class SubServer : public Scene {
       serverByCharacterGroup;
   std::vector<std::vector<CatchChallenger::CharacterEntry>> characters_;
 
-  QIcon icon_server_list_star1;
-  QIcon icon_server_list_star2;
-  QIcon icon_server_list_star3;
-  QIcon icon_server_list_star4;
-  QIcon icon_server_list_star5;
-  QIcon icon_server_list_star6;
-  QIcon icon_server_list_stat1;
-  QIcon icon_server_list_stat2;
-  QIcon icon_server_list_stat3;
-  QIcon icon_server_list_stat4;
-  QIcon icon_server_list_bug;
-  std::vector<QIcon> icon_server_list_color;
+  QString icon_server_list_star1;
+  QString icon_server_list_star2;
+  QString icon_server_list_star3;
+  QString icon_server_list_star4;
+  QString icon_server_list_star5;
+  QString icon_server_list_star6;
+  QString icon_server_list_stat1;
+  QString icon_server_list_stat2;
+  QString icon_server_list_stat3;
+  QString icon_server_list_stat4;
+  QString icon_server_list_bug;
+  std::vector<QString> icon_server_list_color;
   ConnectionManager *connection_;
 
   SubServer();

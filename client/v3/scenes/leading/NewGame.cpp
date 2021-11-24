@@ -9,6 +9,7 @@
 #include "../../../../general/base/GeneralStructures.hpp"
 
 using Scenes::NewGame;
+using std::placeholders::_1;
 
 NewGame::NewGame() : UI::Dialog(false) {
   ok = false;
@@ -26,6 +27,11 @@ NewGame::NewGame() : UI::Dialog(false) {
 
   warning = UI::Label::Create(this);
   warning->SetVisible(false);
+
+  quit->SetOnClick(std::bind(&NewGame::OnActionClick, this, _1));
+  previous->SetOnClick(std::bind(&NewGame::OnActionClick, this, _1));
+  next->SetOnClick(std::bind(&NewGame::OnActionClick, this, _1));
+  validate->SetOnClick(std::bind(&NewGame::OnActionClick, this, _1));
 
   AddActionButton(quit);
   AddActionButton(previous);

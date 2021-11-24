@@ -6,8 +6,9 @@
 #include <string>
 
 #include "../../../../general/base/GeneralStructures.hpp"
-#include "../../../qt/FacilityLibClient.hpp"
+#include "../../FacilityLibClient.hpp"
 #include "../../core/StackedScene.hpp"
+#include "SubServerItem.hpp"
 #include "Loading.hpp"
 
 using Scenes::SubServer;
@@ -130,6 +131,12 @@ void SubServer::OnExit() {
 
 void SubServer::itemSelectionChanged(Node *node) {
   server_selected_ = node->Data(99);
+  auto items = serverList->Items();
+  for (auto it = begin(items); it != end(items); it++) {
+    if ((*it) == node) continue;
+    static_cast<SubServerItem *>((*it))->SetSelected(false);
+  }
+
   server_select->SetEnabled(true);
 }
 
@@ -168,33 +175,33 @@ void SubServer::logged(
   // reload, bug if before init
   if (icon_server_list_star1.isNull()) {
     SubServer::icon_server_list_star1 =
-        QIcon(":/CC/images/interface/server_list/star1.png");
+        ":/CC/images/interface/server_list/star1.png";
     if (SubServer::icon_server_list_star1.isNull()) abort();
     SubServer::icon_server_list_star2 =
-        QIcon(":/CC/images/interface/server_list/star2.png");
+        ":/CC/images/interface/server_list/star2.png";
     SubServer::icon_server_list_star3 =
-        QIcon(":/CC/images/interface/server_list/star3.png");
+        ":/CC/images/interface/server_list/star3.png";
     SubServer::icon_server_list_star4 =
-        QIcon(":/CC/images/interface/server_list/star4.png");
+        ":/CC/images/interface/server_list/star4.png";
     SubServer::icon_server_list_star5 =
-        QIcon(":/CC/images/interface/server_list/star5.png");
+        ":/CC/images/interface/server_list/star5.png";
     SubServer::icon_server_list_star6 =
-        QIcon(":/CC/images/interface/server_list/star6.png");
+        ":/CC/images/interface/server_list/star6.png";
     SubServer::icon_server_list_stat1 =
-        QIcon(":/CC/images/interface/server_list/stat1.png");
+        ":/CC/images/interface/server_list/stat1.png";
     SubServer::icon_server_list_stat2 =
-        QIcon(":/CC/images/interface/server_list/stat2.png");
+        ":/CC/images/interface/server_list/stat2.png";
     SubServer::icon_server_list_stat3 =
-        QIcon(":/CC/images/interface/server_list/stat3.png");
+        ":/CC/images/interface/server_list/stat3.png";
     SubServer::icon_server_list_stat4 =
-        QIcon(":/CC/images/interface/server_list/stat4.png");
+        ":/CC/images/interface/server_list/stat4.png";
     SubServer::icon_server_list_bug =
-        QIcon(":/CC/images/interface/server_list/bug.png");
+        ":/CC/images/interface/server_list/bug.png";
     if (SubServer::icon_server_list_bug.isNull()) abort();
-    icon_server_list_color.push_back(QIcon(":/CC/images/colorflags/0.png"));
-    icon_server_list_color.push_back(QIcon(":/CC/images/colorflags/1.png"));
-    icon_server_list_color.push_back(QIcon(":/CC/images/colorflags/2.png"));
-    icon_server_list_color.push_back(QIcon(":/CC/images/colorflags/3.png"));
+    icon_server_list_color.push_back(":/CC/images/colorflags/0.png");
+    icon_server_list_color.push_back(":/CC/images/colorflags/1.png");
+    icon_server_list_color.push_back(":/CC/images/colorflags/2.png");
+    icon_server_list_color.push_back(":/CC/images/colorflags/3.png");
   }
   // do the average value
   {
@@ -264,7 +271,7 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
     while (index < logicialGroup.servers.size()) {
       const CatchChallenger::ServerFromPoolForDisplay &server =
           logicialGroup.servers.at(index);
-      auto *itemServer = UI::Button::Create(":/CC/images/interface/button.png");
+      auto *itemServer = SubServerItem::Create();
       std::string text;
       std::string groupText;
       if (serverByCharacterGroup.size() > 1) {
@@ -273,9 +280,9 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
         // comment the if to always show it
         if (groupInt >= icon_server_list_color.size())
           groupText = QStringLiteral(" (%1)").arg(groupInt).toStdString();
-        itemServer->SetToolTip(tr("Server group: %1, UID: %2")
-                                   .arg(groupInt)
-                                   .arg(server.uniqueKey));
+        //itemServer->SetSubTitle(tr("Server group: %1, UID: %2")
+                                   //.arg(groupInt)
+                                   //.arg(server.uniqueKey));
         if (!icon_server_list_color.empty())
           itemServer->SetIcon(icon_server_list_color.at(
               groupInt % icon_server_list_color.size()));
@@ -307,60 +314,60 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
         else
           text = name + groupText + " - " + server.description;
       }
-      itemServer->SetText(QString::fromStdString(text));
+      itemServer->SetTitle(QString::fromStdString(text));
 
       // do the icon here
       if (server.playedTime > 5 * 365 * 24 * 3600) {
         itemServer->SetIcon(SubServer::icon_server_list_bug);
-        itemServer->SetToolTip(tr("Played time greater than 5y, bug?"));
+        itemServer->SetSubTitle(tr("Played time greater than 5y, bug?"));
       } else if (server.lastConnect > 0 && server.lastConnect < 1420070400) {
         itemServer->SetIcon(SubServer::icon_server_list_bug);
-        itemServer->SetToolTip(tr("Played before 2015, bug?"));
+        itemServer->SetSubTitle(tr("Played before 2015, bug?"));
       } else if (server.maxPlayer <= 65533 &&
                  (server.maxPlayer < server.currentPlayer ||
                   server.maxPlayer == 0)) {
         itemServer->SetIcon(SubServer::icon_server_list_bug);
         if (server.maxPlayer < server.currentPlayer)
-          itemServer->SetToolTip(tr("maxPlayer<currentPlayer"));
+          itemServer->SetSubTitle(tr("maxPlayer<currentPlayer"));
         else
-          itemServer->SetToolTip(tr("maxPlayer==0"));
+          itemServer->SetSubTitle(tr("maxPlayer==0"));
       } else if (server.playedTime > 0 || server.lastConnect > 0) {
         uint64_t dateDiff = 0;
         if (currentDate > server.lastConnect)
           dateDiff = currentDate - server.lastConnect;
         if (server.playedTime > 24 * 3600 * 31) {
           if (dateDiff < 24 * 3600) {
-            itemServer->SetIcon(SubServer::icon_server_list_star1);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star1);
+            itemServer->SetSubTitle(
                 tr("Played time greater than 24h, last "
                    "connect in this last 24h"));
           } else {
-            itemServer->SetIcon(SubServer::icon_server_list_star2);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star2);
+            itemServer->SetSubTitle(
                 tr("Played time greater than 24h, last "
                    "connect not in this last 24h"));
           }
         } else if (server.lastConnect < averageLastConnect) {
           if (server.playedTime < averagePlayedTime) {
-            itemServer->SetIcon(SubServer::icon_server_list_star3);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star3);
+            itemServer->SetSubTitle(
                 tr("Into the more recent server used, "
                    "out of the most used server"));
           } else {
-            itemServer->SetIcon(SubServer::icon_server_list_star4);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star4);
+            itemServer->SetSubTitle(
                 tr("Into the more recent server used, "
                    "into the most used server"));
           }
         } else {
           if (server.playedTime < averagePlayedTime) {
-            itemServer->SetIcon(SubServer::icon_server_list_star5);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star5);
+            itemServer->SetSubTitle(
                 tr("Out of the more recent server used, "
                    "out of the most used server"));
           } else {
-            itemServer->SetIcon(SubServer::icon_server_list_star6);
-            itemServer->SetToolTip(
+            itemServer->SetStar(SubServer::icon_server_list_star6);
+            itemServer->SetSubTitle(
                 tr("Out of the more recent server used, "
                    "into the most used server"));
           }
@@ -377,16 +384,16 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
             int percent = (server.currentPlayer * 100) / server.maxPlayer;
             if (server.currentPlayer == server.maxPlayer ||
                 (server.maxPlayer > 50 && percent > 98))
-              itemServer->SetIcon(SubServer::icon_server_list_stat4);
+              itemServer->SetStat(SubServer::icon_server_list_stat4);
             else if (server.currentPlayer > 30 && percent > 50)
-              itemServer->SetIcon(SubServer::icon_server_list_stat3);
+              itemServer->SetStat(SubServer::icon_server_list_stat3);
             else if (server.currentPlayer > 5 && percent > 20)
-              itemServer->SetIcon(SubServer::icon_server_list_stat2);
+              itemServer->SetStat(SubServer::icon_server_list_stat2);
             else
-              itemServer->SetIcon(SubServer::icon_server_list_stat1);
+              itemServer->SetStat(SubServer::icon_server_list_stat1);
           }
         }
-        itemServer->SetText(QStringLiteral("%1/%2")
+        itemServer->SetSubTitle(QStringLiteral("%1/%2")
                                 .arg(server.currentPlayer)
                                 .arg(server.maxPlayer));
       }

@@ -9,7 +9,9 @@
 #include "Node.hpp"
 #include "Stateful.hpp"
 
-Sprite::Sprite(Node *parent) : Node(parent) {}
+Sprite::Sprite(Node *parent) : Node(parent) {
+  mode_ = Qt::SmoothTransformation;
+}
 
 Sprite::~Sprite() {}
 
@@ -54,7 +56,7 @@ void Sprite::SetPixmap(const QPixmap &pixmap, bool preserve_size) {
     Node::SetSize(cache_.width(), cache_.height());
   } else {
     cache_ =
-        pixmap.scaledToWidth(Width(), Qt::SmoothTransformation);
+        pixmap.scaledToWidth(Width(), mode_);
   }
   original_pix_ = cache_;
   ReDraw();
@@ -63,7 +65,7 @@ void Sprite::SetPixmap(const QPixmap &pixmap, bool preserve_size) {
 void Sprite::SetSize(qreal width, qreal height) {
   if (!cache_.isNull()) {
     cache_ = cache_.scaled(width, height, Qt::IgnoreAspectRatio,
-                           Qt::SmoothTransformation);
+                           mode_);
   }
   Node::SetSize(width, height);
 }
@@ -149,15 +151,15 @@ void Sprite::Strech(unsigned int border_size, int width, int height) {
                        border_size);
 
   if (min != tl.height()) {
-    tl = tl.scaledToHeight(min, Qt::SmoothTransformation);
-    tm = tm.scaledToHeight(min, Qt::SmoothTransformation);
-    tr = tr.scaledToHeight(min, Qt::SmoothTransformation);
-    ml = ml.scaledToWidth(min, Qt::SmoothTransformation);
+    tl = tl.scaledToHeight(min, mode_);
+    tm = tm.scaledToHeight(min, mode_);
+    tr = tr.scaledToHeight(min, mode_);
+    ml = ml.scaledToWidth(min, mode_);
     // mm=mm.scaledToHeight(minsize,Qt::SmoothTransformation);
-    mr = mr.scaledToWidth(min, Qt::SmoothTransformation);
-    bl = bl.scaledToHeight(min, Qt::SmoothTransformation);
-    bm = bm.scaledToHeight(min, Qt::SmoothTransformation);
-    br = br.scaledToHeight(min, Qt::SmoothTransformation);
+    mr = mr.scaledToWidth(min, mode_);
+    bl = bl.scaledToHeight(min, mode_);
+    bm = bm.scaledToHeight(min, mode_);
+    br = br.scaledToHeight(min, mode_);
   }
 
   auto tmp = QPixmap(width, height);
@@ -219,23 +221,23 @@ QPointF Sprite::Strech(unsigned int padding_x, unsigned int padding_y,
   }
 
   tl = tl.scaled(scaled_x, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   tm = tm.scaled(width - scaled_x * 2, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   tr = tr.scaled(scaled_x, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   ml = ml.scaled(scaled_x, height - scaled_y * 2, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   mm = mm.scaled(width - scaled_x * 2, height - scaled_y * 2,
-                 Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                 Qt::IgnoreAspectRatio, mode_);
   mr = mr.scaled(scaled_x, height - scaled_y * 2, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   bl = bl.scaled(scaled_x, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   bm = bm.scaled(width - scaled_x * 2, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
   br = br.scaled(scaled_x, scaled_y, Qt::IgnoreAspectRatio,
-                 Qt::SmoothTransformation);
+                 mode_);
 
   auto tmp = QPixmap(width, height);
   tmp.fill(Qt::transparent);
@@ -267,4 +269,8 @@ void Sprite::RegisterEvents() {
 
 void Sprite::UnRegisterEvents() {
   EventManager::GetInstance()->RemoveListener(this);
+}
+
+void Sprite::SetTransformationMode(Qt::TransformationMode mode) {
+  mode_ = mode;
 }

@@ -328,6 +328,7 @@ SOURCES += \
     $$PWD/scenes/leading/AddOrEditServer.cpp \
     $$PWD/scenes/leading/Login.cpp \
     $$PWD/scenes/leading/SubServer.cpp \
+    $$PWD/scenes/leading/SubServerItem.cpp \
     $$PWD/scenes/leading/NewGame.cpp \
     $$PWD/scenes/leading/AddCharacter.cpp \
     $$PWD/scenes/leading/CharacterSelector.cpp \
@@ -422,6 +423,7 @@ HEADERS  += \
     $$PWD/scenes/leading/AddOrEditServer.hpp \
     $$PWD/scenes/leading/Login.hpp \
     $$PWD/scenes/leading/SubServer.hpp \
+    $$PWD/scenes/leading/SubServerItem.hpp \
     $$PWD/scenes/leading/NewGame.hpp \
     $$PWD/scenes/leading/AddCharacter.hpp \
     $$PWD/scenes/leading/CharacterSelector.hpp \

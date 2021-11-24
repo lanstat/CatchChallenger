@@ -14,6 +14,8 @@ Input::Input(Node *parent) : Node(parent) {
   label_ = Label::Create();
   background_ = Sprite::Create(":/CC/images/interface/input.png");
   inner_padding_ = QPointF(14, 11);
+  focus_ = false;
+  pressed_ = false;
 }
 
 Input::~Input() {

@@ -4,6 +4,7 @@
 
 #include "../../../base/ConnectionManager.hpp"
 #include "../../../core/Node.hpp"
+#include "../../../core/Sprite.hpp"
 #include "../../../ui/Button.hpp"
 #include "../../../ui/Label.hpp"
 
@@ -27,6 +28,7 @@ class Player : public Node {
   UI::Label *cash_value;
   UI::Label *type_label;
   UI::Label *type_value;
+  Sprite *preview_;
 
   Player();
   ConnectionManager *connexionManager;
