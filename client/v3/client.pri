@@ -567,8 +567,10 @@ include(entities/solo/solo-server.pri)
 QT       += sql
 }
 
-#define pc viewport
-include(viewports/desktop/viewport.pri)
+#define pc/mobile viewport
+include(viewports/viewport.pri)
+#contains(DEFINES, Q_OS_ANDROID) {
+#}
 
 DISTFILES += \
     $$PWD/client.pri

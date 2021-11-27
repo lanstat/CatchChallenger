@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBUG=0
+DEBUG=1
 if [ $DEBUG -eq 0 ]
 then
     mkdir /home/user/build

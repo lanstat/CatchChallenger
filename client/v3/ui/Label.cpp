@@ -122,8 +122,9 @@ void Label::UpdateTextPath() {
                       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOQPRSTUVWXYZ");
 
     font_height_ = temp_path.boundingRect().height() + line_height;
-    temp_path.clear();
   }
+  temp_path = QPainterPath();
+
   QStringList lines = text_.split("\n");
   text_path_ = new QPainterPath();
   auto pen_width = GetPenWidth() * 2;
@@ -174,7 +175,7 @@ void Label::UpdateTextPath() {
             }
           }
           aux = aux.trimmed();
-          temp_path.clear();
+          temp_path = QPainterPath();
           temp_path.addText(0, 0, *font_, tmp);
           rect = temp_path.boundingRect();
           max_height += font_height_;

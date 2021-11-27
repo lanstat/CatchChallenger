@@ -30,6 +30,12 @@ extern "C" {
 #define FALSE 0
 #endif
 
+#ifdef Q_OS_ANDROID
+#define S_IREAD S_IRUSR
+#define S_IWRITE S_IWUSR
+#define S_IEXEC S_IXUSR
+#endif
+
 #define GIF_STAMP "GIFVER"          /* First chars in file - GIF stamp.  */
 #define GIF_STAMP_LEN sizeof(GIF_STAMP) - 1
 #define GIF_VERSION_POS 3           /* Version first character in stamp. */
