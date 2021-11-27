@@ -27,6 +27,7 @@ class Plant : public Node {
   Sprite *descriptionBack;
   UI::Label *inventory_description;
   UI::Button *inventoryUse;
+  UI::Button *select_;
 
   ConnectionManager *connexionManager;
   bool inSelection;

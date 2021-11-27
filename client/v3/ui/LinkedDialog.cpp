@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-using UI::LinkedDialog;
-using UI::Dialog;
 using std::placeholders::_1;
+using UI::Dialog;
+using UI::LinkedDialog;
 
 LinkedDialog::LinkedDialog(bool show_navigation) : Dialog(true) {
   current_item_ = nullptr;
@@ -128,13 +128,9 @@ void LinkedDialog::SetCurrentItem(int index) {
   AddChild(current_item_);
 }
 
-Node* LinkedDialog::CurrentItem() {
-  return current_item_;
-}
+Node* LinkedDialog::CurrentItem() { return current_item_; }
 
-Node* LinkedDialog::Item(int index) {
-  return items_.at(index);
-}
+Node* LinkedDialog::Item(int index) { return items_.at(index); }
 
 void LinkedDialog::ShowNavigation(bool show) {
   if (show == show_navigation_) return;

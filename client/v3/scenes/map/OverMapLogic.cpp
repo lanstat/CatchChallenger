@@ -566,8 +566,11 @@ void OverMapLogic::bag_open() {
 void OverMapLogic::OnInventoryNav(int index) {
   switch (index) {
     case 1:
-      auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
-      item->SetVar(Inventory::ObjectType::ObjectType_All, false);
+      static_cast<Inventory *>(inventory_tabs_->Item(1))
+          ->SetVar(Inventory::ObjectType::ObjectType_All, false);
+      break;
+    case 3:
+      static_cast<Plant *>(inventory_tabs_->Item(3))->SetVar(false);
       break;
   }
 }

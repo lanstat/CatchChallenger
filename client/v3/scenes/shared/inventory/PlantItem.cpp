@@ -15,28 +15,20 @@
 
 using Scenes::PlantItem;
 
-PlantItem::PlantItem(uint16_t plant_id, uint32_t quantity) {
+PlantItem::PlantItem(uint16_t plant_id, uint32_t quantity): UI::SelectableItem() {
   plant_id_ = plant_id;
   quantity_ = quantity;
+  SetSize(200, 60);
 }
 
-PlantItem::~PlantItem() {}
+PlantItem::~PlantItem() {
+}
 
 PlantItem *PlantItem::Create(uint16_t plant_id, uint32_t quantity) {
   return new (std::nothrow) PlantItem(plant_id, quantity);
 }
 
-void PlantItem::Draw(QPainter *painter) {
-  if (item_cache_.isNull()) {
-    DrawItem();
-  }
-  painter->drawPixmap(0, 0, item_cache_);
-}
-
-void PlantItem::DrawItem() {
-  item_cache_.fill(Qt::transparent);
-  QPainter painter_c(&item_cache_);
-
+void PlantItem::DrawContent(QPainter *painter) {
   auto icon = Sprite::Create();
   auto text = UI::Label::Create();
 
@@ -47,64 +39,63 @@ void PlantItem::DrawItem() {
   const CatchChallenger::Plant &plant =
       CatchChallenger::CommonDatapack::commonDatapack.plants[plant_id_];
   if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(plant_id_) !=
-          QtDatapackClientLoader::datapackLoader->itemsExtra.cend() &&
-      contentExtra.tileset != nullptr) {
+          QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
     QPixmap p =
         QtDatapackClientLoader::datapackLoader->getImageExtra(plant_id_).image;
     p = p.scaledToWidth(p.width() * 2);
     icon->SetPixmap(p);
-    icon->SetPos(10, 10);
-    icon->Paint(&painter_c, nullptr, nullptr);
+    icon->SetPos(10, Height() / 2 - icon->Height() / 2);
+    icon->Paint(painter, nullptr, nullptr);
 
     text->SetPixelSize(12);
-    text->SetPos(20, 10);
     text->SetText(QString::fromStdString(itemExtra.name) + "\n" +
                   QObject::tr("Quantity: ") + QString::number(quantity_) + " ");
-    text->Paint(&painter_c, nullptr, nullptr);
+    text->SetPos(Width() / 2 - text->Width() / 2, 5);
+    text->Paint(painter, nullptr, nullptr);
 
-    if (contentExtra.tileset != nullptr) {
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(0)->image(), 32));
-      icon->SetPos(40, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+    //if (contentExtra.tileset != nullptr) {
+      //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(0)->image(), 32));
+      //icon->SetPos(40, 10);
+      //icon->Paint(painter, nullptr, nullptr);
 
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(1)->image(), 32));
-      icon->SetPos(80, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(1)->image(), 32));
+      //icon->SetPos(80, 10);
+      //icon->Paint(painter, nullptr, nullptr);
 
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(2)->image(), 32));
-      icon->SetPos(120, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(2)->image(), 32));
+      //icon->SetPos(120, 10);
+      //icon->Paint(painter, nullptr, nullptr);
 
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(3)->image(), 32));
-      icon->SetPos(160, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(3)->image(), 32));
+      //icon->SetPos(160, 10);
+      //icon->Paint(painter, nullptr, nullptr);
 
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(4)->image(), 32));
-      icon->SetPos(200, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(4)->image(), 32));
+      //icon->SetPos(200, 10);
+      //icon->Paint(painter, nullptr, nullptr);
 
-      icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(5)->image(), 32));
-      icon->SetPos(240, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
-    }
+      ////icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(5)->image(), 32));
+      ////icon->SetPos(240, 10);
+      ////icon->Paint(painter, nullptr, nullptr);
+    //}
 
-    text->SetText(
-        QString::fromStdString(CatchChallenger::FacilityLibClient::timeToString(
-            plant.fruits_seconds)));
-    text->SetPos(280, 10);
-    text->Paint(&painter_c, nullptr, nullptr);
+    //text->SetText(
+        //QString::fromStdString(CatchChallenger::FacilityLibClient::timeToString(
+            //plant.fruits_seconds)));
+    //text->SetPos(280, 10);
+    //text->Paint(painter, nullptr, nullptr);
 
-    text->SetText(
-        QObject::tr("Quantity: %1")
-            .arg((double)plant.fix_quantity +
-                 ((double)plant.random_quantity) / RANDOM_FLOAT_PART_DIVIDER));
-    text->SetPos(320, 10);
-    text->Paint(&painter_c, nullptr, nullptr);
+    //text->SetText(
+        //QObject::tr("Quantity: %1")
+            //.arg((double)plant.fix_quantity +
+                 //((double)plant.random_quantity) / RANDOM_FLOAT_PART_DIVIDER));
+    //text->SetPos(320, 10);
+    //text->Paint(painter, nullptr, nullptr);
   } else {
     icon->SetPixmap(
         QtDatapackClientLoader::datapackLoader->defaultInventoryImage());
     icon->SetPos(10, 10);
-    icon->Paint(&painter_c, nullptr, nullptr);
+    icon->Paint(painter, nullptr, nullptr);
 
     text->SetPixelSize(12);
     text->SetPos(20, 10);
@@ -113,45 +104,45 @@ void PlantItem::DrawItem() {
           QStringLiteral("id: %1 (x%2)").arg(plant_id_).arg(quantity_));
     else
       text->SetText(QStringLiteral("id: %1").arg(plant_id_));
-    text->Paint(&painter_c, nullptr, nullptr);
+    text->Paint(painter, nullptr, nullptr);
 
     if (contentExtra.tileset != nullptr) {
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(0)->image(), 32));
       icon->SetPos(40, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(1)->image(), 32));
       icon->SetPos(80, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(2)->image(), 32));
       icon->SetPos(120, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(3)->image(), 32));
       icon->SetPos(160, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(4)->image(), 32));
       icon->SetPos(200, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(5)->image(), 32));
       icon->SetPos(240, 10);
-      icon->Paint(&painter_c, nullptr, nullptr);
+      icon->Paint(painter, nullptr, nullptr);
     }
     text->SetText(
         QString::fromStdString(CatchChallenger::FacilityLibClient::timeToString(
             plant.fruits_seconds)));
     text->SetPos(280, 10);
-    text->Paint(&painter_c, nullptr, nullptr);
+    text->Paint(painter, nullptr, nullptr);
 
     text->SetText(
         QObject::tr("Quantity: %1")
             .arg((double)plant.fix_quantity +
                  ((double)plant.random_quantity) / RANDOM_FLOAT_PART_DIVIDER));
     text->SetPos(320, 10);
-    text->Paint(&painter_c, nullptr, nullptr);
+    text->Paint(painter, nullptr, nullptr);
   }
 
   delete icon;
@@ -197,5 +188,3 @@ QPixmap PlantItem::SetCanvas(const QImage &image, unsigned int size) {
 }
 
 uint16_t PlantItem::PlantId() { return plant_id_; }
-
-void PlantItem::SetSelected(bool selected) {}

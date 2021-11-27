@@ -12,8 +12,8 @@ using Scenes::Player;
 Player::Player() {
   preview_ = Sprite::Create(this);
   preview_->SetTransformationMode(Qt::FastTransformation);
-  name_label = UI::Label::Create(this);
-  name_value = UI::Label::Create(this);
+  preview_->SetSize(160, 160);
+  name_label = UI::Label::Create(this); name_value = UI::Label::Create(this);
   cash_label = UI::Label::Create(this);
   cash_value = UI::Label::Create(this);
   type_label = UI::Label::Create(this);
@@ -34,7 +34,6 @@ void Player::OnResize() {
   unsigned int space = 30;
 
   int tempY = space + 30;
-  preview_->SetSize(160, 160);
   preview_->SetPos(10, bounding.height() / 2 - preview_->Height() / 2);
   qreal x_pos = preview_->X() + preview_->Width() + 20;
 
@@ -61,8 +60,9 @@ void Player::RegisterEvents() {
           connexionManager->client->get_player_informations_ro();
 
   preview_->SetPixmap(QString::fromStdString(
-      QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
-          playerInformations.public_informations.skinId)));
+        QtDatapackClientLoader::datapackLoader->getFrontSkinPath(
+
+          playerInformations.public_informations.skinId)), false);
   name_value->SetText(playerInformations.public_informations.pseudo);
   cash_value->SetText(QString::number(playerInformations.cash));
   switch (playerInformations.public_informations.type) {

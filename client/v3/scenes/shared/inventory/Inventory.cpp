@@ -263,14 +263,10 @@ void Inventory::UnRegisterEvents() {
 void Inventory::OnResize() {
   auto font = inventory_description->GetFont();
   int space = 30;
-  if (BoundingRect().width() < 800 || BoundingRect().height() < 600) {
-    inventoryDestroy->SetSize(83 / 2, 94 / 2);
-    inventoryUse->SetSize(83 / 2, 94 / 2);
-  } else {
-    inventoryDestroy->SetSize(83, 94);
-    inventoryUse->SetSize(83, 94);
-    font.setPixelSize(18);
-  }
+
+  inventoryDestroy->SetSize(60, 72);
+  inventoryUse->SetSize(60, 72);
+  font.setPixelSize(18);
 
   auto bounds = BoundingRect();
   inventory->SetPos(0, 0);
