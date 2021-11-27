@@ -6,34 +6,19 @@ using Scenes::Menu;
 void Menu::OnScreenResize() {
   if (!is_loaded_) return;
   int buttonMargin = 10;
-  if (BoundingRect().width() < 600 || BoundingRect().height() < 600) {
-    solo_->SetSize(148, 61);
-    solo_->SetPixelSize(23);
-    multi_->SetSize(148, 61);
-    multi_->SetPixelSize(23);
-    options_->SetSize(41, 46);
-    options_->SetPixelSize(23);
-    debug_->SetSize(41, 46);
-    debug_->SetPixelSize(23);
-    facebook_->SetSize(41, 46);
-    facebook_->SetPixelSize(18);
-    website_->SetSize(41, 46);
-    website_->SetPixelSize(18);
-  } else {
-    buttonMargin = 30;
-    solo_->SetSize(223, 92);
-    solo_->SetPixelSize(35);
-    multi_->SetSize(223, 92);
-    multi_->SetPixelSize(35);
-    options_->SetSize(62, 70);
-    options_->SetPixelSize(35);
-    debug_->SetSize(62, 70);
-    debug_->SetPixelSize(35);
-    facebook_->SetSize(62, 70);
-    facebook_->SetPixelSize(28);
-    website_->SetSize(62, 70);
-    website_->SetPixelSize(28);
-  }
+  buttonMargin = 30;
+  solo_->SetSize(300, 120);
+  solo_->SetPixelSize(45);
+  multi_->SetSize(300, 120);
+  multi_->SetPixelSize(45);
+  options_->SetSize(90, 90);
+  options_->SetPixelSize(45);
+  debug_->SetSize(90, 90);
+  debug_->SetPixelSize(45);
+  facebook_->SetSize(90, 90);
+  facebook_->SetPixelSize(45);
+  website_->SetSize(62, 70);
+  website_->SetPixelSize(28);
   int verticalMargin =
       BoundingRect().height() / 2 + multi_->Height() / 2 + buttonMargin;
   if (solo_->IsVisible()) {

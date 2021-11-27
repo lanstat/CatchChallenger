@@ -3,6 +3,9 @@
 
 #include <QPainter>
 #include <iostream>
+#ifdef Q_OS_ANDROID
+#include <QInputMethod>
+#endif
 
 #include "../core/EventManager.hpp"
 #include "../core/Node.hpp"
@@ -60,6 +63,10 @@ void Input::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
     if (t.contains(point)) {
       prev_validated = true;
       focus_ = true;
+
+#ifdef Q_OS_ANDROID
+      
+#endif
     }
   }
 }
