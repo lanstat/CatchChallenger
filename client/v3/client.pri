@@ -265,6 +265,7 @@ SOURCES += \
     $$PWD/core/StackedScene.cpp \
     $$PWD/core/GraphicRenderer.cpp \
     $$PWD/core/ProgressNotifier.cpp \
+    $$PWD/core/VirtualInput.cpp \
     $$PWD/action/Action.cpp \
     $$PWD/action/MoveTo.cpp \
     $$PWD/action/Delay.cpp \
@@ -367,6 +368,7 @@ HEADERS  += \
     $$PWD/core/StackedScene.hpp \
     $$PWD/core/GraphicRenderer.hpp \
     $$PWD/core/ProgressNotifier.hpp \
+    $$PWD/core/VirtualInput.hpp \
     $$PWD/action/Action.hpp \
     $$PWD/action/MoveTo.hpp \
     $$PWD/action/Delay.hpp \

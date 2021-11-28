@@ -998,13 +998,13 @@ void Multi::OnEnter() {
 }
 
 void Multi::OnExit() {
+  scrollZone->UnRegisterEvents();
   server_add->UnRegisterEvents();
   server_remove->UnRegisterEvents();
   server_edit->UnRegisterEvents();
   server_select->UnRegisterEvents();
   back->UnRegisterEvents();
   server_refresh->UnRegisterEvents();
-  scrollZone->UnRegisterEvents();
 }
 
 void Multi::OnSelectServer(Node *item) {

@@ -74,7 +74,8 @@ class SubServer : public Scene {
   void Initialize();
   void backMulti();
   void addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
-                       const uint64_t &currentDate, const bool &fullView);
+                       const uint64_t &currentDate, const bool &fullView,
+                       uint8_t level);
   void OnLogged(
       std::vector<std::vector<CatchChallenger::CharacterEntry>> characters);
 };

@@ -1,7 +1,7 @@
-contains(DEFINES, Q_OS_ANDROID) {
+contains(DEFINES, __ANDROID_API__) {
 VIEWPORT_BASE = $$PWD/mobile
 }
-!contains(DEFINES, Q_OS_ANDROID) {
+!contains(DEFINES, __ANDROID_API__) {
 VIEWPORT_BASE = $$PWD/desktop 
 }
 

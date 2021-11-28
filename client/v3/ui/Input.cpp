@@ -7,6 +7,10 @@
 #include "../core/EventManager.hpp"
 #include "../core/Node.hpp"
 
+#ifdef __ANDROID_API__
+  #include "../core/VirtualInput.hpp"
+#endif
+
 using UI::Input;
 
 Input::Input(Node *parent) : Node(parent) {
@@ -60,6 +64,15 @@ void Input::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
     if (t.contains(point)) {
       prev_validated = true;
       focus_ = true;
+#ifdef __ANDROID_API__
+      VirtualInput::GetInstance()->Show(text_, [&](std::string text) {
+        focus_ = false;
+        SetValue(QString::fromStdString(text));
+        if (on_text_change_) {
+          on_text_change_(text_.toStdString());
+        }
+      });
+#endif
     }
   }
 }

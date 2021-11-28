@@ -21,7 +21,7 @@
   #include "core/AudioPlayer.hpp"
 #endif
 
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
   #include <android/log.h>
 
 class androidbuf : public std::streambuf {
@@ -85,7 +85,7 @@ class androidbuferror : public std::streambuf {
 #endif
 
 int main(int argc, char *argv[]) {
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
   std::cout.rdbuf(new androidbuf);
   std::cerr.rdbuf(new androidbuferror);
 #endif
@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 /*QScreen *screen = QApplication::screens().at(0);
 s.setMinimumSize(QSize(screen->availableSize().width(),
                        screen->availableSize().height()));*/
-#ifndef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
   s->setMinimumSize(QSize(640, 480));
 #endif
   s->move(0, 0);
@@ -213,7 +213,8 @@ s.setMinimumSize(QSize(screen->availableSize().width(),
   icon.addFile(":/CC/images/catchchallenger.png", QSize(), QIcon::Normal,
                QIcon::Off);
   s->setWindowIcon(icon);
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
+  s->setMinimumSize(QSize(640, 480));
   s->showFullScreen();
 #else
   // s.show();

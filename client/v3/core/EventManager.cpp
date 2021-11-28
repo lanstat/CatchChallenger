@@ -8,6 +8,7 @@
 #include "../entities/Utils.hpp"
 #include "Logger.hpp"
 #include "Node.hpp"
+#include "VirtualInput.hpp"
 #include "uthash.h"
 
 typedef struct HashElement {

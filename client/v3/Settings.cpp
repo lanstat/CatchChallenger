@@ -1,37 +1,38 @@
 #include "Settings.hpp"
-#include <QStandardPaths>
+
 #include <QDir>
+#include <QStandardPaths>
 #include <iostream>
 
-QSettings *Settings::settings=nullptr;
+QSettings *Settings::settings = nullptr;
 
-Settings::Settings()
+Settings::Settings() {
+#ifdef __ANDROID_API__
+/*if(QSettings().fileName().startsWith("/.config"))
 {
-    #ifdef Q_OS_ANDROID
-    /*if(QSettings().fileName().startsWith("/.config"))
-    {
-        QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, QDir::homePath() + "/.config");
-    }*/
-    #endif
+    QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
+QDir::homePath() + "/.config");
+}*/
+#endif
 }
 
-void Settings::init()
-{
-    #ifndef Q_OS_ANDROID
-        #ifdef Q_OS_WIN32
-            Settings::settings=new QSettings();
-        #else
-            #ifdef Q_OS_LINUX
-            /*const QString settingsPath=QStandardPaths::standardLocations(QStandardPaths::DataLocation).first()+"/config.ini";
-            std::cout << settingsPath.toStdString() << std::endl;
-            Settings::settings=new QSettings(settingsPath,QSettings::NativeFormat);*/
-            //use default for now:
-            Settings::settings=new QSettings();
-            #else
-            Settings::settings=new QSettings();
-            #endif
-        #endif
+void Settings::init() {
+#ifdef __ANDROID_API__
+  #ifdef Q_OS_WIN32
+  Settings::settings = new QSettings();
+  #else
+    #ifdef Q_OS_LINUX
+  /*const QString
+  settingsPath=QStandardPaths::standardLocations(QStandardPaths::DataLocation).first()+"/config.ini";
+  std::cout << settingsPath.toStdString() << std::endl;
+  Settings::settings=new QSettings(settingsPath,QSettings::NativeFormat);*/
+  // use default for now:
+  Settings::settings = new QSettings();
     #else
-        Settings::settings=new QSettings();
+  Settings::settings = new QSettings();
     #endif
+  #endif
+#else
+  Settings::settings = new QSettings();
+#endif
 }

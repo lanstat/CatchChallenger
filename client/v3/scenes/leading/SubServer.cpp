@@ -8,8 +8,8 @@
 #include "../../../../general/base/GeneralStructures.hpp"
 #include "../../FacilityLibClient.hpp"
 #include "../../core/StackedScene.hpp"
-#include "SubServerItem.hpp"
 #include "Loading.hpp"
+#include "SubServerItem.hpp"
 
 using Scenes::SubServer;
 using std::placeholders::_1;
@@ -42,6 +42,7 @@ SubServer *SubServer::Create() { return new (std::nothrow) SubServer(); }
 void SubServer::Initialize() {
   wdialog = Sprite::Create(":/CC/images/interface/message.png", this);
   serverList = UI::ListView::Create(this);
+  serverList->SetItemSpacing(5);
 
   server_select = UI::Button::Create(":/CC/images/interface/next.png", this);
   back = UI::Button::Create(":/CC/images/interface/back.png", this);
@@ -224,7 +225,7 @@ void SubServer::logged(
       averageLastConnect /= entryCount;
     }
   }
-  addToServerList(logicialGroup, current__date, fullView);
+  addToServerList(logicialGroup, current__date, fullView, 0);
   if (servers.size() == 1) {
     server_selected_ = logicialGroup.servers.at(0).serverOrdenedListIndex;
     server_select_clicked();
@@ -241,14 +242,17 @@ bool CatchChallenger::ServerFromPoolForDisplay::operator<(
 
 void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
                                 const uint64_t &currentDate,
-                                const bool &fullView) {
+                                const bool &fullView, uint8_t level) {
   if (connection_->client->getServerOrdenedList().empty())
     std::cerr
         << "SubServer::addToServerList(): client->serverOrdenedList.empty()"
         << std::endl;
-  auto header = UI::Label::Create();
-  header->SetPixelSize(18);
-  header->SetText(QString::fromStdString(logicialGroup.name));
+  if (level > 0) {
+    auto header = UI::Label::Create();
+    header->SetPixelSize(18 - (level - 1) * 4);
+    header->SetText(logicialGroup.name);
+    serverList->AddItem(header);
+  }
   {
     // to order the group
     std::vector<std::string> keys;
@@ -259,11 +263,10 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
     unsigned int index = 0;
     while (index < keys.size()) {
       addToServerList(*logicialGroup.logicialGroupList[keys.at(index)],
-                      currentDate, fullView);
+                      currentDate, fullView, level + 1);
       index++;
     }
   }
-  serverList->AddItem(header);
   {
     qSort(logicialGroup.servers);
     // list the server
@@ -280,9 +283,9 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
         // comment the if to always show it
         if (groupInt >= icon_server_list_color.size())
           groupText = QStringLiteral(" (%1)").arg(groupInt).toStdString();
-        //itemServer->SetSubTitle(tr("Server group: %1, UID: %2")
-                                   //.arg(groupInt)
-                                   //.arg(server.uniqueKey));
+        // itemServer->SetSubTitle(tr("Server group: %1, UID: %2")
+        //.arg(groupInt)
+        //.arg(server.uniqueKey));
         if (!icon_server_list_color.empty())
           itemServer->SetIcon(icon_server_list_color.at(
               groupInt % icon_server_list_color.size()));
@@ -373,7 +376,6 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
           }
         }
       }
-      // TODO(lanstat): second part
       if (server.maxPlayer <= 65533) {
         // do server.currentPlayer/server.maxPlayer icon
         if (server.maxPlayer <= 0 || server.currentPlayer > server.maxPlayer) {
@@ -394,8 +396,8 @@ void SubServer::addToServerList(CatchChallenger::LogicialGroup &logicialGroup,
           }
         }
         itemServer->SetSubTitle(QStringLiteral("%1/%2")
-                                .arg(server.currentPlayer)
-                                .arg(server.maxPlayer));
+                                    .arg(server.currentPlayer)
+                                    .arg(server.maxPlayer));
       }
       const std::vector<CatchChallenger::ServerFromPoolForDisplay> &servers =
           connection_->client->getServerOrdenedList();

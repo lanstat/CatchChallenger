@@ -19,7 +19,7 @@ using std::placeholders::_1;
 
 SceneManager *SceneManager::instance_ = nullptr;
 
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
   #include <QtAndroidExtras>
 
 void keep_screen_on(bool on) {
@@ -99,7 +99,7 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
   viewport()->setAttribute(Qt::WA_NoSystemBackground);
   setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
 
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
   keep_screen_on(true);
 #endif
 
@@ -323,3 +323,7 @@ void SceneManager::RemoveOverlay() {
 }
 
 Scene *SceneManager::CurrentScene() { return scene_stack_.back(); }
+
+QGraphicsItem *SceneManager::GetRenderer() {
+  return renderer_;
+}
