@@ -1,11 +1,12 @@
 // Copyright 2021 CatchChallenger
 #include "Utils.hpp"
 
+#include <QDirIterator>
 #include <iostream>
 
+#include "../core/SceneManager.hpp"
 #include "../ui/Label.hpp"
 #include "../ui/ThemedButton.hpp"
-#include "../core/SceneManager.hpp"
 
 Node *Utils::GetCurrentScene(Node *node) {
   Node *parent = node;
@@ -64,14 +65,14 @@ QPixmap Utils::B64Png2Pixmap(const QString &b64) {
 
 QString Utils::RemoveHTMLEntities(const QString &html) {
   QString tmp = html;
-  tmp.replace(QString("<ul>"),QString(""))
-    .replace(QString("</ul>"),QString(""))
-    .replace(QString("<li>"),QString(""))
-    .replace(QString("</li>"),QString(""))
-    .replace(QString("<i>"),QString(""))
-    .replace(QString("</i>"),QString(""))
-    .replace(QString("<b>"),QString(""))
-    .replace(QString("</b>"),QString(""));
+  tmp.replace(QString("<ul>"), QString(""))
+      .replace(QString("</ul>"), QString(""))
+      .replace(QString("<li>"), QString(""))
+      .replace(QString("</li>"), QString(""))
+      .replace(QString("<i>"), QString(""))
+      .replace(QString("</i>"), QString(""))
+      .replace(QString("<b>"), QString(""))
+      .replace(QString("</b>"), QString(""));
   return tmp;
 }
 
@@ -90,4 +91,32 @@ bool Utils::IsActiveInScene(Node *node) {
 
   if (root == nullptr) return false;
   return root == SceneManager::GetInstance()->CurrentScene();
+}
+
+void Utils::MoveDatapackFolder(const QString &origin, const QString &dest) {
+  QDirIterator it(origin, QDirIterator::Subdirectories);
+  QDir dir(origin);
+  const int absSourcePathLength = dir.absoluteFilePath(origin).length();
+
+  while (it.hasNext()) {
+    it.next();
+    const auto fileInfo = it.fileInfo();
+    if (!fileInfo.isHidden()) {
+      const QString subPathStructure =
+          fileInfo.absoluteFilePath().mid(absSourcePathLength);
+      const QString constructedAbsolutePath = dest + subPathStructure;
+
+      if (fileInfo.isDir()) {
+        dir.mkpath(constructedAbsolutePath);
+      } else if (fileInfo.isFile()) {
+        QFile::remove(constructedAbsolutePath);
+        QFile::copy(fileInfo.absoluteFilePath(), constructedAbsolutePath);
+      }
+    }
+  }
+}
+
+void Utils::MoveFile(const QString &origin, const QString &dest) {
+  QFile file(origin);
+  file.copy(dest);
 }

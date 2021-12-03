@@ -255,6 +255,7 @@ SOURCES += \
     $$PWD/ui/Row.cpp \
     $$PWD/ui/Column.cpp \
     $$PWD/ui/SelectableItem.cpp \
+    $$PWD/ui/ThemedItem.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -356,6 +357,7 @@ HEADERS  += \
     $$PWD/ui/Row.hpp \
     $$PWD/ui/Column.hpp \
     $$PWD/ui/SelectableItem.hpp \
+    $$PWD/ui/ThemedItem.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Vector.hpp \
     $$PWD/core/Node.hpp \
@@ -492,6 +494,8 @@ else
     DEFINES += CATCHCHALLENGER_SOLO
 #    DEFINES += NOWEBSOCKET
 }
+
+
 android: {
     INCLUDEPATH += /var/lib/docker/overlay2/e914fb178b67f59eee382992f7f454c694a769808d18e8f452675ee1959aae30/diff/opt/android-sdk/ndk-r19c/platforms/android-26/arch-arm64/usr/include/
     INCLUDEPATH += /var/lib/docker/overlay2/e914fb178b67f59eee382992f7f454c694a769808d18e8f452675ee1959aae30/diff/opt/android-sdk/ndk-r19c/platforms/android-26/arch-arm/usr/include/
@@ -502,6 +506,7 @@ android: {
     QMAKE_CXXFLAGS += -g
     DISTFILES += $$PWD/../android-sources/AndroidManifest.xml
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/../android-sources
+
 }
 !contains(DEFINES, NOWEBSOCKET) {
     QT += websockets
@@ -560,6 +565,12 @@ ICON = $$PWD/../resources/client.icns
 
 RESOURCES += $$PWD/../resources/client-resources.qrc
 
+deployment.files=$$PWD/../datapack.tar
+android {
+    deployment.path=/assets
+}
+INSTALLS += deployment
+
 TRANSLATIONS    = $$PWD/../resources/languages/en/translation.ts \
     $$PWD/../languages/fr/translation.ts
 
@@ -569,10 +580,7 @@ include(entities/solo/solo-server.pri)
 QT       += sql
 }
 
-#define pc/mobile viewport
 include(viewports/viewport.pri)
-#contains(DEFINES, Q_OS_ANDROID) {
-#}
 
 DISTFILES += \
     $$PWD/client.pri

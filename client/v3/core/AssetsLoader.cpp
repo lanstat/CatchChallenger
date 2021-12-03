@@ -120,6 +120,7 @@ void AssetsLoader::ThreadFinished() {
     }
   }
 #endif
+
   int myTimer2Elapsed = myTimer2.elapsed();
   // clean the old work
   /*not need, no event loop: thread->exit();

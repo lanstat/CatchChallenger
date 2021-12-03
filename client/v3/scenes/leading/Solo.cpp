@@ -12,6 +12,7 @@
 #include "../../base/ConnectionInfo.hpp"
 #include "../../base/ConnectionManager.hpp"
 #include "../../core/StackedScene.hpp"
+#include "../../entities/Utils.hpp"
 #include "Loading.hpp"
 
 using Scenes::Solo;
@@ -40,6 +41,7 @@ void Solo::Initialize() {
     PrintError(tr("No writable path").toStdString());
     return;
   }
+
   QString savegamesPath = l.first() + "/solo/";
   // locate the new folder and create it
   if (!QDir().mkpath(savegamesPath)) {
@@ -139,6 +141,10 @@ void Solo::Initialize() {
     // std::string datapackPathBase=client->datapackPathBase();
     std::string datapackPathBase =
         QCoreApplication::applicationDirPath().toStdString() + "/datapack/";
+#ifdef __ANDROID_API__
+    Utils::MoveFile("assets:/datapack.tar",
+                    QString::fromStdString(datapackPathBase));
+#endif
     CatchChallenger::GameServerSettings formatedServerSettings =
         Globals::InternalServer->getSettings();
 

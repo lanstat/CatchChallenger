@@ -3,7 +3,15 @@
 #define CLIENT_V3_CORE_VIRTUALINPUT_HPP_
 
 #include <QGraphicsProxyWidget>
-#include <QLineEdit>
+#include <QPlainTextEdit>
+
+class CustomTextEdit: public QPlainTextEdit {
+  Q_OBJECT
+  public:
+    void keyPressEvent(QKeyEvent *e) override;
+  signals:
+    void OnReturnPressed();
+};
 
 class VirtualInput : public QGraphicsProxyWidget {
  public:
@@ -22,14 +30,12 @@ class VirtualInput : public QGraphicsProxyWidget {
   void Hide();
   bool IsVisible();
   void SetOnTextChange(std::function<void(std::string)> callback);
-  void KeyPressEvent(QKeyEvent *event, bool &event_trigger);
-  void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger);
 
  private:
-  std::function<void(std::string)> on_text_change_;
-  QLineEdit *control_;
+  CustomTextEdit *control_;
   static VirtualInput *instance_;
   bool visible_;
+  std::function<void(std::string)> on_text_change_;
 
   explicit VirtualInput(QGraphicsItem *parent);
   void OnTextComplete();

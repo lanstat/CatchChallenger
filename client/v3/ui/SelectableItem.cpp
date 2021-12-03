@@ -30,20 +30,22 @@ SelectableItem::~SelectableItem() {
 }
 
 void SelectableItem::Draw(QPainter *painter) {
-  Sprite *background;
-  if (is_disabled_) {
-    background = Sprite::Create(bg_disabled_);
-  } else {
-    if (is_selected_) {
-      background = Sprite::Create(bg_selected_);
+  if (!bg_selected_.isEmpty()) {
+    Sprite *background;
+    if (is_disabled_) {
+      background = Sprite::Create(bg_disabled_);
     } else {
-      background = Sprite::Create(bg_unselected_);
+      if (is_selected_) {
+        background = Sprite::Create(bg_selected_);
+      } else {
+        background = Sprite::Create(bg_unselected_);
+      }
     }
-  }
-  background->Strech(strech_x_, strech_y_, border_size_, Width(), Height());
-  background->Paint(painter, nullptr, nullptr);
+    background->Strech(strech_x_, strech_y_, border_size_, Width(), Height());
+    background->Paint(painter, nullptr, nullptr);
 
-  delete background;
+    delete background;
+  }
 
   if (content_cache_ == nullptr) {
     content_cache_ = new QPixmap(Width(), Height());

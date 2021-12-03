@@ -20,15 +20,16 @@ class SelectableItem : public Node {
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
 
  protected:
+  QString bg_unselected_;
+  QString bg_selected_;
+  QString bg_disabled_;
+
   SelectableItem();
 
  private:
   bool is_selected_;
   bool is_disabled_;
   QPixmap *content_cache_;
-  QString bg_unselected_;
-  QString bg_selected_;
-  QString bg_disabled_;
   uint16_t strech_x_;
   uint16_t strech_y_;
   uint16_t border_size_;
