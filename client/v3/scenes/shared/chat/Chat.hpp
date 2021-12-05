@@ -10,6 +10,7 @@
 #include "../../../core/Node.hpp"
 #include "../../../entities/PlayerInfo.hpp"
 #include "../../../ui/Label.hpp"
+#include "../../../ui/Button.hpp"
 
 namespace Scenes {
 class Chat : public Node {
@@ -39,6 +40,8 @@ class Chat : public Node {
   bool focus_;
   QTimer stop_flood_;
   UI::Label *input_;
+  UI::Button *button_;
+  bool mobile_mode_;
 
   Chat(Node *parent);
   void SendMessage(std::string message);

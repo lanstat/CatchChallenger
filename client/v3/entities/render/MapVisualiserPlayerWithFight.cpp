@@ -7,7 +7,7 @@
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../../../qt/fight/interface/ClientFightEngine.hpp"
+#include "../fight/interface/ClientFightEngine.hpp"
 #include "../../cc/Api_protocol_Qt.hpp"
 
 MapVisualiserPlayerWithFight::MapVisualiserPlayerWithFight(

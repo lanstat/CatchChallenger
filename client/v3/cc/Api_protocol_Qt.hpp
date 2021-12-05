@@ -6,7 +6,7 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../../../general/fight/CommonFightEngine.hpp"
 #include "../../libcatchchallenger/Api_protocol.hpp"
-#include "../../qt/ConnectedSocket.hpp"
+#include "../base/ConnectedSocket.hpp"
 
 namespace CatchChallenger {
 class ClientFightEngine;

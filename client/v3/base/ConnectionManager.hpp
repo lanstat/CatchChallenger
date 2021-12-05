@@ -7,13 +7,13 @@
 #include <string>
 
 #include "../../../general/base/GeneralStructures.hpp"
-#include "../../qt/ConnectedSocket.hpp"
+#include "ConnectedSocket.hpp"
 #include "../cc/Api_client_real.hpp"
 #include "../cc/Api_protocol_Qt.hpp"
 #include "../core/ProgressNotifier.hpp"
 #include "ConnectionInfo.hpp"
 #ifdef CATCHCHALLENGER_SOLO
-  #include "../../qt/QFakeSocket.hpp"
+  #include "../entities/solo/QFakeSocket.hpp"
 #endif
 
 class ConnectionManager : public ProgressNotifier, public QObject {

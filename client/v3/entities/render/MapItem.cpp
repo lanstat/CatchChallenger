@@ -8,7 +8,7 @@
 #include <QPixmap>
 #include <iostream>
 
-#include "../../qt/ClientVariable.hpp"
+#include "../ClientVariable.hpp"
 #include "PreparedLayer.hpp"
 
 MapItem::MapItem(Node *parent) : Node(parent) {

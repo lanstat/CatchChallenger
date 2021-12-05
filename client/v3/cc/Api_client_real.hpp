@@ -2,7 +2,7 @@
 #define CATCHCHALLENGER_API_CLIENT_REAL_H
 
 #include "../../../general/base/GeneralVariable.hpp"
-#include "../../qt/QtDatapackChecksum.hpp"
+#include "QtDatapackChecksum.hpp"
 
 #include <QObject>
 #include <string>
@@ -23,7 +23,7 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../entities/ClientStructures.hpp"
 #include "Api_protocol_Qt.hpp"
-#include "../../qt/QZstdDecodeThread.hpp"
+#include "../entities/QZstdDecodeThread.hpp"
 
 namespace CatchChallenger {
 class Api_client_real : public Api_protocol_Qt

@@ -14,7 +14,7 @@
 #include "../../../../general/base/FacilityLibGeneral.hpp"
 #include "../../../../general/base/GeneralVariable.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../../../qt/ClientVariable.hpp"
+#include "../ClientVariable.hpp"
 #include "../../FacilityLibClient.hpp"
 #include "../../libraries/tiled/tiled_tile.hpp"
 #include "MapVisualiser.hpp"

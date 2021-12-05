@@ -286,7 +286,7 @@ SOURCES += \
     $$PWD/cc/Api_client_virtual.cpp \
     $$PWD/cc/Api_protocol_Qt.cpp \
     $$PWD/cc/QtDatapackClientLoader.cpp \
-    $$PWD/../qt/LanguagesSelect.cpp \
+    #$$PWD/../qt/LanguagesSelect.cpp \
     $$PWD/MyApplication.cpp \
     $$PWD/cc/QtDatapackClientLoaderThread.cpp \
     $$PWD/scenes/ParallaxForest.cpp \
@@ -336,6 +336,7 @@ SOURCES += \
     $$PWD/scenes/leading/CharacterSelector.cpp \
     $$PWD/scenes/leading/CharacterItem.cpp \
     $$PWD/scenes/leading/Options.cpp \
+    $$PWD/scenes/leading/Debug.cpp \
     $$PWD/scenes/leading/Menu.cpp
 HEADERS  += \
     $$PWD/Language.hpp \
@@ -387,7 +388,7 @@ HEADERS  += \
     $$PWD/cc/Api_client_virtual.hpp \
     $$PWD/cc/Api_protocol_Qt.hpp \
     $$PWD/cc/QtDatapackClientLoader.hpp \
-    $$PWD/../qt/LanguagesSelect.hpp \
+    #$$PWD/../qt/LanguagesSelect.hpp \
     $$PWD/MyApplication.h \
     $$PWD/cc/QtDatapackClientLoaderThread.hpp \
     $$PWD/scenes/ParallaxForest.hpp \
@@ -433,6 +434,7 @@ HEADERS  += \
     $$PWD/scenes/leading/CharacterSelector.hpp \
     $$PWD/scenes/leading/CharacterItem.hpp \
     $$PWD/scenes/leading/Options.hpp \
+    $$PWD/scenes/leading/Debug.hpp \
     $$PWD/scenes/leading/Menu.hpp
 
 SOURCES += \
@@ -520,15 +522,17 @@ SOURCES += \
     $$PWD/base/ConnectionManager.cpp \
     $$PWD/Globals.cpp \
     $$PWD/Ultimate.cpp \
-    $$PWD/../qt/QtDatapackChecksum.cpp \
-    $$PWD/../qt/QZstdDecodeThread.cpp \
+    $$PWD/Options.cpp \
+    $$PWD/cc/QtDatapackChecksum.cpp \
+    $$PWD/entities/QZstdDecodeThread.cpp \
     $$PWD/entities/InternetUpdater.cpp \
     $$PWD/entities/FeedNews.cpp \
-    $$PWD/../qt/ConnectedSocket.cpp \
+    $$PWD/base/ConnectedSocket.cpp \
     $$PWD/../tarcompressed/TarDecode.cpp \
     $$PWD/../tarcompressed/ZstdDecode.cpp \
-    $$PWD/../qt/fight/interface/ClientFightEngine.cpp \
-    $$PWD/../qt/ExtraSocket.cpp \
+    $$PWD/entities/fight/interface/ClientFightEngine.cpp \
+    $$PWD/base/ExtraSocket.cpp \
+    $$PWD/base/LocalListener.cpp \
     $$PWD/Settings.cpp \
     $$PWD/core/AssetsLoader.cpp \
     $$PWD/core/AssetsLoaderThread.cpp \
@@ -541,15 +545,17 @@ HEADERS  += \
     $$PWD/base/ConnectionManager.hpp \
     $$PWD/Globals.hpp \
     $$PWD/Ultimate.hpp \
-    $$PWD/../qt/QtDatapackChecksum.hpp \
-    $$PWD/../qt/QZstdDecodeThread.hpp \
+    $$PWD/Options.hpp \
+    $$PWD/cc/QtDatapackChecksum.hpp \
+    $$PWD/entities/QZstdDecodeThread.hpp \
     $$PWD/entities/InternetUpdater.hpp \
     $$PWD/entities/FeedNews.hpp \
-    $$PWD/../qt/ConnectedSocket.hpp \
+    $$PWD/base/ConnectedSocket.hpp \
     $$PWD/../tarcompressed/TarDecode.hpp \
     $$PWD/../tarcompressed/ZstdDecode.hpp \
-    $$PWD/../qt/fight/interface/ClientFightEngine.hpp \
-    $$PWD/../qt/ExtraSocket.hpp \
+    $$PWD/entities/fight/interface/ClientFightEngine.hpp \
+    $$PWD/base/ExtraSocket.hpp \
+    $$PWD/base/LocalListener.hpp \
     $$PWD/Settings.hpp \
     $$PWD/core/AssetsLoader.hpp \
     $$PWD/core/AssetsLoaderThread.hpp \
@@ -585,5 +591,5 @@ include(viewports/viewport.pri)
 DISTFILES += \
     $$PWD/client.pri
 
-FORMS += \
-    $$PWD/../qt/LanguagesSelect.ui
+#FORMS += \
+#    $$PWD/../qt/LanguagesSelect.ui

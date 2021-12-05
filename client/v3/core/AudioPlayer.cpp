@@ -8,7 +8,7 @@
 
   #include "../../../general/base/GeneralVariable.hpp"
   #include "../../../general/base/cpp11addition.hpp"
-  #include "../../qt/PlatformMacro.hpp"
+  #include "../entities/PlatformMacro.hpp"
   #include "AssetsLoader.hpp"
 
 AudioPlayer *AudioPlayer::instance_ = nullptr;

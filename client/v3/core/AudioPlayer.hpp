@@ -10,7 +10,7 @@
   #include <vector>
 
   #include "../../opusfile/opusfile.h"
-  #include "../../qt/QInfiniteBuffer.hpp"
+  #include "../QInfiniteBuffer.hpp"
 
 class AudioPlayer {
  public:

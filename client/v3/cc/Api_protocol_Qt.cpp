@@ -399,7 +399,7 @@ void Api_protocol_Qt::resetAll()
     else
     #endif
     mDatapackBase=QCoreApplication::applicationDirPath().toStdString()+"/datapack/";
-    #ifdef Q_OS_ANDROID
+    #ifdef __ANDROID_API__ 
     mDatapackBase=QStandardPaths::writableLocation(QStandardPaths::DataLocation).toStdString()+"/datapack/";
     #endif
     mDatapackMain=mDatapackBase+"map/main/[main]/";

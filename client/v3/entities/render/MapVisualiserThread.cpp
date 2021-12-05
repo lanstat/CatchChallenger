@@ -12,7 +12,7 @@
 #include "../../../../general/base/FacilityLib.hpp"
 #include "../../../../general/base/tinyXML2/customtinyxml2.hpp"
 #include "../../../../general/base/tinyXML2/tinyxml2.hpp"
-#include "../../../qt/ClientVariable.hpp"
+#include "../ClientVariable.hpp"
 #include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../Language.hpp"
 #include "../../libraries/tiled/tiled_mapobject.hpp"

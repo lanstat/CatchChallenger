@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../../qt/ConnectedSocket.hpp"
+#include "../base/ConnectedSocket.hpp"
 #include "Api_protocol_Qt.hpp"
 
 namespace CatchChallenger {

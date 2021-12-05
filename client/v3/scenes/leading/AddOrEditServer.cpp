@@ -9,8 +9,8 @@
 #include <QTextDocument>
 #include <iostream>
 
-#include "../../../qt/Settings.hpp"
-#include "../../../qt/Ultimate.hpp"
+#include "../../Settings.hpp"
+#include "../../Ultimate.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
 

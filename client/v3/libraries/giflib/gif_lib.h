@@ -30,7 +30,7 @@ extern "C" {
 #define FALSE 0
 #endif
 
-#ifdef Q_OS_ANDROID
+#ifdef __ANDROID_API__ 
 #define S_IREAD S_IRUSR
 #define S_IWRITE S_IWUSR
 #define S_IEXEC S_IXUSR

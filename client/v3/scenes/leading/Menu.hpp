@@ -13,6 +13,7 @@
 #include "Multi.hpp"
 #include "Solo.hpp"
 #include "Options.hpp"
+#include "Debug.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -56,6 +57,7 @@ class Menu : public Scene {
   Multi *multi_scene_;
   Solo *solo_scene_;
   Options *option_scene_;
+  Debug *debug_scene_;
 
   void ChangeLanguage();
   void OnAssetsDataParsed();

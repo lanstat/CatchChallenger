@@ -7,12 +7,11 @@
 #include <iostream>
 
 #include "../general/base/FacilityLibGeneral.hpp"
-#include "../qt/LanguagesSelect.hpp"
-#include "../qt/LocalListener.hpp"
-#include "../qt/Options.hpp"
-#include "../qt/QtDatapackChecksum.hpp"
-#include "../qt/QtDatapackClientLoader.hpp"
-#include "../qt/Settings.hpp"
+#include "base/LocalListener.hpp"
+#include "Options.hpp"
+#include "cc/QtDatapackChecksum.hpp"
+#include "cc/QtDatapackClientLoader.hpp"
+#include "Settings.hpp"
 #include "Globals.hpp"
 #include "Language.hpp"
 #include "MyApplication.h"

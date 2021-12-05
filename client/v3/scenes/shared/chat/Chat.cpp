@@ -28,6 +28,16 @@ Chat::Chat(Node *parent) : Node(parent) {
   input_ = UI::Label::Create(this);
   input_->SetPixelSize(10);
 
+#ifdef __ANDROID_API__
+  mobile_mode_ = true;
+#else
+  mobile_mode_ = false;
+#endif
+
+  if (mobile_mode_) {
+    button_ = UI::Button::Create(":/CC/images/interface/chat.png");
+  }
+
   QObject::connect(connexionManager->client,
                    &CatchChallenger::Api_client_real::QtlastReplyTime,
                    std::bind(&Chat::LastReplyTime, this, _1));

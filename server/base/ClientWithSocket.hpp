@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QAbstractSocket>
-#include "../../client/qt/ConnectedSocket.hpp"
+#include "../../client/v3/base/ConnectedSocket.hpp"
 #else
 #include "../epoll/BaseClassSwitch.hpp"
 #include "../epoll/EpollClient.hpp"

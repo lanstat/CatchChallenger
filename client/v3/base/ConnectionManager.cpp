@@ -8,7 +8,7 @@
 
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/CommonSettingsServer.hpp"
-#include "../../qt/Settings.hpp"
+#include "../Settings.hpp"
 #include "../cc/Api_client_real.hpp"
 #include "../cc/QtDatapackClientLoader.hpp"
 

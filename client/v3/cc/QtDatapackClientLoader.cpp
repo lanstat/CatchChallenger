@@ -9,7 +9,7 @@
 #include "../../../general/base/FacilityLibGeneral.hpp"
 #include "../../../general/base/DatapackGeneralLoader.hpp"
 #include "../../../general/base/Map_loader.hpp"
-#include "../../qt/QtDatapackChecksum.hpp"
+#include "QtDatapackChecksum.hpp"
 #include "../../libraries/tiled/tiled_tileset.hpp"
 #include "../../libraries/tiled/tiled_mapreader.hpp"
 #include "../../libraries/gifimage/qgifimage.h"

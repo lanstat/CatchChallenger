@@ -10,7 +10,7 @@
 #include "base/ClientMapManagement/MapVisibilityAlgorithm_WithBorder_StoreOnSender.hpp"
 
 #ifdef CATCHCHALLENGER_SOLO
-#include "../client/qt/QFakeServer.hpp"
+#include "../client/v3/entities/solo/QFakeServer.hpp"
 #endif
 
 #ifdef __linux__

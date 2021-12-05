@@ -13,7 +13,7 @@
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
 
-  #include "../../../qt/QInfiniteBuffer.hpp"
+  #include "../../QInfiniteBuffer.hpp"
 #endif
 #include <vector>
 

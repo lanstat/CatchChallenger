@@ -1,6 +1,6 @@
 include(v3/client.pri)
 include(../general/general.pri)
-include(qt/qt.pri)
+#include(qt/qt.pri)
 
 linux:QMAKE_CXXFLAGS+="-Wno-deprecated-declarations"
 linux:QMAKE_CFLAGS+="-Wno-deprecated-declarations"

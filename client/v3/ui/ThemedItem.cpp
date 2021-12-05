@@ -9,6 +9,7 @@ using UI::DotItem;
 DotItem::DotItem(): UI::SelectableItem() {
   bg_selected_ = QString();
   text_size_ = 10;
+  SetHeight(30);
 }
 
 DotItem* DotItem::Create() {

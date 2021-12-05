@@ -265,7 +265,10 @@ void Menu::GoToOptions() {
   AddChild(option_scene_);
 }
 
-void Menu::GoToDebug() {}
+void Menu::GoToDebug() {
+  if (!debug_scene_) debug_scene_ = Debug::Create();
+  AddChild(debug_scene_);
+}
 
 void Menu::ChangeLanguage() {
   if (!is_loaded_) return;
@@ -283,6 +286,7 @@ void Menu::OnEnter() {
   facebook_->RegisterEvents();
   website_->RegisterEvents();
   news_list_->RegisterEvents();
+  debug_->RegisterEvents();
 }
 
 void Menu::OnExit() {
@@ -293,6 +297,7 @@ void Menu::OnExit() {
   facebook_->UnRegisterEvents();
   website_->UnRegisterEvents();
   news_list_->UnRegisterEvents();
+  debug_->UnRegisterEvents();
 }
 
 void Menu::OnAssetsDataParsed() {
@@ -323,7 +328,7 @@ void Menu::OnScreenResize() {
   buttonMargin = 30;
   solo_->SetSize(223, 92);
   solo_->SetPixelSize(35);
-  multi_->SetSize(300, 92);
+  multi_->SetSize(223, 92);
   multi_->SetPixelSize(35);
   options_->SetSize(62, 70);
   options_->SetPixelSize(35);
