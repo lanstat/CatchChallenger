@@ -17,8 +17,9 @@ class Utils {
                               std::function<void(Node*)> on_click);
   static QString RemoveHTMLEntities(const QString& html);
   static QPixmap B64Png2Pixmap(const QString& b64);
-  static QImage CropToContent(const QImage &buffer, QColor stop);
-  static void MoveDatapackFolder(const QString &origin, const QString &dest);
-  static void MoveFile(const QString &origin, const QString &dest);
+  static QImage CropToContent(const QImage& buffer, QColor stop);
+  static void MoveDatapackFolder(const QString& origin, const QString& dest);
+  static void MoveFile(const QString& origin, const QString& folder,
+                       const QString& name);
 };
 #endif  // CLIENT_V3_ENTITIES_UTILS_HPP_

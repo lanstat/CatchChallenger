@@ -13,6 +13,8 @@
   #include "AudioPlayer.hpp"
 #endif
 #include <QGLWidget>
+#include <QOpenGLWidget>
+#include <QSurfaceFormat>
 #include <iostream>
 
 using std::placeholders::_1;
@@ -48,9 +50,14 @@ void keep_screen_on(bool on) {
 
 SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
   {
-    QGLWidget *context = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    //QGLWidget *context = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    QOpenGLWidget *context = new QOpenGLWidget();
     // if OpenGL is present, use it
     if (context->isValid()) {
+      QSurfaceFormat format;
+      format.setSamples(4);
+      context->setFormat(format);
+
       setViewport(context);
       setRenderHint(QPainter::Antialiasing, true);
       setRenderHint(QPainter::TextAntialiasing, true);

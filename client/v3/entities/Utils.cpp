@@ -2,6 +2,7 @@
 #include "Utils.hpp"
 
 #include <QDirIterator>
+#include <QDir>
 #include <iostream>
 
 #include "../core/SceneManager.hpp"
@@ -116,7 +117,22 @@ void Utils::MoveDatapackFolder(const QString &origin, const QString &dest) {
   }
 }
 
-void Utils::MoveFile(const QString &origin, const QString &dest) {
+void Utils::MoveFile(const QString &origin, const QString &folder,
+                     const QString &name) {
   QFile file(origin);
-  file.copy(dest);
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< folder.toStdString() << std::endl;
+  if (QDir(folder).exists()) {
+    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "exite dir" << std::endl;
+  } else {
+    QDir::mkpath(folder);
+    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "no exite dir" << std::endl;
+  }
+  if (file.copy(folder + name)) {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "lo copio!" << std::endl;
+  }
+  else {
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
+              << "no lo copio!" << std::endl;
+  }
 }

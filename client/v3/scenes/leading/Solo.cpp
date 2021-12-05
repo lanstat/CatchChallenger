@@ -143,7 +143,7 @@ void Solo::Initialize() {
         QCoreApplication::applicationDirPath().toStdString() + "/datapack/";
 #ifdef __ANDROID_API__
     Utils::MoveFile("assets:/datapack.tar",
-                    QString::fromStdString(datapackPathBase));
+                    QString::fromStdString(datapackPathBase), "datapack.tar");
 #endif
     CatchChallenger::GameServerSettings formatedServerSettings =
         Globals::InternalServer->getSettings();
