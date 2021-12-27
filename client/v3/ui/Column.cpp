@@ -14,10 +14,10 @@ Column::Column(Node *parent) : Node(parent) {
 }
 
 Column::~Column() {
-  for (auto item : children_) {
+  auto children = Children();
+  for (auto item : children) {
     delete item;  
   }
-  children_.clear();
 }
 
 Column *Column::Create(Node *parent) {
@@ -26,11 +26,12 @@ Column *Column::Create(Node *parent) {
 }
 
 void Column::ReCalculateSize() {
-  if (children_.size() == 0) return;
+  auto children = Children();
+  if (children.size() == 0) return;
   int y = 0;
   int height = 0;
   int width = 0;
-  for (auto item : children_) {
+  for (auto item : children) {
     item->SetX(0);
     item->SetY(y);
     height = item->Height() + y;
@@ -68,13 +69,15 @@ void Column::RemoveChild(Node *node) {
 void Column::Draw(QPainter *painter) {}
 
 void Column::RegisterEvents() {
-  for (auto item : children_) {
+  auto children = Children();
+  for (auto item : children) {
     item->RegisterEvents();
   }
 }
 
 void Column::UnRegisterEvents() {
-  for (auto item : children_) {
+  auto children = Children();
+  for (auto item : children) {
     item->UnRegisterEvents();
   }
 }

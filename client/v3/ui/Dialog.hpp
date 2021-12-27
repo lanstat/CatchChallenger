@@ -6,6 +6,7 @@
 
 #include "../core/Scene.hpp"
 #include "../core/Sprite.hpp"
+#include "Backdrop.hpp"
 #include "Button.hpp"
 #include "Label.hpp"
 #include "Row.hpp"
@@ -35,6 +36,7 @@ class Dialog : public Scene {
   int y_;
   QSizeF dialog_size_;
   Sprite *background_;
+  Backdrop *backdrop_;
 
   void OnScreenSD() override;
   void OnScreenHD() override;

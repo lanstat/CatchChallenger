@@ -50,7 +50,7 @@ void InventoryItem::Draw(QPainter *painter) {
   text->SetWidth(size.width());
   text->SetAlignment(Qt::AlignCenter);
   text->SetText(text_);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
 }

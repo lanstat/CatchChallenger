@@ -165,6 +165,7 @@ void Loading::SetNotifier(ProgressNotifier *notifier) {
 }
 
 void Loading::OnEnter() {
+  Scene::OnEnter();
   RunAction(timer_);
 }
 

@@ -12,8 +12,8 @@
 #include "PreparedLayer.hpp"
 
 MapItem::MapItem(Node *parent) : Node(parent) {
-  // setFlag(QGraphicsItem::ItemHasNoContents);
-  // setCacheMode(QGraphicsItem::ItemCoordinateCache);just change direction
+  setFlag(QGraphicsItem::ItemHasNoContents);
+  setCacheMode(QGraphicsItem::ItemCoordinateCache); // just change direction
   // without move do bug
 }
 

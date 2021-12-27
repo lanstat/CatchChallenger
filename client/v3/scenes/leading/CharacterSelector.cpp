@@ -427,7 +427,7 @@ void CharacterSelector::backSubServer() {
 }
 
 void CharacterSelector::OnEnter() {
-  Node::OnEnter();
+  Scene::OnEnter();
   add->RegisterEvents();
   remove->RegisterEvents();
   select->RegisterEvents();

@@ -23,7 +23,7 @@ void SubServerItem::DrawContent(QPainter *painter) {
     image->SetSize(40, 27);
     image->SetPos(30, bounding.height() / 2 - image->Height() / 2);
     x_pos = image->X() + image->Width();
-    image->Paint(painter, nullptr, nullptr);
+    image->Render(painter);
   }
 
   if (!stat_.isEmpty()) {
@@ -31,7 +31,7 @@ void SubServerItem::DrawContent(QPainter *painter) {
     image->SetSize(30, 30);
     image->SetPos(bounding.width() - image->Width() - 30,
                   bounding.height() / 2 - image->Height() / 2);
-    image->Paint(painter, nullptr, nullptr);
+    image->Render(painter);
   }
 
   if (!star_.isEmpty()) {
@@ -39,7 +39,7 @@ void SubServerItem::DrawContent(QPainter *painter) {
     image->SetSize(30, 30);
     image->SetPos(x_pos + 10,
                   bounding.height() / 2 - image->Height() / 2);
-    image->Paint(painter, nullptr, nullptr);
+    image->Render(painter);
   }
 
   auto text = UI::Label::Create(QColor(255, 255, 255), QColor(30, 25, 17));
@@ -47,12 +47,12 @@ void SubServerItem::DrawContent(QPainter *painter) {
   text->SetAlignment(Qt::AlignCenter);
   text->SetText(title_);
   text->SetY(5);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   text->SetY(text->Height());
   text->SetPixelSize(10);
   text->SetText(subtitle_);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
   delete image;

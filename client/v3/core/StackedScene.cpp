@@ -64,3 +64,25 @@ Scene *StackedScene::PopForeground() {
 
   return tmp;
 }
+
+void StackedScene::OnEnter() {
+  Scene::OnEnter();
+
+  if (background_ != nullptr) {
+    background_->OnEnter();
+  }
+  if (!foreground_.empty()) {
+    foreground_.back()->OnEnter();
+  }
+}
+
+void StackedScene::OnExit() {
+  if (background_ != nullptr) {
+    background_->OnExit();
+  }
+  if (!foreground_.empty()) {
+    foreground_.back()->OnExit();
+  }
+
+  Scene::OnExit();
+}

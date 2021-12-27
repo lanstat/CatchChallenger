@@ -50,13 +50,13 @@ void keep_screen_on(bool on) {
 
 SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
   {
-    //QGLWidget *context = new QGLWidget(QGLFormat(QGL::SampleBuffers));
-    QOpenGLWidget *context = new QOpenGLWidget();
+    QGLWidget *context = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    // QOpenGLWidget *context = new QOpenGLWidget();
     // if OpenGL is present, use it
     if (context->isValid()) {
-      QSurfaceFormat format;
-      format.setSamples(4);
-      context->setFormat(format);
+      //QSurfaceFormat format;
+      //format.setSamples(4);
+      //context->setFormat(format);
 
       setViewport(context);
       setRenderHint(QPainter::Antialiasing, true);
@@ -69,6 +69,8 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
     }
     // else use the CPU only
   }
+
+  should_resize_ = false;
   overlay_ = nullptr;
   draw_times_ = 0;
   action_manager_ = ActionManager::GetInstance();
@@ -85,9 +87,13 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
   timeUpdateFPS.restart();
   frame_counter_ = 0;
   time_elapsed_.restart();
+  action_elapsed_.restart();
   wait_render_time_ = 40;
   timer_render_.setSingleShot(true);
+  action_render_.setSingleShot(true);
   if (!connect(&timer_render_, &QTimer::timeout, this, &SceneManager::Render))
+    abort();
+  if (!connect(&action_render_, &QTimer::timeout, this, &SceneManager::RenderActions))
     abort();
   if (!connect(&timerUpdateFPS, &QTimer::timeout, this,
                &SceneManager::UpdateFPS))
@@ -114,17 +120,18 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
   connection_->SetOnError(std::bind(&SceneManager::OnError, this, _1));
   connection_->SetOnDisconnect(std::bind(&SceneManager::OnDisconnect, this));
 
-  renderer_ = new GraphicRenderer();
-  graphic_scene_->addItem(renderer_);
+  //renderer_ = new GraphicRenderer();
+  //graphic_scene_->addItem(renderer_);
 
   imageText = new QGraphicsPixmapItem();
   graphic_scene_->addItem(imageText);
   imageText->setPos(0, 0);
   imageText->setZValue(999);
 
+  action_render_.start(1);
   Render();
 
-  SetTargetFPS(100);
+  SetTargetFPS(150);
 }
 
 SceneManager::~SceneManager() {
@@ -145,8 +152,26 @@ SceneManager *SceneManager::GetInstance() {
 }
 
 void SceneManager::resizeEvent(QResizeEvent *event) {
-  graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
   (void)event;
+  graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
+  should_resize_ = true;
+}
+
+void SceneManager::OnResize() {
+  auto items = graphic_scene_->items();
+  QList<QGraphicsItem*>::iterator i;
+  for (i = items.begin(); i != items.end(); ++i) {
+    auto node = static_cast<Node *>(*i);
+    // Verify that node is not nullptr
+    try {
+      if (node->ClassName() == "Scene") {
+        node->SetSize(width(), height());
+      }
+    }
+    catch (const std::bad_alloc&) {
+      continue;
+    }
+  }
 }
 
 void SceneManager::mousePressEvent(QMouseEvent *event) {
@@ -197,13 +222,23 @@ void SceneManager::closeEvent(QCloseEvent *event) {
 
 void SceneManager::Render() {
   draw_times_++;
-  graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
+  if (should_resize_) {
+    graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
+    OnResize();
+
+    should_resize_ = false;
+  }
   viewport()->update();
 }
 
-void SceneManager::paintEvent(QPaintEvent *event) {
+void SceneManager::RenderActions() {
   action_manager_->Update();
-  graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
+
+  action_render_.start(1);
+}
+
+void SceneManager::paintEvent(QPaintEvent *event) {
+  //graphic_scene_->setSceneRect(QRectF(0, 0, width(), height()));
   time_elapsed_.restart();
 
   QGraphicsView::paintEvent(event);
@@ -246,18 +281,22 @@ void SceneManager::PushScene(Scene *scene) {
     }
     Scene *tmp = scene_stack_.back();
     tmp->OnExit();
+    graphic_scene_->removeItem(tmp);
   }
   scene_stack_.push_back(scene);
-  renderer_->SetScene(scene);
+  //renderer_->SetScene(scene);
+  graphic_scene_->addItem(scene);
   scene->OnEnter();
 }
 
 Scene *SceneManager::PopScene() {
   Scene *tmp = scene_stack_.back();
   tmp->OnExit();
+  graphic_scene_->removeItem(tmp);
   scene_stack_.pop_back();
   auto scene = scene_stack_.back();
-  renderer_->SetScene(scene);
+  //renderer_->SetScene(scene);
+  graphic_scene_->addItem(scene);
   scene->OnEnter();
   return tmp;
 }

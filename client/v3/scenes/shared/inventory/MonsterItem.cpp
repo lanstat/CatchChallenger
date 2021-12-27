@@ -41,7 +41,7 @@ void MonsterItem::DrawContent(QPainter *painter) {
   text->SetText(name_);
   text->SetPos(0, Height() / 2 - text->Height() / 2);
 
-  text->Paint(painter, nullptr, nullptr);
+  text->Draw(painter);
 
   delete text;
 }

@@ -2,7 +2,7 @@
 #ifndef CLIENT_V3_CORE_NODE_HPP_
 #define CLIENT_V3_CORE_NODE_HPP_
 
-#include <QGraphicsWidget>
+#include <QGraphicsItem>
 #include <QVariant>
 #include <unordered_map>
 #include <vector>
@@ -10,7 +10,7 @@
 class Action;
 class ActionManager;
 
-class Node {
+class Node : public QGraphicsItem {
  public:
   virtual ~Node();
 
@@ -19,6 +19,11 @@ class Node {
   void SetY(qreal y);
   qreal X();
   qreal Y();
+
+  QRectF boundingRect() const override;
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+             QWidget *widget = 0) override;
+
   virtual void SetSize(qreal width, qreal height);
   virtual void SetWidth(qreal w);
   virtual void SetHeight(qreal h);
@@ -64,11 +69,10 @@ class Node {
   void SetScale(qreal value);
   qreal Scale();
   virtual void OnChildResize(Node *child);
-  virtual void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                     QWidget *);
   virtual QRectF BoundingRect() const;
 
   virtual void Draw(QPainter *painter);
+  void Render(QPainter *painter);
   virtual void MousePressEvent(const QPointF &point, bool &press_validated);
   virtual void MouseReleaseEvent(const QPointF &point, bool &prev_validated);
   virtual void MouseMoveEvent(const QPointF &point);
@@ -82,14 +86,10 @@ class Node {
   virtual void UnRegisterEvents();
 
  protected:
-  bool visible_;
-  bool enabled_;
   QRectF bounding_rect_;
   ActionManager *action_manager_;
   std::function<void(Node *)> on_click_;
   std::function<void(Node *)> on_resize_;
-  std::vector<Node *> children_;
-  Node *parent_;
   std::string class_name_;
   QString node_type_;
 
@@ -102,11 +102,7 @@ class Node {
   std::unordered_map<int, std::string> data_str_;
   uint unique_id_;
   bool in_test_;
-  QString tooltip_;
-  bool should_cache_;
-  qreal scale_;
   std::vector<Node *> node_to_delete_;
-  int z_;
 
   void CleanNodeToDelete();
 };

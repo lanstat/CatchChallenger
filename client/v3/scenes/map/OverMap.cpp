@@ -191,6 +191,7 @@ void OverMap::OnScreenResize() {
 }
 
 void OverMap::OnEnter() {
+  Scene::OnEnter();
   buy->RegisterEvents();
   tip_->RegisterEvents();
   toast_->RegisterEvents();

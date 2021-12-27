@@ -19,6 +19,7 @@
 using Scenes::CCMap;
 
 CCMap::CCMap() {
+  setCacheMode(QGraphicsItem::NoCache);
   if (!connect(&mapController, &MapController::pathFindingNotFound, this,
                &CCMap::pathFindingNotFound))
     abort();
@@ -90,7 +91,7 @@ void CCMap::PaintChildItems(std::vector<Node *> childItems, qreal parentX,
   }
 }
 
-void CCMap::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+void CCMap::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget) {
   painter->save();
   qreal zoomW = (qreal)widget->width() / (32.0 * 16.0);
@@ -185,9 +186,14 @@ void CCMap::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 }
 
 void CCMap::OnEnter() {
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asd" << std::endl;
+  Scene::OnEnter();
   EventManager::GetInstance()->AddMouseListener(this);
   EventManager::GetInstance()->AddKeyboardListener(this);
   mapController.unblock();
 }
 
-void CCMap::OnExit() { EventManager::GetInstance()->RemoveListener(this); }
+void CCMap::OnExit() { 
+  EventManager::GetInstance()->RemoveListener(this);
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdasd" << std::endl;
+}

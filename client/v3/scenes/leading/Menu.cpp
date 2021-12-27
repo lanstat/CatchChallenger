@@ -26,9 +26,9 @@
 #include "Loading.hpp"
 #include "Multi.hpp"
 #ifndef __ANDROID_API__
-#define TEXT_SIZE 10
+  #define TEXT_SIZE 10
 #else
-#define TEXT_SIZE 30
+  #define TEXT_SIZE 30
 #endif
 
 #ifndef CATCHCHALLENGER_NOAUDIO
@@ -79,6 +79,8 @@ void Menu::Initialize() {
   website_->SetPixelSize(28);
   warning_can_be_reset_ = true;
 
+  solo_->TestMode();
+
   have_fresh_feed_ = false;
   news_ = Sprite::Create(":/CC/images/interface/message.png", this);
   news_list_ = UI::ListView::Create(news_);
@@ -126,6 +128,7 @@ void Menu::Initialize() {
   solo_scene_ = nullptr;
   multi_scene_ = nullptr;
   option_scene_ = nullptr;
+  debug_scene_ = nullptr;
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   if (!Settings::settings->contains("audioVolume"))
@@ -317,7 +320,7 @@ void Menu::OnAssetsDataParsed() {
 
 void Menu::OnClickLink(Node *node) {
   if (!QDesktopServices::openUrl(
-        QUrl(QString::fromStdString(node->DataStr(99)))))
+          QUrl(QString::fromStdString(node->DataStr(99)))))
     std::cerr << "Menu::OnClickLink() failed" << std::endl;
 }
 

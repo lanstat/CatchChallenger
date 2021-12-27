@@ -112,6 +112,7 @@ Battle::~Battle() {
 Battle *Battle::Create() { return new (std::nothrow) Battle(); }
 
 void Battle::OnEnter() {
+  Scene::OnEnter();
   action_next_->RegisterEvents();
   action_attack_->RegisterEvents();
   action_bag_->RegisterEvents();

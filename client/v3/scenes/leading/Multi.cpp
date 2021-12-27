@@ -32,7 +32,7 @@
 #include "../../ui/ListView.hpp"
 #include "MultiItem.hpp"
 #if defined(_WIN32) || defined(Q_OS_MAC)
-  #include "../../../qt/InternetUpdater.hpp"
+  #include "../../../entities/InternetUpdater.hpp"
 #endif
 
 using Scenes::Multi;
@@ -988,6 +988,7 @@ void Multi::OnScreenResize() {
 void Multi::GoBack() { static_cast<StackedScene *>(Parent())->PopForeground(); }
 
 void Multi::OnEnter() {
+  Scene::OnEnter();
   server_add->RegisterEvents();
   server_remove->RegisterEvents();
   server_edit->RegisterEvents();

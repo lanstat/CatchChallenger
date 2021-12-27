@@ -92,7 +92,7 @@ void Button::Draw(QPainter *painter) {
     else
       height = (h * percent / 100);
     label_->SetPos(0, height / 2 - label_->Height() / 2);
-    label_->Paint(&paint, nullptr, nullptr);
+    label_->Render(&paint);
   }
 
   painter->drawPixmap(0, 0, bounding_rect_.width(), bounding_rect_.height(),

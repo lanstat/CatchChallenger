@@ -210,6 +210,7 @@ void MonsterDetails::OnScreenResize() {
 }
 
 void MonsterDetails::OnEnter() {
+  Scene::OnEnter();
   EventManager::GetInstance()->Lock();
   quit->RegisterEvents();
 }

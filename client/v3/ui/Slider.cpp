@@ -62,7 +62,7 @@ void Slider::Draw(QPainter *painter) {
   auto sprite = Sprite::Create(":/CC/images/interface/sliderBarH-trimmed.png");
   sprite->Strech(7, 5, 7, Width(), 15);
   sprite->SetY(Height() / 2 - sprite->Height() / 2);
-  sprite->Paint(painter, nullptr, nullptr);
+  sprite->Render(painter);
   delete sprite;
 }
 

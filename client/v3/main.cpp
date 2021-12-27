@@ -16,6 +16,7 @@
 #include "Language.hpp"
 #include "MyApplication.h"
 #include "core/SceneManager.hpp"
+#include "scenes/test/Test.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include "core/AudioPlayer.hpp"
 #endif
@@ -216,8 +217,8 @@ s.setMinimumSize(QSize(screen->availableSize().width(),
   s->setMinimumSize(QSize(640, 480));
   s->showFullScreen();
 #else
-  // s.show();
-  s->showMaximized();
+  s->show();
+  //s->showMaximized();
 #endif
   QtDatapackClientLoader::datapackLoader = nullptr;
   const auto returnCode = a.exec();

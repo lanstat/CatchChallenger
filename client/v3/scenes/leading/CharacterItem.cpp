@@ -21,19 +21,19 @@ void CharacterItem::DrawContent(QPainter *painter) {
   auto image = Sprite::Create(icon_);
   image->SetPos(10, 0);
   image->SetSize(image->Width() - 10, 60);
-  image->Paint(painter, nullptr, nullptr);
+  image->Render(painter);
 
   auto text = UI::Label::Create(QColor(255, 255, 255), QColor(30, 25, 17));
   text->SetWidth(bounding_rect_.width());
   text->SetAlignment(Qt::AlignCenter);
   text->SetText(title_);
   text->SetY(5);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   text->SetY(text->Height());
   text->SetPixelSize(10);
   text->SetText(subtitle_);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
   delete image;

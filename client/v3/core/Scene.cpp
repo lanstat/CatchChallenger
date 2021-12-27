@@ -1,7 +1,6 @@
 // Copyright 2021 CatchChallenger
 #include "Scene.hpp"
 
-#include <QDebug>
 #include <QPainter>
 #include <QWidget>
 #include <cstdarg>
@@ -18,21 +17,9 @@ Scene::Scene(Node *parent) : Node(parent) {
 
 Scene::~Scene() {}
 
-void Scene::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+void Scene::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget) {
-  if (bounding_rect_.width() != widget->width() ||
-      bounding_rect_.height() != widget->height()) {
-    bounding_rect_ = QRectF(0, 0, widget->width(), widget->height());
-    OnScreenResize();
-    if (bounding_rect_.width() < 512) {
-      OnScreenSD();
-    } else if (bounding_rect_.width() < 1024) {
-      OnScreenHD();
-    } else {
-      OnScreenHDR();
-    }
-  }
-  Node::Paint(painter, option, widget);
+  Node::paint(painter, option, widget);
 }
 
 void Scene::RegisterMouseListener(Node *node) {
@@ -87,3 +74,25 @@ void Scene::OnScreenHD() {}
 void Scene::OnScreenHDR() {}
 
 void Scene::OnScreenResize() {}
+
+QRectF Scene::boundingRect() const {
+  return QRectF();
+}
+
+void Scene::OnResize() {
+  int width = SceneManager::GetInstance()->width();
+  int height = SceneManager::GetInstance()->height();
+  bounding_rect_ = QRectF(0, 0, width, height);
+  OnScreenResize();
+  if (width < 512) {
+    OnScreenSD();
+  } else if (width < 1024) {
+    OnScreenHD();
+  } else {
+    OnScreenHDR();
+  }
+}
+
+void Scene::OnEnter() {
+  OnResize();
+}

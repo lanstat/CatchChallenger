@@ -15,6 +15,7 @@ class ParallaxForest : public Scene {
   void StartAnimation();
   void StopAnimation();
   void Draw(QPainter* painter) override;
+  QRectF boundingRect() const;
 
  protected:
   void OnScreenSD() override;

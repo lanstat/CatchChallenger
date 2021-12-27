@@ -256,6 +256,7 @@ SOURCES += \
     $$PWD/ui/Column.cpp \
     $$PWD/ui/SelectableItem.cpp \
     $$PWD/ui/ThemedItem.cpp \
+    $$PWD/ui/Backdrop.cpp \
     $$PWD/core/Node.cpp \
     $$PWD/core/Stateful.cpp \
     $$PWD/core/Sprite.cpp \
@@ -359,6 +360,7 @@ HEADERS  += \
     $$PWD/ui/Column.hpp \
     $$PWD/ui/SelectableItem.hpp \
     $$PWD/ui/ThemedItem.hpp \
+    $$PWD/ui/Backdrop.hpp \
     $$PWD/core/uthash.h \
     $$PWD/core/Vector.hpp \
     $$PWD/core/Node.hpp \

@@ -51,8 +51,11 @@ class SceneManager : public QGraphicsView {
   QGraphicsScene *graphic_scene_;
   std::vector<Scene *> scene_stack_;
   Node *overlay_;
+  bool should_resize_;
 
   uint8_t wait_render_time_;
+  QTimer action_render_;
+  QTime action_elapsed_;
   QTimer timer_render_;
   QTime time_elapsed_;
   uint16_t frame_counter_;
@@ -65,11 +68,13 @@ class SceneManager : public QGraphicsView {
   EventManager *event_manager_;
 
   void Render();
+  void RenderActions();
   void UpdateFPS();
   void SetTargetFPS(int targetFPS);
   void OnError(std::string error);
   void OnDisconnect();
   void OnGoToMap();
+  void OnResize();
 };
 
 #endif  // CLIENT_QTOPENGL_CORE_SCENEMANAGER_HPP_

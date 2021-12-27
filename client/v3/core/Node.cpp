@@ -8,25 +8,21 @@
 
 #include "../action/Action.hpp"
 #include "ActionManager.hpp"
+#include "SceneManager.hpp"
 
-Node::Node(Node *parent) {
+Node::Node(Node *parent): QGraphicsItem(parent) {
   class_name_ = __func__;
   on_click_ = nullptr;
   on_resize_ = nullptr;
   bounding_rect_ = QRectF(0.0, 0.0, 0.0, 0.0);
-  visible_ = true;
-  enabled_ = true;
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
-  parent_ = nullptr;
   node_cache_ = nullptr;
-  should_cache_ = true;
-  z_ = 0;
-  scale_ = 1;
 
   if (parent) {
     parent->AddChild(this);
   }
+  setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 Node::~Node() {
@@ -34,19 +30,19 @@ Node::~Node() {
     delete node_cache_;
   }
   node_cache_ = nullptr;
-
-  if (parent_) {
-    parent_->RemoveChild(this);
-  }
 }
 
-void Node::SetParent(Node *parent) { parent_ = parent; }
+void Node::SetParent(Node *parent) { 
+  QGraphicsItem::setParentItem(parent);
+}
 
-Node *Node::Parent() { return parent_; }
+Node *Node::Parent() { 
+  return static_cast<Node*>(QGraphicsItem::parentItem());
+}
 
 Node *Node::Root() {
-  if (parent_ == nullptr) return nullptr;
-  Node *parent = parent_;
+  if (Parent() == nullptr) return nullptr;
+  Node *parent = Parent();
   while (parent->Parent() != nullptr) {
     parent = parent->Parent();
   }
@@ -54,33 +50,40 @@ Node *Node::Root() {
 }
 
 void Node::AddChild(Node *child) {
-  if (child->Parent() && child->Parent() != this) {
-    child->Parent()->RemoveChild(child);
-  }
+  //if (child->Parent() && child->Parent() != this) {
+    //child->Parent()->RemoveChild(child);
+  //}
+  //if (scene() != nullptr) {
+    //scene()->removeItem(child);
+  //}
   child->SetParent(this);
   child->OnEnter();
-  ReArrangeChild(child);
 }
 
 void Node::RemoveChild(Node *child) {
   if (child == nullptr) return;
   child->OnExit();
+  if (child->scene() != nullptr) {
+    scene()->removeItem(child);
+  }
   child->SetParent(nullptr);
-  node_to_delete_.push_back(child);
 
-  CleanNodeToDelete();
+  //node_to_delete_.push_back(child);
+
+  //CleanNodeToDelete();
 }
 
 QRectF Node::MapRectToScene(const QRectF inner) const {
-  QRectF tmp = inner;
-  Node *parent = parent_;
-  while (parent != nullptr) {
-    tmp =
-        QRectF(tmp.x() + parent->BoundingRect().x(),
-               tmp.y() + parent->BoundingRect().y(), tmp.width(), tmp.height());
-    parent = parent->Parent();
-  }
-  return tmp;
+  //QRectF tmp = inner;
+  //Node *parent = parent_;
+  //while (parent != nullptr) {
+    //tmp =
+        //QRectF(tmp.x() + parent->BoundingRect().x(),
+               //tmp.y() + parent->BoundingRect().y(), tmp.width(), tmp.height());
+    //parent = parent->Parent();
+  //}
+  //return tmp;
+  return mapRectToScene(inner);
 }
 
 void Node::RunAction(Action *action) {
@@ -104,27 +107,27 @@ void Node::StartAllActions() {
 
 QRectF Node::BoundingRect() const { return bounding_rect_; }
 
-void Node::SetPos(qreal x, qreal y) { bounding_rect_.moveTo(x, y); }
+void Node::SetPos(qreal x, qreal y) { setPos(x, y); }
 
-void Node::SetX(qreal x) { bounding_rect_.moveLeft(x); }
+void Node::SetX(qreal x) { setX(x); }
 
-void Node::SetY(qreal y) { bounding_rect_.moveTop(y); }
+void Node::SetY(qreal y) { setY(y); }
 
-qreal Node::X() { return bounding_rect_.x(); }
+qreal Node::X() { return x(); }
 
-qreal Node::Y() { return bounding_rect_.y(); }
+qreal Node::Y() { return y(); }
 
 void Node::SetSize(qreal w, qreal h) {
-  if (scale_ > 0) {
-    w = w * scale_;
-    h = h * scale_;
-  }
+  //if (scale_ > 0) {
+    //w = w * scale_;
+    //h = h * scale_;
+  //}
   bounding_rect_.setWidth(w);
   bounding_rect_.setHeight(h);
   OnResize();
 
-  if (parent_ != nullptr) {
-    parent_->OnChildResize(this);
+  if (Parent() != nullptr) {
+    Parent()->OnChildResize(this);
   }
 
   if (on_resize_) {
@@ -141,13 +144,15 @@ qreal Node::Height() { return bounding_rect_.height(); }
 
 qreal Node::Width() { return bounding_rect_.width(); }
 
-void Node::SetVisible(bool visible) { visible_ = visible; }
+void Node::SetVisible(bool visible) {
+  QGraphicsItem::setVisible(visible);
+}
 
-bool Node::IsVisible() { return visible_; }
+bool Node::IsVisible() { return QGraphicsItem::isVisible(); }
 
-void Node::SetEnabled(bool enabled) { enabled_ = enabled; }
+void Node::SetEnabled(bool enabled) { QGraphicsItem::setEnabled(enabled); }
 
-bool Node::IsEnabled() const { return enabled_; }
+bool Node::IsEnabled() const { return QGraphicsItem::isEnabled(); }
 
 void Node::SetOnClick(const std::function<void(Node *)> &callback) {
   on_click_ = callback;
@@ -161,61 +166,29 @@ void Node::SetData(int role, std::string value) { data_str_[role] = value; }
 
 std::string Node::DataStr(int role) { return data_str_[role]; }
 
-void Node::Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                 QWidget *widget) {
-  if (in_test_) {
-    painter->fillRect(BoundingRect(), Qt::green);
-  }
-
-  if (visible_) {
-    if (!node_cache_) {
-      if (bounding_rect_.isEmpty()) return;
-      node_cache_ = new QPixmap(Width(), Height());
-      node_cache_->fill(Qt::transparent);
-      QPainter painter_c(node_cache_);
-      if (scale_ != 1) {
-        painter_c.scale(scale_, scale_);
-      }
-      Draw(&painter_c);
-      painter_c.end();
-    }
-    painter->drawPixmap(X(), Y(), *node_cache_);
-
-    if (!should_cache_) ReDraw();
-
-    if (children_.size() == 0) return;
-
-    painter->translate(bounding_rect_.x(), bounding_rect_.y());
-    for (auto it = begin(children_); it != end(children_); it++) {
-      (*it)->Paint(painter, option, widget);
-    }
-    painter->translate(-bounding_rect_.x(), -bounding_rect_.y());
-  }
-
-  CleanNodeToDelete();
-}
-
 void Node::CleanNodeToDelete() {
-  if (node_to_delete_.empty()) return;
+  //if (node_to_delete_.empty()) return;
 
-  int iter = 0;
-  while (iter < node_to_delete_.size()) {
-    children_.erase(std::remove(children_.begin(), children_.end(),
-                                node_to_delete_.at(iter)),
-                    children_.end());
-    iter++;
-  }
+  //int iter = 0;
+  //while (iter < node_to_delete_.size()) {
+    //children_.erase(std::remove(children_.begin(), children_.end(),
+                                //node_to_delete_.at(iter)),
+                    //children_.end());
+    //iter++;
+  //}
 
-  node_to_delete_.clear();
+  //node_to_delete_.clear();
 }
 
-void Node::ShouldCache(bool cache) { should_cache_ = cache; }
+void Node::ShouldCache(bool cache) { 
+  //should_cache_ = cache;
+}
 
 void Node::TestMode() { in_test_ = true; }
 
-void Node::SetToolTip(QString text) { tooltip_ = text; }
+void Node::SetToolTip(QString text) { setToolTip(text); }
 
-QString Node::ToolTip() { return tooltip_; }
+QString Node::ToolTip() { return toolTip(); }
 
 bool Node::HasRunningActions() {
   return action_manager_->GetNumberOfRunningActionsInTarget(this) > 0;
@@ -226,19 +199,22 @@ void Node::ReDraw() {
     delete node_cache_;
   }
   node_cache_ = nullptr;
+  update(boundingRect());
 }
 
 void Node::OnEnter() {
-  if (!children_.empty()) {
-    for (auto it = begin(children_); it != end(children_); it++) {
+  auto children = Children();
+  if (!children.empty()) {
+    for (auto it = begin(children); it != end(children); it++) {
       (*it)->OnEnter();
     }
   }
 }
 
 void Node::OnExit() {
-  if (!children_.empty()) {
-    for (auto it = begin(children_); it != end(children_); it++) {
+  auto children = Children();
+  if (!children.empty()) {
+    for (auto it = begin(children); it != end(children); it++) {
       (*it)->OnExit();
     }
   }
@@ -249,23 +225,24 @@ void Node::RegisterEvents() {}
 void Node::UnRegisterEvents() {}
 
 void Node::SetZValue(int index) {
-  z_ = index;
-  if (Parent()) {
-    Parent()->ReArrangeChild(this);
-  }
+  setZValue(index);
+  //z_ = index;
+  //if (Parent()) {
+    //Parent()->ReArrangeChild(this);
+  //}
 }
 
-int Node::ZValue() { return z_; }
+int Node::ZValue() { return zValue(); }
 
 void Node::ReArrangeChild(Node *node) {
-  children_.erase(std::remove(children_.begin(), children_.end(), node),
-                  children_.end());
-  size_t index = 0;
-  for (auto child : children_) {
-    if (node->ZValue() < child->ZValue()) break;
-    index++;
-  }
-  children_.insert(children_.begin() + index, node);
+  //children_.erase(std::remove(children_.begin(), children_.end(), node),
+                  //children_.end());
+  //size_t index = 0;
+  //for (auto child : children_) {
+    //if (node->ZValue() < child->ZValue()) break;
+    //index++;
+  //}
+  //children_.insert(children_.begin() + index, node);
 }
 
 void Node::MousePressEvent(const QPointF &, bool &) {}
@@ -278,15 +255,25 @@ void Node::KeyPressEvent(QKeyEvent *, bool &) {}
 
 void Node::KeyReleaseEvent(QKeyEvent *, bool &) {}
 
-std::vector<Node *> Node::Children() { return children_; }
+std::vector<Node *> Node::Children() {
+  auto buffer = childItems();
+  std::vector<Node *> children;
+  QList<QGraphicsItem*>::iterator i;
+  for (i = buffer.begin(); i != buffer.end(); ++i) {
+    children.push_back(static_cast<Node *>(*i));
+  }
 
-void Node::SetScale(qreal value) {
-  scale_ = value;
-  const auto rect = BoundingRect();
-  SetSize(rect.width(), rect.height());
+  return children;
 }
 
-qreal Node::Scale() { return scale_; }
+void Node::SetScale(qreal value) {
+  setScale(value);
+  //scale_ = value;
+  //const auto rect = BoundingRect();
+  //SetSize(rect.width(), rect.height());
+}
+
+qreal Node::Scale() { return scale(); }
 
 QString Node::NodeType() { return node_type_; }
 
@@ -306,13 +293,74 @@ void Node::SetOnResize(const std::function<void(Node *)> &callback) {
 }
 
 void Node::RemoveAllChildrens(bool release) {
-  if (!children_.empty()) {
-    std::vector<Node *> tmp = children_;
-    children_.clear();
-    if (release) {
-      for (auto it = begin(tmp); it != end(tmp); it++) {
+  std::vector<Node *> tmp = Children();
+  if (!tmp.empty()) {
+    for (auto it = begin(tmp); it != end(tmp); it++) {
+      RemoveChild(static_cast<Node *>(*it));
+      if (release) {
         delete (*it);
       }
     }
   }
+}
+
+QRectF Node::boundingRect() const {
+  return bounding_rect_;
+}
+
+void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+  if (cacheMode() == QGraphicsItem::NoCache) {
+    Draw(painter);
+  } else {
+    if (!node_cache_) {
+      if (bounding_rect_.isEmpty()) return;
+      node_cache_ = new QPixmap(Width(), Height());
+      node_cache_->fill(Qt::transparent);
+      QPainter painter_c(node_cache_);
+      //if (scale() != 1) {
+        //painter_c.scale(scale(), scale());
+      //}
+      Draw(&painter_c);
+      painter_c.end();
+    }
+    painter->drawPixmap(0, 0, *node_cache_);
+  }
+  //Draw(painter);
+}
+
+void Node::Render(QPainter *painter) {
+  if (in_test_) {
+    painter->fillRect(BoundingRect(), Qt::green);
+  }
+
+  if (IsVisible()) {
+    if (!node_cache_) {
+      if (bounding_rect_.isEmpty()) return;
+      node_cache_ = new QPixmap(Width(), Height());
+      node_cache_->fill(Qt::transparent);
+      QPainter painter_c(node_cache_);
+      //if (scale_ != 1) {
+        //painter_c.scale(scale_, scale_);
+      //}
+      Draw(&painter_c);
+      painter_c.end();
+    }
+    painter->drawPixmap(X(), Y(), *node_cache_);
+
+    //if (!should_cache_) ReDraw();
+
+    auto children = Children();
+    if (children.size() == 0) return;
+
+    auto x = X();
+    auto y = Y();
+
+    painter->translate(x, y);
+    for (auto it = begin(children); it != end(children); it++) {
+      (*it)->Render(painter);
+    }
+    painter->translate(-x, -y);
+  }
+
+  CleanNodeToDelete();
 }

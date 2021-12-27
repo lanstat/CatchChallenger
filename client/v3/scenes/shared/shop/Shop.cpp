@@ -61,13 +61,13 @@ void Shop::Draw(QPainter *painter) {
   auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
   b2->Strech(24, 22, 20, 160, 160);
   b2->SetPos(inner.x(), inner.y());
-  b2->Paint(painter, nullptr, nullptr);
+  b2->Render(painter);
 
   int x = b2->X() + b2->Width() + 20;
 
   b2->Strech(24, 22, 20, inner.width() + inner.x() - x, inner.height());
   b2->SetPos(x, inner.y());
-  b2->Paint(painter, nullptr, nullptr);
+  b2->Render(painter);
 
   delete b2;
 }

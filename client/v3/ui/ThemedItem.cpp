@@ -36,8 +36,8 @@ void DotItem::DrawContent(QPainter *painter) {
   dot->SetPos(5, Height() / 2 - dot->Height() / 2);
   label->SetPos(30, Height() /2 - label->Height() / 2);
 
-  dot->Paint(painter, nullptr, nullptr);
-  label->Paint(painter, nullptr, nullptr);
+  dot->Render(painter);
+  label->Render(painter);
 
   delete dot;
   delete label;

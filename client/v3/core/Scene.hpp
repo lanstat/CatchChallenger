@@ -17,8 +17,9 @@ class Scene : public Node {
 
   void RegisterMouseListener(Node *node);
   void RegisterKeyboardListerner(Node *node);
-  void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;
+  QRectF boundingRect() const override;
 
   void Draw(QPainter *painter) override;
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
@@ -26,6 +27,8 @@ class Scene : public Node {
   void MouseMoveEvent(const QPointF &point) override;
   void KeyPressEvent(QKeyEvent *event, bool &event_trigger) override;
   void KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) override;
+  void OnResize() override;
+  void OnEnter() override;
 
  protected:
   explicit Scene(Node *parent = nullptr);

@@ -45,13 +45,13 @@ void PlantItem::DrawContent(QPainter *painter) {
     p = p.scaledToWidth(p.width() * 2);
     icon->SetPixmap(p);
     icon->SetPos(10, Height() / 2 - icon->Height() / 2);
-    icon->Paint(painter, nullptr, nullptr);
+    icon->Render(painter);
 
     text->SetPixelSize(12);
     text->SetText(QString::fromStdString(itemExtra.name) + "\n" +
                   QObject::tr("Quantity: ") + QString::number(quantity_) + " ");
     text->SetPos(Width() / 2 - text->Width() / 2, 5);
-    text->Paint(painter, nullptr, nullptr);
+    text->Render(painter);
 
     //if (contentExtra.tileset != nullptr) {
       //icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(0)->image(), 32));
@@ -95,7 +95,7 @@ void PlantItem::DrawContent(QPainter *painter) {
     icon->SetPixmap(
         QtDatapackClientLoader::datapackLoader->defaultInventoryImage());
     icon->SetPos(10, 10);
-    icon->Paint(painter, nullptr, nullptr);
+    icon->Render(painter);
 
     text->SetPixelSize(12);
     text->SetPos(20, 10);
@@ -104,45 +104,45 @@ void PlantItem::DrawContent(QPainter *painter) {
           QStringLiteral("id: %1 (x%2)").arg(plant_id_).arg(quantity_));
     else
       text->SetText(QStringLiteral("id: %1").arg(plant_id_));
-    text->Paint(painter, nullptr, nullptr);
+    text->Render(painter);
 
     if (contentExtra.tileset != nullptr) {
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(0)->image(), 32));
       icon->SetPos(40, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(1)->image(), 32));
       icon->SetPos(80, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(2)->image(), 32));
       icon->SetPos(120, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(3)->image(), 32));
       icon->SetPos(160, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(4)->image(), 32));
       icon->SetPos(200, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
 
       icon->SetPixmap(SetCanvas(contentExtra.tileset->tileAt(5)->image(), 32));
       icon->SetPos(240, 10);
-      icon->Paint(painter, nullptr, nullptr);
+      icon->Render(painter);
     }
     text->SetText(
         QString::fromStdString(CatchChallenger::FacilityLibClient::timeToString(
             plant.fruits_seconds)));
     text->SetPos(280, 10);
-    text->Paint(painter, nullptr, nullptr);
+    text->Render(painter);
 
     text->SetText(
         QObject::tr("Quantity: %1")
             .arg((double)plant.fix_quantity +
                  ((double)plant.random_quantity) / RANDOM_FLOAT_PART_DIVIDER));
     text->SetPos(320, 10);
-    text->Paint(painter, nullptr, nullptr);
+    text->Render(painter);
   }
 
   delete icon;

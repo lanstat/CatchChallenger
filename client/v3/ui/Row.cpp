@@ -15,10 +15,11 @@ Row::Row(Node *parent) : Node(parent) {
 }
 
 Row::~Row() {
-  for (auto item : children_) {
+  auto children = Children();
+  for (auto item : children) {
     delete item;
   }
-  children_.clear();
+  children.clear();
 }
 
 Row *Row::Create(Node *parent) {
@@ -27,11 +28,12 @@ Row *Row::Create(Node *parent) {
 }
 
 void Row::ReCalculateSize() {
-  if (children_.size() == 0) return;
+  auto children = Children();
+  if (children.size() == 0) return;
   int x = 0;
   int height = 0;
   int width = 0;
-  for (auto item : children_) {
+  for (auto item : children) {
     if (mode_ == Mode::kDisplayNoneVisible) {
       if (!item->IsVisible()) continue;
     }
@@ -78,12 +80,13 @@ void Row::SetMode(Mode mode) {
 }
 
 void Row::InsertChild(Node *node, int pos) {
-  auto iter = children_.begin();
+  auto children = Children();
+  auto iter = children.begin();
   int index = 0;
-  while (index < children_.size()) {
+  while (index < children.size()) {
     index++;
     ++iter;
   }
-  children_.insert(iter, node);
+  children.insert(iter, node);
   ReCalculateSize();
 }

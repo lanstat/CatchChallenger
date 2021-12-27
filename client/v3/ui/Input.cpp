@@ -116,9 +116,9 @@ void Input::SetFocus(bool focus) { focus_ = focus; }
 bool Input::HasFocus() { return focus_; }
 
 void Input::Draw(QPainter *painter) {
-  background_->Paint(painter, nullptr, nullptr);
+  background_->Render(painter);
   label_->SetPos(inner_padding_.x(), Height() / 2 - label_->Height() / 2);
-  label_->Paint(painter, nullptr, nullptr);
+  label_->Render(painter);
 }
 
 void Input::SetSize(qreal width, qreal height) {

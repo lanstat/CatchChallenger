@@ -42,7 +42,7 @@ void SelectableItem::Draw(QPainter *painter) {
       }
     }
     background->Strech(strech_x_, strech_y_, border_size_, Width(), Height());
-    background->Paint(painter, nullptr, nullptr);
+    background->Render(painter);
 
     delete background;
   }
@@ -103,6 +103,7 @@ void SelectableItem::MouseReleaseEvent(const QPointF &point,
   if (!prev_validated && IsVisible()) {
     if (t.contains(point)) {
       is_selected_ = true;
+      prev_validated = true;
       ReDraw();
       if (on_click_) {
         on_click_(this);

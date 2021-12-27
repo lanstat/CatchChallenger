@@ -64,7 +64,7 @@ void MultiItem::DrawContent(QPainter *painter) {
     const int size = Height() - 20;
     painter->drawPixmap(10, 10, size, size, p);
   }
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
 }

@@ -37,18 +37,18 @@ void ShopItem::DrawContent(QPainter *painter) {
   auto pix = Sprite::Create();
   pix->SetPixmap(p);
   pix->SetPos(10, Height() / 2 - pix->Height() / 2);
-  pix->Paint(painter, nullptr, nullptr);
+  pix->Render(painter);
 
   auto text = UI::Label::Create(Qt::white, QColor(30, 25, 17));
   text->SetText(item.name);
   text->SetPixelSize(12);
   text->SetPos(pix->Width() + pix->X() + 10, 5);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   text->SetPos(pix->Width() + pix->X() + 10, text->Height());
   text->SetText(item.description);
   text->SetPixelSize(8);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   auto button = UI::GreenButton::Create();
   button->SetSize(60, 25);
@@ -56,7 +56,7 @@ void ShopItem::DrawContent(QPainter *painter) {
   button->SetText(QStringLiteral("%1 $").arg(price_));
   button->SetPos(Width() - button->Width() - 10,
                  Height() / 2 - button->Height() / 2);
-  button->Paint(painter, nullptr, nullptr);
+  button->Render(painter);
 
   delete pix;
   delete text;

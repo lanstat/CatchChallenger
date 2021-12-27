@@ -41,7 +41,7 @@ void MonsterBag::Draw(QPainter *painter) {
   auto b2 = Sprite::Create(":/CC/images/interface/b2.png");
   b2->Strech(24, 22, 20, Width(), Height());
   b2->SetPos(0, 0);
-  b2->Paint(painter, nullptr, nullptr);
+  b2->Render(painter);
 }
 
 void MonsterBag::OnResize() {

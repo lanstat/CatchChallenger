@@ -12,14 +12,16 @@ using UI::Dialog;
 
 Dialog::Dialog(bool show_close) {
   on_close_ = nullptr;
+  backdrop_ = Backdrop::Create(QColor(0, 0, 0, 120), this);
 
-  background_ = Sprite::Create(":/CC/images/interface/message.png");
-  title_background_ = Sprite::Create();
+  background_ = Sprite::Create(":/CC/images/interface/message.png", this);
+  title_background_ = Sprite::Create(this);
 
   x_ = -1;
   y_ = -1;
   dialog_size_ = QSize(900, 400);
   title_background_->SetPixmap(":/CC/images/interface/label.png");
+  title_background_->SetVisible(false);
 
   QLinearGradient gradient1(0, 0, 0, 100);
   gradient1.setColorAt(0.25, QColor(230, 153, 0));
@@ -27,8 +29,9 @@ Dialog::Dialog(bool show_close) {
   QLinearGradient gradient2(0, 0, 0, 100);
   gradient2.setColorAt(0, QColor(64, 28, 2));
   gradient2.setColorAt(1, QColor(64, 28, 2));
-  title_ = UI::Label::Create(gradient2, gradient1);
+  title_ = UI::Label::Create(gradient2, gradient1, this);
   title_->SetAlignment(Qt::AlignCenter);
+  title_->SetVisible(false);
 
   quit_ = Button::Create(":/CC/images/interface/closedialog.png");
   show_close_ = show_close;
@@ -47,6 +50,8 @@ Dialog::~Dialog() {
   delete title_background_;
   delete quit_;
   delete actions_;
+  delete backdrop_;
+  backdrop_ = nullptr;
   actions_ = nullptr;
 }
 
@@ -82,6 +87,8 @@ void Dialog::OnScreenResize() {
   background_->SetPos(x_, y_);
   background_->Strech(42, 42, 30, idealW, idealH);
 
+  backdrop_->SetSize(bounding_rect_.width(), bounding_rect_.height());
+
   unsigned int space = 30;
   if (bounding_rect_.width() < 600 || bounding_rect_.height() < 480) {
     title_background_->SetPos(
@@ -106,16 +113,14 @@ void Dialog::OnScreenResize() {
 }
 
 void Dialog::Draw(QPainter *painter) {
-  painter->fillRect(0, 0, bounding_rect_.width(), bounding_rect_.height(),
-                    QColor(0, 0, 0, 120));
-  background_->Paint(painter, nullptr, nullptr);
+  //painter->fillRect(0, 0, bounding_rect_.width(), bounding_rect_.height(),
+                    //QColor(0, 0, 0, 120));
+  //background_->Paint(painter, nullptr, nullptr);
 
-  if (title_->Text().size() > 0) {
-    title_background_->Paint(painter, nullptr, nullptr);
-    title_->Paint(painter, nullptr, nullptr);
-  }
-
-  RecalculateActionButtons();
+  //if (title_->Text().size() > 0) {
+    //title_background_->Paint(painter, nullptr, nullptr);
+    //title_->Paint(painter, nullptr, nullptr);
+  //}
 }
 
 void Dialog::OnScreenSD() {}
@@ -129,6 +134,7 @@ void Dialog::SetOnClose(std::function<void()> callback) {
 }
 
 void Dialog::OnEnter() {
+  Scene::OnEnter();
   EventManager::GetInstance()->Lock();
 
   if (show_close_) {
@@ -138,6 +144,8 @@ void Dialog::OnEnter() {
   for (auto it = begin(items); it != end(items); it++) {
     (*it)->RegisterEvents();
   }
+
+  RecalculateActionButtons();
 }
 
 void Dialog::OnExit() {
@@ -158,6 +166,7 @@ void Dialog::AddActionButton(Button *action) {
   if (Utils::IsActiveInScene(this)) {
     action->RegisterEvents();
   }
+  RecalculateActionButtons();
 }
 
 void Dialog::InsertActionButton(Button *action, int pos) {
@@ -166,12 +175,14 @@ void Dialog::InsertActionButton(Button *action, int pos) {
   if (Utils::IsActiveInScene(this)) {
     action->RegisterEvents();
   }
+  RecalculateActionButtons();
 }
 
 void Dialog::RemoveActionButton(Button *action) {
   action->UnRegisterEvents();
   actions_->RemoveChild(action);
-  ReDraw();
+
+  RecalculateActionButtons();
 }
 
 void Dialog::RecalculateActionButtons() {
@@ -179,7 +190,7 @@ void Dialog::RecalculateActionButtons() {
 
   unsigned int width = 83;
   unsigned int height = 94;
-  auto content = BoundingRect();
+  auto content = bounding_rect_;
   if (content.width() < 600 || content.height() < 480) {
     width /= 2;
     height /= 2;
@@ -191,13 +202,16 @@ void Dialog::RecalculateActionButtons() {
   }
 
   auto content_b = ContentBoundary();
-  actions_->SetPos(BoundingRect().width() / 2 - actions_->Width() / 2,
+  actions_->SetPos(content.width() / 2 - actions_->Width() / 2,
                    content_b.y() + content_b.height());
 }
 
 void Dialog::SetTitle(const QString &text) {
   title_->SetText(text.toUpper());
-  ReDraw();
+
+  bool isVisible = !text.isEmpty();
+  title_->SetVisible(isVisible);
+  title_background_->SetVisible(isVisible);
 }
 
 QString Dialog::Title() const { return title_->Text(); }

@@ -47,7 +47,7 @@ void ListView::Draw(QPainter *painter) {
   QPainter painter_c(&content_);
   if (painter_c.isActive()) {
     for (auto item : items_) {
-      item->Paint(&painter_c, nullptr, nullptr);
+      item->Render(&painter_c);
     }
     painter_c.end();
   }
@@ -291,6 +291,10 @@ void ListView::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
         break;
       }
       item->MouseReleaseEvent(auxiliar, prev_validated);
+
+      if (prev_validated) {
+        ReDraw();
+      }
     }
   }
 }

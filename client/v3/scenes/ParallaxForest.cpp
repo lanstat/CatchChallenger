@@ -23,6 +23,7 @@ ParallaxForest::ParallaxForest() {
   cloud_updater_ = nullptr;
 
   StartAnimation();
+  setCacheMode(QGraphicsItem::NoCache);
 }
 
 ParallaxForest::~ParallaxForest() {
@@ -77,25 +78,21 @@ void ParallaxForest::ScalePix(QPixmap& pix, unsigned int zoom) {
 void ParallaxForest::GrassSlot() {
   if (grass_.isNull()) return;
   grassMove++;
-  ReDraw();
 }
 
 void ParallaxForest::TreebackSlot() {
   if (treeback_.isNull()) return;
   treebackMove++;
-  ReDraw();
 }
 
 void ParallaxForest::TreefrontSlot() {
   if (treefront_.isNull()) return;
   treefrontMove++;
-  ReDraw();
 }
 
 void ParallaxForest::CloudSlot() {
   if (cloud_.isNull()) return;
   cloudMove++;
-  ReDraw();
 }
 
 unsigned int ParallaxForest::GetTargetZoom() {
@@ -211,4 +208,8 @@ void ParallaxForest::OnScreenResize() {
     cloudMove = rand() % cloud_.width();
     zoom_ = target_zoom;
   }
+}
+
+QRectF ParallaxForest::boundingRect() const {
+  return QRectF();
 }

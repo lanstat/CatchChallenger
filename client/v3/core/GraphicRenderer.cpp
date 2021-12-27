@@ -29,7 +29,7 @@ void GraphicRenderer::paint(QPainter *painter,
     if (buffer_.width() == 0 || buffer_.height() == 0) return;
     buffer_.fill(Qt::transparent);
     QPainter tmp(&buffer_);
-    scene_->Paint(&tmp, option, widget);
+    scene_->Render(&tmp);
     painter->drawPixmap(0, 0, buffer_);
   }
 }

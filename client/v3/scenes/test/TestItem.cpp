@@ -49,7 +49,7 @@ void TestItem::Draw(QPainter *painter) {
   text->SetPixelSize(10);
   text->SetPos(40, 0);
   text->SetText(text_);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
 }

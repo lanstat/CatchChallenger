@@ -20,6 +20,10 @@ class Test : public Scene {
  private:
   Test();
   Sprite *sprite_;
+  Sprite *sprite_2;
+  Sprite *sprite_3;
+  Sprite *sprite_4;
+  Sprite *sprite_5;
   UI::Label *label_;
 };
 }  // namespace Scenes

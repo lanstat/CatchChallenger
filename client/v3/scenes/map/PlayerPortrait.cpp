@@ -42,7 +42,7 @@ void PlayerPortrait::Draw(QPainter *painter) {
       QString::fromStdString(":/CC/images/interface/playerui.png");
 
   Sprite *sprite = Sprite::Create(background);
-  sprite->Paint(painter, nullptr, nullptr);
+  sprite->Draw(painter);
 
   QPixmap pPixm = image_;
   if (true)
@@ -52,11 +52,11 @@ void PlayerPortrait::Draw(QPainter *painter) {
   auto text = UI::Label::Create();
   text->SetText(name_);
   text->SetPos(sprite->X() + 175, sprite->Y() + 18);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   text->SetText(cash_);
   text->SetPos(sprite->X() + 230, sprite->Y() + 65);
-  text->Paint(painter, nullptr, nullptr);
+  text->Render(painter);
 
   delete text;
   delete sprite;

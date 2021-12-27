@@ -20,7 +20,7 @@ class CCMap : public QObject, public Scene {
                        qreal parentY, QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget = nullptr);
-  void Paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *) override;
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
   void MouseReleaseEvent(const QPointF &point, bool &prev_validated) override;
