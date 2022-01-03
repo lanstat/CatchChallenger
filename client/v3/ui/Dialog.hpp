@@ -20,6 +20,7 @@ class Dialog : public Scene {
   void AddActionButton(Button *action);
   void InsertActionButton(Button *action, int pos);
   void RemoveActionButton(Button *action);
+  void RecalculateActionButtons();
   void SetTitle(const QString &text);
   QString Title() const;
   void Close();
@@ -43,7 +44,6 @@ class Dialog : public Scene {
   void OnScreenHDR() override;
   void OnScreenResize() override;
   void Draw(QPainter *painter) override;
-  void RecalculateActionButtons();
   QRectF ContentBoundary() const;
   QRectF ContentPlainBoundary() const;
 

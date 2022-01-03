@@ -17,24 +17,29 @@ LinkedDialog::LinkedDialog(bool show_navigation) : Dialog(true) {
 
   next_ = Button::Create(":/CC/images/interface/next.png");
   next_->SetOnClick(std::bind(&LinkedDialog::OnActionClick, this, _1));
+  next_->SetVisible(show_navigation);
   back_ = Button::Create(":/CC/images/interface/back.png");
   back_->SetOnClick(std::bind(&LinkedDialog::OnActionClick, this, _1));
+  back_->SetVisible(show_navigation);
 
-  if (show_navigation_) {
-    AddActionButton(back_);
-    AddActionButton(next_);
-  }
+  AddActionButton(back_);
+  AddActionButton(next_);
 }
 
 LinkedDialog::~LinkedDialog() {
+  next_->UnRegisterEvents();
   delete next_;
   next_ = nullptr;
+
+  back_->UnRegisterEvents();
   delete back_;
   back_ = nullptr;
+
   for (auto item : items_) {
     delete item;
   }
   items_.clear();
+
   current_item_ = nullptr;
 }
 
@@ -135,11 +140,6 @@ Node* LinkedDialog::Item(int index) { return items_.at(index); }
 void LinkedDialog::ShowNavigation(bool show) {
   if (show == show_navigation_) return;
   show_navigation_ = show;
-  if (show_navigation_) {
-    AddActionButton(next_);
-    InsertActionButton(back_, 0);
-  } else {
-    RemoveActionButton(back_);
-    RemoveActionButton(next_);
-  }
+  next_->SetVisible(show_navigation_);
+  back_->SetVisible(show_navigation_);
 }

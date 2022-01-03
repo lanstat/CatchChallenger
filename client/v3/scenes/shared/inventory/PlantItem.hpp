@@ -19,8 +19,6 @@ class PlantItem : public UI::SelectableItem {
   uint32_t quantity_;
 
   PlantItem(uint16_t plant_id, uint32_t quantity);
-  QPixmap SetCanvas(const QPixmap &image, unsigned int size);
-  QPixmap SetCanvas(const QImage &image, unsigned int size);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_SHARED_INVENTORY_PLANTITEM_HPP_

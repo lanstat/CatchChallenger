@@ -320,6 +320,7 @@ class OverMapLogic : public OverMap {
   void CreateInventoryTabs();
   void OnUseItem(Inventory::ObjectType type, const uint16_t &item_id,
                  const uint32_t &quantity);
+  void ShowPlantDialog();
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENES_MAP_OVERMAPLOGIC_HPP_

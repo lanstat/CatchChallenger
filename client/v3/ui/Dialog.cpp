@@ -42,17 +42,28 @@ Dialog::Dialog(bool show_close) {
 
   actions_ = UI::Row::Create(this);
   actions_->SetItemSpacing(25);
+  actions_->SetMode(Row::kDisplayNoneVisible);
 }
 
 Dialog::~Dialog() {
   delete background_;
+  background_ = nullptr;
+
   delete title_;
+  title_ = nullptr;
+
   delete title_background_;
+  title_background_ = nullptr;
+
+  quit_->UnRegisterEvents();
   delete quit_;
+  quit_ = nullptr;
+
   delete actions_;
+  actions_ = nullptr;
+
   delete backdrop_;
   backdrop_ = nullptr;
-  actions_ = nullptr;
 }
 
 void Dialog::OnScreenResize() {
@@ -200,6 +211,7 @@ void Dialog::RecalculateActionButtons() {
   for (auto it = begin(items); it != end(items); it++) {
     (*it)->SetSize(width, height);
   }
+  actions_->ReCalculateSize();
 
   auto content_b = ContentBoundary();
   actions_->SetPos(content.width() / 2 - actions_->Width() / 2,

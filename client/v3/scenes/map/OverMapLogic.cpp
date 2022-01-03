@@ -437,10 +437,7 @@ void OverMapLogic::actionOn(CatchChallenger::Map_client *map, uint8_t x,
       seedInWaiting.y = y;
       seed_in_waiting.push_back(seedInWaiting);
 
-      auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
-      item->SetVar(Inventory::ObjectType::ObjectType_Seed, true);
-      inventory_tabs_->SetCurrentItem(1);
-      AddChild(inventory_tabs_);
+      ShowPlantDialog();
     }
     return;
   } else if (map->itemsOnMap.find(std::pair<uint8_t, uint8_t>(x, y)) !=
@@ -557,6 +554,7 @@ void OverMapLogic::errorWithTheCurrentMap() {
 }
 
 void OverMapLogic::bag_open() {
+  inventory_tabs_->ShowNavigation(true);
   auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
   item->SetVar(Inventory::ObjectType::ObjectType_All, false);
   inventory_tabs_->SetCurrentItem(1);
@@ -708,6 +706,7 @@ inventoryIndex--;
 }
 
 void OverMapLogic::player_open() {
+  inventory_tabs_->ShowNavigation(true);
   inventory_tabs_->SetCurrentItem(0);
   AddChild(inventory_tabs_);
 }
@@ -2590,7 +2589,9 @@ void OverMapLogic::CreateInventoryTabs() {
   item->SetOnUseItem(std::bind(&OverMapLogic::OnUseItem, this, _1, _2, _3));
   inventory_tabs_->AddItem(item);
   inventory_tabs_->AddItem(MonsterBag::Create());
-  inventory_tabs_->AddItem(Plant::Create());
+  auto plant = Plant::Create();
+  plant->SetOnUseItem(std::bind(&OverMapLogic::OnUseItem, this, _1, _2, _3));
+  inventory_tabs_->AddItem(plant);
   inventory_tabs_->SetOnBack(
       std::bind(&OverMapLogic::OnInventoryNav, this, _1));
   inventory_tabs_->SetOnNext(
@@ -2669,4 +2670,11 @@ void OverMapLogic::OnUseItem(Inventory::ObjectType type,
       break;
   }
   RemoveChild(inventory_tabs_);
+}
+
+void OverMapLogic::ShowPlantDialog() {
+  auto item = static_cast<Plant *>(inventory_tabs_->Item(3));
+  item->SetVar(true);
+  inventory_tabs_->SetCurrentItem(3);
+  AddChild(inventory_tabs_);
 }
