@@ -18,6 +18,7 @@ Node::Node(Node *parent): QGraphicsItem(parent) {
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
   node_cache_ = nullptr;
+  node_type_ = QString();
 
   if (parent) {
     parent->AddChild(this);
@@ -279,7 +280,7 @@ QString Node::NodeType() { return node_type_; }
 
 void Node::Draw(QPainter *painter) {
   std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-            << node_type_.toStdString() << "~nooo" << std::endl;
+            << class_name_ << "~nooo" << std::endl;
 }
 
 void Node::OnResize() {}

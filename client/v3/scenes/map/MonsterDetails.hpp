@@ -5,6 +5,7 @@
 #include "../../../general/base/GeneralStructures.hpp"
 #include "../../core/Scene.hpp"
 #include "../../core/Sprite.hpp"
+#include "../../ui/Backdrop.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/ListView.hpp"
@@ -33,6 +34,7 @@ class MonsterDetails : public Scene {
 
   UI::ListView *monsterDetailsSkills;
 
+  UI::Backdrop *backdrop_;
   Sprite *monsterDetailsCatched;
   UI::Label *monsterDetailsName;
   UI::Label *monsterDetailsLevel;
@@ -43,6 +45,7 @@ class MonsterDetails : public Scene {
   std::function<void()> on_close_;
 
   MonsterDetails();
+  void DrawBackground(QPainter *painter);
 };
 }  // namespace Scenes
 #endif  // CLIENT_V3_SCENE_MAP_MONSTERDETAILS_HPP_

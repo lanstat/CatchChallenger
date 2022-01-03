@@ -16,6 +16,7 @@
 using Scenes::MonsterDetails;
 
 MonsterDetails::MonsterDetails() {
+  backdrop_ = UI::Backdrop::Create(QColor(0, 0, 0, 0), this);
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
 
   details = UI::Label::Create(this);
@@ -43,6 +44,8 @@ MonsterDetails::MonsterDetails() {
                &MonsterDetails::newLanguage, Qt::QueuedConnection))
     abort();
   */
+  backdrop_->SetOnDraw(std::bind(&MonsterDetails::DrawBackground, this, std::placeholders::_1));
+
   quit->SetOnClick(std::bind(&MonsterDetails::Close, this));
   NewLanguage();
 }
@@ -51,6 +54,8 @@ MonsterDetails::~MonsterDetails() {
   delete quit;
   delete details;
   delete monsterDetailsImage;
+  delete backdrop_;
+  backdrop_ = nullptr;
 }
 
 MonsterDetails *MonsterDetails::Create() {
@@ -58,70 +63,6 @@ MonsterDetails *MonsterDetails::Create() {
 }
 
 void MonsterDetails::Draw(QPainter *p) {
-  int min = bounding_rect_.height();
-  if (min > bounding_rect_.width()) min = bounding_rect_.width();
-  const int xLeft = (bounding_rect_.width() - min) / 2;
-  const int xRight = bounding_rect_.width() - min - xLeft;
-  const int yTop = (bounding_rect_.height() - min) / 2;
-  const int yBottom = bounding_rect_.height() - min - yTop;
-  p->drawPixmap(xLeft, yTop, min, min,
-                *AssetsLoader::GetInstance()->GetImage(
-                    ":/CC/images/interface/backm.png"));
-  if (xLeft > 0)
-    p->drawPixmap(0, 0, xLeft, bounding_rect_.height(),
-                  *AssetsLoader::GetInstance()->GetImage(
-                      ":/CC/images/interface/backm.png"),
-                  0, 0, 1, 1);
-  if (xRight > 0)
-    p->drawPixmap(bounding_rect_.width() - xRight, 0, xRight,
-                  bounding_rect_.height(),
-                  *AssetsLoader::GetInstance()->GetImage(
-                      ":/CC/images/interface/backm.png"),
-                  0, 0, 1, 1);
-  if (yTop > 0)
-    p->drawPixmap(0, 0, bounding_rect_.width(), yTop,
-                  *AssetsLoader::GetInstance()->GetImage(
-                      ":/CC/images/interface/backm.png"),
-                  0, 0, 1, 1);
-  if (yBottom > 0)
-    p->drawPixmap(bounding_rect_.height() - yBottom, 0, yBottom,
-                  bounding_rect_.width(),
-                  *AssetsLoader::GetInstance()->GetImage(
-                      ":/CC/images/interface/backm.png"),
-                  0, 0, 1, 1);
-
-  unsigned int bigSpace = 50;
-  unsigned int space = 30;
-  qreal lineSize = 2.0;
-
-  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
-    bigSpace /= 2;
-    space = 10;
-    lineSize = 2.0;
-  } else {
-    if (bounding_rect_.width() < 1400 || bounding_rect_.height() < 800) {
-      lineSize = 3.0;
-    } else {
-      lineSize = 4.0;
-    }
-  }
-
-  p->save();
-  p->setPen(
-      QPen(Qt::white, lineSize, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-  // p->drawLine(bounding_rect_.width()*1/6,bounding_rect_.height()*1/6,bounding_rect_.width()*2/6,bounding_rect_.height()*1/6);
-  p->drawLine(details->Width() + space, bounding_rect_.height() * 1 / 6,
-              bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6);
-
-  p->drawLine(bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6,
-              bounding_rect_.width() / 2, bounding_rect_.height() * 4 / 10);
-  // p->drawLine(bounding_rect_.width()*2/6,bounding_rect_.height()*1/6,bounding_rect_.width()*4/6,bounding_rect_.height()*7/10);
-  p->drawLine(bounding_rect_.width() / 2, bounding_rect_.height() * 5 / 10,
-              bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10);
-
-  p->drawLine(bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10,
-              bounding_rect_.width() * 5 / 6, bounding_rect_.height() * 7 / 10);
-  p->restore();
 }
 
 void MonsterDetails::OnScreenResize() {
@@ -207,6 +148,8 @@ void MonsterDetails::OnScreenResize() {
   xp_text->SetPos(tempX - xp_text->Width() - space / 3, tempY + 10);
   o = +(hp_text->Height() - hp_bar_height) / 2;
   xp_bar->SetPos(tempX, tempY + o);
+
+  backdrop_->SetSize(bounding_rect_.width(), bounding_rect_.height());
 }
 
 void MonsterDetails::OnEnter() {
@@ -450,4 +393,71 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
       }
   }*/
   ReDraw();
+}
+
+void MonsterDetails::DrawBackground(QPainter *p) {
+  int min = bounding_rect_.height();
+  if (min > bounding_rect_.width()) min = bounding_rect_.width();
+  const int xLeft = (bounding_rect_.width() - min) / 2;
+  const int xRight = bounding_rect_.width() - min - xLeft;
+  const int yTop = (bounding_rect_.height() - min) / 2;
+  const int yBottom = bounding_rect_.height() - min - yTop;
+  p->drawPixmap(xLeft, yTop, min, min,
+                *AssetsLoader::GetInstance()->GetImage(
+                    ":/CC/images/interface/backm.png"));
+  if (xLeft > 0)
+    p->drawPixmap(0, 0, xLeft, bounding_rect_.height(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (xRight > 0)
+    p->drawPixmap(bounding_rect_.width() - xRight, 0, xRight,
+                  bounding_rect_.height(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (yTop > 0)
+    p->drawPixmap(0, 0, bounding_rect_.width(), yTop,
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+  if (yBottom > 0)
+    p->drawPixmap(bounding_rect_.height() - yBottom, 0, yBottom,
+                  bounding_rect_.width(),
+                  *AssetsLoader::GetInstance()->GetImage(
+                      ":/CC/images/interface/backm.png"),
+                  0, 0, 1, 1);
+
+  unsigned int bigSpace = 50;
+  unsigned int space = 30;
+  qreal lineSize = 2.0;
+
+  if (bounding_rect_.width() < 800 || bounding_rect_.height() < 600) {
+    bigSpace /= 2;
+    space = 10;
+    lineSize = 2.0;
+  } else {
+    if (bounding_rect_.width() < 1400 || bounding_rect_.height() < 800) {
+      lineSize = 3.0;
+    } else {
+      lineSize = 4.0;
+    }
+  }
+
+  p->save();
+  p->setPen(
+      QPen(Qt::white, lineSize, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  // p->drawLine(bounding_rect_.width()*1/6,bounding_rect_.height()*1/6,bounding_rect_.width()*2/6,bounding_rect_.height()*1/6);
+  p->drawLine(details->Width() + space, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6);
+
+  p->drawLine(bounding_rect_.width() * 2 / 6, bounding_rect_.height() * 1 / 6,
+              bounding_rect_.width() / 2, bounding_rect_.height() * 4 / 10);
+  // p->drawLine(bounding_rect_.width()*2/6,bounding_rect_.height()*1/6,bounding_rect_.width()*4/6,bounding_rect_.height()*7/10);
+  p->drawLine(bounding_rect_.width() / 2, bounding_rect_.height() * 5 / 10,
+              bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10);
+
+  p->drawLine(bounding_rect_.width() * 4 / 6, bounding_rect_.height() * 7 / 10,
+              bounding_rect_.width() * 5 / 6, bounding_rect_.height() * 7 / 10);
+  p->restore();
 }

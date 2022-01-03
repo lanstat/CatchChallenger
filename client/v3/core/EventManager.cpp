@@ -173,7 +173,7 @@ void EventManager::MousePressEvent(const QPointF &point,
       current_target_ = elt;
       current_target_salvaged_ = false;
 
-      if (current_target_->paused == 0) {
+      if (!current_target_->paused) {
         current_target_->target->MousePressEvent(point, press_validated);
       }
 
@@ -349,11 +349,10 @@ void EventManager::PrintData() {
     Logger::Log(QString("Scene %1 z: %2").arg(point).arg(scene->z));
     for (HashElementType *elt = scene->listeners; elt != nullptr;) {
       intptr_t point_1 = reinterpret_cast<intptr_t>(elt->target);
-      Logger::Log(QString("Listener %1(%4) z: %2 paused: %3")
+      Logger::Log(QString("Listener %1 z: %2 paused: %3")
                       .arg(point_1)
                       .arg(elt->z)
-                      .arg(elt->paused)
-                      .arg(elt->target->NodeType()));
+                      .arg(elt->paused));
       elt = (HashElementType *)(elt->hh.next);
     }
 

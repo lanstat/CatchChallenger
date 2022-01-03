@@ -86,6 +86,7 @@ void InventoryItem::MouseReleaseEvent(const QPointF &point,
       if (on_click_) {
         on_click_(this);
       }
+      prev_validated = true;
     }
   }
 }
