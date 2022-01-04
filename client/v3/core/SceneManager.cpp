@@ -161,12 +161,13 @@ void SceneManager::OnResize() {
   auto items = graphic_scene_->items();
   QList<QGraphicsItem*>::iterator i;
   for (i = items.begin(); i != items.end(); ++i) {
-    auto node = static_cast<Node *>(*i);
+    auto scene = dynamic_cast<Scene *>(*i);
+    if (scene == nullptr) {
+      continue;
+    }
     // Verify that node is not nullptr
     try {
-      if (node->ClassName() == "Scene") {
-        node->SetSize(width(), height());
-      }
+      scene->SetSize(width(), height());
     }
     catch (const std::bad_alloc&) {
       continue;

@@ -13,6 +13,10 @@
 
 Scene::Scene(Node *parent) : Node(parent) {
   class_name_ = __func__;
+
+  int width = SceneManager::GetInstance()->width();
+  int height = SceneManager::GetInstance()->height();
+  bounding_rect_ = QRectF(0, 0, width, height);
 }
 
 Scene::~Scene() {}
