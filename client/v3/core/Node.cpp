@@ -18,7 +18,7 @@ Node::Node(Node *parent): QGraphicsItem(parent) {
   action_manager_ = ActionManager::GetInstance();
   in_test_ = false;
   node_cache_ = nullptr;
-  node_type_ = QString();
+  node_type_ = __func__;
 
   if (parent) {
     parent->AddChild(this);
@@ -276,7 +276,7 @@ void Node::SetScale(qreal value) {
 
 qreal Node::Scale() { return scale(); }
 
-QString Node::NodeType() { return node_type_; }
+std::string Node::NodeType() const { return node_type_; }
 
 void Node::Draw(QPainter *painter) {
   std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "

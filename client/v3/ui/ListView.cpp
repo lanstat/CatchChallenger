@@ -24,6 +24,7 @@ ListView::ListView(Node *parent) : Node(parent) {
 }
 
 ListView::~ListView() {
+  UnRegisterEvents();
   for (auto item : items_) {
     delete item;
   }

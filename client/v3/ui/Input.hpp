@@ -1,8 +1,10 @@
 // Copyright 2021 CatchChallenger
-#ifndef CLIENT_QTOPENGL_UI_INPUT_HPP_
-#define CLIENT_QTOPENGL_UI_INPUT_HPP_
+#ifndef CLIENT_V3_UI_INPUT_HPP_
+#define CLIENT_V3_UI_INPUT_HPP_
 
+#include <QGraphicsProxyWidget>
 #include <QGraphicsWidget>
+#include <QLineEdit>
 
 #include "../core/Node.hpp"
 #include "../core/Sprite.hpp"
@@ -11,12 +13,7 @@
 namespace UI {
 class Input : public Node {
  public:
-  enum InputMode {
-    kPassword,
-    kNumber,
-    kDefault,
-    kReadOnly
-  };
+  enum InputMode { kPassword, kNumber, kDefault, kReadOnly };
 
   static Input *Create(Node *parent = nullptr);
   ~Input();
@@ -43,6 +40,9 @@ class Input : public Node {
 
   void Draw(QPainter *painter) override;
 
+ protected:
+  void OnResize() override;
+
  private:
   Label *label_;
   bool pressed_;
@@ -52,10 +52,13 @@ class Input : public Node {
   Sprite *background_;
   InputMode mode_;
   QPointF inner_padding_;
+  QGraphicsProxyWidget *proxy_;
+  QLineEdit *line_edit_;
 
   std::function<void(std::string)> on_text_change_;
 
   explicit Input(Node *parent = nullptr);
+  void OnReturnPressed();
 };
 }  // namespace UI
-#endif  // CLIENT_QTOPENGL_UI_INPUT_HPP_
+#endif  // CLIENT_V3_UI_INPUT_HPP_

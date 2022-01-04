@@ -49,7 +49,10 @@ void Button::SetPos(qreal x, qreal y) {
   Node::SetPos(x, y);
 }
 
-Button::~Button() { delete label_; }
+Button::~Button() {
+  UnRegisterEvents();
+  delete label_;
+}
 
 void Button::Draw(QPainter *painter) {
   if (bounding_rect_.isEmpty()) return;

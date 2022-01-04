@@ -53,7 +53,7 @@ class Node : public QGraphicsItem {
   void TestMode();
   void SetToolTip(QString text);
   QString ToolTip();
-  QString NodeType();
+  std::string NodeType() const;
   void SetZValue(int index);
   void ReArrangeChild(Node *node);
   int ZValue();
@@ -91,7 +91,7 @@ class Node : public QGraphicsItem {
   std::function<void(Node *)> on_click_;
   std::function<void(Node *)> on_resize_;
   std::string class_name_;
-  QString node_type_;
+  std::string node_type_;
 
   explicit Node(Node *parent = nullptr);
   virtual void OnResize();
