@@ -20,6 +20,7 @@ class Globals {
   static Scenes::Map* GetMapScene();
   static Scenes::Battle* GetBattleScene();
   static UI::MessageDialog* GetAlertDialog();
+  static void ClearAllScenes();
 
  private:
   static Scenes::Leading* leading_;

@@ -305,7 +305,7 @@ bool QtServer::check_if_now_stopped()
     is_started(false);
 
     // TODO(lanstat): Check corrupted size exception
-    // unload_the_data();
+    unload_the_data();
     return true;
 }
 

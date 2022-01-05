@@ -32,6 +32,7 @@ class SceneManager : public QGraphicsView {
   void ShowOverlay(Node *overlay);
   void RemoveOverlay();
   QGraphicsItem *GetRenderer();
+  void Restart();
 
  protected:
   void resizeEvent(QResizeEvent *event) override;

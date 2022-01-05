@@ -31,7 +31,7 @@
 #include "../../general/base/tinyXML2/tinyxml2.h"
 #endif
 
-InternetUpdater *InternetUpdater::internetUpdater=NULL;
+InternetUpdater *InternetUpdater::internetUpdater=nullptr;
 
 InternetUpdater::InternetUpdater()
 {
@@ -42,6 +42,12 @@ InternetUpdater::InternetUpdater()
     newUpdateTimer.start(60*60*1000);
     firstUpdateTimer.setSingleShot(true);
     firstUpdateTimer.start(5);
+}
+
+InternetUpdater* InternetUpdater::GetInstance() {
+    if(internetUpdater==nullptr)
+        internetUpdater=new InternetUpdater();
+    return internetUpdater;
 }
 
 void InternetUpdater::downloadFile()

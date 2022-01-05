@@ -23,6 +23,7 @@ SelectableItem::SelectableItem() : Node() {
 }
 
 SelectableItem::~SelectableItem() {
+  UnRegisterEvents();
   if (content_cache_) {
     delete content_cache_;
   }

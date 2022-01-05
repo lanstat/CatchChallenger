@@ -24,7 +24,6 @@ class MessageDialog : public Dialog {
 
  private:
   MessageDialog();
-  UI::Button *quit_;
   UI::Label *message_;
 };
 }  // namespace UI

@@ -288,6 +288,7 @@ void ConnectionManager::selectCharacter(const uint32_t indexSubServer,
 }
 
 void ConnectionManager::disconnected(std::string reason) {
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< reason << std::endl;
   // QMessageBox::information(this,tr("Disconnected"),tr("Disconnected by the
   // reason: %1").arg(QString::fromStdString(reason)));
   if (on_error_) on_error_(reason);

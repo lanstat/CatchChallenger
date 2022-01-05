@@ -25,9 +25,11 @@ ListView::ListView(Node *parent) : Node(parent) {
 
 ListView::~ListView() {
   UnRegisterEvents();
-  for (auto item : items_) {
+  auto items = items_;
+  for (auto item : items) {
     delete item;
   }
+  items_.clear();
 }
 
 ListView *ListView::Create(Node *parent) {
@@ -319,11 +321,12 @@ void ListView::MouseMoveEvent(const QPointF &point) {
 
 void ListView::Clear() {
   has_dirty_items_ = true;
-  for (std::vector<Node *>::iterator it = items_.begin(); it != items_.end();
+  auto items = items_;
+  items_.clear();
+  for (std::vector<Node *>::iterator it = items.begin(); it != items.end();
        ++it) {
     delete *it;
   }
-  items_.clear();
   ReDraw();
 }
 

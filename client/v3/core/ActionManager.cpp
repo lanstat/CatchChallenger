@@ -108,6 +108,7 @@ void ActionManager::RemoveAllActionsFromTarget(Node *target) {
         contains_element = true;
         break;
       }
+      index++;
     }
     if (contains_element && (!element->current_action_salvaged)) {
       // element->current_action->retain();

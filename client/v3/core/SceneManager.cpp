@@ -212,9 +212,8 @@ void SceneManager::closeEvent(QCloseEvent *event) {
     if (connection_ != nullptr)
       if (connection_->client != nullptr)
         connection_->client->disconnectFromHost();
-    /// internalServer->stop();
+    Globals::InternalServer->Stopped();
     event->accept();
-    return;
   }
 #endif
   QWidget::closeEvent(event);
@@ -345,9 +344,12 @@ void SceneManager::SetTargetFPS(int targetFPS) {
   }
 }
 
-void SceneManager::OnError(std::string error) {}
+void SceneManager::OnError(std::string error) {
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdasd" << std::endl;
+}
 
 void SceneManager::OnDisconnect() {
+  Restart();
 #ifdef CATCHCHALLENGER_SOLO
   if (Globals::InternalServer != nullptr) Globals::InternalServer->Stopped();
 #endif
@@ -373,4 +375,14 @@ Scene *SceneManager::CurrentScene() { return scene_stack_.back(); }
 
 QGraphicsItem *SceneManager::GetRenderer() {
   return renderer_;
+}
+
+void SceneManager::Restart() {
+  auto current = scene_stack_.back();
+  graphic_scene_->removeItem(current);
+  scene_stack_.clear();
+  EventManager::GetInstance()->RemoveAllListeners();
+  ActionManager::GetInstance()->RemoveAllActions();
+  Globals::ClearAllScenes();
+  PushScene(Globals::GetLeadingScene());
 }

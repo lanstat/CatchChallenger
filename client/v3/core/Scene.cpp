@@ -68,7 +68,7 @@ void Scene::PrintError(const QString &message) {
 }
 
 void Scene::PrintError(const std::string &message) {
-  std::cout << message << std::endl;
+  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< message << std::endl;
 }
 
 void Scene::OnScreenSD() {}

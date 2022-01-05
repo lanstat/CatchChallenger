@@ -13,7 +13,7 @@
 #include <QDebug>
 #include <fstream>
 
-FeedNews *FeedNews::feedNews=NULL;
+FeedNews *FeedNews::feedNews=nullptr;
 
 FeedNews::FeedNews()
 {
@@ -53,6 +53,12 @@ FeedNews::~FeedNews()
 {
     if(qnam!=NULL)
         delete qnam;
+}
+
+FeedNews* FeedNews::GetInstance() {
+    if(feedNews==nullptr)
+        feedNews=new FeedNews();
+    return feedNews;
 }
 
 void FeedNews::downloadFile()

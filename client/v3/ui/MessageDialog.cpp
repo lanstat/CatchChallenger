@@ -9,19 +9,16 @@ using UI::MessageDialog;
 
 MessageDialog::MessageDialog() {
   SetDialogSize(600, 300);
-  quit_ = UI::Button::Create(":/CC/images/interface/cancel.png", this);
 
   message_ = UI::Label::Create(this);
   message_->SetAlignment(Qt::AlignCenter);
-
-  AddActionButton(quit_);
 
   newLanguage();
 }
 
 MessageDialog::~MessageDialog() {
-  delete quit_;
   delete message_;
+  message_ = nullptr;
 }
 
 MessageDialog *MessageDialog::Create() {
@@ -42,10 +39,6 @@ void MessageDialog::OnScreenResize() {
 void MessageDialog::newLanguage() { SetTitle(tr("Alert")); }
 
 void MessageDialog::OnActionClick(Node *node) {
-  if (node == quit_) {
-    SceneManager::GetInstance()->RemoveOverlay();
-    Close();
-  }
 }
 
 void MessageDialog::Show(const QString &message) { Show(QString(), message); }

@@ -1,6 +1,8 @@
 // Copyright 2021 CatchChallenger
 #include "Globals.hpp"
 
+#include "scenes/leading/Loading.hpp"
+
 CatchChallenger::InternalServer *Globals::InternalServer = nullptr;
 
 QThread *Globals::ThreadSolo = nullptr;
@@ -39,4 +41,20 @@ UI::MessageDialog *Globals::GetAlertDialog() {
     alert_ = UI::MessageDialog::Create();
   }
   return alert_;
+}
+
+void Globals::ClearAllScenes() {
+  Scenes::Loading::GetInstance()->SetParent(nullptr);
+  if (map_ != nullptr) {
+    delete map_;
+    map_ = nullptr;
+  }
+  if (battle_ != nullptr) {
+    delete battle_;
+    battle_ = nullptr;
+  }
+  if (leading_ != nullptr) {
+    delete leading_;
+    leading_ = nullptr;
+  }
 }

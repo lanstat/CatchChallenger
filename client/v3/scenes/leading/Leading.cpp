@@ -22,7 +22,9 @@ Leading::Leading() {
 
 Leading::~Leading() {
   delete background_;
+  background_ = nullptr;
   delete menu_;
+  menu_ = nullptr;
 }
 
 Leading* Leading::Create() {

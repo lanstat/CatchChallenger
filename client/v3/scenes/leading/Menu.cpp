@@ -54,13 +54,90 @@ Menu::Menu() {
   } else {
     is_loaded_ = true;
     Initialize();
+    // Reload events
+    OnScreenResize();
+    OnEnter();
   }
 }
 
 Menu::~Menu() {
-  delete update_;
-  if (solo_scene_) delete solo_scene_;
-  if (multi_scene_) delete multi_scene_;
+#ifndef __EMSCRIPTEN__
+  QObject::disconnect(InternetUpdater::GetInstance(), &InternetUpdater::newUpdate, nullptr, nullptr);
+#endif
+  QObject::disconnect(FeedNews::GetInstance(), &FeedNews::feedEntryList, nullptr, nullptr);
+
+  if (update_) {
+    delete update_;
+    update_ = nullptr;
+  }
+  if (solo_) {
+    delete solo_;
+    solo_ = nullptr;
+  }
+  if (multi_) {
+    delete multi_;
+    multi_ = nullptr;
+  }
+  if (update_star_) {
+    delete update_star_;
+    update_star_ = nullptr;
+  }
+  if (update_text_) {
+    delete update_text_;
+    update_text_ = nullptr;
+  }
+  if (options_) {
+    delete options_;
+    options_ = nullptr;
+  }
+  if (facebook_) {
+    delete facebook_;
+    facebook_ = nullptr;
+  }
+  if (website_) {
+    delete website_;
+    website_ = nullptr;
+  }
+  if (debug_) {
+    delete debug_;
+    debug_ = nullptr;
+  }
+  if (news_wait_) {
+    delete news_wait_;
+    news_wait_ = nullptr;
+  }
+  if (news_list_) {
+    delete news_list_;
+    news_list_ = nullptr;
+  }
+  if (news_update_) {
+    delete news_update_;
+    news_update_ = nullptr;
+  }
+  if (news_) {
+    delete news_;
+    news_ = nullptr;
+  }
+  if (warning_) {
+    delete warning_;
+    warning_ = nullptr;
+  }
+  if (multi_scene_) {
+    delete multi_scene_;
+    multi_scene_ = nullptr;
+  }
+  if (solo_scene_) {
+    delete solo_scene_;
+    solo_scene_ = nullptr;
+  }
+  if (option_scene_) {
+    delete option_scene_;
+    option_scene_ = nullptr;
+  }
+  if (debug_scene_) {
+    delete debug_scene_;
+    debug_scene_ = nullptr;
+  }
 }
 
 Menu *Menu::Create() { return new (std::nothrow) Menu(); }
@@ -100,19 +177,18 @@ void Menu::Initialize() {
       UI::Button::Create(":/CC/images/interface/greenbutton.png", news_);
   news_update_->SetOutlineColor(QColor(44, 117, 0));
 #ifndef __EMSCRIPTEN__
-  InternetUpdater::internetUpdater = new InternetUpdater();
-  if (!QObject::connect(InternetUpdater::internetUpdater,
+  if (!QObject::connect(InternetUpdater::GetInstance(),
                         &InternetUpdater::newUpdate,
                         std::bind(&Menu::NewUpdate, this, _1)))
     abort();
 #endif
-  FeedNews::feedNews = new FeedNews();
-  if (!QObject::connect(FeedNews::feedNews, &FeedNews::feedEntryList,
+  auto feed_news = FeedNews::GetInstance();
+  if (!QObject::connect(feed_news, &FeedNews::feedEntryList,
                         std::bind(&Menu::FeedEntryList, this, _1, _2)))
     std::cerr << "connect(RssNews::rssNews,&RssNews::rssEntryList,this,&"
                  "MenuWindow::rssEntryList) failed"
               << std::endl;
-  FeedNews::feedNews->checkCache();
+  feed_news->checkCache();
 #ifndef CATCHCHALLENGER_SOLO
   solo_->SetVisible(false);
 #endif

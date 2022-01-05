@@ -27,6 +27,7 @@ Solo::Solo() : Scene(nullptr) {
 Solo::~Solo() {
   if (subserver_) {
     delete subserver_;
+    subserver_ = nullptr;
   }
 }
 
@@ -279,6 +280,7 @@ void Solo::Initialize() {
 }
 
 void Solo::IsStarted(bool started) {
+  QObject::disconnect(Globals::InternalServer, &CatchChallenger::InternalServer::is_started, nullptr, nullptr);
   if (started) {
     ConnectionInfo connexionInfo;
     connexionInfo.connexionCounter = 0;
@@ -290,6 +292,7 @@ void Solo::IsStarted(bool started) {
                     Settings::settings->value("pass").toString());
     return;
   } else {
+    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "otra vez vos..." << std::endl;
     if (Globals::InternalServer != nullptr) {
       delete Globals::InternalServer;
       Globals::InternalServer = nullptr;

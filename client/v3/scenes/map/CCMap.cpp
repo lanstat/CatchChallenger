@@ -186,7 +186,6 @@ void CCMap::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 }
 
 void CCMap::OnEnter() {
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asd" << std::endl;
   Scene::OnEnter();
   EventManager::GetInstance()->AddMouseListener(this);
   EventManager::GetInstance()->AddKeyboardListener(this);
@@ -195,5 +194,4 @@ void CCMap::OnEnter() {
 
 void CCMap::OnExit() { 
   EventManager::GetInstance()->RemoveListener(this);
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "asdasd" << std::endl;
 }
