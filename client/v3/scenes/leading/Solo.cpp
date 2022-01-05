@@ -292,7 +292,6 @@ void Solo::IsStarted(bool started) {
                     Settings::settings->value("pass").toString());
     return;
   } else {
-    std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< "otra vez vos..." << std::endl;
     if (Globals::InternalServer != nullptr) {
       delete Globals::InternalServer;
       Globals::InternalServer = nullptr;
