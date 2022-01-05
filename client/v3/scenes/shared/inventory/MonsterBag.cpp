@@ -3,12 +3,12 @@
 
 #include <iostream>
 
+#include "../../../Globals.hpp"
 #include "../../../Language.hpp"
 #include "../../../base/ConnectionManager.hpp"
 #include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/SceneManager.hpp"
 #include "../../../ui/LinkedDialog.hpp"
-#include "../../../ui/MessageDialog.hpp"
 #include "MonsterItem.hpp"
 
 using CatchChallenger::PlayerMonster;
@@ -92,13 +92,7 @@ void MonsterBag::ClearSelection() {}
 void MonsterBag::ShowMessageDialog(const QString &title,
                                    const QString &message) {
   ClearSelection();
-  if (message_dialog_ == nullptr) {
-    message_dialog_ = UI::MessageDialog::Create();
-  }
-
-  message_dialog_->SetTitle(title);
-  message_dialog_->SetMessage(message);
-  AddChild(message_dialog_);
+  Globals::GetAlertDialog()->Show(title, message);
 }
 
 void MonsterBag::RegisterEvents() {

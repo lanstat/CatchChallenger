@@ -10,6 +10,7 @@
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/MoveOnTheMap.hpp"
+#include "../../Globals.hpp"
 #include "../../action/Blink.hpp"
 #include "../../action/CallFunc.hpp"
 #include "../../action/Sequence.hpp"
@@ -86,7 +87,6 @@ Battle::Battle() : Scene(nullptr) {
   escape = false;
   escapeSuccess = false;
 
-  message_dialog_ = nullptr;
   linked_ = UI::LinkedDialog::Create(false);
   auto monster = MonsterBag::Create(MonsterBag::kOnBattle);
   monster->SetOnSelectMonster(std::bind(&Battle::OnMonsterSelect, this, _1));
@@ -104,7 +104,6 @@ Battle::Battle() : Scene(nullptr) {
 }
 
 Battle::~Battle() {
-  if (message_dialog_) delete message_dialog_;
   delete linked_;
   linked_ = nullptr;
 }
@@ -1238,12 +1237,7 @@ void Battle::error(std::string error) {
 }
 
 void Battle::ShowMessageDialog(const QString &title, const QString &message) {
-  if (message_dialog_ == nullptr) {
-    message_dialog_ = UI::MessageDialog::Create();
-  }
-  message_dialog_->SetTitle(title);
-  message_dialog_->SetMessage(message);
-  AddChild(message_dialog_);
+  Globals::GetAlertDialog()->Show(title, message);
 }
 
 void Battle::ShowMonsterDialog(bool show_close) {
@@ -1257,7 +1251,8 @@ void Battle::ShowBagDialog() {
   AddChild(linked_);
 }
 
-void Battle::UseBagItem(Inventory::ObjectType type, uint16_t item, uint32_t quantity) {
+void Battle::UseBagItem(Inventory::ObjectType type, uint16_t item,
+                        uint32_t quantity) {
   RemoveChild(linked_);
 
   const CatchChallenger::Player_private_and_public_informations

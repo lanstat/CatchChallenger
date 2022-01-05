@@ -24,7 +24,6 @@
 #include "../../ui/Label.hpp"
 #include "../../ui/LinkedDialog.hpp"
 #include "../../ui/ListView.hpp"
-#include "../../ui/MessageDialog.hpp"
 #include "../../ui/Progressbar.hpp"
 #include "../shared/inventory/Inventory.hpp"
 
@@ -105,7 +104,6 @@ class Battle : public Scene {
   UI::LinkedDialog *linked_;
   UI::ListView *player_skills_;
   ActionManager *action_manager_;
-  UI::MessageDialog *message_dialog_;
 
   bool waiting_server_reply_;
 

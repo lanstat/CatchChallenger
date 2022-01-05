@@ -9,6 +9,7 @@
 namespace UI {
 class MessageDialog : public Dialog {
  public:
+  MessageDialog();
   ~MessageDialog();
   static MessageDialog *Create();
 
@@ -19,11 +20,7 @@ class MessageDialog : public Dialog {
   void Show(const QString &title, const QString &message);
   void Show(const QString &message);
 
- protected:
-  void OnActionClick(Node *node);
-
  private:
-  MessageDialog();
   UI::Label *message_;
 };
 }  // namespace UI

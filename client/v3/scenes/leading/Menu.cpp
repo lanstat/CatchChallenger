@@ -66,10 +66,6 @@ Menu::~Menu() {
 #endif
   QObject::disconnect(FeedNews::GetInstance(), &FeedNews::feedEntryList, nullptr, nullptr);
 
-  if (update_) {
-    delete update_;
-    update_ = nullptr;
-  }
   if (solo_) {
     delete solo_;
     solo_ = nullptr;
@@ -77,14 +73,6 @@ Menu::~Menu() {
   if (multi_) {
     delete multi_;
     multi_ = nullptr;
-  }
-  if (update_star_) {
-    delete update_star_;
-    update_star_ = nullptr;
-  }
-  if (update_text_) {
-    delete update_text_;
-    update_text_ = nullptr;
   }
   if (options_) {
     delete options_;

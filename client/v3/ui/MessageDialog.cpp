@@ -38,9 +38,6 @@ void MessageDialog::OnScreenResize() {
 
 void MessageDialog::newLanguage() { SetTitle(tr("Alert")); }
 
-void MessageDialog::OnActionClick(Node *node) {
-}
-
 void MessageDialog::Show(const QString &message) { Show(QString(), message); }
 
 void MessageDialog::Show(const QString &title, const QString &message) {

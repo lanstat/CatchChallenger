@@ -32,9 +32,6 @@ class Menu : public Scene {
   void OnExit() override;
 
  private:
-  UI::Label *update_;
-  UI::Label *update_star_;
-  UI::Label *update_text_;
   UI::Button *solo_;
   UI::Button *multi_;
   UI::Button *options_;

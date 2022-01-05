@@ -32,7 +32,6 @@ class MonsterBag : public Node {
 
  private:
   UI::ListView *monster_list_;
-  UI::MessageDialog *message_dialog_;
   UI::Button *select_;
 
   ConnectionManager *connection_manager_;
