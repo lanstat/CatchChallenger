@@ -235,7 +235,7 @@ struct PlayerReputation
 struct PlayerPlant
 {
     uint8_t plant;//plant id
-    uint64_t mature_at;//timestamp when is mature
+    uint64_t mature_at;//timestamp when is mature in second
 };
 
 struct Player_private_and_public_informations
@@ -246,7 +246,7 @@ struct Player_private_and_public_informations
     char * recipes;
     /// \todo put out of here to have mutalised engine
     std::vector<PlayerMonster> playerMonster,warehouse_playerMonster;
-    CLAN_ID_TYPE clan;
+    CLAN_ID_TYPE clan;//0 == no clan
     char * encyclopedia_monster;
     char * encyclopedia_item;//should be: CommonDatapack::commonDatapack.items.item.size()/8+1
     uint32_t repel_step;

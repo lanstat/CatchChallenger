@@ -36,10 +36,8 @@ void BaseServer::preload_pointOnMap_item_sql()
         criticalDatabaseQueryFailed();return;//stop because can't do the first db access
 
         preload_the_visibility_algorithm();
-        #ifndef EPOLLCATCHCHALLENGERSERVER
         preload_the_city_capture();
         preload_zone();
-        #endif
 
         const auto now=msFrom1970();
         std::cout << "Loaded the server static datapack into " << (now-timeDatapack) << "ms" << std::endl;
@@ -57,11 +55,11 @@ void BaseServer::preload_pointOnMap_item_static(void *object)
 
 void BaseServer::preload_pointOnMap_item_return()
 {
-    DictionaryServer::MapAndPointItem nullvalue;
+    /*DictionaryServer::MapAndPointItem nullvalue;
     nullvalue.datapack_index_item=0;
     nullvalue.map=nullptr;
     nullvalue.x=0;
-    nullvalue.y=0;
+    nullvalue.y=0;*/
 
     unsigned int itemCount=0;
     unsigned int itemValidatedCount=0;
@@ -155,12 +153,10 @@ void BaseServer::preload_pointOnMap_item_return()
             std::cout << DictionaryServer::dictionary_pointOnMap_item_internal_to_database.size() << " SQL item on map dictionary" << std::endl;
 
         preload_the_visibility_algorithm();
-        #ifndef EPOLLCATCHCHALLENGERSERVER
         if(!preload_the_city_capture())
             return;
         if(!preload_zone())
             return;
-        #endif
         const auto now = msFrom1970();
         std::cout << "Loaded the server static datapack into " << (now-timeDatapack) << "ms" << std::endl;
         timeDatapack=now;
@@ -200,10 +196,8 @@ void BaseServer::preload_pointOnMap_plant_sql()
         criticalDatabaseQueryFailed();return;//stop because can't do the first db access
 
         preload_the_visibility_algorithm();
-        #ifndef EPOLLCATCHCHALLENGERSERVER
         preload_the_city_capture();
         preload_zone();
-        #endif
 
         const auto now=msFrom1970();
         std::cout << "Loaded the server static datapack into " << (now-timeDatapack) << "ms" << std::endl;
@@ -221,11 +215,13 @@ void BaseServer::preload_pointOnMap_plant_static(void *object)
 
 void BaseServer::preload_pointOnMap_plant_return()
 {
+    #ifdef CATCHCHALLENGER_CACHE_HPS
     DictionaryServer::MapAndPointPlant nullvalue;
     nullvalue.datapack_index_plant=0;
     nullvalue.map=nullptr;
     nullvalue.x=0;
     nullvalue.y=0;
+    #endif
     uint16_t datapack_index_temp_for_plant=0;
 
     unsigned int plantCount=0;
@@ -330,12 +326,10 @@ void BaseServer::preload_pointOnMap_plant_return()
             std::cout << DictionaryServer::dictionary_pointOnMap_plant_internal_to_database.size() << " SQL plant on map dictionary" << std::endl;
 
         preload_the_visibility_algorithm();
-        #ifndef EPOLLCATCHCHALLENGERSERVER
         if(!preload_the_city_capture())
             return;
         if(!preload_zone())
             return;
-        #endif
         const auto now = msFrom1970();
         std::cout << "Loaded the server static datapack into " << (now-timeDatapack) << "ms" << std::endl;
         timeDatapack=now;

@@ -29,6 +29,8 @@ public:
     uint8_t localChatDropTotalCache;
     uint8_t localChatDropNewValue;
     int reverse_db_id;
+    //the next variable is related to GlobalServerData::serverPrivateVariables.idToZone
+    uint16_t zone;//65535 if no zone
 
     //at last to improve the other variable cache
     std::vector<Client *> clientsForBroadcast;//frequent remove/insert due to map change
@@ -85,33 +87,33 @@ public:
         buf << parsed_layer.monstersCollisionList;
         buf.write((char *)parsed_layer.simplifiedMap,mapSize);
         buf << (uint8_t)shops.size();
-        for (const auto x : shops)
+        for (const auto &x : shops)
               buf << x.first << x.second;
         buf << (uint8_t)learn.size();
-        for (const auto x : learn)
+        for (const auto &x : learn)
               buf << x.first << x.second;
         buf << (uint8_t)heal.size();
-        for (const auto x : heal)
+        for (const auto &x : heal)
               buf << x.first << x.second;
         buf << (uint8_t)market.size();
-        for (const auto x : market)
+        for (const auto &x : market)
               buf << x.first << x.second;
         buf << (uint8_t)zonecapture.size();
-        for (const auto x : zonecapture)
+        for (const auto &x : zonecapture)
               buf << x.first << x.second;
         buf << (uint8_t)botsFight.size();
-        for (const auto x : botsFight)
+        for (const auto &x : botsFight)
               buf << x.first << x.second;
         buf << (uint8_t)botsFightTrigger.size();
-        for (const auto x : botsFightTrigger)
+        for (const auto &x : botsFightTrigger)
               buf << x.first << x.second;
         //MapServerCrafting
         buf << plants;
         //server map
         buf << (uint8_t)rescue.size();
-        for (const auto x : rescue)
+        for (const auto &x : rescue)
               buf << x.first << (uint8_t)x.second;
-        buf << reverse_db_id << pointOnMap_Item;
+        buf << reverse_db_id << zone << pointOnMap_Item;
     }
     static uint32_t mapListSize;
     static CommonMap * posToPointer(const int32_t &pos);
@@ -140,11 +142,11 @@ public:
         buf >> width;
         buf >> height;
         const uint16_t &mapSize=(uint16_t)width*(uint16_t)height;
-        if(mapSize>hps::STREAM_INPUT_BUFFER_SIZE)
+        /*if(mapSize>hps::STREAM_INPUT_BUFFER_SIZE)
         {
             std::cerr << "mapSize: " << mapSize << ">STREAM_INPUT_BUFFER_SIZE: " << hps::STREAM_INPUT_BUFFER_SIZE << "/2" << std::endl;
             abort();
-        }
+        }*/
         //buf >> group;
         buf >> id;
         buf >> parsed_layer.monstersCollisionList;
@@ -180,7 +182,7 @@ public:
         buf >> smallsize;
         for(uint8_t i=0; i<smallsize; i++)
         {
-            std::string value;
+            uint16_t value;
             buf >> posXY >> value;
             zonecapture[posXY]=value;
         }
@@ -208,7 +210,7 @@ public:
             buf >> posXY >> value;
             rescue[posXY]=(Orientation)value;
         }
-        buf >> reverse_db_id >> pointOnMap_Item;
+        buf >> reverse_db_id >> zone >> pointOnMap_Item;
     }
     #endif
 };

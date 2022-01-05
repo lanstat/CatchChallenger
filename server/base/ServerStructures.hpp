@@ -419,10 +419,8 @@ struct MarketItem
 
 struct Clan
 {
-    #ifndef EPOLLCATCHCHALLENGERSERVER
-    std::string captureCityInProgress;
-    std::string capturedCity;
-    #endif
+    uint16_t captureCityInProgress;//65535 no capture in progress
+    uint16_t capturedCity;//65535 no city captured
     uint32_t clanId;
     std::vector<Client *> players;
 
@@ -431,7 +429,6 @@ struct Clan
     uint64_t cash;
 };
 
-#ifndef EPOLLCATCHCHALLENGERSERVER
 struct CaptureCityValidated
 {
     std::vector<Client *> players;
@@ -440,7 +437,6 @@ struct CaptureCityValidated
     std::vector<uint16_t> botsInFight;
     std::unordered_map<uint32_t,uint16_t> clanSize;
 };
-#endif
 
 struct ServerProfileInternal
 {
@@ -520,11 +516,10 @@ struct ServerPrivateVariables
     std::atomic<unsigned int> maxClanId;
     std::atomic<unsigned int> maxMonsterId;
     #endif
-    #ifndef EPOLLCATCHCHALLENGERSERVER
-    std::unordered_map<std::string,std::vector<uint16_t> > captureFightIdListByZoneToCaptureCity;
-    std::unordered_map<std::string,CityStatus> cityStatusList;
-    std::unordered_map<uint32_t,std::string > cityStatusListReverse;
-    #endif
+    //to the zone id, see GlobalServerData::serverPrivateVariables.zoneToId
+    std::vector<std::vector<uint16_t> > captureFightIdListByZoneToCaptureCity;
+    std::vector<CityStatus> cityStatusList;
+    std::unordered_map<uint32_t,uint16_t> cityStatusListReverse;
     std::unordered_set<uint32_t> tradedMonster;
     std::vector<char> randomData;
 
@@ -537,12 +532,11 @@ struct ServerPrivateVariables
 
     //timer and thread
     #ifndef EPOLLCATCHCHALLENGERSERVER
-        QTimer *timer_city_capture;
+        QTimer *timer_city_capture;//moved to epoll loop
         QTimer *timer_to_send_insert_move_remove;
         QTimer positionSync;
         QTimer ddosTimer;
     #else
-        //TimerCityCapture *timer_city_capture;
         TimerDdos ddosTimer;
         TimerPositionSync positionSync;
         TimerSendInsertMoveRemove *timer_to_send_insert_move_remove;
@@ -554,9 +548,7 @@ struct ServerPrivateVariables
     uint32_t maxAccountId;
     uint32_t maxCharacterId;
     #endif
-    #ifndef EPOLLCATCHCHALLENGERSERVER
     uint64_t time_city_capture;
-    #endif
     std::unordered_map<uint32_t,Clan *> clanList;
 
     //map

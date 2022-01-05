@@ -10,6 +10,7 @@ then
     make -j17
     if [ $? -ne 0 ]
     then
+        make clean
         make
         exit
     fi
@@ -27,6 +28,7 @@ else
     make -j17
     if [ $? -ne 0 ]
     then
+        make clean
         make
         exit
     fi

@@ -103,6 +103,7 @@ bool Client::singleMove(const Direction &direction)
         return false;
     }
 
+    const MapServer * const mapServer=static_cast<MapServer *>(map);
     const CommonMap::Teleporter* const teleporter_list=map->teleporter;
     uint8_t index_search=0;
     while(index_search<map->teleporter_list_size)
@@ -113,8 +114,23 @@ bool Client::singleMove(const Direction &direction)
             switch(teleporter.condition.type)
             {
                 case CatchChallenger::MapConditionType_None:
-                case CatchChallenger::MapConditionType_Clan://not do for now
-                /// \todo check if the clan own the city
+                break;
+                case CatchChallenger::MapConditionType_Clan:
+                if(public_and_private_informations.clan==0)
+                {
+                    errorOutput("You are not in clan to try pass");
+                    return false;
+                }
+                if(mapServer->zone==65535)
+                {
+                    errorOutput("This door have no zone asigned");
+                    return false;
+                }
+                if(GlobalServerData::serverPrivateVariables.cityStatusList.at(mapServer->zone).clan!=public_and_private_informations.clan)
+                {
+                    errorOutput("This city is not owned by you clan");
+                    return false;
+                }
                 break;
                 case CatchChallenger::MapConditionType_FightBot:
                 {
