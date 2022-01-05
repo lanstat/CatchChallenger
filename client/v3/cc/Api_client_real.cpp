@@ -103,11 +103,15 @@ Api_client_real::~Api_client_real()
     #endif
 }
 
-void Api_client_real::stateChanged(QAbstractSocket::SocketState socketState)
+void Api_client_real::errorFromFightEngine(const std::string &error)
 {
-    if(socketState==QAbstractSocket::UnconnectedState)
-        closeDownload();
-    Api_protocol_Qt::stateChanged(socketState);
+    std::cerr << "Api_client_real::errorFromFightEngine(): " << error << std::endl;
+}
+
+bool Api_client_real::haveBeatBot(const uint16_t &botFightId) const
+{
+    (void)botFightId;
+    return false;
 }
 
 bool Api_client_real::parseReplyData(const uint8_t &mainCodeType,const uint8_t &queryNumber,const char * const data,const unsigned int &size)
@@ -340,9 +344,6 @@ void Api_client_real::defineMaxPlayers(const uint16_t &maxPlayers)
 
 void Api_client_real::resetAll()
 {
-    cacheRemovedBase=false;
-    cacheRemovedMain=false;
-    cacheRemovedSub=false;
     httpModeBase=false;
     httpModeMain=false;
     httpModeSub=false;
@@ -355,9 +356,6 @@ void Api_client_real::resetAll()
     urlInWaitingListBase.clear();
     urlInWaitingListMain.clear();
     urlInWaitingListSub.clear();
-    mDatapackBaseCache.clear();
-    mDatapackMainCache.clear();
-    mDatapackSubCache.clear();
     wait_datapack_content_base=false;
     wait_datapack_content_main=false;
     wait_datapack_content_sub=false;
@@ -422,12 +420,6 @@ void Api_client_real::sendDatapackContentMainSub(const std::string &hashMain, co
         {
             mainNeedUpdate=false;
         }
-    if(mainNeedUpdate)
-        qDebug() << "mainNeedUpdate CommonSettingsCommon::commonSettingsCommon.datapackHashBase "
-             << QString::fromStdString(binarytoHexa(CommonSettingsServer::commonSettingsServer.datapackHashServerMain.data(),
-                                                    CommonSettingsServer::commonSettingsServer.datapackHashServerMain.size()))
-             << " hashBase "
-             << QString::fromStdString(binarytoHexa(hashMain.data(),hashMain.size()));
     bool subNeedUpdate=true;
     if(CommonSettingsServer::commonSettingsServer.datapackHashServerSub.empty() && hashSub.empty())
         subNeedUpdate=false;
@@ -437,12 +429,6 @@ void Api_client_real::sendDatapackContentMainSub(const std::string &hashMain, co
         {
             subNeedUpdate=false;
         }
-    if(subNeedUpdate)
-        qDebug() << "subNeedUpdate CommonSettingsCommon::commonSettingsCommon.datapackHashBase "
-             << QString::fromStdString(binarytoHexa(CommonSettingsServer::commonSettingsServer.datapackHashServerSub.data(),
-                                                    CommonSettingsServer::commonSettingsServer.datapackHashServerSub.size()))
-             << " hashBase "
-             << QString::fromStdString(binarytoHexa(hashSub.data(),hashSub.size()));
     if(!mainNeedUpdate && !subNeedUpdate)
     {
         datapackStatus=DatapackStatus::Finished;

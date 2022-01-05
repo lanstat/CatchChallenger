@@ -64,18 +64,6 @@ void Api_client_real::writeNewFileBase(const std::string &fileName,const std::st
         utimbuf butime;butime.actime=h;butime.modtime=h;
         utime(fullPath.c_str(),&butime);
     }
-    #ifdef CATCHCHALLENGER_CACHE_HPS
-    if(!mDatapackBaseCache.empty() && !cacheRemovedBase)
-    {
-        cacheRemovedBase=true;
-        const QString &path=QString::fromStdString(mDatapackBaseCache);
-        QDir dir(path);
-        QDirIterator it(dir, QDirIterator::Subdirectories);
-        while (it.hasNext())
-            QFile(it.next()).remove();
-        dir.rmpath(path);
-    }
-    #endif
 
     //send size
     {
@@ -88,7 +76,6 @@ void Api_client_real::writeNewFileBase(const std::string &fileName,const std::st
 
 bool Api_client_real::getHttpFileBase(const std::string &url, const std::string &fileName)
 {
-    std::cout << "Api_client_real::getHttpFileBase(): " << url << "," << fileName << std::endl;
     if(httpError)
         return false;
     if(!httpModeBase)
@@ -232,7 +219,7 @@ void Api_client_real::datapackChecksumDoneBase(const std::vector<std::string> &d
     this->partialHashListBase=partialHashList;
     if(!datapackFilesListBase.empty() && hash==CommonSettingsCommon::commonSettingsCommon.datapackHashBase)
     {
-        std::cerr << "Base: Datapack is not empty and get nothing from serveur because the local datapack hash match with the remote " << binarytoHexa(hash) << std::endl;
+        std::cerr << "Base: Datapack is not empty and get nothing from serveur because the local datapack hash match with the remote" << binarytoHexa(hash) << std::endl;
         datapackDownloadFinishedBase();
         return;
     }
@@ -289,7 +276,7 @@ void Api_client_real::datapackChecksumDoneBase(const std::vector<std::string> &d
             qDebug() << "Datapack don't match with server hash, get from mirror";
             QNetworkRequest networkRequest(
                         QString::fromStdString(CommonSettingsCommon::commonSettingsCommon.httpDatapackMirrorBase)
-                        .split(Api_client_real::text_dotcoma,QString::SkipEmptyParts).at(index_mirror_base)+
+                        .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts).at(index_mirror_base)+
                         QStringLiteral("pack/diff/datapack-base-%1.tar.zst").arg(QString::fromStdString(binarytoHexa(hash)))
                         );
             QNetworkReply *reply = qnam.get(networkRequest);
@@ -315,10 +302,9 @@ void Api_client_real::test_mirror_base()
 {
     QNetworkReply *reply;
     const QStringList &httpDatapackMirrorList=QString::fromStdString(CommonSettingsCommon::commonSettingsCommon.httpDatapackMirrorBase)
-            .split(Api_client_real::text_dotcoma,QString::SkipEmptyParts);
+            .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts);
     if(!datapackTarBase)
     {
-        std::cout << (httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("pack/datapack.tar.zst")).toStdString() << std::endl;
         QNetworkRequest networkRequest(httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("pack/datapack.tar.zst"));
         reply = qnam.get(networkRequest);
         if(reply->error()==QNetworkReply::NoError)
@@ -331,8 +317,6 @@ void Api_client_real::test_mirror_base()
             /* here and not above because at last mirror you need try the tar.zst and after the datapack-list/base.txt, and only after that's quit */
             return;
 
-        std::cout << (httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("datapack-list/base.txt")).toStdString() << std::endl;
-
         QNetworkRequest networkRequest(httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("datapack-list/base.txt"));
         reply = qnam.get(networkRequest);
         if(reply->error()==QNetworkReply::NoError)
@@ -341,8 +325,13 @@ void Api_client_real::test_mirror_base()
     }
     if(reply->error()==QNetworkReply::NoError)
     {
+        #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
         if(!connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &Api_client_real::httpErrorEventBase))
             abort();
+        #else
+        if(!connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred), this, &Api_client_real::httpErrorEventBase))
+            abort();
+        #endif
         if(!connect(reply, &QNetworkReply::downloadProgress, this, &Api_client_real::downloadProgressDatapackBase))
             abort();
     }
@@ -368,7 +357,8 @@ void Api_client_real::decodedIsFinishBase()
         TarDecode tarDecode;
         if(tarDecode.decodeData(decodedData))
         {
-            QSet<QString> extensionAllowed=QString(CATCHCHALLENGER_EXTENSION_ALLOWED).split(Api_client_real::text_dotcoma).toSet();
+            QList<QString> l(QString(CATCHCHALLENGER_EXTENSION_ALLOWED).split(Api_client_real::text_dotcoma));
+            QSet<QString> extensionAllowed(l.cbegin(),l.cend());
             QDir dir;
             const std::vector<std::string> &fileList=tarDecode.getFileList();
             const std::vector<std::vector<char> > &dataList=tarDecode.getDataList();
@@ -428,7 +418,7 @@ bool Api_client_real::mirrorTryNextBase(const std::string &error)
         datapackTarBase=false;
         index_mirror_base++;
         if(index_mirror_base>=QString::fromStdString(CommonSettingsCommon::commonSettingsCommon.httpDatapackMirrorBase)
-                .split(Api_client_real::text_dotcoma,QString::SkipEmptyParts).size())
+                .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts).size())
         {
             newError(tr("Unable to download the datapack").toStdString()+"<br />Details:<br />"+error,QStringLiteral("Get the list failed: ").toStdString()+error);
             return false;
@@ -523,8 +513,8 @@ void Api_client_real::httpFinishedForDatapackListBase()
             {
                 if(partialHashListRaw.size()%4!=0)
                 {
-                    std::cerr << "partialHashList not divisible by 4 (base), check: "+reply->url().toString().toStdString() << std::endl;
-                    newError(tr("Wrong datapack format").toStdString(),"partialHashList not divisible by 4 (base), check: "+reply->url().toString().toStdString());
+                    std::cerr << "partialHashList not divisible by 4" << std::endl;
+                    newError(tr("Wrong datapack format").toStdString(),"partialHashList not divisible by 4");
                     return;
                 }
                 {
@@ -704,16 +694,11 @@ void Api_client_real::sendDatapackContentBase(const std::string &hashBase)
             datapackDownloadFinishedBase();
             return;
         }
-    qDebug() << "Hash not same CommonSettingsCommon::commonSettingsCommon.datapackHashBase "
-             << QString::fromStdString(binarytoHexa(CommonSettingsCommon::commonSettingsCommon.datapackHashBase.data(),
-                                                    CommonSettingsCommon::commonSettingsCommon.datapackHashBase.size()))
-             << " hashBase "
-             << QString::fromStdString(binarytoHexa(hashBase.data(),hashBase.size()));
 
     //compute the mirror
     {
         QStringList values=QString::fromStdString(CommonSettingsCommon::commonSettingsCommon.httpDatapackMirrorBase)
-                .split(Api_client_real::text_dotcoma,QString::SkipEmptyParts);
+                .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts);
         {
             QString slash("/");
             int index=0;
@@ -726,20 +711,6 @@ void Api_client_real::sendDatapackContentBase(const std::string &hashBase)
         }
         QString::fromStdString(CommonSettingsCommon::commonSettingsCommon.httpDatapackMirrorBase)=values.join(Api_client_real::text_dotcoma);
     }
-#ifdef CATCHCHALLENGER_CACHE_HPS
-    {
-        cacheRemovedBase=false;
-        QStringList l=QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        if(!l.empty())
-        {
-            std::string b=datapackPathBase();
-            if(stringEndsWith(b,"/"))
-                b=b.substr(0,b.size()-1);
-            b+="-cache/";
-            mDatapackBaseCache=b;
-        }
-    }
-#endif
 
     datapackTarBase=false;
     wait_datapack_content_base=true;

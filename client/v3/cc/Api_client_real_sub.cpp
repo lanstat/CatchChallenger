@@ -62,18 +62,6 @@ void Api_client_real::writeNewFileSub(const std::string &fileName,const std::str
         utimbuf butime;butime.actime=h;butime.modtime=h;
         utime(fullPath.c_str(),&butime);
     }
-    #ifdef CATCHCHALLENGER_CACHE_HPS
-    if(!mDatapackSubCache.empty() && !cacheRemovedSub)
-    {
-        cacheRemovedSub=true;
-        const QString &path=QString::fromStdString(mDatapackSubCache);
-        QDir dir(path);
-        QDirIterator it(dir, QDirIterator::Subdirectories);
-        while (it.hasNext())
-            QFile(it.next()).remove();
-        dir.rmpath(path);
-    }
-    #endif
 
     //send size
     {
@@ -86,7 +74,6 @@ void Api_client_real::writeNewFileSub(const std::string &fileName,const std::str
 
 bool Api_client_real::getHttpFileSub(const std::string &url, const std::string &fileName)
 {
-    std::cout << "Api_client_real::getHttpFileSub(): " << url << "," << fileName << std::endl;
     if(CommonSettingsServer::commonSettingsServer.subDatapackCode.empty())
     {
         qDebug() << "CommonSettingsServer::commonSettingsServer.subDatapackCode.empty() to get from mirror";
@@ -209,7 +196,7 @@ void Api_client_real::datapackChecksumDoneSub(const std::vector<std::string> &da
     this->partialHashListSub=partialHashList;
     if(!datapackFilesListSub.empty() && hash==CommonSettingsServer::commonSettingsServer.datapackHashServerSub)
     {
-        std::cerr << "Sub: Datapack is not empty and get nothing from serveur because the local datapack hash match with the remote " << binarytoHexa(hash) << std::endl;
+        std::cerr << "Sub: Datapack is not empty and get nothing from serveur because the local datapack hash match with the remote" << binarytoHexa(hash) << std::endl;
         wait_datapack_content_sub=false;
         if(!wait_datapack_content_main && !wait_datapack_content_sub)
             datapackDownloadFinishedSub();
@@ -273,7 +260,7 @@ void Api_client_real::datapackChecksumDoneSub(const std::vector<std::string> &da
             qDebug() << "Datapack don't match with server hash, get from mirror";
             QNetworkRequest networkRequest(
                         QString::fromStdString(CommonSettingsServer::commonSettingsServer.httpDatapackMirrorServer)
-                                           .split(Api_client_real::text_dotcoma,QString::SkipEmptyParts).at(index_mirror_sub)+
+                                           .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts).at(index_mirror_sub)+
                         QStringLiteral("pack/diff/datapack-sub-")+
                         QString::fromStdString(CommonSettingsServer::commonSettingsServer.mainDatapackCode)+
                         QStringLiteral("-")+
@@ -297,10 +284,10 @@ void Api_client_real::test_mirror_sub()
         abort();
     }
     QNetworkReply *reply;
-    const QStringList &httpDatapackMirrorList=QString::fromStdString(CommonSettingsServer::commonSettingsServer.httpDatapackMirrorServer).split(Api_client_real::text_dotcoma,QString::SkipEmptyParts);
+    const QStringList &httpDatapackMirrorList=QString::fromStdString(CommonSettingsServer::commonSettingsServer.httpDatapackMirrorServer)
+            .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts);
     if(!datapackTarSub)
     {
-        std::cout << (httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("pack/datapack.tar.zst")).toStdString() << std::endl;
         QString fullDatapack=httpDatapackMirrorList.at(index_mirror_sub)+QStringLiteral("pack/datapack-sub-")+
                 QString::fromStdString(CommonSettingsServer::commonSettingsServer.mainDatapackCode)+
                 QStringLiteral("-")+
@@ -319,7 +306,6 @@ void Api_client_real::test_mirror_sub()
             /* here and not above because at last mirror you need try the tar.zst and after the datapack-list/sub-XXXXX-YYYYYY.txt, and only after that's quit */
             return;
 
-        std::cout << (httpDatapackMirrorList.at(index_mirror_base)+QStringLiteral("pack/datapack.tar.zst")).toStdString() << std::endl;
         QNetworkRequest networkRequest(httpDatapackMirrorList.at(index_mirror_sub)+QStringLiteral("datapack-list/sub-")+
                                        QString::fromStdString(CommonSettingsServer::commonSettingsServer.mainDatapackCode)+
                                        QStringLiteral("-")+
@@ -332,8 +318,13 @@ void Api_client_real::test_mirror_sub()
     }
     if(reply->error()==QNetworkReply::NoError)
     {
+        #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
         if(!connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &Api_client_real::httpErrorEventSub))
             abort();
+        #else
+        if(!connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred), this, &Api_client_real::httpErrorEventSub))
+            abort();
+        #endif
         if(!connect(reply, &QNetworkReply::downloadProgress, this, &Api_client_real::downloadProgressDatapackSub))
             abort();
     }
@@ -360,7 +351,8 @@ void Api_client_real::decodedIsFinishSub()
         TarDecode tarDecode;
         if(tarDecode.decodeData(decodedData))
         {
-            QSet<QString> extensionAllowed=QString(CATCHCHALLENGER_EXTENSION_ALLOWED).split(Api_client_real::text_dotcoma).toSet();
+            QList<QString> l(QString(CATCHCHALLENGER_EXTENSION_ALLOWED).split(Api_client_real::text_dotcoma));
+            QSet<QString> extensionAllowed(l.cbegin(),l.cend());
             QDir dir;
             const std::vector<std::string> &fileList=tarDecode.getFileList();
             const std::vector<std::vector<char> > &dataList=tarDecode.getDataList();
@@ -420,7 +412,8 @@ bool Api_client_real::mirrorTryNextSub(const std::string &error)
     {
         datapackTarSub=false;
         index_mirror_sub++;
-        if(index_mirror_sub>=QString::fromStdString(CommonSettingsServer::commonSettingsServer.httpDatapackMirrorServer).split(Api_client_real::text_dotcoma,QString::SkipEmptyParts).size())
+        if(index_mirror_sub>=QString::fromStdString(CommonSettingsServer::commonSettingsServer.httpDatapackMirrorServer)
+                .split(Api_client_real::text_dotcoma,Qt::SkipEmptyParts).size())
         {
             newError(tr("Unable to download the datapack").toStdString()+"<br />Details:<br />"+error,"Get the list failed: "+error);
             return false;
@@ -528,8 +521,8 @@ void Api_client_real::httpFinishedForDatapackListSub()
             {
                 if(partialHashListRaw.size()%4!=0)
                 {
-                    std::cerr << "partialHashList not divisible by 4 (sub), check: "+reply->url().toString().toStdString() << std::endl;
-                    newError("Wrong datapack format","partialHashList not divisible by 4 (sub), check: "+reply->url().toString().toStdString());
+                    std::cerr << "partialHashList not divisible by 4" << std::endl;
+                    newError("Wrong datapack format","partialHashList not divisible by 4");
                     return;
                 }
                 {
@@ -708,20 +701,6 @@ void Api_client_real::sendDatapackContentSub()
         qDebug() << (QStringLiteral("already in wait of datapack content sub"));
         return;
     }
-#ifdef CATCHCHALLENGER_CACHE_HPS
-    {
-        cacheRemovedSub=false;
-        QStringList l=QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        if(!l.empty())
-        {
-            std::string b=datapackPathBase();
-            if(stringEndsWith(b,"/"))
-                b=b.substr(0,b.size()-1);
-            b+="-cache/"+CommonSettingsServer::commonSettingsServer.mainDatapackCode+"/"+CommonSettingsServer::commonSettingsServer.subDatapackCode+"/";
-            mDatapackBaseCache=b;
-        }
-    }
-#endif
 
     datapackTarSub=false;
     wait_datapack_content_sub=true;

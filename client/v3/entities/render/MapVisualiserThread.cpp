@@ -12,10 +12,10 @@
 #include "../../../../general/base/FacilityLib.hpp"
 #include "../../../../general/base/tinyXML2/customtinyxml2.hpp"
 #include "../../../../general/base/tinyXML2/tinyxml2.hpp"
-#include "../ClientVariable.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../Language.hpp"
+#include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../libraries/tiled/tiled_mapobject.hpp"
+#include "../ClientVariable.hpp"
 #include "MapItem.hpp"
 
 MapVisualiserThread::MapVisualiserThread() {
@@ -858,10 +858,31 @@ bool MapVisualiserThread::loadOtherMapClientPart(Map_full *parsedMap) {
                                                  .arg(botId)
                                                  .arg(QString::fromStdString(
                                                      botFile)));
-                              else
-                                parsedMap->logicalMap
-                                    .zonecapture[std::pair<uint8_t, uint8_t>(
-                                        x, y)] = step->Attribute("zone");
+                              else {
+                                if (CatchChallenger::CommonDatapackServerSpec::
+                                        commonDatapackServerSpec.zoneToId.find(
+                                            step->Attribute("zone")) !=
+                                    CatchChallenger::CommonDatapackServerSpec::
+                                        commonDatapackServerSpec.zoneToId
+                                            .cend())
+                                  parsedMap->logicalMap
+                                      .zonecapture[std::pair<uint8_t, uint8_t>(
+                                          x, y)] =
+                                      CatchChallenger::
+                                          CommonDatapackServerSpec::
+                                              commonDatapackServerSpec.zoneToId
+                                                  .at(step->Attribute("zone"));
+                                else
+                                  qDebug()
+                                      << (QStringLiteral(
+                                              "zonecapture %1 (%2) can't be "
+                                              "converted because zone not "
+                                              "exists: %3")
+                                              .arg(botId)
+                                              .arg(QString::fromStdString(
+                                                  botFile))
+                                              .arg(step->Attribute("zone")));
+                              }
                             } else if (strcmp(step->Attribute("type"),
                                               "fight") == 0) {
                               if (parsedMap->logicalMap.botsFight.find(

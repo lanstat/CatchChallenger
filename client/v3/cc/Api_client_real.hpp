@@ -32,9 +32,11 @@ class Api_client_real : public Api_protocol_Qt
 public:
     explicit Api_client_real(ConnectedSocket *socket);
     ~Api_client_real();
-    void stateChanged(QAbstractSocket::SocketState socketState) override;
     void resetAll();
     void closeDownload();
+
+    void errorFromFightEngine(const std::string &error);
+    bool haveBeatBot(const uint16_t &botFightId) const;
 
     //connection related
     void tryConnect(std::string host,uint16_t port);
@@ -76,9 +78,6 @@ protected:
     //general data
     void defineMaxPlayers(const uint16_t &maxPlayers);
 private:
-    bool cacheRemovedBase;
-    bool cacheRemovedMain;
-    bool cacheRemovedSub;
     static QRegularExpression regex_DATAPACK_FILE_REGEX;
     /// \todo group into one thread by change for queue
     QZstdDecodeThread zstdDecodeThreadBase;
@@ -132,9 +131,6 @@ private:
         std::string fileName;
     };
     std::unordered_map<QNetworkReply *,UrlInWaiting> urlInWaitingListBase,urlInWaitingListMain,urlInWaitingListSub;
-    std::string mDatapackBaseCache;
-    std::string mDatapackMainCache;
-    std::string mDatapackSubCache;
 private slots:
     void writeNewFileBase(const std::string &fileName, const std::string &data);
     void writeNewFileMain(const std::string &fileName, const std::string &data);
