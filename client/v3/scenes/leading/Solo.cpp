@@ -11,6 +11,7 @@
 #include "../../Settings.hpp"
 #include "../../base/ConnectionInfo.hpp"
 #include "../../base/ConnectionManager.hpp"
+#include "../../core/SceneManager.hpp"
 #include "../../core/StackedScene.hpp"
 #include "../../entities/Utils.hpp"
 #include "Loading.hpp"
@@ -133,9 +134,6 @@ void Solo::Initialize() {
   QObject::connect(Globals::InternalServer,
                    &CatchChallenger::InternalServer::is_started,
                    std::bind(&Solo::IsStarted, this, _1));
-  QObject::connect(Globals::InternalServer,
-                   &CatchChallenger::InternalServer::error,
-                   [&](const std::string &message) { PrintError(message); });
   Loading::GetInstance()->SetText("Open the local game");
 
   {
@@ -280,7 +278,12 @@ void Solo::Initialize() {
 }
 
 void Solo::IsStarted(bool started) {
-  QObject::disconnect(Globals::InternalServer, &CatchChallenger::InternalServer::is_started, nullptr, nullptr);
+  QObject::disconnect(Globals::InternalServer,
+                      &CatchChallenger::InternalServer::is_started, nullptr,
+                      nullptr);
+#ifdef CATCHCHALLENGER_SOLO
+  SceneManager::GetInstance()->RegisterInternalServerEvents();
+#endif
   if (started) {
     ConnectionInfo connexionInfo;
     connexionInfo.connexionCounter = 0;

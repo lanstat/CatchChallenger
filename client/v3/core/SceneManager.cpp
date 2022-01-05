@@ -70,6 +70,7 @@ SceneManager::SceneManager() : graphic_scene_(new QGraphicsScene(this)) {
     // else use the CPU only
   }
 
+  should_shutdown_ = false;
   should_resize_ = false;
   overlay_ = nullptr;
   draw_times_ = 0;
@@ -203,6 +204,7 @@ void SceneManager::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void SceneManager::closeEvent(QCloseEvent *event) {
+  should_shutdown_ = true;
 #ifdef CATCHCHALLENGER_SOLO
   if (Globals::InternalServer != nullptr) {
     hide();
@@ -211,6 +213,7 @@ void SceneManager::closeEvent(QCloseEvent *event) {
         connection_->client->disconnectFromHost();
     Globals::InternalServer->Stopped();
     event->accept();
+    return;
   }
 #endif
   QWidget::closeEvent(event);
@@ -381,3 +384,24 @@ void SceneManager::Restart() {
   Globals::ClearAllScenes();
   PushScene(Globals::GetLeadingScene());
 }
+
+#ifdef CATCHCHALLENGER_SOLO
+void SceneManager::RegisterInternalServerEvents() {
+  connect(Globals::InternalServer,
+    &CatchChallenger::InternalServer::is_started,
+                   this, &SceneManager::IsStarted);
+  connect(Globals::InternalServer,
+                   &CatchChallenger::InternalServer::error,
+                   this, &SceneManager::OnError);
+}
+
+void SceneManager::IsStarted(bool started) {
+  if (!started) {
+    if (Globals::InternalServer != nullptr) {
+      delete Globals::InternalServer;
+      Globals::InternalServer = nullptr;
+    }
+    QCoreApplication::quit();
+  }
+}
+#endif

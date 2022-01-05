@@ -34,6 +34,11 @@ class SceneManager : public QGraphicsView {
   QGraphicsItem *GetRenderer();
   void Restart();
 
+#ifdef CATCHCHALLENGER_SOLO
+  void RegisterInternalServerEvents();
+  void IsStarted(bool started);
+#endif
+
  protected:
   void resizeEvent(QResizeEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
@@ -53,6 +58,7 @@ class SceneManager : public QGraphicsView {
   std::vector<Scene *> scene_stack_;
   Node *overlay_;
   bool should_resize_;
+  bool should_shutdown_;
 
   uint8_t wait_render_time_;
   QTimer action_render_;
