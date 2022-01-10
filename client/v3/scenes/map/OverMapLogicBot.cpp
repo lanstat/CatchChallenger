@@ -260,42 +260,11 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     AddChild(npc_talk_);
     return;
   } else if (strcmp(stepXml->Attribute("type"), "warehouse") == 0) {
-    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
-              << "warehouse" << std::endl;
-    /*monster_to_withdraw.clear();
-    monster_to_deposit.clear();
-    change_warehouse_items.clear();
-    temp_warehouse_cash=0;
-    QPixmap pixmap;
-    if(actualBot.properties.find("skin")!=actualBot.properties.cend())
-    {
-        ui->warehousePlayerImage->setVisible(true);
-        ui->warehousePlayerPseudo->setVisible(true);
-        ui->warehouseBotImage->setVisible(true);
-        ui->warehouseBotPseudo->setVisible(true);
-        pixmap=QString::fromStdString(getFrontSkinPath(actualBot.properties.at("skin")));
-        if(pixmap.isNull())
-        {
-            ui->warehousePlayerImage->setVisible(false);
-            ui->warehousePlayerPseudo->setVisible(false);
-            ui->warehouseBotImage->setVisible(false);
-            ui->warehouseBotPseudo->setVisible(false);
-        }
-        else
-            ui->warehouseBotImage->setPixmap(pixmap);
+    if (warehouse_ == nullptr) {
+      warehouse_ = Warehouse::Create();
     }
-    else
-    {
-        ui->warehousePlayerImage->setVisible(false);
-        ui->warehousePlayerPseudo->setVisible(false);
-        ui->warehouseBotImage->setVisible(false);
-        ui->warehouseBotPseudo->setVisible(false);
-        pixmap=QPixmap(QStringLiteral(":/CC/images/player_default/front.png"));
-    }
-    ui->stackedWidget->setCurrentWidget(ui->page_warehouse);
-    updateTheWareHouseContent();
-    return;*/
-    abort();
+    AddChild(warehouse_);
+    return;
   } else if (strcmp(stepXml->Attribute("type"), "market") == 0) {
     std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] "
               << "market" << std::endl;

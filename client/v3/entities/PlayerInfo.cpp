@@ -31,7 +31,7 @@ PlayerInfo::GetInformationRO() {
 
 void PlayerInfo::Notify() { emit OnUpdateInfo(this); }
 
-void PlayerInfo::AddCash(uint32_t value) {
+void PlayerInfo::AddCash(int32_t value) {
   auto &info = GetInformation();
   info.cash += value;
 }

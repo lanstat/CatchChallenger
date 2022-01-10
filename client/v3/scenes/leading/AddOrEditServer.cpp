@@ -24,7 +24,7 @@ AddOrEditServer::AddOrEditServer(): UI::Dialog(false) {
   quit = UI::Button::Create(":/CC/images/interface/cancel.png", this);
   validate = UI::Button::Create(":/CC/images/interface/validate.png", this);
 
-  protocol_ = UI::Combo::Create(":/CC/images/interface/button.png", this);
+  protocol_ = UI::Combo::Create(this);
   protocol_->AddItem(QString("Tcp"));
   protocol_->AddItem(QString("WS"));
   serverText = UI::Label::Create(this);

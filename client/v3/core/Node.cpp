@@ -114,9 +114,9 @@ void Node::SetX(qreal x) { setX(x); }
 
 void Node::SetY(qreal y) { setY(y); }
 
-qreal Node::X() { return x(); }
+qreal Node::X() const { return x(); }
 
-qreal Node::Y() { return y(); }
+qreal Node::Y() const { return y(); }
 
 void Node::SetSize(qreal w, qreal h) {
   //if (scale_ > 0) {
@@ -141,9 +141,9 @@ void Node::SetHeight(qreal h) { Node::SetSize(Width(), h); }
 
 void Node::SetWidth(qreal w) { Node::SetSize(w, Height()); }
 
-qreal Node::Height() { return bounding_rect_.height(); }
+qreal Node::Height() const { return bounding_rect_.height(); }
 
-qreal Node::Width() { return bounding_rect_.width(); }
+qreal Node::Width() const { return bounding_rect_.width(); }
 
 void Node::SetVisible(bool visible) {
   QGraphicsItem::setVisible(visible);
@@ -310,6 +310,9 @@ QRectF Node::boundingRect() const {
 }
 
 void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+  if (in_test_) {
+    painter->fillRect(BoundingRect(), Qt::green);
+  }
   if (cacheMode() == QGraphicsItem::NoCache) {
     Draw(painter);
   } else {
@@ -330,10 +333,6 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 }
 
 void Node::Render(QPainter *painter) {
-  if (in_test_) {
-    painter->fillRect(BoundingRect(), Qt::green);
-  }
-
   if (IsVisible()) {
     if (!node_cache_) {
       if (bounding_rect_.isEmpty()) return;
@@ -364,4 +363,12 @@ void Node::Render(QPainter *painter) {
   }
 
   CleanNodeToDelete();
+}
+
+qreal Node::Bottom() const {
+  return Y() + Height();
+}
+
+qreal Node::Right() const {
+  return X() + Width();
 }

@@ -14,6 +14,7 @@ namespace UI {
 class Combo : public Node {
  public:
   static Combo *Create(QString pix, Node *parent = nullptr);
+  static Combo *Create(Node *parent = nullptr);
   ~Combo();
 
   void MousePressEvent(const QPointF &point, bool &press_validated) override;
@@ -46,8 +47,13 @@ class Combo : public Node {
   Label *label_;
   std::function<void(uint8_t)> on_select_change_;
   std::unordered_map<uint8_t, std::unordered_map<int, int>> item_data_;
+  qreal last_z_;
+  bool is_menu_open_;
+  QRectF inner_bounding_rect_;
 
-  void OnClick();
+  void OnClick(uint8_t selected);
+  void OpenMenu();
+  void CloseMenu();
 };
 }  // namespace UI
 

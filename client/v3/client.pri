@@ -318,6 +318,8 @@ SOURCES += \
     $$PWD/scenes/shared/inventory/PlantItem.cpp \
     $$PWD/scenes/shared/shop/Shop.cpp \
     $$PWD/scenes/shared/shop/ShopItem.cpp \
+    $$PWD/scenes/shared/warehouse/Warehouse.cpp \
+    $$PWD/scenes/shared/warehouse/WarehouseItem.cpp \
     $$PWD/scenes/shared/chat/Chat.cpp \
     $$PWD/scenes/test/Test.cpp \
     $$PWD/scenes/test/TestItem.cpp \
@@ -417,6 +419,8 @@ HEADERS  += \
     $$PWD/scenes/shared/inventory/PlantItem.hpp \
     $$PWD/scenes/shared/shop/Shop.hpp \
     $$PWD/scenes/shared/shop/ShopItem.hpp \
+    $$PWD/scenes/shared/warehouse/Warehouse.hpp \
+    $$PWD/scenes/shared/warehouse/WarehouseItem.hpp \
     $$PWD/scenes/shared/chat/Chat.hpp \
     $$PWD/scenes/test/Test.hpp \
     $$PWD/scenes/test/TestItem.hpp \

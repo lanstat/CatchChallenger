@@ -9,6 +9,7 @@
 #include "../../ui/LinkedDialog.hpp"
 #include "../shared/inventory/Inventory.hpp"
 #include "../shared/shop/Shop.hpp"
+#include "../shared/warehouse/Warehouse.hpp"
 #include "OverMap.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
@@ -257,7 +258,6 @@ class OverMapLogic : public OverMap {
   CCMap *ccmap;
   bool multiplayer;
   UI::LinkedDialog *inventory_tabs_;
-  // Plant *plant;
   // Crafting *crafting;
   // int inventoryIndex;
 
@@ -314,6 +314,8 @@ class OverMapLogic : public OverMap {
   std::vector<CatchChallenger::ItemToSellOrBuy> itemsToSell, itemsToBuy;
   std::vector<uint16_t> objectInUsing;
   std::vector<uint32_t> monster_to_deposit, monster_to_withdraw;
+
+  Warehouse *warehouse_;
 
   OverMapLogic();
   void OnInventoryNav(int index);

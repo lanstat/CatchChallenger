@@ -144,8 +144,6 @@ void Menu::Initialize() {
   website_->SetPixelSize(28);
   warning_can_be_reset_ = true;
 
-  solo_->TestMode();
-
   have_fresh_feed_ = false;
   news_ = Sprite::Create(":/CC/images/interface/message.png", this);
   news_list_ = UI::ListView::Create(news_);

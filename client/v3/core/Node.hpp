@@ -17,8 +17,8 @@ class Node : public QGraphicsItem {
   void SetPos(qreal x, qreal y);
   void SetX(qreal x);
   void SetY(qreal y);
-  qreal X();
-  qreal Y();
+  qreal X() const;
+  qreal Y() const;
 
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -27,8 +27,12 @@ class Node : public QGraphicsItem {
   virtual void SetSize(qreal width, qreal height);
   virtual void SetWidth(qreal w);
   virtual void SetHeight(qreal h);
-  qreal Width();
-  qreal Height();
+  qreal Width() const;
+  qreal Height() const;
+
+  qreal Bottom() const;
+  qreal Right() const;
+
   void SetVisible(bool visible);
   bool IsVisible();
   void SetEnabled(bool enabled);

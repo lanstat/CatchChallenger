@@ -52,6 +52,7 @@ crafting = nullptr;
   gain_timeout.setSingleShot(true);
 
   shop_ = nullptr;
+  warehouse_ = nullptr;
 
   npc_talk_->SetOnItemClick(
       std::bind(&OverMapLogic::IG_dialog_text_linkActivated, this, _1));
@@ -150,8 +151,6 @@ void OverMapLogic::resetAll() {
   tempQuantityForSell = 0;
   waitToSell = false;
   objectInUsing.clear();
-  monster_to_deposit.clear();
-  monster_to_withdraw.clear();
 }
 
 void OverMapLogic::pathFindingNotFound() { showTip("No path to go here"); }
