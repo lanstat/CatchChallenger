@@ -116,6 +116,23 @@ std::vector<std::string> FacilityLibGeneral::listFolder(const std::string& folde
     return returnList;
 }
 
+std::vector<std::string> FacilityLibGeneral::listFolderNotRecursive(const std::string& folder,const std::string& suffix, const ListFolder &type)
+{
+    std::vector<std::string> returnList;
+    std::vector<FacilityLibGeneral::InodeDescriptor> entryList=listFolderNotRecursive(folder+suffix, type);//possible wait time here
+    for (unsigned int index=0;index<entryList.size();++index)
+    {
+        const FacilityLibGeneral::InodeDescriptor &fileInfo=entryList.at(index);
+        if(fileInfo.type==FacilityLibGeneral::InodeDescriptor::Type::Dir)
+        {
+            returnList.push_back(suffix+fileInfo.name + text_slash);
+        }
+        else if(fileInfo.type==FacilityLibGeneral::InodeDescriptor::Type::File)
+            returnList.push_back(suffix+fileInfo.name);
+    }
+    return returnList;
+}
+
 std::vector<std::string> FacilityLibGeneral::listFolderWithExclude(const std::string& folder,const std::string &exclude,const std::string& suffix)
 {
     std::vector<std::string> returnList;
