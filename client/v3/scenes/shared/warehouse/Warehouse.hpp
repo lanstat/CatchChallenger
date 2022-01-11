@@ -53,7 +53,9 @@ class Warehouse : public UI::Dialog {
   void OnAcceptClick();
   void UpdateContent();
   void OnWithdraw();
+  void OnWithdrawDelayed(const QString &value);
   void OnDeposit();
+  void OnDepositDelayed(const QString &value);
   WarehouseItem *ItemToItem(const uint16_t &item_id, const uint32_t &quantity);
   WarehouseItem *ItemToMonster(const uint32_t &monster_id,
                                const uint16_t &monster,

@@ -9,6 +9,7 @@
 #include "scenes/leading/Leading.hpp"
 #include "scenes/map/Map.hpp"
 #include "ui/MessageDialog.hpp"
+#include "ui/InputDialog.hpp"
 
 class Globals {
  public:
@@ -20,6 +21,7 @@ class Globals {
   static Scenes::Map* GetMapScene();
   static Scenes::Battle* GetBattleScene();
   static UI::MessageDialog* GetAlertDialog();
+  static UI::InputDialog* GetInputDialog();
   static void ClearAllScenes();
 
  private:
@@ -27,6 +29,7 @@ class Globals {
   static Scenes::Map* map_;
   static Scenes::Battle* battle_;
   static UI::MessageDialog *alert_;
+  static UI::InputDialog *input_;
 };
 
 #endif  // CLIENT_V3_GLOBALS_HPP_

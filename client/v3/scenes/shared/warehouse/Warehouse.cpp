@@ -136,8 +136,8 @@ void Warehouse::OnAcceptClick() {
     for (const auto &n : temp_items_) {
       items_list.push_back(std::pair<uint16_t, int32_t>(n.first, n.second));
     }
-    connexionManager->client->wareHouseStore(
-        temp_cash_, items_list, temp_monster_withdraw_, temp_monster_deposit_);
+    // connexionManager->client->wareHouseStore(
+    // temp_cash_, items_list, temp_monster_withdraw_, temp_monster_deposit_);
   }
 
   // validate the change here
@@ -423,16 +423,41 @@ WarehouseItem *Warehouse::ItemToMonster(const uint32_t &monster_id,
 }
 
 void Warehouse::OnDeposit() {
+  QString value;
   if (current_mode_ == 0) {
     if (selected_item_ == nullptr) {
       return;
     }
+    Globals::GetInputDialog()->ShowInputNumber(
+        tr("How many items do you want to deposit?"),
+        std::bind(&Warehouse::OnDepositDelayed, this, _1), QString::number(1));
+    return;
+  } else if (current_mode_ == 1) {
+    if (selected_item_ == nullptr) {
+      return;
+    }
+  } else if (current_mode_ == 2) {
+    const auto &info = PlayerInfo::GetInstance()->GetInformationRO();
+    if ((info.cash + temp_cash_) == 1) {
+      value = QString::number(1);
+    } else {
+      Globals::GetInputDialog()->ShowInputNumber(
+          tr("How many cash do you want to deposit?"),
+          std::bind(&Warehouse::OnDepositDelayed, this, _1),
+          QString::number(1));
+    }
+  }
+  OnDepositDelayed(value);
+}
+
+void Warehouse::OnDepositDelayed(const QString &value) {
+  if (current_mode_ == 0) {
     uint32_t id = selected_item_->Data(99);
 
     if (temp_items_.find(id) == temp_items_.cend()) {
       temp_items_[id] = 0;
     }
-    temp_items_[id] -= 1;
+    temp_items_[id] -= value.toInt();
   } else if (current_mode_ == 1) {
     if (selected_item_ == nullptr) {
       return;
@@ -462,12 +487,7 @@ void Warehouse::OnDeposit() {
   } else if (current_mode_ == 2) {
     const auto &info = PlayerInfo::GetInstance()->GetInformationRO();
     bool ok = true;
-    int i;
-    if ((info.cash + temp_cash_) == 1) {
-      i = 1;
-    } else {
-      i = 1;
-    }
+    int i = value.toInt();
     if (temp_cash_ + info.cash < i) {
       Globals::GetAlertDialog()->Show(
           tr("Error"),
@@ -482,17 +502,46 @@ void Warehouse::OnDeposit() {
 }
 
 void Warehouse::OnWithdraw() {
-  if (selected_item_ == nullptr) {
-    return;
-  }
-  uint32_t id = selected_item_->Data(99);
+  QString value;
 
   if (current_mode_ == 0) {
+    if (selected_item_ == nullptr) {
+      return;
+    }
+    Globals::GetInputDialog()->ShowInputNumber(
+        tr("How many items do you want to withdraw?"),
+        std::bind(&Warehouse::OnWithdrawDelayed, this, _1), QString::number(1));
+    return;
+  } else if (current_mode_ == 1) {
+    if (selected_item_ == nullptr) {
+      return;
+    }
+  } else if (current_mode_ == 2) {
+    const auto &info = PlayerInfo::GetInstance()->GetInformationRO();
+    bool ok = true;
+    int i;
+    if ((info.warehouse_cash - temp_cash_) == 1) {
+      value = QString::number(1);
+    } else {
+      Globals::GetInputDialog()->ShowInputNumber(
+          tr("How much cash do you want to withdraw?"),
+          std::bind(&Warehouse::OnWithdrawDelayed, this, _1),
+          QString::number(1));
+      return;
+    }
+  }
+  OnWithdrawDelayed(value);
+}
+
+void Warehouse::OnWithdrawDelayed(const QString &value) {
+  if (current_mode_ == 0) {
+    uint32_t id = selected_item_->Data(99);
     if (temp_items_.find(id) == temp_items_.cend()) {
       temp_items_[id] = 0;
     }
-    temp_items_[id] += 1;
+    temp_items_[id] += value.toInt();
   } else if (current_mode_ == 1) {
+    uint32_t id = selected_item_->Data(99);
     std::vector<CatchChallenger::PlayerMonster> list = MonstersWithdrawed();
     if (list.size() >
         CommonSettingsCommon::commonSettingsCommon.maxPlayerMonsters) {
@@ -502,15 +551,14 @@ void Warehouse::OnWithdraw() {
     }
     vectorremoveOne(temp_monster_deposit_, id);
     temp_monster_withdraw_.push_back(id);
+    UpdateContent();
+    selected_item_ = nullptr;
   } else if (current_mode_ == 2) {
     const auto &info = PlayerInfo::GetInstance()->GetInformationRO();
     bool ok = true;
-    int i;
-    if ((info.warehouse_cash - temp_cash_) == 1) {
-      i = 1;
-    } else {
-      i = 1;
-    }
+    int i = value.toInt();
+    std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] " << i
+              << std::endl;
     if (temp_cash_ + info.warehouse_cash < i) {
       Globals::GetAlertDialog()->Show(
           tr("Error"),

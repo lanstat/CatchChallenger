@@ -247,6 +247,7 @@ SOURCES += \
     $$PWD/ui/Dialog.cpp \
     $$PWD/ui/Checkbox.cpp \
     $$PWD/ui/MessageDialog.cpp \
+    $$PWD/ui/InputDialog.cpp \
     $$PWD/ui/ThemedButton.cpp \
     $$PWD/ui/ThemedLabel.cpp \
     $$PWD/ui/GridView.cpp \
@@ -353,6 +354,7 @@ HEADERS  += \
     $$PWD/ui/Dialog.hpp \
     $$PWD/ui/Checkbox.hpp \
     $$PWD/ui/MessageDialog.hpp \
+    $$PWD/ui/InputDialog.hpp \
     $$PWD/ui/ThemedButton.hpp \
     $$PWD/ui/ThemedLabel.hpp \
     $$PWD/ui/GridView.hpp \
