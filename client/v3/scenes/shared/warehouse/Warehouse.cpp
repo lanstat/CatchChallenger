@@ -132,12 +132,19 @@ void Warehouse::OnAcceptClick() {
 
   // Save all change in warehouse
   {
-    std::vector<std::pair<uint16_t, int32_t> > items_list;
+    std::vector<std::pair<uint16_t, uint32_t> > deposit_items;
+    std::vector<std::pair<uint16_t, uint32_t> > withdraw_items;
     for (const auto &n : temp_items_) {
-      items_list.push_back(std::pair<uint16_t, int32_t>(n.first, n.second));
+      if (n.second < 0)
+        deposit_items.push_back(std::make_pair(n.first, -n.second));
+      else if (n.second > 0)
+        withdraw_items.push_back(std::make_pair(n.first, n.second));
     }
-    // connexionManager->client->wareHouseStore(
-    // temp_cash_, items_list, temp_monster_withdraw_, temp_monster_deposit_);
+    int deposit_cash = temp_cash_ < 0 ? -temp_cash_ : 0;
+    int withdraw_cash = temp_cash_ > 0 ? temp_cash_ : 0;
+    connexionManager->client->wareHouseStore(
+        withdraw_cash, deposit_cash, withdraw_items, deposit_items,
+        temp_monster_withdraw_, temp_monster_deposit_);
   }
 
   // validate the change here
@@ -338,7 +345,7 @@ void Warehouse::UpdateContent() {
     {
       const std::vector<CatchChallenger::PlayerMonster> &playerMonster =
           connexionManager->client->getPlayerMonster();
-      unsigned int index = 0;
+      uint8_t index = 0;
       while (index < playerMonster.size()) {
         const CatchChallenger::PlayerMonster &monster = playerMonster.at(index);
         if (CatchChallenger::CommonDatapack::commonDatapack.monsters.find(
@@ -358,7 +365,7 @@ void Warehouse::UpdateContent() {
 
     // monster warehouse
     {
-      unsigned int index = 0;
+      uint8_t index = 0;
       while (index < info.warehouse_playerMonster.size()) {
         const CatchChallenger::PlayerMonster &monster =
             info.warehouse_playerMonster.at(index);
@@ -462,10 +469,10 @@ void Warehouse::OnDepositDelayed(const QString &value) {
     if (selected_item_ == nullptr) {
       return;
     }
-    uint32_t id = selected_item_->Data(99);
+    uint8_t id = selected_item_->Data(99);
 
     bool remain_valid_monster = false;
-    unsigned int index = 0;
+    uint8_t index = 0;
     std::vector<CatchChallenger::PlayerMonster> warehouseMonsterOnPlayerList =
         MonstersWithdrawed();
     while (index < warehouseMonsterOnPlayerList.size()) {
@@ -541,7 +548,7 @@ void Warehouse::OnWithdrawDelayed(const QString &value) {
     }
     temp_items_[id] += value.toInt();
   } else if (current_mode_ == 1) {
-    uint32_t id = selected_item_->Data(99);
+    uint8_t id = selected_item_->Data(99);
     std::vector<CatchChallenger::PlayerMonster> list = MonstersWithdrawed();
     if (list.size() >
         CommonSettingsCommon::commonSettingsCommon.maxPlayerMonsters) {
@@ -580,7 +587,7 @@ std::vector<CatchChallenger::PlayerMonster> Warehouse::MonstersWithdrawed()
   {
     const std::vector<CatchChallenger::PlayerMonster> &playerMonster =
         connexionManager->client->getPlayerMonster();
-    unsigned int index = 0;
+    uint8_t index = 0;
     while (index < playerMonster.size()) {
       const CatchChallenger::PlayerMonster &monster = playerMonster.at(index);
       if (CatchChallenger::CommonDatapack::commonDatapack.monsters.find(
@@ -592,7 +599,7 @@ std::vector<CatchChallenger::PlayerMonster> Warehouse::MonstersWithdrawed()
     }
   }
   {
-    unsigned int index = 0;
+    uint8_t index = 0;
     while (index < info.warehouse_playerMonster.size()) {
       const CatchChallenger::PlayerMonster &monster =
           info.warehouse_playerMonster.at(index);

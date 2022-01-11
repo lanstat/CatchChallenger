@@ -4,13 +4,14 @@
 #include <iostream>
 
 #include "../../base/ConnectionManager.hpp"
-#include "../../entities/PlayerInfo.hpp"
 
 using Scenes::MonsterThumb;
 using std::placeholders::_1;
 
 MonsterThumb::MonsterThumb(Node *parent) : Node(parent) {
   monster_details_ = nullptr;
+  QObject::connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
+                   std::bind(&MonsterThumb::OnUpdateInfo, this, _1));
 }
 
 MonsterThumb::~MonsterThumb() {
@@ -27,6 +28,7 @@ MonsterThumb *MonsterThumb::Create(Node *parent) {
 void MonsterThumb::LoadMonsters(
     const CatchChallenger::Player_private_and_public_informations
         &informations) {
+  UnRegisterEvents();
   Reset();
   int tempx = 0;
   int space = 10;
@@ -46,7 +48,6 @@ void MonsterThumb::LoadMonsters(
     tempx -= space;
   }
   SetSize(tempx, height);
-  UnRegisterEvents();
   RegisterEvents();
 }
 
@@ -116,4 +117,13 @@ void MonsterThumb::Reset() {
     delete *it;
   }
   monsters_.clear();
+}
+
+void MonsterThumb::OnEnter() {}
+
+void MonsterThumb::OnExit() {
+}
+
+void MonsterThumb::OnUpdateInfo(PlayerInfo *player_info) {
+ LoadMonsters(player_info->GetInformationRO());
 }

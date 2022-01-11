@@ -27,6 +27,7 @@ Node::Node(Node *parent): QGraphicsItem(parent) {
 }
 
 Node::~Node() {
+  UnRegisterEvents();
   if (node_cache_ != nullptr) {
     delete node_cache_;
   }

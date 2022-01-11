@@ -5,6 +5,7 @@
 #include "../../core/Node.hpp"
 #include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
+#include "../../entities/PlayerInfo.hpp"
 
 namespace Scenes {
 class MonsterThumb : public Node {
@@ -23,9 +24,12 @@ class MonsterThumb : public Node {
   void RegisterEvents() override;
   void UnRegisterEvents() override;
   void OnResize() override;
+  void OnEnter() override;
+  void OnExit() override;
 
  private:
   MonsterThumb(Node *parent);
+  void OnUpdateInfo(PlayerInfo *player_info);
 
   std::vector<MapMonsterPreview *> monsters_;
   QPointF m_startPress;

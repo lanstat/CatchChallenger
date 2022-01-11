@@ -44,8 +44,8 @@ class Warehouse : public UI::Dialog {
   int64_t temp_cash_;
   int8_t current_mode_;
   std::unordered_map<uint16_t, int32_t> temp_items_;
-  std::vector<uint32_t> temp_monster_withdraw_;
-  std::vector<uint32_t> temp_monster_deposit_;
+  std::vector<uint8_t> temp_monster_withdraw_;
+  std::vector<uint8_t> temp_monster_deposit_;
 
   Warehouse();
   void OnItemClick(Node *node);
