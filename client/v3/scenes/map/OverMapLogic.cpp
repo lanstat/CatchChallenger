@@ -15,11 +15,11 @@
 #include "../shared/inventory/Inventory.hpp"
 #include "../shared/inventory/MonsterBag.hpp"
 #include "../shared/inventory/Plant.hpp"
+#include "../shared/player/FinishedQuests.hpp"
+#include "../shared/player/Quests.hpp"
 #include "../shared/player/Player.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
-#include "../above/player/FinishedQuests.hpp"
-#include "../above/player/Quests.hpp"
 #include "../above/player/Reputations.hpp"
 */
 #include "CCMap.hpp"
@@ -31,6 +31,7 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 
 OverMapLogic::OverMapLogic() : OverMap() {
+  CreatePlayerTabs();
   CreateInventoryTabs();
   /*
 crafting = nullptr;
@@ -38,8 +39,6 @@ crafting = nullptr;
 
   /*
   reputations = nullptr;
-  quests = nullptr;
-  finishedQuests = nullptr;
   */
 
   multiplayer = true;
@@ -553,22 +552,21 @@ void OverMapLogic::errorWithTheCurrentMap() {
 }
 
 void OverMapLogic::bag_open() {
+  std::string id = "inventory";
+
   inventory_tabs_->ShowNavigation(true);
-  auto item = static_cast<Inventory *>(inventory_tabs_->Item(1));
+  auto item = static_cast<Inventory *>(inventory_tabs_->Item(id));
   item->SetVar(Inventory::ObjectType::ObjectType_All, false);
-  inventory_tabs_->SetCurrentItem(1);
+  inventory_tabs_->SetCurrentItem(id);
   AddChild(inventory_tabs_);
 }
 
-void OverMapLogic::OnInventoryNav(int index) {
-  switch (index) {
-    case 1:
-      static_cast<Inventory *>(inventory_tabs_->Item(1))
-          ->SetVar(Inventory::ObjectType::ObjectType_All, false);
-      break;
-    case 3:
-      static_cast<Plant *>(inventory_tabs_->Item(3))->SetVar(false);
-      break;
+void OverMapLogic::OnInventoryNav(std::string id) {
+  if (id == "inventory") {
+    static_cast<Inventory *>(inventory_tabs_->Item(id))
+        ->SetVar(Inventory::ObjectType::ObjectType_All, false);
+  } else if (id == "plants") {
+    static_cast<Plant *>(inventory_tabs_->Item(id))->SetVar(false);
   }
 }
 
@@ -705,9 +703,9 @@ inventoryIndex--;
 }
 
 void OverMapLogic::player_open() {
-  inventory_tabs_->ShowNavigation(true);
-  inventory_tabs_->SetCurrentItem(0);
-  AddChild(inventory_tabs_);
+  player_tabs_->ShowNavigation(true);
+  player_tabs_->SetCurrentItem("player");
+  AddChild(player_tabs_);
 }
 
 void OverMapLogic::playerNext() {
@@ -2583,18 +2581,29 @@ void OverMapLogic::OnExit() {
 void OverMapLogic::CreateInventoryTabs() {
   inventory_tabs_ = UI::LinkedDialog::Create();
 
-  inventory_tabs_->AddItem(Player::Create());
   auto item = Inventory::Create();
   item->SetOnUseItem(std::bind(&OverMapLogic::OnUseItem, this, _1, _2, _3));
-  inventory_tabs_->AddItem(item);
-  inventory_tabs_->AddItem(MonsterBag::Create());
+  inventory_tabs_->AddItem(item, "inventory");
+  inventory_tabs_->AddItem(MonsterBag::Create(), "monsters");
   auto plant = Plant::Create();
   plant->SetOnUseItem(std::bind(&OverMapLogic::OnUseItem, this, _1, _2, _3));
-  inventory_tabs_->AddItem(plant);
+  inventory_tabs_->AddItem(plant, "plants");
   inventory_tabs_->SetOnBack(
       std::bind(&OverMapLogic::OnInventoryNav, this, _1));
   inventory_tabs_->SetOnNext(
       std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+}
+
+void OverMapLogic::CreatePlayerTabs() {
+  player_tabs_ = UI::LinkedDialog::Create();
+
+  player_tabs_->AddItem(Player::Create(), "player");
+  player_tabs_->AddItem(Quests::Create(), "quests");
+  player_tabs_->AddItem(FinishedQuests::Create(), "finished_quests");
+  // player_tabs_->SetOnBack(
+  // std::bind(&OverMapLogic::OnInventoryNav, this, _1));
+  // player_tabs_->SetOnNext(
+  // std::bind(&OverMapLogic::OnInventoryNav, this, _1));
 }
 
 void OverMapLogic::OnUseItem(Inventory::ObjectType type,
@@ -2667,13 +2676,152 @@ void OverMapLogic::OnUseItem(Inventory::ObjectType type,
                   .at(plant_id)
                   .fruits_seconds));
       break;
+      // case Inventory::ObjectType_ItemEvolutionOnMonster:
+      // case Inventory::ObjectType_ItemLearnOnMonster:
+      // case Inventory::ObjectType_ItemOnMonster:
+      // case Inventory::ObjectType_ItemOnMonsterOutOfFight: {
+      // const uint8_t monsterPosition = static_cast<uint8_t>(item_id);
+      // const uint16_t item = item_id;
+      // objectInUsing.erase(objectInUsing.cbegin());
+      // if (!ok) {
+      // ui->stackedWidget->setCurrentWidget(ui->page_inventory);
+      // ui->inventoryUse->setText(tr("Select"));
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item.find(
+      // item) !=
+      // CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item[item]
+      //.consumeAtUse)
+      // add_to_inventory(item, 1, false);
+      // break;
+      //}
+      // const CatchChallenger::PlayerMonster *const monster =
+      // connexionManager->client->monsterByPosition(monsterPosition);
+      // if (monster == NULL) {
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item.find(
+      // item) !=
+      // CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item[item]
+      //.consumeAtUse)
+      // add_to_inventory(item, 1, false);
+      // break;
+      //}
+      // const CatchChallenger::Monster &monsterInformations =
+      // CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
+      // monster->monster);
+      // const QtDatapackClientLoader::MonsterExtra &monsterInformationsExtra =
+      // QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+      // monster->monster);
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.evolutionItem
+      //.find(item) != CatchChallenger::CommonDatapack::commonDatapack
+      //.items.evolutionItem.cend()) {
+      // uint8_t monsterEvolutionPostion = 0;
+      // const CatchChallenger::Monster &monsterInformationsEvolution =
+      // CatchChallenger::CommonDatapack::commonDatapack.monsters.at(
+      // CatchChallenger::CommonDatapack::commonDatapack.items
+      //.evolutionItem.at(item)
+      //.at(monster->monster));
+      // const QtDatapackClientLoader::MonsterExtra
+      //&monsterInformationsEvolutionExtra =
+      // QtDatapackClientLoader::datapackLoader->monsterExtra.at(
+      // CatchChallenger::CommonDatapack::commonDatapack.items
+      //.evolutionItem.at(item)
+      //.at(monster->monster));
+      // abort();
+      //// create animation widget
+      // if (animationWidget != NULL) delete animationWidget;
+      // if (qQuickViewContainer != NULL) delete qQuickViewContainer;
+      // animationWidget = new QQuickView();
+      // qQuickViewContainer = QWidget::createWindowContainer(animationWidget);
+      // qQuickViewContainer->setMinimumSize(QSize(800, 600));
+      // qQuickViewContainer->setMaximumSize(QSize(800, 600));
+      // qQuickViewContainer->setFocusPolicy(Qt::TabFocus);
+      // ui->verticalLayoutPageAnimation->addWidget(qQuickViewContainer);
+      //// show the animation
+      // ui->stackedWidget->setCurrentWidget(ui->page_animation);
+      // previousAnimationWidget = ui->page_map;
+      // if (baseMonsterEvolution != NULL) delete baseMonsterEvolution;
+      // if (targetMonsterEvolution != NULL) delete targetMonsterEvolution;
+      // baseMonsterEvolution = new QmlMonsterGeneralInformations(
+      // monsterInformations, monsterInformationsExtra);
+      // targetMonsterEvolution = new QmlMonsterGeneralInformations(
+      // monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+      // if (evolutionControl != NULL) delete evolutionControl;
+      // evolutionControl = new EvolutionControl(
+      // monsterInformations, monsterInformationsExtra,
+      // monsterInformationsEvolution, monsterInformationsEvolutionExtra);
+      // animationWidget->rootContext()->setContextProperty("animationControl",
+      //&animationControl);
+      // animationWidget->rootContext()->setContextProperty("evolutionControl",
+      // evolutionControl);
+      // animationWidget->rootContext()->setContextProperty("canBeCanceled",
+      // QVariant(false));
+      // animationWidget->rootContext()->setContextProperty(
+      //"itemEvolution",
+      // QUrl::fromLocalFile(QString::fromStdString(
+      // QtDatapackClientLoader::datapackLoader->itemsExtra.at(item)
+      //.imagePath)));
+      // animationWidget->rootContext()->setContextProperty(
+      //"baseMonsterEvolution", baseMonsterEvolution);
+      // animationWidget->rootContext()->setContextProperty(
+      //"targetMonsterEvolution", targetMonsterEvolution);
+      // const std::string datapackQmlFile =
+      // client->datapackPathBase() + "qml/evolution-animation.qml";
+      // if (QFile(QString::fromStdString(datapackQmlFile)).exists())
+      // animationWidget->setSource(
+      // QUrl::fromLocalFile(QString::fromStdString(datapackQmlFile)));
+      // else
+      // animationWidget->setSource(
+      // QStringLiteral("qrc:/qml/evolution-animation.qml"));
+      // client->useObjectOnMonsterByPosition(item, monsterPosition);
+      // if (!fightEngine.useObjectOnMonsterByPosition(item, monsterPosition)) {
+      // std::cerr << "fightEngine.useObjectOnMonsterByPosition() Bug at "
+      //<< __FILE__ << ":" << __LINE__ << std::endl;
+      //#ifdef CATCHCHALLENGER_EXTRA_CHECK abort();
+      //#endif
+      //}
+      // load_monsters();
+      // return;
+      //} else {
+      // abort();
+      // ui->stackedWidget->setCurrentWidget(ui->page_inventory);
+      // ui->inventoryUse->setText(tr("Select"));
+      // if (fightEngine.useObjectOnMonsterByPosition(item, monsterPosition)) {
+      // showTip(
+      // tr("Using <b>%1</b> on <b>%2</b>")
+      //.arg(QString::fromStdString(
+      // QtDatapackClientLoader::datapackLoader->itemsExtra
+      //.at(item)
+      //.name))
+      //.arg(QString::fromStdString(monsterInformationsExtra.name))
+      //.toStdString());
+      // client->useObjectOnMonsterByPosition(item, monsterPosition);
+      // load_monsters();
+      // checkEvolution();
+      //} else {
+      // showTip(
+      // tr("Failed to use <b>%1</b> on <b>%2</b>")
+      //.arg(QString::fromStdString(
+      // QtDatapackClientLoader::datapackLoader->itemsExtra
+      //.at(item)
+      //.name))
+      //.arg(QString::fromStdString(monsterInformationsExtra.name))
+      //.toStdString());
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item.find(
+      // item) !=
+      // CatchChallenger::CommonDatapack::commonDatapack.items.item.cend())
+      // if (CatchChallenger::CommonDatapack::commonDatapack.items.item[item]
+      //.consumeAtUse)
+      // add_to_inventory(item, 1, false);
+      //}
+      //}
+      //}
   }
   RemoveChild(inventory_tabs_);
 }
 
 void OverMapLogic::ShowPlantDialog() {
-  auto item = static_cast<Plant *>(inventory_tabs_->Item(3));
+  auto item = static_cast<Plant *>(inventory_tabs_->Item("plants"));
   item->SetVar(true);
-  inventory_tabs_->SetCurrentItem(3);
+  inventory_tabs_->SetCurrentItem("plants");
   AddChild(inventory_tabs_);
 }

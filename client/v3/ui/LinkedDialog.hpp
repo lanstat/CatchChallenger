@@ -12,32 +12,34 @@ class LinkedDialog : public Dialog {
   static LinkedDialog *Create(bool show_navigation = true);
   ~LinkedDialog();
 
-  void AddItem(Node *item);
+  void AddItem(Node *item, std::string id);
   void RemoveItem(Node *item);
-  void SetCurrentItem(int index);
+  void SetCurrentItem(std::string id);
   void OnScreenResize() override;
   void ShowNavigation(bool show);
-  void SetOnNext(std::function<void(int)> callback);
-  void SetOnBack(std::function<void(int)> callback);
+  void SetOnNext(std::function<void(std::string)> callback);
+  void SetOnBack(std::function<void(std::string)> callback);
   void SetOnUseItem(std::function<void(uint16_t)> callback);
   void OnEnter() override;
   void OnExit() override;
   Node *CurrentItem();
-  Node *Item(int index);
+  Node *Item(std::string id);
 
  private:
   Button *next_;
   Button *back_;
   std::vector<Node *> items_;
+  std::vector<std::string> ids_;
   Node *current_item_;
   int current_index_;
   bool show_navigation_;
 
-  std::function<void(int)> on_next_;
-  std::function<void(int)> on_back_;
+  std::function<void(std::string)> on_next_;
+  std::function<void(std::string)> on_back_;
   std::function<void(uint16_t)> on_use_item_;
 
   LinkedDialog(bool show_navigation);
+  uint8_t GetIndexById(std::string id);
 
  protected:
   void OnActionClick(Node *node);

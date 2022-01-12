@@ -3,12 +3,13 @@
 #define CLIENT_V3_SCENES_MAP_MONSTERTHUMB_HPP_
 
 #include "../../core/Node.hpp"
+#include "../../entities/PlayerInfo.hpp"
 #include "MapMonsterPreview.hpp"
 #include "MonsterDetails.hpp"
-#include "../../entities/PlayerInfo.hpp"
 
 namespace Scenes {
-class MonsterThumb : public Node {
+class MonsterThumb : public QObject, public Node {
+  Q_OBJECT
  public:
   static MonsterThumb *Create(Node *parent);
   ~MonsterThumb();

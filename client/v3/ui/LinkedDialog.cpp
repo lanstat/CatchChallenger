@@ -57,7 +57,7 @@ void LinkedDialog::OnScreenResize() {
   }
 }
 
-void LinkedDialog::AddItem(Node* item) {
+void LinkedDialog::AddItem(Node* item, std::string id) {
   if (current_item_ == nullptr) {
     current_item_ = item;
   }
@@ -66,15 +66,16 @@ void LinkedDialog::AddItem(Node* item) {
   item->SetPos(boundary.x(), boundary.y());
   item->SetSize(boundary.width(), boundary.height());
   items_.push_back(item);
+  ids_.push_back(id);
 }
 
 void LinkedDialog::RemoveItem(Node* item) {}
 
-void LinkedDialog::SetOnNext(std::function<void(int)> callback) {
+void LinkedDialog::SetOnNext(std::function<void(std::string)> callback) {
   on_next_ = callback;
 }
 
-void LinkedDialog::SetOnBack(std::function<void(int)> callback) {
+void LinkedDialog::SetOnBack(std::function<void(std::string)> callback) {
   on_back_ = callback;
 }
 
@@ -88,13 +89,13 @@ void LinkedDialog::OnActionClick(Node* node) {
     if (current_index_ >= items_.size()) {
       current_index_ = 0;
     }
-    if (on_next_) on_next_(current_index_);
+    if (on_next_) on_next_(ids_.at(current_index_));
   } else if (node == back_) {
     current_index_--;
     if (current_index_ < 0) {
       current_index_ = items_.size() - 1;
     }
-    if (on_back_) on_back_(current_index_);
+    if (on_back_) on_back_(ids_.at(current_index_));
   }
   if (current_item_ != nullptr) {
     current_item_->UnRegisterEvents();
@@ -119,12 +120,12 @@ void LinkedDialog::OnExit() {
   UI::Dialog::OnExit();
 }
 
-void LinkedDialog::SetCurrentItem(int index) {
+void LinkedDialog::SetCurrentItem(std::string id) {
   if (current_item_ != nullptr) {
     current_item_->UnRegisterEvents();
     RemoveChild(current_item_);
   }
-  current_index_ = index;
+  current_index_ = GetIndexById(id);
   current_item_ = items_.at(current_index_);
   // Only register if linkeddialog is showed
   if (Parent() != nullptr) {
@@ -135,11 +136,23 @@ void LinkedDialog::SetCurrentItem(int index) {
 
 Node* LinkedDialog::CurrentItem() { return current_item_; }
 
-Node* LinkedDialog::Item(int index) { return items_.at(index); }
+Node* LinkedDialog::Item(std::string id) {
+  uint8_t index = GetIndexById(id);
+  return items_.at(index);
+}
 
 void LinkedDialog::ShowNavigation(bool show) {
   if (show == show_navigation_) return;
   show_navigation_ = show;
   next_->SetVisible(show_navigation_);
   back_->SetVisible(show_navigation_);
+}
+
+uint8_t LinkedDialog::GetIndexById(std::string id) {
+  for (uint8_t i = 0; i < ids_.size(); ++i) {
+    if (ids_.at(i) == id) {
+      return i;
+    }
+  }
+  return 0;
 }

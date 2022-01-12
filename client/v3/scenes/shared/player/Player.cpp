@@ -83,3 +83,5 @@ void Player::RegisterEvents() {
 }
 
 void Player::UnRegisterEvents() {}
+
+void Player::Draw(QPainter *painter) { (void)painter; }

@@ -1,8 +1,10 @@
 // Copyright 2021 <CatchChallenger>
 #include "InputDialog.hpp"
 
+#include <QIntValidator>
 #include <iostream>
 
+#include "../Globals.hpp"
 #include "../core/SceneManager.hpp"
 
 using UI::InputDialog;
@@ -14,6 +16,7 @@ InputDialog::InputDialog() {
   message_->SetAlignment(Qt::AlignCenter);
 
   input_ = UI::Input::Create(this);
+  type_ = 0;
 
   accept_ = UI::Button::Create(":/CC/images/interface/validate.png", this);
   accept_->SetOnClick(std::bind(&InputDialog::OnAcceptClick, this));
@@ -44,23 +47,37 @@ void InputDialog::OnScreenResize() {
 void InputDialog::newLanguage() {}
 
 void InputDialog::OnAcceptClick() {
+  if (type_ == 1) {
+    int value = input_->Value().toInt();
+    if (value < min_ || value > max_) {
+      Globals::GetAlertDialog()->Show(
+          tr("The value must be between %1 and %2").arg(min_).arg(max_));
+      return;
+    }
+  }
   callback_(input_->Value());
   Close();
 }
 
 void InputDialog::ShowInputNumber(const QString &message,
                                   std::function<void(QString)> callback,
+                                  int min, int max,
                                   const QString &default_value) {
-  ShowInputNumber(QString(), message, callback, default_value);
+  ShowInputNumber(QString(), message, callback, min, max, default_value);
 }
 
 void InputDialog::ShowInputNumber(const QString &title, const QString &message,
                                   std::function<void(QString)> callback,
+                                  int min, int max,
                                   const QString &default_value) {
   if (!title.isEmpty()) {
     SetTitle(title);
   }
+  type_ = 1;
+  min_ = min;
+  max_ = max;
 
+  input_->SetValidator(new QIntValidator(min, max, input_->GetProxy()));
   input_->SetValue(default_value);
   callback_ = callback;
   message_->SetText(message);

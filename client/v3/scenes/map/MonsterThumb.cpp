@@ -10,8 +10,6 @@ using std::placeholders::_1;
 
 MonsterThumb::MonsterThumb(Node *parent) : Node(parent) {
   monster_details_ = nullptr;
-  QObject::connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
-                   std::bind(&MonsterThumb::OnUpdateInfo, this, _1));
 }
 
 MonsterThumb::~MonsterThumb() {
@@ -65,12 +63,16 @@ void MonsterThumb::OpenMonster(Node *item) {
 }
 
 void MonsterThumb::RegisterEvents() {
+  connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo, this,
+          &MonsterThumb::OnUpdateInfo);
   for (auto m : monsters_) {
     m->RegisterEvents();
   }
 }
 
 void MonsterThumb::UnRegisterEvents() {
+  disconnect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo, this,
+          &MonsterThumb::OnUpdateInfo);
   for (auto m : monsters_) {
     m->UnRegisterEvents();
   }
@@ -121,9 +123,8 @@ void MonsterThumb::Reset() {
 
 void MonsterThumb::OnEnter() {}
 
-void MonsterThumb::OnExit() {
-}
+void MonsterThumb::OnExit() {}
 
 void MonsterThumb::OnUpdateInfo(PlayerInfo *player_info) {
- LoadMonsters(player_info->GetInformationRO());
+  LoadMonsters(player_info->GetInformationRO());
 }

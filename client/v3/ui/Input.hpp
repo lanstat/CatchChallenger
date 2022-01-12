@@ -13,7 +13,7 @@
 namespace UI {
 class Input : public Node {
  public:
-  enum InputMode { kPassword, kNumber, kDefault, kReadOnly };
+  enum InputMode { kPassword, kDefault, kReadOnly };
 
   static Input *Create(Node *parent = nullptr);
   ~Input();
@@ -31,12 +31,15 @@ class Input : public Node {
   void SetMode(InputMode mode);
   QString Value() const;
   void SetValue(const QString &value);
+  void SetValidator(const QValidator *validator);
   void Clear();
   void SetPlaceholder(const QString &value);
   void SetFont(const QFont &font);
   void RegisterEvents() override;
   void UnRegisterEvents() override;
   void SetOnTextChange(std::function<void(std::string)> callback);
+
+  QGraphicsProxyWidget *GetProxy() const;
 
   void Draw(QPainter *painter) override;
 

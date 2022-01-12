@@ -1,62 +1,36 @@
-#ifndef Quests_H
-#define Quests_H
+// Copyright 2021 CatchChallenger
+#ifndef CLIENT_V3_SCENES_SHARED_PLAYER_QUESTS_HPP_
+#define CLIENT_V3_SCENES_SHARED_PLAYER_QUESTS_HPP_
 
-#include <QObject>
-#include <QListWidget>
-#include "../../ImagesStrechMiddle.hpp"
-#include "../../ScreenInput.hpp"
-#include "../../CustomButton.hpp"
-#include "../../CustomText.hpp"
-#include "../../CCGraphicsTextItem.hpp"
-#include "../../CCSliderH.hpp"
-#include "../../LineEdit.hpp"
-#include "../../SpinBox.hpp"
+#include "../../../core/Node.hpp"
+#include "../../../ui/Button.hpp"
+#include "../../../ui/Label.hpp"
+#include "../../../ui/ListView.hpp"
+#include "QuestItem.hpp"
 
-class ConnexionManager;
+namespace Scenes {
+class Quests : public Node {
+ public:
+  ~Quests();
+  static Quests *Create();
+  void RegisterEvents() override;
+  void UnRegisterEvents() override;
+  void OnResize() override;
+  void Draw(QPainter *painter) override;
 
-class Quests : public ScreenInput
-{
-    Q_OBJECT
-public:
-    explicit Quests();
-    ~Quests();
+ private:
+  UI::ListView *quests_;
+  UI::ListView *details_;
+  UI::Button *cancel_;
+  Node *selected_item_;
 
-    void resizeEvent(QResizeEvent * e);
-    QRectF boundingRect() const override;
-    void paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *widget = nullptr) override;
-    void mousePressEventXY(const QPointF &p,bool &pressValidated,bool &callParentClass) override;
-    void mouseReleaseEventXY(const QPointF &p, bool &pressValidated,bool &callParentClass) override;
-    void keyPressEvent(QKeyEvent * event, bool &eventTriggerGeneral) override;
-    void keyReleaseEvent(QKeyEvent *event, bool &eventTriggerGeneral) override;
-    void removeAbove();
-    void setVar(ConnexionManager *connexionManager);
-
-    void on_questsList_itemSelectionChanged();
-private slots:
-    void newLanguage();
-    void cancel_slot();
-private:
-    ImagesStrechMiddle *wdialog;
-    CustomButton *quit;
-    CustomText *title;
-    QGraphicsPixmapItem label;
-
-    CustomButton *next;
-    CustomButton *back;
-
-    QGraphicsProxyWidget *proxy;
-    QListWidget *questsList;
-
-    QGraphicsTextItem *questDetails;
-    CustomButton *cancelButton;
-
-    ConnexionManager *connexionManager;
-signals:
-    void setAbove(ScreenInput *widget);//first plan popup
-    void sendNext();
-    void sendBack();
-    void useItem(uint16_t item);
-    void deleteItem(uint16_t item);
+  Quests();
+  void OnCancel();
+  void OnQuestClick(Node *item);
+  void LoadQuests();
+  void OnQuestItemChanged();
+  UI::Label *CreateLabel(const QString &text);
+  UI::Label *CreateLabel(const std::string &text);
 };
-
-#endif // OPTIONSDIALOG_H
+}  // namespace Scenes
+#endif  // CLIENT_V3_SCENES_SHARED_PLAYER_QUESTS_HPP_

@@ -397,6 +397,7 @@ WarehouseItem *Warehouse::ItemToItem(const uint16_t &item_id,
                                      const uint32_t &quantity) {
   auto item = WarehouseItem::Create();
   item->SetData(99, item_id);
+  item->SetData(98, quantity);
   item->SetOnClick(std::bind(&Warehouse::OnItemClick, this, _1));
   if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(item_id) !=
       QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
@@ -435,9 +436,12 @@ void Warehouse::OnDeposit() {
     if (selected_item_ == nullptr) {
       return;
     }
+    uint32_t quantity = selected_item_->Data(98);
+
     Globals::GetInputDialog()->ShowInputNumber(
         tr("How many items do you want to deposit?"),
-        std::bind(&Warehouse::OnDepositDelayed, this, _1), QString::number(1));
+        std::bind(&Warehouse::OnDepositDelayed, this, _1), 1, quantity,
+        QString::number(1));
     return;
   } else if (current_mode_ == 1) {
     if (selected_item_ == nullptr) {
@@ -450,8 +454,8 @@ void Warehouse::OnDeposit() {
     } else {
       Globals::GetInputDialog()->ShowInputNumber(
           tr("How many cash do you want to deposit?"),
-          std::bind(&Warehouse::OnDepositDelayed, this, _1),
-          QString::number(1));
+          std::bind(&Warehouse::OnDepositDelayed, this, _1), 1,
+          info.cash + temp_cash_, QString::number(1));
     }
   }
   OnDepositDelayed(value);
@@ -515,9 +519,11 @@ void Warehouse::OnWithdraw() {
     if (selected_item_ == nullptr) {
       return;
     }
+    uint32_t quantity = selected_item_->Data(98);
     Globals::GetInputDialog()->ShowInputNumber(
         tr("How many items do you want to withdraw?"),
-        std::bind(&Warehouse::OnWithdrawDelayed, this, _1), QString::number(1));
+        std::bind(&Warehouse::OnWithdrawDelayed, this, _1), 1, quantity,
+        QString::number(1));
     return;
   } else if (current_mode_ == 1) {
     if (selected_item_ == nullptr) {
@@ -532,8 +538,8 @@ void Warehouse::OnWithdraw() {
     } else {
       Globals::GetInputDialog()->ShowInputNumber(
           tr("How much cash do you want to withdraw?"),
-          std::bind(&Warehouse::OnWithdrawDelayed, this, _1),
-          QString::number(1));
+          std::bind(&Warehouse::OnWithdrawDelayed, this, _1), 1,
+          info.warehouse_cash - temp_cash_, QString::number(1));
       return;
     }
   }

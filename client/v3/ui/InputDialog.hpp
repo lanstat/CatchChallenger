@@ -19,9 +19,10 @@ class InputDialog : public Dialog {
   void OnAcceptClick();
   void newLanguage();
   void ShowInputNumber(const QString &title, const QString &message,
-                       std::function<void(QString)> callback,
+                       std::function<void(QString)> callback, int min, int max,
                        const QString &default_value);
-  void ShowInputNumber(const QString &message, std::function<void(QString)> callback,
+  void ShowInputNumber(const QString &message,
+                       std::function<void(QString)> callback, int min, int max,
                        const QString &default_value);
 
  private:
@@ -29,6 +30,10 @@ class InputDialog : public Dialog {
   UI::Input *input_;
   UI::Button *accept_;
   std::function<void(QString)> callback_;
+
+  uint8_t type_;
+  int min_;
+  int max_;
 };
 }  // namespace UI
 #endif  // CLIENT_V3_UI_MESSAGEDIALOG_HPP_

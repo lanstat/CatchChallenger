@@ -14,8 +14,6 @@ using std::placeholders::_1;
 
 PlayerPortrait::PlayerPortrait(Node *parent) : Node(parent) {
   SetSize(450, 150);
-  QObject::connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
-                   std::bind(&PlayerPortrait::OnUpdateInfo, this, _1));
 }
 
 PlayerPortrait *PlayerPortrait::Create(Node *parent) {
@@ -89,12 +87,14 @@ void PlayerPortrait::MouseReleaseEvent(const QPointF &point,
 
 void PlayerPortrait::RegisterEvents() {
   EventManager::GetInstance()->AddMouseListener(this);
+  connect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo, this,
+          &PlayerPortrait::OnUpdateInfo);
 }
 
 void PlayerPortrait::UnRegisterEvents() {
   EventManager::GetInstance()->RemoveListener(this);
-  //QObject::disconnect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo,
-                      //std::bind(&PlayerPortrait::OnUpdateInfo, this, _1));
+  disconnect(PlayerInfo::GetInstance(), &PlayerInfo::OnUpdateInfo, this,
+             &PlayerPortrait::OnUpdateInfo);
 }
 
 void PlayerPortrait::OnUpdateInfo(PlayerInfo *info) {

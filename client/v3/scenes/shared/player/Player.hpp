@@ -19,6 +19,7 @@ class Player : public Node {
   void RegisterEvents() override;
   void UnRegisterEvents() override;
   void OnResize() override;
+  void Draw(QPainter *painter) override; 
 
  private:
 

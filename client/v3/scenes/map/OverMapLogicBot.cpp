@@ -192,7 +192,7 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
   } else if (strcmp(stepXml->Attribute("type"), "heal") == 0) {
     connexionManager->client->healAllMonsters();
     connexionManager->client->heal();
-    // load_monsters();
+    PlayerInfo::GetInstance()->Notify();
     showTip(tr("You are healed").toStdString());
     return;
   } else if (strcmp(stepXml->Attribute("type"), "quests") == 0) {

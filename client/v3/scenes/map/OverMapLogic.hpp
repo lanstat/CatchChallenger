@@ -261,9 +261,9 @@ class OverMapLogic : public OverMap {
   // Crafting *crafting;
   // int inventoryIndex;
 
+  UI::LinkedDialog *player_tabs_;
   // Reputations *reputations;
   // Quests *quests;
-  // FinishedQuests *finishedQuests;
   int playerIndex;
 
   QTimer tip_timeout;
@@ -318,8 +318,9 @@ class OverMapLogic : public OverMap {
   Warehouse *warehouse_;
 
   OverMapLogic();
-  void OnInventoryNav(int index);
+  void OnInventoryNav(std::string id);
   void CreateInventoryTabs();
+  void CreatePlayerTabs();
   void OnUseItem(Inventory::ObjectType type, const uint16_t &item_id,
                  const uint32_t &quantity);
   void ShowPlantDialog();

@@ -35,7 +35,8 @@ Input::Input(Node *parent) : Node(parent) {
   focus_ = false;
   pressed_ = false;
 
-  QObject::connect(line_edit_, &QLineEdit::returnPressed, std::bind(&Input::OnReturnPressed, this));
+  QObject::connect(line_edit_, &QLineEdit::returnPressed,
+                   std::bind(&Input::OnReturnPressed, this));
 }
 
 Input::~Input() {
@@ -149,9 +150,7 @@ void Input::SetValue(const QString &value) {
   ReDraw();
 }
 
-void Input::Clear() { 
-  line_edit_->clear();
-}
+void Input::Clear() { line_edit_->clear(); }
 
 void Input::SetPlaceholder(const QString &value) {
   line_edit_->setPlaceholderText(value);
@@ -162,20 +161,24 @@ void Input::SetFont(const QFont &font) {
   ReDraw();
 }
 
-void Input::RegisterEvents() {
-  // EventManager::GetInstance()->AddMouseListener(this);
-  // EventManager::GetInstance()->AddKeyboardListener(this);
+void Input::RegisterEvents() {}
+
+void Input::UnRegisterEvents() {}
+
+void Input::SetMode(InputMode mode) {
+  mode_ = mode;
+  if (mode_ == InputMode::kPassword) {
+    line_edit_->setEchoMode(QLineEdit::Password);
+  } else {
+    line_edit_->setEchoMode(QLineEdit::Normal);
+  }
 }
 
-void Input::UnRegisterEvents() {
-  // EventManager::GetInstance()->RemoveListener(this);
+void Input::SetValidator(const QValidator *validator) {
+  line_edit_->setValidator(validator);
 }
 
-void Input::SetMode(InputMode mode) { mode_ = mode; }
-
-void Input::SetMaxLength(int size) {
-  line_edit_->setMaxLength(size);
-}
+void Input::SetMaxLength(int size) { line_edit_->setMaxLength(size); }
 
 void Input::SetOnTextChange(std::function<void(std::string)> callback) {
   on_text_change_ = callback;
@@ -191,7 +194,7 @@ void Input::OnResize() {
   proxy_->setPos(inner_padding_.x(), inner_padding_.y());
   proxy_->setMaximumSize(inner_width, inner_height);
   proxy_->setMinimumSize(inner_width, inner_height);
-  //line_edit_->setFixedSize(inner_width, 10);
+  // line_edit_->setFixedSize(inner_width, 10);
 }
 
 void Input::OnReturnPressed() {
@@ -199,3 +202,5 @@ void Input::OnReturnPressed() {
     on_text_change_(text_.toStdString());
   }
 }
+
+QGraphicsProxyWidget *Input::GetProxy() const { return proxy_; }

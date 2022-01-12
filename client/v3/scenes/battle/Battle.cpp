@@ -90,11 +90,11 @@ Battle::Battle() : Scene(nullptr) {
   linked_ = UI::LinkedDialog::Create(false);
   auto monster = MonsterBag::Create(MonsterBag::kOnBattle);
   monster->SetOnSelectMonster(std::bind(&Battle::OnMonsterSelect, this, _1));
-  linked_->AddItem(monster);
+  linked_->AddItem(monster, "monsters");
   auto inventory = Inventory::Create();
   inventory->SetVar(Inventory::ObjectType_UseInFight, true);
   inventory->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1, _2, _3));
-  linked_->AddItem(inventory);
+  linked_->AddItem(inventory, "inventory");
 
   trap_ = nullptr;
 
@@ -1241,13 +1241,13 @@ void Battle::ShowMessageDialog(const QString &title, const QString &message) {
 }
 
 void Battle::ShowMonsterDialog(bool show_close) {
-  linked_->SetCurrentItem(0);
+  linked_->SetCurrentItem("monsters");
   linked_->ShowClose(show_close);
   AddChild(linked_);
 }
 
 void Battle::ShowBagDialog() {
-  linked_->SetCurrentItem(1);
+  linked_->SetCurrentItem("inventory");
   AddChild(linked_);
 }
 

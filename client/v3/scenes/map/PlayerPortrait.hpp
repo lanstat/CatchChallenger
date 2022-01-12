@@ -7,7 +7,8 @@
 #include "../../entities/PlayerInfo.hpp"
 
 namespace Scenes {
-class PlayerPortrait : public Node {
+class PlayerPortrait : public QObject, public Node {
+  Q_OBJECT
  public:
   static PlayerPortrait *Create(Node *parent);
   void SetInformation(
