@@ -71,14 +71,14 @@ void Quests::LoadQuests() {
     const uint16_t questId = i->first;
     if (QtDatapackClientLoader::datapackLoader->questsExtra.find(questId) !=
         QtDatapackClientLoader::datapackLoader->questsExtra.cend()) {
-      // if (i->second.step > 0) {
-      auto item = QuestItem::Create(QString::fromStdString(
-          QtDatapackClientLoader::datapackLoader->questsExtra.at(questId)
-              .name));
-      item->SetData(99, questId);
-      item->SetOnClick(std::bind(&Quests::OnQuestClick, this, _1));
-      quests_->AddItem(item);
-      //}
+      if (i->second.step > 0) {
+        auto item = QuestItem::Create(QString::fromStdString(
+            QtDatapackClientLoader::datapackLoader->questsExtra.at(questId)
+                .name));
+        item->SetData(99, questId);
+        item->SetOnClick(std::bind(&Quests::OnQuestClick, this, _1));
+        quests_->AddItem(item);
+      }
     }
     ++i;
   }
@@ -88,7 +88,12 @@ void Quests::OnCancel() {
   if (selected_item_ == nullptr) return;
   ConnectionManager::GetInstance()->client->cancelQuest(
       selected_item_->Data(99));
+
+  auto &info = PlayerInfo::GetInstance()->GetInformation();
+  info.quests.erase(selected_item_->Data(99));
+  PlayerInfo::GetInstance()->Notify();
   cancel_->SetVisible(false);
+  LoadQuests();
   OnQuestClick(nullptr);
 }
 
@@ -119,8 +124,9 @@ void Quests::OnQuestItemChanged() {
       details_->AddItem(CreateLabel(QObject::tr("Select a quest")));
       return;
     } else {
-      details_->AddItems(Utils::HTML2Node(
-          QString::fromStdString(questExtra.steps.at(stepQuest))).nodes);
+      details_->AddItems(Utils::HTML2Node(QString::fromStdString(
+                                              questExtra.steps.at(stepQuest)))
+                             .nodes);
     }
   }
 
@@ -298,6 +304,7 @@ void Quests::RegisterEvents() {
 
   quests_->RegisterEvents();
   cancel_->RegisterEvents();
+  cancel_->SetVisible(false);
   details_->Clear();
   LoadQuests();
 }
