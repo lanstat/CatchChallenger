@@ -1,7 +1,6 @@
 // Copyright 2021 CatchChallenger
 #include "Quests.hpp"
 
-#include <QTextDocument>
 #include <iostream>
 
 #include "../../../../general/base/CommonDatapack.hpp"
@@ -14,6 +13,7 @@
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Sprite.hpp"
 #include "../../../entities/PlayerInfo.hpp"
+#include "../../../entities/Utils.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 #include "../../../ui/Row.hpp"
 
@@ -31,6 +31,7 @@ Quests::Quests() {
   cancel_->SetOnClick(std::bind(&Quests::OnCancel, this));
   cancel_->SetSize(100, 30);
   cancel_->SetPixelSize(14);
+  cancel_->SetVisible(false);
 
   selected_item_ = nullptr;
 }
@@ -87,14 +88,15 @@ void Quests::OnCancel() {
   if (selected_item_ == nullptr) return;
   ConnectionManager::GetInstance()->client->cancelQuest(
       selected_item_->Data(99));
-  selected_item_ = nullptr;
-  OnQuestItemChanged();
+  cancel_->SetVisible(false);
+  OnQuestClick(nullptr);
 }
 
 void Quests::OnQuestItemChanged() {
   const uint8_t font_size = 12;
   details_->Clear();
   if (selected_item_ == nullptr) return;
+  cancel_->SetVisible(true);
   const auto &info = PlayerInfo::GetInstance()->GetInformationRO();
   const uint16_t &questId = selected_item_->Data(99);
   if (info.quests.find(questId) == info.quests.cend()) {
@@ -117,7 +119,8 @@ void Quests::OnQuestItemChanged() {
       details_->AddItem(CreateLabel(QObject::tr("Select a quest")));
       return;
     } else {
-      details_->AddItem(CreateLabel(questExtra.steps.at(stepQuest)));
+      details_->AddItems(Utils::HTML2Node(
+          QString::fromStdString(questExtra.steps.at(stepQuest))).nodes);
     }
   }
 
@@ -295,6 +298,7 @@ void Quests::RegisterEvents() {
 
   quests_->RegisterEvents();
   cancel_->RegisterEvents();
+  details_->Clear();
   LoadQuests();
 }
 
@@ -307,11 +311,12 @@ void Quests::OnQuestClick(Node *node) {
   selected_item_ = node;
   auto items = quests_->Items();
   for (auto item : items) {
-    if (node == item) {
+    if (node == item && node != nullptr) {
       continue;
     }
     static_cast<QuestItem *>(item)->SetSelected(false);
   }
+  quests_->ReDraw();
   OnQuestItemChanged();
 }
 
