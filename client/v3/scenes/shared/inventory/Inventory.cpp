@@ -269,11 +269,12 @@ void Inventory::OnResize() {
   font.setPixelSize(18);
 
   auto bounds = BoundingRect();
-  inventory->SetPos(0, 0);
-  inventory->SetSize(bounds.width(), bounds.height());
-
-  int yTemp = bounds.height() - inventoryDestroy->Height() - 20;
+  int yTemp = bounds.height() - inventoryDestroy->Height() - 5;
   int xTemp = 0;
+
+  inventory->SetPos(0, 0);
+  inventory->SetSize(bounds.width(), yTemp);
+
   inventoryDestroy->SetPos(xTemp, yTemp);
   xTemp += inventoryDestroy->Width() + space / 2;
   descriptionBack->SetPos(xTemp, yTemp);

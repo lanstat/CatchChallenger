@@ -42,14 +42,14 @@ void GridView::ReCalculateSize() {
     for (auto item : items_) {
       if (x + item_size_.width() > Width()) {
         x = 0;
-        content_rect_.setHeight(item_size_.height() + y);
-        y = y + item->Height() + spacing_;
+        content_rect_.setHeight(item_height + y);
+        y = y + item_height + spacing_;
       }
-      item->SetX(x);
-      item->SetY(y);
+      item->SetPos(x, y);
 
       x = x + item->Width() + spacing_;
     }
+    content_rect_.setHeight(item_height + y);
 
     show_slider_ = content_rect_.height() > Height();
 
