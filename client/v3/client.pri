@@ -311,6 +311,7 @@ SOURCES += \
     $$PWD/scenes/shared/player/FinishedQuests.cpp \
     $$PWD/scenes/shared/player/Quests.cpp \
     $$PWD/scenes/shared/player/QuestItem.cpp \
+    $$PWD/scenes/shared/player/Reputations.cpp \
     $$PWD/scenes/shared/inventory/MonsterItem.cpp \
     $$PWD/scenes/shared/inventory/MonsterBag.cpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.cpp \
@@ -326,7 +327,6 @@ SOURCES += \
     $$PWD/scenes/shared/chat/Chat.cpp \
     $$PWD/scenes/test/Test.cpp \
     $$PWD/scenes/test/TestItem.cpp \
-    #$$PWD/scenes/player/Reputations.cpp \
     $$PWD/scenes/leading/Leading.cpp \
     $$PWD/scenes/leading/Loading.cpp \
     $$PWD/scenes/leading/Multi.cpp \
@@ -414,6 +414,7 @@ HEADERS  += \
     $$PWD/scenes/shared/player/FinishedQuests.hpp \
     $$PWD/scenes/shared/player/Quests.hpp \
     $$PWD/scenes/shared/player/QuestItem.hpp \
+    $$PWD/scenes/shared/player/Reputations.hpp \
     $$PWD/scenes/shared/inventory/MonsterItem.hpp \
     $$PWD/scenes/shared/inventory/MonsterBag.hpp \
     $$PWD/scenes/shared/npctalk/NpcTalk.hpp \
@@ -429,7 +430,6 @@ HEADERS  += \
     $$PWD/scenes/shared/chat/Chat.hpp \
     $$PWD/scenes/test/Test.hpp \
     $$PWD/scenes/test/TestItem.hpp \
-    #$$PWD/scenes/player/Reputations.hpp \
     $$PWD/scenes/leading/Leading.hpp \
     $$PWD/scenes/leading/Loading.hpp \
     $$PWD/scenes/leading/MultiItem.hpp \

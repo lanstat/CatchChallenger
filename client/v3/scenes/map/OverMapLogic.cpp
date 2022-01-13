@@ -18,9 +18,9 @@
 #include "../shared/player/FinishedQuests.hpp"
 #include "../shared/player/Quests.hpp"
 #include "../shared/player/Player.hpp"
+#include "../shared/player/Reputations.hpp"
 /*
 #include "../above/inventory/Crafting.hpp"
-#include "../above/player/Reputations.hpp"
 */
 #include "CCMap.hpp"
 
@@ -2598,6 +2598,7 @@ void OverMapLogic::CreatePlayerTabs() {
   player_tabs_ = UI::LinkedDialog::Create();
 
   player_tabs_->AddItem(Player::Create(), "player");
+  player_tabs_->AddItem(Reputations::Create(), "reputations");
   player_tabs_->AddItem(Quests::Create(), "quests");
   player_tabs_->AddItem(FinishedQuests::Create(), "finished_quests");
   // player_tabs_->SetOnBack(
