@@ -17,7 +17,7 @@ Inventory::Inventory() : Node(nullptr) {
   lastItemSelected = -1;
   lastItemSize = 0;
   itemCount = 0;
-  waitedObjectType = Inventory::ObjectType::ObjectType_All;
+  object_filter_ = Inventory::ObjectFilter::ObjectFilter_All;
   inSelection = false;
   connexionManager = ConnectionManager::GetInstance();
 
@@ -49,11 +49,11 @@ Inventory *Inventory::Create() { return new (std::nothrow) Inventory(); }
 
 void Inventory::Draw(QPainter *painter) { (void)painter; }
 
-void Inventory::SetVar(const Inventory::ObjectType &waitedObjectType,
+void Inventory::SetVar(const Inventory::ObjectFilter &filter,
                        const bool inSelection, const int lastItemSelected) {
-  bool force = waitedObjectType != this->waitedObjectType;
+  bool force = object_filter_ != filter;
   this->inSelection = inSelection;
-  this->waitedObjectType = waitedObjectType;
+  object_filter_ = filter;
   this->lastItemSelected = lastItemSelected;
 
   const CatchChallenger::Player_private_and_public_informations
@@ -80,15 +80,15 @@ void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
     const uint16_t id = i->first;
     bool show = !inSelection;
     if (inSelection) {
-      switch (waitedObjectType) {
-        case ObjectType_Seed:
+      switch (object_filter_) {
+        case ObjectFilter_Seed:
           // reputation requierement control is into load_plant_inventory() NOT:
           // on_listPlantList_itemSelectionChanged()
           if (QtDatapackClientLoader::datapackLoader->itemToPlants.find(id) !=
               QtDatapackClientLoader::datapackLoader->itemToPlants.cend())
             show = true;
           break;
-        case ObjectType_UseInFight:
+        case ObjectFilter_UseInFight:
           if (connexionManager->client->isInFightWithWild() &&
               CatchChallenger::CommonDatapack::commonDatapack.items.trap.find(
                   id) != CatchChallenger::CommonDatapack::commonDatapack.items
@@ -103,7 +103,7 @@ void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
             show = false;
           break;
         default:
-          qDebug() << "waitedObjectType is unknow into load_inventory()";
+          qDebug() << "object_filter_ is unknow into load_inventory()";
           break;
       }
     }
@@ -143,7 +143,7 @@ void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
 void Inventory::inventoryUse_slot() {
   if (lastItemSelected < 0) return;
   if (on_use_item_) {
-    on_use_item_(waitedObjectType, lastItemSelected, 1);
+    on_use_item_(ObjectType::kSeed, lastItemSelected, 1);
   }
 }
 

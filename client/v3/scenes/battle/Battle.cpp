@@ -92,7 +92,7 @@ Battle::Battle() : Scene(nullptr) {
   monster->SetOnSelectMonster(std::bind(&Battle::OnMonsterSelect, this, _1));
   linked_->AddItem(monster, "monsters");
   auto inventory = Inventory::Create();
-  inventory->SetVar(Inventory::ObjectType_UseInFight, true);
+  inventory->SetVar(Inventory::ObjectFilter_UseInFight, true);
   inventory->SetOnUseItem(std::bind(&Battle::UseBagItem, this, _1, _2, _3));
   linked_->AddItem(inventory, "inventory");
 

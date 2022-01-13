@@ -556,7 +556,7 @@ void OverMapLogic::bag_open() {
 
   inventory_tabs_->ShowNavigation(true);
   auto item = static_cast<Inventory *>(inventory_tabs_->Item(id));
-  item->SetVar(Inventory::ObjectType::ObjectType_All, false);
+  item->SetVar(Inventory::ObjectFilter_All, false);
   inventory_tabs_->SetCurrentItem(id);
   AddChild(inventory_tabs_);
 }
@@ -564,7 +564,7 @@ void OverMapLogic::bag_open() {
 void OverMapLogic::OnInventoryNav(std::string id) {
   if (id == "inventory") {
     static_cast<Inventory *>(inventory_tabs_->Item(id))
-        ->SetVar(Inventory::ObjectType::ObjectType_All, false);
+        ->SetVar(Inventory::ObjectFilter_All, false);
   } else if (id == "plants") {
     static_cast<Plant *>(inventory_tabs_->Item(id))->SetVar(false);
   }
@@ -2614,7 +2614,7 @@ void OverMapLogic::OnUseItem(Inventory::ObjectType type,
       connexionManager->client->get_player_informations();
   auto info = PlayerInfo::GetInstance();
   switch (type) {
-    case Inventory::ObjectType_Seed:
+    case Inventory::kSeed:
       if (QtDatapackClientLoader::datapackLoader->itemToPlants.find(item_id) ==
           QtDatapackClientLoader::datapackLoader->itemToPlants.cend()) {
         Logger::Log(QString("Item is not a plant"));

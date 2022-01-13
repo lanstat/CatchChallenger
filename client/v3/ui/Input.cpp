@@ -43,7 +43,15 @@ Input::~Input() {
   UnRegisterEvents();
   on_text_change_ = nullptr;
   delete label_;
+
   delete background_;
+  background_ = nullptr;
+
+  delete proxy_;
+  proxy_ = nullptr;
+
+  delete line_edit_;
+  line_edit_ = nullptr;
 }
 
 Input *Input::Create(Node *parent) {

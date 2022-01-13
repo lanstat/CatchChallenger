@@ -17,6 +17,22 @@ using std::placeholders::_4;
 
 Chat::Chat(Node *parent) : Node(parent) {
   input_height_ = 30;
+
+  proxy_ = new QGraphicsProxyWidget(this, Qt::Widget);
+  proxy_->setAutoFillBackground(false);
+  proxy_->setAttribute(Qt::WA_NoSystemBackground);
+  line_edit_ = new QLineEdit();
+  line_edit_->setAutoFillBackground(false);
+  line_edit_->setAttribute(Qt::WA_NoSystemBackground);
+  QPalette palette;
+  palette.setColor(QPalette::Base, Qt::transparent);
+  palette.setColor(QPalette::Text, QColor(255, 255, 255));
+  palette.setColor(QPalette::Window, Qt::transparent);
+  palette.setCurrentColorGroup(QPalette::Active);
+  palette.setColor(QPalette::Window, Qt::transparent);
+  line_edit_->setPalette(palette);
+  proxy_->setWidget(line_edit_);
+
   flood_ = 0;
   focus_ = false;
   pressed_ = false;
@@ -25,8 +41,6 @@ Chat::Chat(Node *parent) : Node(parent) {
   log_ = nullptr;
   stop_flood_.setSingleShot(false);
   stop_flood_.start(1500);
-  input_ = UI::Label::Create(this);
-  input_->SetPixelSize(10);
 
 #ifdef __ANDROID_API__
   mobile_mode_ = true;
@@ -51,6 +65,18 @@ Chat::Chat(Node *parent) : Node(parent) {
                    std::bind(&Chat::RemoveNumberForFlood, this));
 }
 
+Chat::~Chat() {
+  if (log_ != nullptr) {
+    delete log_;
+    log_ = nullptr;
+  }
+  delete proxy_;
+  proxy_ = nullptr;
+
+  delete line_edit_;
+  line_edit_ = nullptr;
+}
+
 Chat *Chat::Create(Node *parent) { return new (std::nothrow) Chat(parent); }
 
 void Chat::Draw(QPainter *painter) {
@@ -66,7 +92,8 @@ void Chat::Draw(QPainter *painter) {
     DrawContent();
   }
   painter->drawPixmap(5, -5, Width(), inner_height, *log_, 0,
-                      log_->height() - inner_height, log_->width(), inner_height);
+                      log_->height() - inner_height, log_->width(),
+                      inner_height);
 }
 
 void Chat::DrawContent() {
@@ -89,7 +116,9 @@ void Chat::OnResize() {
     delete log_;
   }
   log_ = nullptr;
-  input_->SetPos(5, Height() - input_height_);
+  proxy_->setPos(5, Height() - input_height_);
+  proxy_->setMaximumSize(Width(), input_height_);
+  proxy_->setMinimumSize(Width(), input_height_);
   ReDraw();
 }
 
@@ -261,6 +290,7 @@ void Chat::MousePressEvent(const QPointF &point, bool &press_validated) {
     ReDraw();
   }
   focus_ = false;
+  proxy_->clearFocus();
   if (press_validated) return;
   if (pressed_) return;
   if (!IsVisible()) return;
@@ -278,6 +308,7 @@ void Chat::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
   if (prev_validated) {
     pressed_ = false;
     focus_ = false;
+    proxy_->clearFocus();
     ReDraw();
     return;
   }
@@ -290,6 +321,7 @@ void Chat::MouseReleaseEvent(const QPointF &point, bool &prev_validated) {
     if (t.contains(point)) {
       prev_validated = true;
       focus_ = true;
+      proxy_->setFocus();
       ReDraw();
     }
   }
@@ -300,16 +332,10 @@ void Chat::MouseMoveEvent(const QPointF &point) { (void)point; }
 void Chat::KeyPressEvent(QKeyEvent *event, bool &event_trigger) {
   if (!focus_) return;
 
-  if (event->key() > 31 && event->key() < 127) {
-    text_ = text_ + event->text();
-  } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-    SendMessage(text_.toStdString());
-    text_.clear();
-  } else if (event->key() == Qt::Key_Delete ||
-             event->key() == Qt::Key_Backspace) {
-    text_.remove(text_.size() - 1, 1);
+  if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+    SendMessage(line_edit_->text().toStdString());
+    line_edit_->clear();
   }
-  input_->SetText(text_);
   ReDraw();
 }
 
@@ -321,4 +347,7 @@ void Chat::KeyReleaseEvent(QKeyEvent *event, bool &event_trigger) {
 void Chat::RemoveNumberForFlood() {
   if (flood_ <= 0) return;
   flood_--;
+}
+
+void Chat::OnReturnPressed() {
 }

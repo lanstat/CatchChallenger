@@ -16,25 +16,30 @@ class Inventory : public Node {
   static Inventory *Create();
   ~Inventory();
 
-  enum ObjectType {
-    ObjectType_All,
-    ObjectType_Seed,
-    ObjectType_Sell,
-    ObjectType_SellToMarket,
-    ObjectType_Trade,
-    ObjectType_MonsterToTrade,
-    ObjectType_MonsterToTradeToMarket,
-    ObjectType_MonsterToLearn,
-    ObjectType_MonsterToFight,
-    ObjectType_MonsterToFightKO,
-    ObjectType_ItemOnMonsterOutOfFight,
-    ObjectType_ItemOnMonster,
-    ObjectType_ItemEvolutionOnMonster,
-    ObjectType_ItemLearnOnMonster,
-    ObjectType_UseInFight
+  enum ObjectFilter {
+    ObjectFilter_All,
+    ObjectFilter_Seed,
+    ObjectFilter_Sell,
+    ObjectFilter_SellToMarket,
+    ObjectFilter_Trade,
+    ObjectFilter_MonsterToTrade,
+    ObjectFilter_MonsterToTradeToMarket,
+    ObjectFilter_MonsterToLearn,
+    ObjectFilter_MonsterToFight,
+    ObjectFilter_MonsterToFightKO,
+    ObjectFilter_ItemOnMonsterOutOfFight,
+    ObjectFilter_ItemOnMonster,
+    ObjectFilter_ItemEvolutionOnMonster,
+    ObjectFilter_ItemLearnOnMonster,
+    ObjectFilter_UseInFight
   };
 
-  void SetVar(const ObjectType &waitedObjectType, const bool inSelection,
+  enum ObjectType {
+    kSeed,
+    kMonsterEvolution
+  };
+
+  void SetVar(const ObjectFilter &filter, const bool inSelection,
               const int lastItemSelected = -1);
 
   void on_inventory_itemSelectionChanged();
@@ -57,7 +62,7 @@ class Inventory : public Node {
   UI::Button *inventoryUse;
 
   ConnectionManager *connexionManager;
-  Inventory::ObjectType waitedObjectType;
+  Inventory::ObjectFilter object_filter_;
   bool inSelection;
   uint8_t lastItemSize;
   uint8_t itemCount;

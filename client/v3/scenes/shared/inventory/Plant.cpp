@@ -83,7 +83,7 @@ void Plant::updatePlant() {
 
 void Plant::inventoryUse_slot() {
   if (lastItemSelected == -1) return;
-  on_use_item_(Inventory::ObjectType_Seed, lastItemSelected, 1);
+  on_use_item_(Inventory::kSeed, lastItemSelected, 1);
 }
 
 void Plant::OnSelectItem(Node *selected) {

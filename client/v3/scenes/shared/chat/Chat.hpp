@@ -2,6 +2,8 @@
 #ifndef CLIENT_V3_SCENES_SHARED_CHAT_CHAT_HPP_
 #define CLIENT_V3_SCENES_SHARED_CHAT_CHAT_HPP_
 
+#include <QGraphicsProxyWidget>
+#include <QLineEdit>
 #include <QObject>
 #include <QTimer>
 
@@ -9,12 +11,13 @@
 #include "../../../base/ConnectionManager.hpp"
 #include "../../../core/Node.hpp"
 #include "../../../entities/PlayerInfo.hpp"
-#include "../../../ui/Label.hpp"
 #include "../../../ui/Button.hpp"
+#include "../../../ui/Label.hpp"
 
 namespace Scenes {
 class Chat : public Node {
  public:
+  ~Chat();
   static Chat *Create(Node *parent);
   void Draw(QPainter *painter) override;
   void RegisterEvents() override;
@@ -35,13 +38,14 @@ class Chat : public Node {
   QString log_content_;
   uint8_t flood_;
 
-  QString text_;
   bool pressed_;
   bool focus_;
   QTimer stop_flood_;
-  UI::Label *input_;
   UI::Button *button_;
   bool mobile_mode_;
+
+  QGraphicsProxyWidget *proxy_;
+  QLineEdit *line_edit_;
 
   Chat(Node *parent);
   void SendMessage(std::string message);
@@ -53,6 +57,7 @@ class Chat : public Node {
                           CatchChallenger::Player_type player_type);
   void LastReplyTime(const uint32_t &time);
   void RemoveNumberForFlood();
+  void OnReturnPressed();
   void DrawContent();
   void ReDrawContent();
 };
