@@ -1,5 +1,6 @@
 #ifndef CATCHCHALLENGER_PROTOCOL_H
 #define CATCHCHALLENGER_PROTOCOL_H
+#if ! defined (ONLYMAPRENDER)
 
 #include <vector>
 #include <map>
@@ -7,7 +8,9 @@
 #include "ClientStructures.hpp"
 #include "../../general/base/GeneralStructures.hpp"
 #include "../../general/base/GeneralVariable.hpp"
+#if ! defined (ONLYMAPRENDER)
 #include "../../general/base/ProtocolParsing.hpp"
+#endif
 #include "../../general/base/MoveOnTheMap.hpp"
 
 namespace CatchChallenger {
@@ -427,7 +430,7 @@ public:
     void sellFactoryResource(const uint16_t &factoryId, const uint16_t &objectId, const uint32_t &quantity, const uint32_t &price);
 
     //fight
-    void tryEscape();
+    void sendTryEscape();
     void useSkill(const uint16_t &skill);
     void heal();
     void requestFight(const uint16_t &fightId);
@@ -466,4 +469,5 @@ public:
 };
 }
 
+#endif
 #endif // CATCHCHALLENGER_PROTOCOL_H

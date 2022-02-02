@@ -3,9 +3,9 @@
 #include <iostream>
 
 #include "../../../general/base/CommonDatapackServerSpec.hpp"
-#include "../../Language.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/Language.hpp"
 #include "../../base/ConnectionManager.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
 #include "OverMapLogic.hpp"
 
 using Scenes::OverMapLogic;
@@ -22,7 +22,7 @@ bool OverMapLogic::botHaveQuest(const uint16_t &botId) const {
               << std::to_string(botId) << std::endl;
     return false;
   }
-  const std::vector<uint16_t> &botQuests =
+  const std::vector<uint8_t> &botQuests =
       QtDatapackClientLoader::datapackLoader->botToQuestStart.at(botId);
   unsigned int index = 0;
   while (index < botQuests.size()) {
@@ -162,7 +162,8 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
     }
     if (shop_ == nullptr) {
       shop_ = Shop::Create();
-      shop_->SetOnTransactionFinish(std::bind(&OverMapLogic::showTip, this, _1));
+      shop_->SetOnTransactionFinish(
+          std::bind(&OverMapLogic::showTip, this, _1));
     }
     shop_->SetSeller(actualBot, shopId);
     AddChild(shop_);
@@ -181,7 +182,8 @@ void OverMapLogic::goToBotStep(const uint8_t &step) {
 
     if (shop_ == nullptr) {
       shop_ = Shop::Create();
-      shop_->SetOnTransactionFinish(std::bind(&OverMapLogic::showTip, this, _1));
+      shop_->SetOnTransactionFinish(
+          std::bind(&OverMapLogic::showTip, this, _1));
     }
     shop_->SetMeAsSeller(shopId);
     AddChild(shop_);
@@ -743,7 +745,7 @@ std::vector<std::pair<uint16_t, std::string> > OverMapLogic::getQuestList(
   std::vector<std::pair<uint16_t, std::string> > entryList;
   std::pair<uint16_t, std::string> oneEntry;
   // do the not started quest here
-  std::vector<uint16_t> botQuests =
+  std::vector<uint8_t> botQuests =
       QtDatapackClientLoader::datapackLoader->botToQuestStart.at(botId);
   unsigned int index = 0;
   while (index < botQuests.size()) {

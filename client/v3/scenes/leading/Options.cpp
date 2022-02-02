@@ -3,8 +3,8 @@
 
 #include <QDesktopServices>
 
-#include "../../Language.hpp"
-#include "../../Settings.hpp"
+#include "../../../libqtcatchchallenger/Language.hpp"
+#include "../../../libqtcatchchallenger/Settings.hpp"
 #include "../../Ultimate.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include "../../core/AudioPlayer.hpp"

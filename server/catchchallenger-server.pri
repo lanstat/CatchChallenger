@@ -1,10 +1,6 @@
-TEMPLATE = app
-
-DEFINES += TILED_ZLIB
-LIBS += -lz
-
 SOURCES += \
     $$PWD/base/GlobalServerData.cpp \
+    $$PWD/base/PlayerUpdaterBase.cpp \
     $$PWD/base/SqlFunction.cpp \
     $$PWD/base/BaseServer.cpp \
     $$PWD/base/BaseServer2.cpp \
@@ -40,7 +36,6 @@ SOURCES += \
     $$PWD/base/LocalClientHandlerQuest.cpp \
     $$PWD/base/LocalClientHandlerTrade.cpp \
     $$PWD/base/ClientLocalBroadcast.cpp \
-    $$PWD/base/EventThreader.cpp \
     $$PWD/base/Client.cpp \
     $$PWD/base/ClientStaticVar.cpp \
     $$PWD/base/ClientHeavyLoad.cpp \
@@ -57,7 +52,6 @@ SOURCES += \
     $$PWD/base/ClientNetworkReadQuery.cpp \
     $$PWD/base/ClientNetworkReadWithoutSender.cpp \
     $$PWD/base/ClientBroadCast.cpp \
-    $$PWD/base/PlayerUpdater.cpp \
     $$PWD/base/MapServer.cpp \
     $$PWD/base/BroadCastWithoutSender.cpp \
     $$PWD/base/ClientMapManagement/ClientMapManagement.cpp \
@@ -75,12 +69,12 @@ SOURCES += \
     $$PWD/base/PreparedDBQueryServer.cpp \
     $$PWD/base/DatabaseBase.cpp \
     $$PWD/base/BaseServerLogin.cpp \
+    $$PWD/base/TimeRangeEventScanBase.cpp \
     $$PWD/base/TinyXMLSettings.cpp \
     $$PWD/base/DatabaseFunction.cpp \
     $$PWD/base/StringWithReplacement.cpp \
     $$PWD/base/StaticText.cpp \
     $$PWD/base/PreparedStatementUnit.cpp \
-    $$PWD/base/TimeRangeEventScan.cpp \
     $$PWD/crafting/BaseServerCrafting.cpp \
     $$PWD/crafting/ClientLocalBroadcastCrafting.cpp \
     $$PWD/crafting/LocalClientHandlerCrafting.cpp \
@@ -92,43 +86,4 @@ SOURCES += \
     $$PWD/fight/LocalClientHandlerFightDatabase.cpp \
     $$PWD/fight/LocalClientHandlerFightBattle.cpp \
     $$PWD/fight/BaseServerFight.cpp \
-    $$PWD/fight/ClientHeavyLoadFight.cpp \
-    $$PWD/base/ClientWithSocket.cpp
-
-HEADERS += \
-    $$PWD/VariableServer.hpp \
-    $$PWD/base/GlobalServerData.hpp \
-    $$PWD/base/SqlFunction.hpp \
-    $$PWD/base/BaseServer.hpp \
-    $$PWD/base/BaseServerMasterLoadDictionary.hpp \
-    $$PWD/base/BaseServerMasterSendDatapack.hpp \
-    $$PWD/base/LocalClientHandlerWithoutSender.hpp \
-    $$PWD/base/ServerStructures.hpp \
-    $$PWD/base/EventThreader.hpp \
-    $$PWD/base/Client.hpp \
-    $$PWD/base/ClientNetworkReadWithoutSender.hpp \
-    $$PWD/base/BroadCastWithoutSender.hpp \
-    $$PWD/base/PlayerUpdater.hpp \
-    $$PWD/base/MapServer.hpp \
-    $$PWD/base/ClientMapManagement/ClientMapManagement.hpp \
-    $$PWD/base/ClientMapManagement/MapVisibilityAlgorithm_WithoutSender.hpp \
-    $$PWD/base/ClientMapManagement/MapVisibilityAlgorithm_None.hpp \
-    $$PWD/base/ClientMapManagement/MapVisibilityAlgorithm_Simple_StoreOnSender.hpp \
-    $$PWD/base/ClientMapManagement/MapVisibilityAlgorithm_WithBorder_StoreOnSender.hpp \
-    $$PWD/base/ClientMapManagement/Map_server_MapVisibility_Simple_StoreOnSender.hpp \
-    $$PWD/base/ClientMapManagement/Map_server_MapVisibility_WithBorder_StoreOnSender.hpp \
-    $$PWD/base/ClientMapManagement/MapBasicMove.hpp \
-    $$PWD/base/DictionaryLogin.hpp \
-    $$PWD/base/DictionaryServer.hpp \
-    $$PWD/base/PreparedDBQuery.hpp \
-    $$PWD/base/DatabaseBase.hpp \
-    $$PWD/base/BaseServerLogin.hpp \
-    $$PWD/base/TinyXMLSettings.hpp \
-    $$PWD/base/DatabaseFunction.hpp \
-    $$PWD/base/StringWithReplacement.hpp \
-    $$PWD/base/StaticText.hpp \
-    $$PWD/base/GameServerVariables.hpp \
-    $$PWD/base/PreparedStatementUnit.hpp \
-    $$PWD/base/TimeRangeEventScan.hpp \
-    $$PWD/crafting/MapServerCrafting.hpp \
-    $$PWD/base/ClientWithSocket.hpp
+    $$PWD/fight/ClientHeavyLoadFight.cpp

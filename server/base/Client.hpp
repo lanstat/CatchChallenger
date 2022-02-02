@@ -50,10 +50,8 @@ public:
     friend class BaseServer;
     explicit Client();
     virtual ~Client();
-    #ifdef EPOLLCATCHCHALLENGERSERVER
-    BaseClassSwitch::EpollObjectType getType() const;
-    #endif
     //to get some info
+    virtual bool isValid() = 0;
     std::string getPseudo() const;
     void savePosition();
     static bool characterConnected(const uint32_t &characterId);
@@ -66,7 +64,7 @@ public:
     #endif
     void breakNeedMoreData() override;
     void receive_instant_player_number(const uint16_t &connected_players, const char * const data, const uint8_t &size);
-    void parseIncommingData() override;
+    virtual void parseIncommingData() override;
     static void startTheCityCapture();
     static void setEvent(const uint8_t &event, const uint8_t &new_value);
     #ifdef CATCHCHALLENGER_CLASS_ONLYGAMESERVER
@@ -150,7 +148,7 @@ protected:
     ClientStat stat;
     uint64_t lastdaillygift;//datalocallity with ClientStat stat
 
-    std::queue<CatchChallenger::DatabaseBase::CallBack *> callbackRegistred;
+    std::queue<CatchChallenger::DatabaseBaseCallBack *> callbackRegistred;
 
     struct ClanActionParam
     {
@@ -404,8 +402,10 @@ private:
     void removeCash(const uint64_t &cash);
     void addWarehouseCash(const uint64_t &cash,const bool &forceSave=false);
     void removeWarehouseCash(const uint64_t &cash);
-    void wareHouseStore(const int64_t &cash, const std::vector<std::pair<uint16_t, int32_t> > &items, const std::vector<uint32_t> &withdrawMonsters, const std::vector<uint32_t> &depositeMonsters);
-    bool wareHouseStoreCheck(const int64_t &cash, const std::vector<std::pair<uint16_t, int32_t> > &items, const std::vector<uint32_t> &withdrawMonsters, const std::vector<uint32_t> &depositeMonsters);
+    void wareHouseStore(const uint64_t &withdrawCash, const uint64_t &depositeCash, const std::vector<std::pair<uint16_t, uint32_t> > &withdrawItems, const std::vector<std::pair<uint16_t, uint32_t> > &depositeItems, const std::vector<uint8_t> &withdrawMonsters, const std::vector<uint8_t> &depositeMonsters);
+    bool wareHouseStoreCheck(const uint64_t &withdrawCash, const uint64_t &depositeCash,
+                             const std::vector<std::pair<uint16_t,uint32_t> > &withdrawItems, const std::vector<std::pair<uint16_t,uint32_t> > &depositeItems,
+                             const std::vector<uint8_t> &withdrawMonsters, const std::vector<uint8_t> &depositeMonsters);
     void addWarehouseObject(const uint16_t &item,const uint32_t &quantity=1,const bool databaseSync=true);
     uint32_t removeWarehouseObject(const uint16_t &item,const uint32_t &quantity=1,const bool databaseSync=true);
 
@@ -421,14 +421,14 @@ private:
     //teleportation
     void receiveTeleportTo(CommonMap *map,const /*COORD_TYPE*/uint8_t &x,const /*COORD_TYPE*/uint8_t &y,const Orientation &orientation);
     //shop
-    void getShopList(const uint8_t &query_id, const uint16_t &shopId);
-    void buyObject(const uint8_t &query_id, const uint16_t &shopId, const uint16_t &objectId, const uint32_t &quantity, const uint32_t &price);
-    void sellObject(const uint8_t &query_id,const uint16_t &shopId,const uint16_t &objectId,const uint32_t &quantity,const uint32_t &price);
+    void getShopList(const uint8_t &query_id, const SHOP_TYPE &shopId);
+    void buyObject(const uint8_t &query_id, const SHOP_TYPE &shopId, const CATCHCHALLENGER_TYPE_ITEM &objectId, const CATCHCHALLENGER_TYPE_ITEM_QUANTITY &quantity, const uint32_t &price);
+    void sellObject(const uint8_t &query_id,const SHOP_TYPE &shopId,const CATCHCHALLENGER_TYPE_ITEM &objectId,const CATCHCHALLENGER_TYPE_ITEM_QUANTITY &quantity,const uint32_t &price);
     //factory
-    void saveIndustryStatus(const uint32_t &factoryId,const IndustryStatus &industryStatus,const Industry &industry);
-    void getFactoryList(const uint8_t &query_id, const uint16_t &factoryId);
-    void buyFactoryProduct(const uint8_t &query_id,const uint16_t &factoryId,const uint16_t &objectId,const uint32_t &quantity,const uint32_t &price);
-    void sellFactoryResource(const uint8_t &query_id,const uint16_t &factoryId,const uint16_t &objectId,const uint32_t &quantity,const uint32_t &price);
+    void saveIndustryStatus(const FACTORY_TYPE &factoryId, const IndustryStatus &industryStatus, const Industry &industry);
+    void getFactoryList(const uint8_t &query_id, const FACTORY_TYPE &factoryId);
+    void buyFactoryProduct(const uint8_t &query_id,const FACTORY_TYPE &factoryId,const CATCHCHALLENGER_TYPE_ITEM &objectId,const CATCHCHALLENGER_TYPE_ITEM_QUANTITY &quantity,const uint32_t &price);
+    void sellFactoryResource(const uint8_t &query_id,const FACTORY_TYPE &factoryId,const CATCHCHALLENGER_TYPE_ITEM &objectId,const CATCHCHALLENGER_TYPE_ITEM_QUANTITY &quantity,const uint32_t &price);
     //trade
     void tradeCanceled();
     void tradeAccepted();
@@ -506,6 +506,7 @@ private:
     void addQuestStepDrop(const uint16_t &questId,const uint8_t &questStep);
     void removeQuestStepDrop(const uint16_t &questId,const uint8_t &questStep);
     void syncDatabaseQuest();
+    void cancelQuest(const uint16_t &questId);
 
     bool checkCollision();
 

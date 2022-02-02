@@ -3,8 +3,6 @@
 
 #ifdef CATCHCHALLENGER_SOLO
   #include <QStandardPaths>
-
-  #include "../../../server/base/QtServer.hpp"
 #endif
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/Version.hpp"
@@ -211,7 +209,7 @@ void SceneManager::closeEvent(QCloseEvent *event) {
     if (connection_ != nullptr)
       if (connection_->client != nullptr)
         connection_->client->disconnectFromHost();
-    Globals::InternalServer->Stopped();
+    // Globals::InternalServer->Stopped();
     event->accept();
     return;
   }
@@ -351,7 +349,7 @@ void SceneManager::OnError(std::string error) {
 void SceneManager::OnDisconnect() {
   Restart();
 #ifdef CATCHCHALLENGER_SOLO
-  if (Globals::InternalServer != nullptr) Globals::InternalServer->Stopped();
+  // if (Globals::InternalServer != nullptr) Globals::InternalServer->Stopped();
 #endif
 }
 

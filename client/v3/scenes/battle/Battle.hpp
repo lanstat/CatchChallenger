@@ -14,7 +14,7 @@
 #include "../../action/MoveTo.hpp"
 #include "../../action/Sequence.hpp"
 #include "../../base/ConnectionManager.hpp"
-#include "../../cc/ClientFightEngine.hpp"
+#include "../../../libqtcatchchallenger/ClientFightEngine.hpp"
 #include "../../core/ActionManager.hpp"
 #include "../../core/Node.hpp"
 #include "../../core/Scene.hpp"

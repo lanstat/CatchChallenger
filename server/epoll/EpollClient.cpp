@@ -110,6 +110,7 @@ ssize_t EpollClient::read(char *buffer,const size_t &bufferSize)
             return -1;
         }
     }
+    //std::cerr << "EpollClient::read infd: " << infd << ", count: " << count << std::endl;
     return count;
 }
 

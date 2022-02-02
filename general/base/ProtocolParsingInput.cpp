@@ -6,14 +6,14 @@
 #include <iostream>
 #include <cstring>
 
-#ifndef EPOLLCATCHCHALLENGERSERVERNOCOMPRESSION
-#include "../../general/libzstd/lib/zstd.h"
-#endif
 
 using namespace CatchChallenger;
 
 ssize_t ProtocolParsingInputOutput::read(char * data, const size_t &size)
 {
+    #ifdef PROTOCOLPARSINGDEBUG
+    std::cout << "ProtocolParsingInputOutput::read()" << std::endl;
+    #endif
     (void)data;
     (void)size;
     #ifndef EPOLLCATCHCHALLENGERSERVER
@@ -87,6 +87,9 @@ ssize_t ProtocolParsingInputOutput::write(const char * const data, const size_t 
 
 void ProtocolParsingInputOutput::parseIncommingData()
 {
+    #ifdef PROTOCOLPARSINGDEBUG
+    std::cout << "client " << this << " ProtocolParsingInputOutput::parseIncommingData() start" << std::endl;
+    #endif
     #ifdef CATCHCHALLENGER_EXTRA_CHECK
     if(parseIncommingDataCount>0)
     {
@@ -113,6 +116,9 @@ void ProtocolParsingInputOutput::parseIncommingData()
             const unsigned int &size_to_get=CATCHCHALLENGER_COMMONBUFFERSIZE-static_cast<unsigned int>(header_cut.size());
             memcpy(ProtocolParsingInputOutput::tempBigBufferForInput,header_cut.data(),header_cut.size());
             size=read(ProtocolParsingInputOutput::tempBigBufferForInput,size_to_get)+header_cut.size();
+            #ifdef PROTOCOLPARSINGDEBUG
+            std::cout << "ProtocolParsingInputOutput::parseIncommingData() read()" << std::endl;
+            #endif
             if(size<0)
             {
                 #ifdef CATCHCHALLENGER_EXTRA_CHECK
@@ -138,9 +144,18 @@ void ProtocolParsingInputOutput::parseIncommingData()
         }
         else
         {
+            #ifdef PROTOCOLPARSINGDEBUG
+            std::cout << "ProtocolParsingInputOutput::parseIncommingData() !header_cut.empty() pre read" << std::endl;
+            #endif
             size=read(ProtocolParsingInputOutput::tempBigBufferForInput,CATCHCHALLENGER_COMMONBUFFERSIZE);
+            #ifdef PROTOCOLPARSINGDEBUG
+            std::cout << "ProtocolParsingInputOutput::parseIncommingData() !header_cut.empty() post read" << std::endl;
+            #endif
             if(size<0)
             {
+                #ifdef PROTOCOLPARSINGDEBUG
+                std::cout << "ProtocolParsingInputOutput::parseIncommingData() !header_cut.empty() size<0" << std::endl;
+                #endif
                 #ifdef CATCHCHALLENGER_EXTRA_CHECK
                 parseIncommingDataCount--;
                 #endif
@@ -565,54 +580,6 @@ int8_t ProtocolParsingBase::parseData(const char * const commonBuffer, const uin
         return 0;
     }
 }
-
-#ifndef EPOLLCATCHCHALLENGERSERVERNOCOMPRESSION
-int32_t ProtocolParsing::computeDecompression(const char* const source, char* const dest, const unsigned int &sourceSize, const unsigned int &maxDecompressedSize, const CompressionType &compressionType)
-{
-    #ifdef CATCHCHALLENGER_EXTRA_CHECK
-    if(maxDecompressedSize<sourceSize)
-    {
-        std::cerr << "maxDecompressedSize<compressedSize in ProtocolParsingBase::computeDecompression" << std::endl;
-        abort();
-    }
-    #endif
-    switch(compressionType)
-    {
-        case CompressionType::None:
-            std::cerr << "CompressionType::None in ProtocolParsingBase::computeDecompression, do direct mapping" << std::endl;
-            abort();
-            return -1;
-        break;
-        case CompressionType::Zstandard:
-        default:
-            return ProtocolParsing::decompressZstandard(source,sourceSize,dest,maxDecompressedSize);
-        break;
-    }
-}
-
-int32_t ProtocolParsing::computeCompression(const char* const source, char* const dest, const unsigned int &sourceSize, const unsigned int &maxDecompressedSize, const CompressionType &compressionType)
-{
-    #ifdef CATCHCHALLENGER_EXTRA_CHECK
-    if(maxDecompressedSize<sourceSize)
-    {
-        std::cerr << "maxDecompressedSize<compressedSize in ProtocolParsingBase::computeDecompression" << std::endl;
-        abort();
-    }
-    #endif
-    switch(compressionType)
-    {
-        case CompressionType::None:
-            std::cerr << "CompressionType::None in ProtocolParsingBase::computeDecompression, do direct mapping" << std::endl;
-            abort();
-            return -1;
-        break;
-        case CompressionType::Zstandard:
-        default:
-            return ProtocolParsing::compressZstandard(source,sourceSize,dest,maxDecompressedSize);
-        break;
-    }
-}
-#endif
 
 bool ProtocolParsingBase::parseDispatch(const char * const data, const int &size)
 {

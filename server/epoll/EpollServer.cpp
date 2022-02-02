@@ -3,6 +3,13 @@
 #include "EpollServer.hpp"
 #include "EpollSocket.hpp"
 #include "Epoll.hpp"
+#ifdef CATCHCHALLENGER_DB_POSTGRESQL
+#include "db/EpollPostgresql.hpp"
+#endif
+#ifdef CATCHCHALLENGER_DB_MYSQL
+#include "db/EpollMySQL.hpp"
+#endif
+
 
 #include "../base/ServerStructures.hpp"
 #include "../base/GlobalServerData.hpp"
@@ -214,6 +221,10 @@ void EpollServer::setNormalSettings(const NormalServerSettings &settings)
     normalServerSettings=settings;
     BaseServer::setNormalSettings(settings);
     loadAndFixSettings();
+    if(normalServerSettings.server_port<=0)
+        normalServerSettings.server_port=42489;
+    if(normalServerSettings.proxy_port<=0)
+        normalServerSettings.proxy.clear();
 }
 
 NormalServerSettings EpollServer::getNormalSettings() const
@@ -223,9 +234,6 @@ NormalServerSettings EpollServer::getNormalSettings() const
 
 void EpollServer::loadAndFixSettings()
 {
-    if(normalServerSettings.server_port<=0)
-        normalServerSettings.server_port=42489;
-    if(normalServerSettings.proxy_port<=0)
-        normalServerSettings.proxy.clear();
+    BaseServer::loadAndFixSettings();
 }
 #endif

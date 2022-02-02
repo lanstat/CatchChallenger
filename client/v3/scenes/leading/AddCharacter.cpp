@@ -5,8 +5,8 @@
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/DatapackGeneralLoader.hpp"
-#include "../../../../general/base/tinyXML2/tinyxml2.hpp"
-#include "../../Language.hpp"
+#include "../../../../general/tinyXML2/tinyxml2.hpp"
+#include "../../../libqtcatchchallenger/Language.hpp"
 
 using Scenes::AddCharacter;
 using std::placeholders::_1;

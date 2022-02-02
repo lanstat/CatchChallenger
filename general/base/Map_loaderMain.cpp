@@ -1,10 +1,14 @@
 #include "Map_loader.hpp"
-#include "tinyXML2/customtinyxml2.hpp"
+#include "../tinyXML2/customtinyxml2.hpp"
 #include "FacilityLibGeneral.hpp"
 #include "CommonDatapack.hpp"
 
 #include <iostream>
+#ifdef EXTERNALLIBZSTD
+#include <zstd.h>
+#else
 #include "../../general/libzstd/lib/zstd.h"
+#endif
 #include <map>
 
 using namespace CatchChallenger;

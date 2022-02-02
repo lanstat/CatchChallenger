@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <iostream>
 
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../core/EventManager.hpp"
 #include "../../core/Sprite.hpp"
 #include "../../ui/Label.hpp"

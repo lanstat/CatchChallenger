@@ -4,9 +4,8 @@
 #include <iostream>
 
 #include "../../../../general/base/CommonDatapack.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../FacilityLibClient.hpp"
-#include "../../../Language.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../entities/PlayerInfo.hpp"
 #include "../../../ui/LinkedDialog.hpp"

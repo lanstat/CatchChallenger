@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "../../../core/EventManager.hpp"
-#include "../../../entities/ChatParsing.hpp"
+#include "../../../../libcatchchallenger/ChatParsing.hpp"
 #include "../../../entities/Utils.hpp"
 
 using Scenes::Chat;

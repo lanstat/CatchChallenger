@@ -7,7 +7,7 @@
 #include "../../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../FacilityLibClient.hpp"
 #include "../../../Ultimate.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Sprite.hpp"
 #include "../../../entities/PlayerInfo.hpp"

@@ -10,12 +10,12 @@
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/MoveOnTheMap.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../Globals.hpp"
 #include "../../action/Blink.hpp"
 #include "../../action/CallFunc.hpp"
 #include "../../action/Sequence.hpp"
 #include "../../action/Spawn.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
 #include "../../core/Logger.hpp"
@@ -141,11 +141,16 @@ void Battle::SetVariables() {
 }
 
 QPixmap Battle::GetBackSkin(const uint32_t &skinId) {
-  /*const QPixmap skin(QString::fromStdString(getBackSkinPath(skinId)));
-  if(!skin.isNull())
-      return skin;*/
-  return QPixmap(QString::fromStdString(
-      QtDatapackClientLoader::datapackLoader->getBackSkinPath(skinId)));
+  /// \todo merge it cache string + id
+  const std::vector<std::string> &skinFolderList=QtDatapackClientLoader::datapackLoader->skins;
+
+  std::string skin;
+  //front image
+  if(skinId<(uint32_t)skinFolderList.size()) {
+      skin = QtDatapackClientLoader::datapackLoader->getSkinPath(skinFolderList.at(skinId),"back");
+  }
+  skin = ":/CC/images/player_default/back.png";
+  return QPixmap(QString::fromStdString(skin));
 }
 
 void Battle::ShowActionBarTab(int index) {
@@ -563,8 +568,7 @@ void Battle::PlayerMonsterInitialize(PlayerMonster *fight_monster) {
           item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
         } else {
           item->SetPixmap(
-              QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra
-                  .at(buff_effect.buff)
+              QtDatapackClientLoader::datapackLoader->getMonsterBuffExtra(buff_effect.buff)
                   .icon);
           if (buff_effect.level <= 1) {
             item->SetToolTip(QString::fromStdString(
@@ -699,8 +703,7 @@ void Battle::updateOtherMonsterInformation() {
           item->SetPixmap(QPixmap(":/CC/images/interface/buff.png"));
         } else {
           item->SetPixmap(
-              QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra
-                  .at(buff_effect.buff)
+              QtDatapackClientLoader::datapackLoader->getMonsterBuffExtra(buff_effect.buff)
                   .icon);
           if (buff_effect.level <= 1)
             item->SetToolTip(QString::fromStdString(
@@ -1972,8 +1975,8 @@ bool Battle::AddBuffEffect(PublicPlayerMonster *current_monster,
       const QtDatapackClientLoader::MonsterExtra::Buff &buff_extra =
           QtDatapackClientLoader::datapackLoader->monsterBuffsExtra.at(
               buff_effect.buff);
-      const QtDatapackClientLoader::QtBuff &qt_buff_extra =
-          QtDatapackClientLoader::datapackLoader->QtmonsterBuffsExtra.at(
+      const QtDatapackClientLoader::QtBuffExtra &qt_buff_extra =
+          QtDatapackClientLoader::datapackLoader->getMonsterBuffExtra(
               buff_effect.buff);
       if (!qt_buff_extra.icon.isNull()) {
         item->SetPixmap(qt_buff_extra.icon);

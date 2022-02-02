@@ -7,7 +7,7 @@
 #include "../../../general/base/FacilityLib.hpp"
 #include "../../Globals.hpp"
 #include "../../base/ConnectionManager.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../core/AudioPlayer.hpp"
 #include "../../core/Logger.hpp"
 #include "../../core/SceneManager.hpp"
@@ -1400,7 +1400,7 @@ void OverMapLogic::add_to_inventory(
       if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(item) !=
           QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
         image =
-            QtDatapackClientLoader::datapackLoader->getImageExtra(item).image;
+            QtDatapackClientLoader::datapackLoader->getItemExtra(item).image;
         name = QtDatapackClientLoader::datapackLoader->itemsExtra.at(item).name;
       } else {
         image = QtDatapackClientLoader::datapackLoader->defaultInventoryImage();

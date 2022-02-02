@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../cc/Api_client_real.hpp"
+#include "../../../libqtcatchchallenger/Api_client_real.hpp"
 #include "MapControllerMP.hpp"
 
 class MapController : public MapControllerMP {

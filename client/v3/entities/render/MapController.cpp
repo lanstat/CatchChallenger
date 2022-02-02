@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "../../../general/base/CommonDatapackServerSpec.hpp"
-#include "../../cc/Api_client_real.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/Api_client_real.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 
 std::string MapController::text_random = "random";
 std::string MapController::text_loop = "loop";

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "../../cc/Api_client_real.hpp"
+#include "../../../libqtcatchchallenger/Api_client_real.hpp"
 #include "MapVisualiserPlayerWithFight.hpp"
 #include "PathFinding.hpp"
 

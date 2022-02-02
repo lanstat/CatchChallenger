@@ -185,21 +185,21 @@ EpollServerLoginSlave::EpollServerLoginSlave() :
     if(!settings.contains("compression"))
         settings.setValue("compression","zstd");
     if(settings.value("compression")=="none")
-        ProtocolParsing::compressionTypeServer          = ProtocolParsing::CompressionType::None;
+        CompressionProtocol::compressionTypeServer          = CompressionProtocol::CompressionType::None;
     else if(settings.value("compression")=="zstd")
-        ProtocolParsing::compressionTypeServer          = ProtocolParsing::CompressionType::Zstandard;
+        CompressionProtocol::compressionTypeServer          = CompressionProtocol::CompressionType::Zstandard;
     else
     {
         std::cerr << "compression not supported: " << settings.value("compression") << std::endl;
-        ProtocolParsing::compressionTypeServer          = ProtocolParsing::CompressionType::Zstandard;
+        CompressionProtocol::compressionTypeServer          = CompressionProtocol::CompressionType::Zstandard;
     }
     if(!settings.contains("compressionLevel"))
         settings.setValue("compressionLevel","6");
-    ProtocolParsing::compressionLevel          = stringtouint8(settings.value("compressionLevel"),&ok);
+    CompressionProtocol::compressionLevel          = stringtouint8(settings.value("compressionLevel"),&ok);
     if(!ok)
     {
         std::cerr << "Compression level not a number fixed by 6" << std::endl;
-        ProtocolParsing::compressionLevel=6;
+        CompressionProtocol::compressionLevel=6;
     }
     #endif
 
@@ -247,9 +247,9 @@ EpollServerLoginSlave::EpollServerLoginSlave() :
         }
         settings.sync();
         EpollClientLoginSlave::databaseBaseLogin.considerDownAfterNumberOfTry=stringtouint32(settings.value("considerDownAfterNumberOfTry"),&ok);
-        if(EpollClientLoginSlave::databaseBaseLogin.considerDownAfterNumberOfTry==0 || !ok)
+        if(!ok)
         {
-            std::cerr << "considerDownAfterNumberOfTry==0 (abort)" << std::endl;
+            std::cerr << "considerDownAfterNumberOfTry not number" << std::endl;
             abort();
         }
         db=settings.value("db");
@@ -326,7 +326,7 @@ EpollServerLoginSlave::EpollServerLoginSlave() :
             if(CharactersGroupForLogin::hash.find(charactersGroup)==CharactersGroupForLogin::hash.cend())
             {
                 const uint8_t &considerDownAfterNumberOfTry=stringtouint8(settings.value("considerDownAfterNumberOfTry"),&ok);
-                if(considerDownAfterNumberOfTry==0 || !ok)
+                if(!ok)
                 {
                     std::cerr << "considerDownAfterNumberOfTry==0 (abort)" << std::endl;
                     abort();
@@ -412,12 +412,11 @@ EpollServerLoginSlave::EpollServerLoginSlave() :
             abort();
         }
         const uint8_t &considerDownAfterNumberOfTry=stringtouint8(settings.value("considerDownAfterNumberOfTry"),&ok);
-        //considerDownAfterNumberOfTry == 0 is infinity
-        /*if(considerDownAfterNumberOfTry==0 || !ok)
+        if(!ok)
         {
-            std::cerr << "considerDownAfterNumberOfTry==0 (abort)" << std::endl;
+            std::cerr << "considerDownAfterNumberOfTry not number (abort)" << std::endl;
             abort();
-        }*/
+        }
 
         {
             const int &linkfd=LinkToMaster::tryConnect(host.c_str(),port,tryInterval,considerDownAfterNumberOfTry);
@@ -795,7 +794,7 @@ void EpollServerLoginSlave::preload_profile()
 
                     switch(databaseType)
                     {
-                        default:
+                        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
                         case DatabaseBase::DatabaseType::Mysql:
                             preparedStatementForCreationMonsterGroup.character_insert=PreparedStatementUnit(std::string("INSERT INTO `character`("
                                     "`id`,`account`,`pseudo`,`skin`,`type`,`clan`,`cash`,`date`,`warehouse_cash`,`clan_leader`,"
@@ -811,6 +810,8 @@ void EpollServerLoginSlave::preload_profile()
                                     "0,0,0,"+
                                     std::to_string(profile.databaseId/*starter*/)+",UNHEX('"+item+"'),UNHEX('"+reputations+"'),UNHEX('"+binarytoHexa(bitlist,sizeof(bitlist))+"'),UNHEX('"+encyclopedia_item+"'),"+std::to_string(common_blobversion_datapack)+");"),database);
                         break;
+                        #endif
+                        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
                         case DatabaseBase::DatabaseType::SQLite:
                             preparedStatementForCreationMonsterGroup.character_insert=PreparedStatementUnit(std::string("INSERT INTO character("
                                     "id,account,pseudo,skin,type,clan,cash,date,warehouse_cash,clan_leader,"
@@ -826,6 +827,8 @@ void EpollServerLoginSlave::preload_profile()
                                     "0,0,0,"+
                                     std::to_string(profile.databaseId/*starter*/)+",'"+item+"','"+reputations+"','"+binarytoHexa(bitlist,sizeof(bitlist))+"','"+encyclopedia_item+"',"+std::to_string(common_blobversion_datapack)+");"),database);
                         break;
+                        #endif
+                        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
                         case DatabaseBase::DatabaseType::PostgreSQL:
                             preparedStatementForCreationMonsterGroup.character_insert=PreparedStatementUnit(std::string("INSERT INTO character("
                                     "id,account,pseudo,skin,type,clan,cash,date,warehouse_cash,clan_leader,"
@@ -840,6 +843,10 @@ void EpollServerLoginSlave::preload_profile()
                                     std::to_string(profile.cash)+",%5,0,FALSE,"
                                     "0,0,0,"+
                                     std::to_string(profile.databaseId/*starter*/)+",'\\x"+item+"','\\x"+reputations+"','\\x"+binarytoHexa(bitlist,sizeof(bitlist))+"','\\x"+encyclopedia_item+"',"+std::to_string(common_blobversion_datapack)+");"),database);
+                        break;
+                        #endif
+                    default:
+                        abort();
                         break;
                     }
 

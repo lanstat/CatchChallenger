@@ -357,62 +357,78 @@ void BaseServer::loadAndFixSettings()
         }
     }
 
-    if(GlobalServerData::serverSettings.secondToPositionSync==0)
-    {
-        #ifndef EPOLLCATCHCHALLENGERSERVER
-        GlobalServerData::serverPrivateVariables.positionSync.stop();
-        #endif
-    }
-    else
-    {
-        GlobalServerData::serverPrivateVariables.positionSync.start(GlobalServerData::serverSettings.secondToPositionSync*1000);
-    }
-    GlobalServerData::serverPrivateVariables.ddosTimer.start(GlobalServerData::serverSettings.ddos.computeAverageValueTimeInterval*1000);
-
     #ifndef CATCHCHALLENGER_CLASS_ONLYGAMESERVER
     switch(GlobalServerData::serverSettings.database_login.tryOpenType)
     {
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
         default:
             std::cerr << "Wrong db type, line: " << __LINE__ << std::endl;
-            GlobalServerData::serverSettings.database_login.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Mysql;
+            GlobalServerData::serverSettings.database_login.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Unknown;
+            abort();
         break;
     }
     switch(GlobalServerData::serverSettings.database_base.tryOpenType)
     {
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
         default:
             std::cerr << "Wrong db type, line: " << __LINE__ << std::endl;
-            GlobalServerData::serverSettings.database_base.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Mysql;
+            GlobalServerData::serverSettings.database_base.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Unknown;
+            abort();
         break;
     }
     #endif
     switch(GlobalServerData::serverSettings.database_common.tryOpenType)
     {
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
         default:
             std::cerr << "Wrong db type, line: " << __LINE__ << std::endl;
-            GlobalServerData::serverSettings.database_common.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Mysql;
+            GlobalServerData::serverSettings.database_common.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Unknown;
+            abort();
         break;
     }
     switch(GlobalServerData::serverSettings.database_server.tryOpenType)
     {
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case CatchChallenger::DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
         default:
             std::cerr << "Wrong db type, line: " << __LINE__ << std::endl;
-            GlobalServerData::serverSettings.database_server.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Mysql;
+            GlobalServerData::serverSettings.database_server.tryOpenType=CatchChallenger::DatabaseBase::DatabaseType::Unknown;
+            abort();
         break;
     }
     switch(GlobalServerData::serverSettings.mapVisibility.mapVisibilityAlgorithm)
@@ -463,18 +479,18 @@ void BaseServer::loadAndFixSettings()
         GlobalServerData::serverSettings.city.capture.minute=0;
     }
 
-    if(GlobalServerData::serverSettings.compressionLevel<1 || GlobalServerData::serverSettings.compressionLevel>9)
-        GlobalServerData::serverSettings.compressionLevel=6;
+    if(CompressionProtocol::compressionLevel<1 || CompressionProtocol::compressionLevel>9)
+        CompressionProtocol::compressionLevel=6;
     switch(GlobalServerData::serverSettings.compressionType)
     {
-        case CatchChallenger::CompressionType_None:
-            GlobalServerData::serverSettings.compressionType      = CompressionType_None;
-            ProtocolParsing::compressionTypeServer=ProtocolParsing::CompressionType::None;
+        case CompressionProtocol::CompressionType::None:
+            GlobalServerData::serverSettings.compressionType      = CompressionProtocol::CompressionType::None;
+            CompressionProtocol::compressionTypeServer=CompressionProtocol::CompressionType::None;
         break;
         default:
-        case CatchChallenger::CompressionType_Zstandard:
-            GlobalServerData::serverSettings.compressionType      = CompressionType_Zstandard;
-            ProtocolParsing::compressionTypeServer=ProtocolParsing::CompressionType::Zstandard;
+    case CompressionProtocol::CompressionType::Zstandard:
+            GlobalServerData::serverSettings.compressionType      = CompressionProtocol::CompressionType::Zstandard;
+            CompressionProtocol::compressionTypeServer=CompressionProtocol::CompressionType::Zstandard;
         break;
     }
 }

@@ -9,7 +9,7 @@
 #include <QTextDocument>
 #include <iostream>
 
-#include "../../Settings.hpp"
+#include "../../../libqtcatchchallenger/Settings.hpp"
 #include "../../Ultimate.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
@@ -17,7 +17,7 @@
 using Scenes::AddOrEditServer;
 using std::placeholders::_1;
 
-AddOrEditServer::AddOrEditServer(): UI::Dialog(false) {
+AddOrEditServer::AddOrEditServer() : UI::Dialog(false) {
   ok = false;
   edit = false;
 

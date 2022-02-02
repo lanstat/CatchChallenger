@@ -1,15 +1,23 @@
-include(../../client/qt/tiled/tiled.pri)
+include(../../client/tiled/tiled.pri)
 
 TEMPLATE = app
 TARGET = map2png
+DEFINES += MAXIMIZEPERFORMANCEOVERDATABASESIZE
 
 QMAKE_CXXFLAGS+="-fstack-protector-all -std=c++0x -g"
 
-QT += xml
+QT += xml network opengl
 
 DEFINES += ONLYMAPRENDER NOWEBSOCKET
 
 include(../../general/general.pri)
+include(../../client/qtmaprender/render.pri)
+include(../../client/qtmaprender/renderheader.pri)
+#only include partially
+#include(../../client/libcatchchallenger/lib.pri)
+#include(../../client/libcatchchallenger/libheader.pri)
+#include(../../client/libqtcatchchallenger/libqt.pri)
+#include(../../client/libqtcatchchallenger/libqtheader.pri)
 
 win32:RC_FILE += resources-windows.rc
 
@@ -18,16 +26,21 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 SOURCES += main.cpp \
-         map2png.cpp \
-    ../../client/qt/Map_client.cpp \
-    ../../client/qt/render/MapVisualiserOrder.cpp \
-    ../../client/qt/render/MapDoor.cpp
+    ../../client/libcatchchallenger/DatapackChecksum.cpp \
+    ../../client/libcatchchallenger/DatapackClientLoader.cpp \
+    ../../client/libqtcatchchallenger/Language.cpp \
+    ../../client/libqtcatchchallenger/QtDatapackClientLoader.cpp \
+    ../../client/libqtcatchchallenger/QtDatapackClientLoaderThread.cpp \
+    ../../client/libqtcatchchallenger/Settings.cpp \
+    map2png.cpp
 
 HEADERS += map2png.h \
-    ../../client/qt/ClientStructures.hpp \
-    ../../client/qt/Map_client.hpp \
-    ../../client/qt/render/MapVisualiserOrder.hpp \
-    ../../client/qt/render/MapDoor.hpp
+    ../../client/libcatchchallenger/DatapackChecksum.hpp \
+    ../../client/libcatchchallenger/DatapackClientLoader.hpp \
+    ../../client/libqtcatchchallenger/Language.hpp \
+    ../../client/libqtcatchchallenger/QtDatapackClientLoader.hpp \
+    ../../client/libqtcatchchallenger/QtDatapackClientLoaderThread.hpp \
+    ../../client/libqtcatchchallenger/Settings.hpp
 
 RESOURCES += \
     resources.qrc
@@ -37,7 +50,7 @@ win32:RESOURCES += $$PWD/../../general/base/resources/resources-windows-qt-plugi
 #choose one of:
 DEFINES += CATCHCHALLENGER_XLMPARSER_TINYXML2
 
-HEADERS += $$PWD/../../general/base/tinyXML2/tinyxml2.hpp
-SOURCES += $$PWD/../../general/base/tinyXML2/tinyxml2.cpp \
-$$PWD/../../general/base/tinyXML2/tinyxml2b.cpp \
-$$PWD/../../general/base/tinyXML2/tinyxml2c.cpp
+HEADERS += $$PWD/../../general/tinyXML2/tinyxml2.hpp
+SOURCES += $$PWD/../../general/tinyXML2/tinyxml2.cpp \
+$$PWD/../../general/tinyXML2/tinyxml2b.cpp \
+$$PWD/../../general/tinyXML2/tinyxml2c.cpp

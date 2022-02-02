@@ -7,20 +7,20 @@
 #include <iostream>
 
 #include "../../../../../general/base/CommonDatapack.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../core/Sprite.hpp"
 #include "../../../ui/Label.hpp"
 
 using Scenes::PlantItem;
 
-PlantItem::PlantItem(uint16_t plant_id, uint32_t quantity): UI::SelectableItem() {
+PlantItem::PlantItem(uint16_t plant_id, uint32_t quantity)
+    : UI::SelectableItem() {
   plant_id_ = plant_id;
   quantity_ = quantity;
   SetSize(200, 60);
 }
 
-PlantItem::~PlantItem() {
-}
+PlantItem::~PlantItem() {}
 
 PlantItem *PlantItem::Create(uint16_t plant_id, uint32_t quantity) {
   return new (std::nothrow) PlantItem(plant_id, quantity);
@@ -33,13 +33,13 @@ void PlantItem::DrawContent(QPainter *painter) {
   const DatapackClientLoader::ItemExtra &itemExtra =
       QtDatapackClientLoader::datapackLoader->itemsExtra.at(plant_id_);
   const QtDatapackClientLoader::QtPlantExtra &contentExtra =
-      QtDatapackClientLoader::datapackLoader->QtplantExtra[plant_id_];
+      QtDatapackClientLoader::datapackLoader->getPlantExtra(plant_id_);
   const CatchChallenger::Plant &plant =
       CatchChallenger::CommonDatapack::commonDatapack.plants[plant_id_];
   if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(plant_id_) !=
-          QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
+      QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
     QPixmap p =
-        QtDatapackClientLoader::datapackLoader->getImageExtra(plant_id_).image;
+        QtDatapackClientLoader::datapackLoader->getItemExtra(plant_id_).image;
     p = p.scaledToWidth(p.width() * 2);
     icon->SetPixmap(p);
     icon->SetPos(10, Height() / 2 - icon->Height() / 2);

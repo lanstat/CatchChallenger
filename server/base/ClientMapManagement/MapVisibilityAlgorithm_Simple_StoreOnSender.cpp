@@ -1,7 +1,7 @@
 #include "MapVisibilityAlgorithm_Simple_StoreOnSender.hpp"
 #include "MapVisibilityAlgorithm_WithoutSender.hpp"
 #include "../GlobalServerData.hpp"
-#include "../../VariableServer.hpp"
+#include "../VariableServer.hpp"
 
 using namespace CatchChallenger;
 
@@ -9,7 +9,7 @@ using namespace CatchChallenger;
 bool MapVisibilityAlgorithm_Simple_StoreOnSender::mapHaveChanged;
 
 MapVisibilityAlgorithm_Simple_StoreOnSender::MapVisibilityAlgorithm_Simple_StoreOnSender() :
-    ClientWithSocket(),
+    Client(),
     to_send_insert(false),
     haveNewMove(false)
 {

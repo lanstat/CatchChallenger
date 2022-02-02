@@ -4,9 +4,8 @@
 #include <iostream>
 
 #include "../../../Globals.hpp"
-#include "../../../Language.hpp"
 #include "../../../base/ConnectionManager.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../core/SceneManager.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 #include "MonsterItem.hpp"

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "MapController.hpp"
 
 void MapControllerMP::insert_player(

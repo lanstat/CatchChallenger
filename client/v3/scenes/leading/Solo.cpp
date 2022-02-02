@@ -6,9 +6,10 @@
 #include <string>
 
 #include "../../../../general/base/CommonSettingsCommon.hpp"
+#include "../../../../general/base/CompressionProtocol.hpp"
 #include "../../../../general/base/FacilityLibGeneral.hpp"
+#include "../../../libqtcatchchallenger/Settings.hpp"
 #include "../../Globals.hpp"
-#include "../../Settings.hpp"
 #include "../../base/ConnectionInfo.hpp"
 #include "../../base/ConnectionManager.hpp"
 #include "../../core/SceneManager.hpp"
@@ -154,8 +155,7 @@ void Solo::Initialize() {
     formatedServerSettings.automatic_account_creation = true;
     formatedServerSettings.max_players = 1;
     formatedServerSettings.sendPlayerNumber = false;
-    formatedServerSettings.compressionType =
-        CatchChallenger::CompressionType_None;
+    formatedServerSettings.compressionType = CompressionProtocol::None;
     formatedServerSettings.everyBodyIsRoot = true;
     formatedServerSettings.teleportIfMapNotFoundOrOutOfMap = true;
 

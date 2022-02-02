@@ -5,7 +5,7 @@
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/fight/CommonFightEngine.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
 

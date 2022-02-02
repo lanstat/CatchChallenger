@@ -8,9 +8,9 @@
 
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/CommonSettingsServer.hpp"
-#include "../Settings.hpp"
-#include "../cc/Api_client_real.hpp"
-#include "../cc/QtDatapackClientLoader.hpp"
+#include "../../libqtcatchchallenger/Api_client_real.hpp"
+#include "../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../../libqtcatchchallenger/Settings.hpp"
 
 using std::placeholders::_1;
 
@@ -77,7 +77,7 @@ void ConnectionManager::connectToServer(ConnectionInfo connexionInfo,
     socket = new CatchChallenger::ConnectedSocket(realSslSocket);
   } else {
     #ifdef CATCHCHALLENGER_SOLO
-    fakeSocket = new CatchChallenger::QFakeSocket();
+    fakeSocket = new QFakeSocket();
     socket = new CatchChallenger::ConnectedSocket(fakeSocket);
     #else
     std::cerr << "host is empty" << std::endl;
@@ -264,14 +264,14 @@ void ConnectionManager::connectToServer(ConnectionInfo connexionInfo,
 #endif
 #ifdef CATCHCHALLENGER_SOLO
   if (fakeSocket != nullptr) {
-    if (!connect(fakeSocket, &CatchChallenger::QFakeSocket::stateChanged, this,
+    if (!connect(fakeSocket, &QFakeSocket::stateChanged, this,
                  &ConnectionManager::stateChanged, Qt::DirectConnection))
       abort();
-    if (!connect(fakeSocket,
-                 static_cast<void (CatchChallenger::QFakeSocket::*)(
-                     QAbstractSocket::SocketError)>(
-                     &CatchChallenger::QFakeSocket::error),
-                 this, &ConnectionManager::error, Qt::QueuedConnection))
+    if (!connect(
+            fakeSocket,
+            static_cast<void (QFakeSocket::*)(QAbstractSocket::SocketError)>(
+                &QFakeSocket::error),
+            this, &ConnectionManager::error, Qt::QueuedConnection))
       abort();
 
     fakeSocket->connectToHost();
@@ -288,7 +288,8 @@ void ConnectionManager::selectCharacter(const uint32_t indexSubServer,
 }
 
 void ConnectionManager::disconnected(std::string reason) {
-  std::cout<< "LAN_[" << __FILE__ << ":" << __LINE__ << "] "<< reason << std::endl;
+  std::cout << "LAN_[" << __FILE__ << ":" << __LINE__ << "] " << reason
+            << std::endl;
   // QMessageBox::information(this,tr("Disconnected"),tr("Disconnected by the
   // reason: %1").arg(QString::fromStdString(reason)));
   if (on_error_) on_error_(reason);

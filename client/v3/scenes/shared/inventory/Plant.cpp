@@ -8,9 +8,8 @@
 #include <iostream>
 
 #include "../../../../../general/base/CommonDatapack.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../FacilityLibClient.hpp"
-#include "../../../Language.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../libraries/tiled/tiled_tile.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 #include "PlantItem.hpp"
@@ -131,7 +130,7 @@ void Plant::Draw(QPainter *painter) {
   const DatapackClientLoader::ItemExtra &itemExtra =
       QtDatapackClientLoader::datapackLoader->itemsExtra.at(plant_id);
   const QtDatapackClientLoader::QtPlantExtra &contentExtra =
-      QtDatapackClientLoader::datapackLoader->QtplantExtra[plant_id];
+      QtDatapackClientLoader::datapackLoader->getPlantExtra(plant_id);
   const CatchChallenger::Plant &plant =
       CatchChallenger::CommonDatapack::commonDatapack.plants[plant_id];
 

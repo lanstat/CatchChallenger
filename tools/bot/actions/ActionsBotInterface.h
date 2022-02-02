@@ -7,7 +7,6 @@
 #define ACTIONS_BOT_INTERFACE_H
 
 #include "../BotInterface.h"
-#include "../../../client/qt/fight/interface/ClientFightEngine.hpp"
 #include "MapServerMini.h"
 #include <unordered_map>
 #include <QRegularExpression>
@@ -79,7 +78,6 @@ public:
         //CatchChallenger::Direction direction;
         GlobalTarget target;
         //uint8_t previousStepWalked;do into the api, see MoveOnTheMap::newDirection()
-        CatchChallenger::ClientFightEngine *fightEngine;
         QTime lastFightAction;
         CatchChallenger::Api_protocol_Qt  *api;
         std::map<uint16_t,CatchChallenger::Player_public_informations> visiblePlayers;

@@ -5,9 +5,8 @@
 #include <iostream>
 #include <utility>
 
-#include "../../Language.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
-#include "../../entities/ChatParsing.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../../../libcatchchallenger/ChatParsing.hpp"
 
 using Scenes::OverMap;
 

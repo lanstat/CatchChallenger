@@ -3,8 +3,8 @@
 
 #include <iostream>
 
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../FacilityLibClient.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 #include "InventoryItem.hpp"
@@ -114,7 +114,7 @@ void Inventory::UpdateInventory(uint8_t targetSize, bool force) {
       if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(id) !=
           QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
         QPixmap p =
-            QtDatapackClientLoader::datapackLoader->getImageExtra(id).image;
+            QtDatapackClientLoader::datapackLoader->getItemExtra(id).image;
         p = p.scaledToHeight(targetSize);
         item->SetPixmap(p);
         if (i->second > 1) item->SetText(QString::number(i->second) + " ");

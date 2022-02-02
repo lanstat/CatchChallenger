@@ -4,7 +4,7 @@
 
 #include "../../../general/base/CommonDatapack.hpp"
 #include "../../../general/base/FacilityLibGeneral.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "MapController.hpp"
 
 QFont MapControllerMP::playerpseudofont;

@@ -7,9 +7,8 @@
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonSettingsServer.hpp"
 #include "../../../../general/fight/CommonFightEngineBase.hpp"
-#include "../../Language.hpp"
 #include "../../Ultimate.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/EventManager.hpp"
 
@@ -264,7 +263,7 @@ void MonsterDetails::SetMonster(const CatchChallenger::PlayerMonster &monster) {
             monster.catched_with) !=
         QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
       catchPixmap = QtDatapackClientLoader::datapackLoader
-                        ->getImageExtra(monster.catched_with)
+                        ->getItemExtra(monster.catched_with)
                         .image;
       monsterDetailsCatched->SetToolTip(
           tr("catched with %1")

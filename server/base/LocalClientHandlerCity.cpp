@@ -5,6 +5,7 @@ using namespace CatchChallenger;
 
 #include "MapServer.hpp"
 #include "GlobalServerData.hpp"
+#include "../../general/base/FacilityLib.hpp"
 
 bool Client::captureCityInProgress()
 {
@@ -125,7 +126,7 @@ void Client::waitingForCityCaputre(const bool &cancel)
             }
         }
         //send the zone capture
-        const uint16_t &zoneId=static_cast<MapServer*>(map)->zonecapture.at(std::pair<uint8_t,uint8_t>(x,y));
+        const ZONE_TYPE &zoneId=static_cast<MapServer*>(map)->zonecapture.at(std::pair<uint8_t,uint8_t>(x,y));
         if(!public_and_private_informations.clan_leader)
         {
             if(clan->captureCityInProgress==65535)
@@ -325,6 +326,7 @@ void Client::startTheCityCapture()
         ++i;
     }
     captureCity.clear();
+    GlobalServerData::serverPrivateVariables.time_city_capture=FacilityLib::nextCaptureTime(GlobalServerData::serverSettings.city);
 }
 
 void Client::cityCaptureSendInWait(const CaptureCityValidated &captureCityValidated, const uint16_t &number_of_player, const uint16_t &number_of_clan)

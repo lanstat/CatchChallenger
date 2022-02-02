@@ -23,17 +23,23 @@ const std::string DatabaseBase::databaseTypeToString(const DatabaseBase::Databas
     switch(type)
     {
         default:
-            return "Unknown";
+            return "Unknown ("+std::to_string((int)type)+")";
         break;
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
             return "Mysql";
         break;
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
             return "SQLite";
         break;
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
             return "PostgreSQL";
         break;
+        #endif
     }
 }
 
@@ -42,13 +48,14 @@ DatabaseBase::DatabaseType DatabaseBase::databaseType() const
     return databaseTypeVar;
 }
 
-BaseClassSwitch::EpollObjectType DatabaseBase::getType() const
-{
-    return BaseClassSwitch::EpollObjectType::Database;
-}
-
 bool DatabaseBase::setBlocking(const bool &val)//return true if success
 {
     (void)val;
+    return true;
+}
+
+bool DatabaseBase::setMaxDbQueries(const unsigned int &maxDbQueries)
+{
+    (void)maxDbQueries;
     return true;
 }

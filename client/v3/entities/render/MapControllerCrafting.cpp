@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "../../../general/base/CommonDatapack.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "MapController.hpp"
 
 std::string MapController::mapIdToString(const uint32_t &mapId) const {
@@ -125,7 +125,7 @@ bool MapController::updatePlantGrowing(
   Tiled::Cell cell = plant->mapObject->cell();
   if (plant->mature_at <= currentTime) {
     cell.tile =
-        QtDatapackClientLoader::datapackLoader->QtplantExtra[plant->plant_id]
+        QtDatapackClientLoader::datapackLoader->getPlantExtra(plant->plant_id)
             .tileset->tileAt(4);
     plant->mapObject->setCell(cell);
     return false;
@@ -149,22 +149,22 @@ bool MapController::updatePlantGrowing(
   if (seconds_to_mature < floweringDiff) {
     plant->start(seconds_to_mature * 1000);
     cell.tile =
-        QtDatapackClientLoader::datapackLoader->QtplantExtra[plant->plant_id]
+        QtDatapackClientLoader::datapackLoader->getPlantExtra(plant->plant_id)
             .tileset->tileAt(3);
   } else if (seconds_to_mature < tallerDiff) {
     plant->start((seconds_to_mature - floweringDiff) * 1000);
     cell.tile =
-        QtDatapackClientLoader::datapackLoader->QtplantExtra[plant->plant_id]
+        QtDatapackClientLoader::datapackLoader->getPlantExtra(plant->plant_id)
             .tileset->tileAt(2);
   } else if (seconds_to_mature < sproutedDiff) {
     plant->start((seconds_to_mature - tallerDiff) * 1000);
     cell.tile =
-        QtDatapackClientLoader::datapackLoader->QtplantExtra[plant->plant_id]
+        QtDatapackClientLoader::datapackLoader->getPlantExtra(plant->plant_id)
             .tileset->tileAt(1);
   } else {
     plant->start((seconds_to_mature - sproutedDiff) * 1000);
     cell.tile =
-        QtDatapackClientLoader::datapackLoader->QtplantExtra[plant->plant_id]
+        QtDatapackClientLoader::datapackLoader->getPlantExtra(plant->plant_id)
             .tileset->tileAt(0);
   }
   plant->mapObject->setCell(cell);

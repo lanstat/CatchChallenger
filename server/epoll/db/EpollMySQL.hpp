@@ -8,12 +8,11 @@
 #include <string>
 #include <chrono>
 
-#include "../../base/DatabaseBase.h"
-#include "../BaseClassSwitch.h"
+#include "EpollDatabase.hpp"
 
 #define CATCHCHALLENGER_MAXBDQUERIES 1024
 
-class EpollMySQL : public CatchChallenger::DatabaseBase
+class EpollMySQL : public EpollDatabase
 {
 public:
     EpollMySQL();
@@ -31,6 +30,7 @@ public:
     bool next();
     const std::string value(const int &value) const;
     bool isConnected() const;
+    BaseClassSwitch::EpollObjectType getType() const;
 private:
     MYSQL *conn;
     MYSQL_ROW row;

@@ -7,8 +7,8 @@
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../fight/interface/ClientFightEngine.hpp"
-#include "../../cc/Api_protocol_Qt.hpp"
+#include "../../../libqtcatchchallenger/ClientFightEngine.hpp"
+#include "../../../libqtcatchchallenger/Api_protocol_Qt.hpp"
 
 MapVisualiserPlayerWithFight::MapVisualiserPlayerWithFight(
     const bool &debugTags)

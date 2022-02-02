@@ -5,7 +5,7 @@
 
 #include "../../../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../Globals.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Logger.hpp"
 #include "../../../entities/PlayerInfo.hpp"

@@ -2,8 +2,7 @@
 #include "../../general/base/CommonDatapack.hpp"
 #include "../../general/base/FacilityLibGeneral.hpp"
 #include "../../general/base/GeneralVariable.hpp"
-#include "../VariableServer.hpp"
-#include "../VariableServer.hpp"
+#include "VariableServer.hpp"
 
 #include <iostream>
 
@@ -48,23 +47,6 @@ void BaseServerLogin::preload_the_randomData()
         #endif
     }
     #endif
-
-    //to have previsible data
-    /*if(GlobalServerData::serverSettings.benchmark)
-    {
-        srand(time(NULL));
-        QDataStream randomDataStream(&GlobalServerData::serverPrivateVariables.randomData, QIODevice::WriteOnly);
-        randomDataStream.setVersion(QDataStream::Qt_4_4);
-        int index=0;
-        while(index<CATCHCHALLENGER_SERVER_RANDOM_INTERNAL_SIZE)
-        {
-            randomDataStream << uint8_t(rand()%256);
-            index++;
-        }
-    }
-    else
-    {*/
-    //}
 }
 
 void BaseServerLogin::unload()

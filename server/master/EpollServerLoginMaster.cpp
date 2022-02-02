@@ -3,7 +3,7 @@
 #include "../../general/base/CommonDatapack.hpp"
 #include "../../general/base/CommonSettingsCommon.hpp"
 #include "../../general/base/cpp11addition.hpp"
-#include "../VariableServer.hpp"
+#include "../base/VariableServer.hpp"
 #include "../../general/fight/CommonFightEngineBase.hpp"
 
 using namespace CatchChallenger;
@@ -950,15 +950,23 @@ void EpollServerLoginMaster::load_account_max_id()
     std::string queryText;
     switch(databaseBaseLogin->databaseType())
     {
-        default:
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
             queryText="SELECT `id` FROM `account` ORDER BY `id` DESC LIMIT 0,1;";
         break;
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
             queryText="SELECT id FROM account ORDER BY id DESC LIMIT 0,1;";
         break;
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
             queryText="SELECT id FROM account ORDER BY id DESC LIMIT 1;";
+        break;
+        #endif
+    default:
+        abort();
         break;
     }
     if(databaseBaseLogin->asyncRead(queryText,this,&EpollServerLoginMaster::load_account_max_id_static)==NULL)

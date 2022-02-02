@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../core/EventManager.hpp"
 #include "../../../core/Node.hpp"
 #include "../../../ui/Label.hpp"

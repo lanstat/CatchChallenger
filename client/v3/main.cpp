@@ -7,21 +7,21 @@
 #include <iostream>
 
 #include "../general/base/FacilityLibGeneral.hpp"
-#include "base/LocalListener.hpp"
-#include "Options.hpp"
-#include "cc/QtDatapackChecksum.hpp"
-#include "cc/QtDatapackClientLoader.hpp"
-#include "Settings.hpp"
+#include "../libqtcatchchallenger/Language.hpp"
+#include "../libqtcatchchallenger/QtDatapackChecksum.hpp"
+#include "../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../libqtcatchchallenger/Settings.hpp"
 #include "Globals.hpp"
-#include "Language.hpp"
 #include "MyApplication.h"
+#include "Options.hpp"
+#include "base/LocalListener.hpp"
 #include "core/SceneManager.hpp"
 #include "scenes/test/Test.hpp"
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include "core/AudioPlayer.hpp"
 #endif
 
-#ifdef __ANDROID_API__ 
+#ifdef __ANDROID_API__
   #include <android/log.h>
 
 class androidbuf : public std::streambuf {
@@ -85,7 +85,7 @@ class androidbuferror : public std::streambuf {
 #endif
 
 int main(int argc, char *argv[]) {
-#ifdef __ANDROID_API__ 
+#ifdef __ANDROID_API__
   std::cout.rdbuf(new androidbuf);
   std::cerr.rdbuf(new androidbuferror);
 #endif
@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 /*QScreen *screen = QApplication::screens().at(0);
 s.setMinimumSize(QSize(screen->availableSize().width(),
                        screen->availableSize().height()));*/
-#ifdef __ANDROID_API__ 
+#ifdef __ANDROID_API__
   s->setMinimumSize(QSize(640, 480));
 #endif
   s->move(0, 0);
@@ -213,11 +213,11 @@ s.setMinimumSize(QSize(screen->availableSize().width(),
   icon.addFile(":/CC/images/catchchallenger.png", QSize(), QIcon::Normal,
                QIcon::Off);
   s->setWindowIcon(icon);
-#ifdef __ANDROID_API__ 
+#ifdef __ANDROID_API__
   s->setMinimumSize(QSize(640, 480));
   s->showFullScreen();
 #else
-  //s->show();
+  // s->show();
   s->showMaximized();
 #endif
   QtDatapackClientLoader::datapackLoader = nullptr;

@@ -7,13 +7,13 @@
 #include <string>
 
 #include "../../../general/base/GeneralStructures.hpp"
-#include "ConnectedSocket.hpp"
-#include "../cc/Api_client_real.hpp"
-#include "../cc/Api_protocol_Qt.hpp"
+#include "../../libqtcatchchallenger/ConnectedSocket.hpp"
+#include "../../libqtcatchchallenger/Api_client_real.hpp"
+#include "../../libqtcatchchallenger/Api_protocol_Qt.hpp"
 #include "../core/ProgressNotifier.hpp"
 #include "ConnectionInfo.hpp"
 #ifdef CATCHCHALLENGER_SOLO
-  #include "../entities/solo/QFakeSocket.hpp"
+  #include "../../../server/qt/QFakeSocket.hpp"
 #endif
 
 class ConnectionManager : public ProgressNotifier, public QObject {
@@ -67,7 +67,7 @@ class ConnectionManager : public ProgressNotifier, public QObject {
   QWebSocket *realWebSocket;
 #endif
 #ifdef CATCHCHALLENGER_SOLO
-  CatchChallenger::QFakeSocket *fakeSocket;
+  QFakeSocket *fakeSocket;
 #endif
   QString lastServer;
   uint32_t datapckFileSize;

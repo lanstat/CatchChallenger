@@ -14,8 +14,8 @@
 #include "../../../../general/base/CommonSettingsServer.hpp"
 #include "../../../../general/base/GeneralVariable.hpp"
 #include "../../../../general/base/MoveOnTheMap.hpp"
-#include "../../cc/Api_protocol_Qt.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/Api_protocol_Qt.hpp"
 
 /* why send the look at because blocked into the wall?
 to be sync if connexion is stop, but use more bandwith

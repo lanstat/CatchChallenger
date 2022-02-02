@@ -3,10 +3,9 @@
 #include <postgresql/libpq-fe.h>
 #include "../../general/base/cpp11addition.hpp"
 #include "../../general/base/GeneralVariable.hpp"
-#include "../epoll/db/EpollPostgresql.hpp"
 #include <cstring>
-#include <iostream>
 #endif
+#include <iostream>
 
 using namespace CatchChallenger;
 
@@ -14,23 +13,25 @@ using namespace CatchChallenger;
 std::unordered_map<CatchChallenger::DatabaseBase *,uint16_t> PreparedStatementUnit::queryCount;
 #endif
 
-PreparedStatementUnit::PreparedStatementUnit() :
-    database(NULL)
+PreparedStatementUnit::PreparedStatementUnit()
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
+    : database(NULL)
+    #endif
 {
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     uniqueName[0]=0;
     #endif
 }
 
-PreparedStatementUnit::PreparedStatementUnit(const std::string &query, CatchChallenger::DatabaseBase * const database) :
-#ifdef CATCHCHALLENGER_CLASS_QT
-    database(static_cast<QtDatabase *>(database))
-#else
-    database(database)
-#endif
+PreparedStatementUnit::PreparedStatementUnit(const std::string &query, CatchChallenger::DatabaseBase * const database)
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
+    : database(database)
+    #endif
 {
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     uniqueName[0]=0;
+    #else
+    (void)database;
     #endif
     if(!query.empty())
         setQuery(query);
@@ -38,15 +39,19 @@ PreparedStatementUnit::PreparedStatementUnit(const std::string &query, CatchChal
 
 PreparedStatementUnit::~PreparedStatementUnit()
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     database=NULL;
+    #endif
 }
 
 bool PreparedStatementUnit::setQuery(const std::string &query)
 {
     if(query.empty())
         return false;
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     if(database==NULL)
         return false;
+    #endif
     this->query=query;
     if(this->query.empty())
         return false;
@@ -56,7 +61,7 @@ bool PreparedStatementUnit::setQuery(const std::string &query)
     strcpy(uniqueName,std::to_string(PreparedStatementUnit::queryCount.at(database)).c_str());
     PreparedStatementUnit::queryCount[database]++;
     const std::string &newQuery=PreparedStatementUnit::writeToPrepare(query);
-    if(!static_cast<EpollPostgresql *>(database)->queryPrepare(uniqueName,newQuery.c_str(),this->query.argumentsCount()/*, NULL*//*paramTypes*/))
+    if(!database->queryPrepare(uniqueName,newQuery.c_str(),this->query.argumentsCount()/*, NULL*//*paramTypes*/))
     { //if failed quit
         std::cerr << "Problem to prepare the query: " << newQuery << ", error message: " << database->errorMessage() << std::endl;
         abort();
@@ -102,42 +107,63 @@ std::string PreparedStatementUnit::queryText() const
     return query.originalQuery();
 }
 
-DatabaseBase::CallBack * PreparedStatementUnit::asyncRead(void * returnObject,CallBackDatabase method,const std::vector<std::string> &values)
+DatabaseBaseCallBack *PreparedStatementUnit::asyncRead(void * returnObject,CallBackDatabase method,const std::vector<std::string> &values)
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     if(database==NULL)
         return NULL;
+    #else
+    (void)returnObject;
+    (void)method;
+    (void)values;
+    #endif
     if(query.empty())
         return NULL;
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
         #ifdef CATCHCHALLENGER_EXTRA_CHECK
-            return static_cast<EpollPostgresql *>(database)->asyncPreparedRead(PreparedStatementUnit::writeToPrepare(queryText()),uniqueName,returnObject,method,values);
+            return database->asyncPreparedRead(PreparedStatementUnit::writeToPrepare(queryText()),uniqueName,returnObject,method,values);
         #else
-            return static_cast<EpollPostgresql *>(database)->asyncPreparedRead("",uniqueName,returnObject,method,values);
+            return database->asyncPreparedRead("",uniqueName,returnObject,method,values);
         #endif
     #else
-    return database->asyncRead(query.compose(values),returnObject,method);
+        #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
+        return database->asyncRead(query.compose(values),returnObject,method);
+        #else
+        std::cerr << "PreparedStatementUnit::asyncRead call when disabled" << std::endl;
+        abort();
+        #endif
     #endif
 }
 
 bool PreparedStatementUnit::asyncWrite(const std::vector<std::string> &values)
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     if(database==NULL)
         return false;
+    #else
+    (void)values;
+    #endif
     if(query.empty())
         return false;
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
         #ifdef CATCHCHALLENGER_EXTRA_CHECK
-            return static_cast<EpollPostgresql *>(database)->asyncPreparedWrite(PreparedStatementUnit::writeToPrepare(queryText()),uniqueName,values);
+            return database->asyncPreparedWrite(PreparedStatementUnit::writeToPrepare(queryText()),uniqueName,values);
         #else
-            return static_cast<EpollPostgresql *>(database)->asyncPreparedWrite("",uniqueName,values);
+            return database->asyncPreparedWrite("",uniqueName,values);
         #endif
     #else
-    return database->asyncWrite(query.compose(values));
+        #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
+            return database->asyncWrite(query.compose(values));
+        #else
+            std::cerr << "PreparedStatementUnit::asyncWrite call when disabled" << std::endl;
+            abort();
+        #endif
     #endif
 }
 
 PreparedStatementUnit::PreparedStatementUnit(const PreparedStatementUnit& other) // copy constructor
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     #ifdef CATCHCHALLENGER_EXTRA_CHECK
     switch(other.database->databaseType())
     {
@@ -145,9 +171,15 @@ PreparedStatementUnit::PreparedStatementUnit(const PreparedStatementUnit& other)
             std::cerr << "out of range or wrong type" << std::endl;
             abort();
         break;
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
     }
     #endif
@@ -161,15 +193,21 @@ PreparedStatementUnit::PreparedStatementUnit(const PreparedStatementUnit& other)
     }
     this->database=other.database;
     query=other.query;
+    #else
+    (void)other;
+    #endif
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     memcpy(this->uniqueName,other.uniqueName,sizeof(uniqueName));
     #endif
 }
 
-PreparedStatementUnit::PreparedStatementUnit(PreparedStatementUnit&& other) // move constructor
-    : database(other.database),
+PreparedStatementUnit::PreparedStatementUnit(PreparedStatementUnit&& other) : // move constructor
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
+    database(other.database),
+      #endif
       query(other.query)
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     #ifdef CATCHCHALLENGER_EXTRA_CHECK
     switch(other.database->databaseType())
     {
@@ -177,20 +215,28 @@ PreparedStatementUnit::PreparedStatementUnit(PreparedStatementUnit&& other) // m
             std::cerr << "out of range or wrong type" << std::endl;
             abort();
         break;
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
     }
     #endif
     other.database = nullptr;
-    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     strcpy(this->uniqueName,other.uniqueName);
+    #else
+    (void)other;
     #endif
 }
 
 PreparedStatementUnit& PreparedStatementUnit::operator=(const PreparedStatementUnit& other) // copy assignment
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     if(other.database==nullptr)
     {
         database=nullptr;
@@ -207,21 +253,31 @@ PreparedStatementUnit& PreparedStatementUnit::operator=(const PreparedStatementU
             std::cerr << "out of range or wrong type" << std::endl;
             abort();
         break;
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
     }
+    #endif
     #endif
     query=other.query;
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     memcpy(this->uniqueName,other.uniqueName,sizeof(uniqueName));
+    #else
+    (void)other;
     #endif
     return *this;
 }
 
 PreparedStatementUnit& PreparedStatementUnit::operator=(PreparedStatementUnit&& other) // move assignment
 {
+    #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     #ifdef CATCHCHALLENGER_EXTRA_CHECK
     switch(other.database->databaseType())
     {
@@ -229,17 +285,26 @@ PreparedStatementUnit& PreparedStatementUnit::operator=(PreparedStatementUnit&& 
             std::cerr << "out of range or wrong type" << std::endl;
             abort();
         break;
+        #if defined(CATCHCHALLENGER_DB_MYSQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::Mysql:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_SQLITE) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::SQLite:
+        #endif
+        #if defined(CATCHCHALLENGER_DB_POSTGRESQL) || defined(CATCHCHALLENGER_CLASS_QT)
         case DatabaseBase::DatabaseType::PostgreSQL:
+        #endif
         break;
     }
     #endif
     this->database=other.database;
+    #endif
     query=other.query;
     #if defined(CATCHCHALLENGER_DB_PREPAREDSTATEMENT)
     memcpy(this->uniqueName,other.uniqueName,sizeof(uniqueName));
-    #endif
     other.database = nullptr;
+    #else
+    (void)other;
+    #endif
     return *this;
 }

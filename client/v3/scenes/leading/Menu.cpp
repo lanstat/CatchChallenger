@@ -8,10 +8,9 @@
 
 #include "../../../general/base/CommonSettingsCommon.hpp"
 #include "../../../general/base/Version.hpp"
-#include "../../Language.hpp"
-#include "../../Settings.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/Settings.hpp"
 #include "../../Ultimate.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
 #include "../../core/AssetsLoader.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../../core/Sprite.hpp"
@@ -62,9 +61,11 @@ Menu::Menu() {
 
 Menu::~Menu() {
 #ifndef __EMSCRIPTEN__
-  QObject::disconnect(InternetUpdater::GetInstance(), &InternetUpdater::newUpdate, nullptr, nullptr);
+  QObject::disconnect(InternetUpdater::GetInstance(),
+                      &InternetUpdater::newUpdate, nullptr, nullptr);
 #endif
-  QObject::disconnect(FeedNews::GetInstance(), &FeedNews::feedEntryList, nullptr, nullptr);
+  QObject::disconnect(FeedNews::GetInstance(), &FeedNews::feedEntryList,
+                      nullptr, nullptr);
 
   if (solo_) {
     delete solo_;

@@ -5,8 +5,8 @@
 
 #include "../../../../../general/base/CommonDatapackServerSpec.hpp"
 #include "../../../../../general/base/CommonSettingsCommon.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../Globals.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Logger.hpp"
 #include "../../../entities/PlayerInfo.hpp"
@@ -402,7 +402,7 @@ WarehouseItem *Warehouse::ItemToItem(const uint16_t &item_id,
   if (QtDatapackClientLoader::datapackLoader->itemsExtra.find(item_id) !=
       QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
     item->SetPixmap(
-        QtDatapackClientLoader::datapackLoader->getImageExtra(item_id).image);
+        QtDatapackClientLoader::datapackLoader->getItemExtra(item_id).image);
     if (quantity > 1) item->SetText(QString::number(quantity));
     item->setToolTip(QString::fromStdString(
         QtDatapackClientLoader::datapackLoader->itemsExtra.at(item_id).name));

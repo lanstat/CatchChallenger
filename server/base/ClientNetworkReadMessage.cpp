@@ -8,6 +8,7 @@
 #include "BaseServerLogin.hpp"
 #endif
 #include "GameServerVariables.hpp"
+#include <vector>
 
 using namespace CatchChallenger;
 
@@ -275,9 +276,6 @@ bool Client::parseMessage(const uint8_t &packetCode,const char * const data,cons
                         }
                         else if(command==StaticText::text_stop || command==StaticText::text_restart)
                         {
-                            #ifndef EPOLLCATCHCHALLENGERSERVER
-                            BroadCastWithoutSender::broadCastWithoutSender.emit_serverCommand(command,text);
-                            #endif
                             normalOutput(StaticText::text_send_command_slash+command+StaticText::text_space+text);
                         }
                         #ifdef CATCHCHALLENGER_SERVER_DEBUG_COMMAND
@@ -579,32 +577,69 @@ bool Client::parseMessage(const uint8_t &packetCode,const char * const data,cons
         case 0x17:
         {
             uint32_t pos=0;
-            std::vector<std::pair<uint16_t, int32_t> > items;
-            std::vector<uint32_t> withdrawMonsters;
-            std::vector<uint32_t> depositeMonsters;
+            std::vector<std::pair<uint16_t,uint32_t> > withdrawItems;
+            std::vector<std::pair<uint16_t,uint32_t> > depositeItems;
+            std::vector<uint8_t> withdrawMonsters;
+            std::vector<uint8_t> depositeMonsters;
             if((size-pos)<((int)sizeof(int64_t)))
             {
                 errorOutput("wrong remaining size for warehouse cash");
                 return false;
             }
-            int64_t tempVar;//cash move can be negative
+            uint64_t tempVar=0;
             memcpy(&tempVar,data+pos,sizeof(int64_t));
-            const int64_t &cash=le64toh(tempVar);//cash move can be negative
-            pos+=sizeof(int64_t);
+            const uint64_t &withdrawCash=le64toh(tempVar);
+            pos+=sizeof(uint64_t);
+            memcpy(&tempVar,data+pos,sizeof(int64_t));
+            const uint64_t &depositeCash=le64toh(tempVar);
+            pos+=sizeof(uint64_t);
 
-            uint16_t size16;
-            if((size-pos)<((int)sizeof(uint16_t)))
+            uint16_t size8=0;
             {
-                errorOutput("wrong remaining size for warehouse item list");
-                return false;
-            }
-            size16=le16toh(*reinterpret_cast<uint16_t *>(const_cast<char *>(data+pos)));
-            pos+=sizeof(uint16_t);
+                if((size-pos)<((int)sizeof(uint8_t)))
+                {
+                    errorOutput("wrong remaining size for warehouse item list");
+                    return false;
+                }
+                size8=data[pos];
+                pos+=sizeof(uint8_t);
 
-            {
+                withdrawItems.reserve(size8);
                 uint16_t id;
                 uint32_t index=0;
-                while(index<size16)
+                while(index<size8)
+                {
+                    if((size-pos)<((int)sizeof(uint16_t)))
+                    {
+                        errorOutput("wrong remaining size for warehouse item id");
+                        return false;
+                    }
+                    id=le16toh(*reinterpret_cast<uint16_t *>(const_cast<char *>(data+pos)));
+                    pos+=sizeof(uint16_t);
+                    if((size-pos)<((int)sizeof(uint32_t)))
+                    {
+                        errorOutput("wrong remaining size for warehouse item quantity");
+                        return false;
+                    }
+                    const uint32_t &quantity=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
+                    pos+=sizeof(uint32_t);
+                    withdrawItems.push_back(std::pair<uint16_t, int32_t>(id,quantity));
+                    index++;
+                }
+            }
+            {
+                if((size-pos)<((int)sizeof(uint8_t)))
+                {
+                    errorOutput("wrong remaining size for warehouse item list");
+                    return false;
+                }
+                size8=data[pos];
+                pos+=sizeof(uint8_t);
+
+                depositeItems.reserve(size8);
+                uint16_t id;
+                uint32_t index=0;
+                while(index<size8)
                 {
                     if((size-pos)<((int)sizeof(uint16_t)))
                     {
@@ -620,52 +655,52 @@ bool Client::parseMessage(const uint8_t &packetCode,const char * const data,cons
                     }
                     const int32_t &quantity=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
                     pos+=sizeof(int32_t);
-                    items.push_back(std::pair<uint16_t, int32_t>(id,quantity));
+                    depositeItems.push_back(std::pair<uint16_t, int32_t>(id,quantity));
                     index++;
                 }
             }
-            if((size-pos)<((int)sizeof(uint32_t)))
+
+            if((size-pos)<((int)sizeof(uint8_t)))
             {
                 errorOutput("wrong remaining size for warehouse monster list");
                 return false;
             }
-            uint32_t size32;
-            size32=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
-            pos+=sizeof(uint32_t);
+            size8=data[pos];
+            pos+=sizeof(uint8_t);
             uint32_t index=0;
-            while(index<size32)
+            while(index<size8)
             {
-                if((size-pos)<((int)sizeof(uint32_t)))
+                if((size-pos)<((int)sizeof(uint8_t)))
                 {
                     errorOutput("wrong remaining size for warehouse monster id");
                     return false;
                 }
-                const uint32_t &id=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
-                pos+=sizeof(uint32_t);
-                withdrawMonsters.push_back(id);
+                const uint8_t &monsterPos=data[pos];
+                pos+=sizeof(uint8_t);
+                withdrawMonsters.push_back(monsterPos);
                 index++;
             }
-            if((size-pos)<((int)sizeof(uint32_t)))
+            if((size-pos)<((int)sizeof(uint8_t)))
             {
                 errorOutput("wrong remaining size for warehouse sub monster id");
                 return false;
             }
-            size32=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
-            pos+=sizeof(uint32_t);
+            size8=data[pos];
+            pos+=sizeof(uint8_t);
             index=0;
-            while(index<size32)
+            while(index<size8)
             {
-                if((size-pos)<((int)sizeof(uint32_t)))
+                if((size-pos)<((int)sizeof(uint8_t)))
                 {
                     errorOutput("wrong remaining size for warehouse monster deposite");
                     return false;
                 }
-                const uint32_t &id=le32toh(*reinterpret_cast<uint32_t *>(const_cast<char *>(data+pos)));
-                pos+=sizeof(uint32_t);
-                depositeMonsters.push_back(id);
+                const uint8_t &monsterPos=data[pos];
+                pos+=sizeof(uint8_t);
+                depositeMonsters.push_back(monsterPos);
                 index++;
             }
-            wareHouseStore(cash,items,withdrawMonsters,depositeMonsters);
+            wareHouseStore(withdrawCash,depositeCash,withdrawItems,depositeItems,withdrawMonsters,depositeMonsters);
             if(pos>(size+1))
             {
                 errorOutput("remaining data: parsenormalOutput("+

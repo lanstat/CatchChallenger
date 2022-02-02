@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "../../../../../general/base/CommonDatapack.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../ui/Label.hpp"
 #include "../../../ui/ThemedButton.hpp"
 
@@ -29,7 +29,7 @@ ShopItem *ShopItem::Create(uint16_t object_id, uint32_t quantity,
 void ShopItem::DrawContent(QPainter *painter) {
   auto item = QtDatapackClientLoader::datapackLoader->itemsExtra.at(object_id_);
   QPixmap p =
-      QtDatapackClientLoader::datapackLoader->getImageExtra(object_id_).image;
+      QtDatapackClientLoader::datapackLoader->getItemExtra(object_id_).image;
   p = p.scaledToHeight(32);
 
   name_ = item.name;
@@ -63,9 +63,7 @@ void ShopItem::DrawContent(QPainter *painter) {
   delete button;
 }
 
-void ShopItem::OnResize() {
-  ReDraw();
-}
+void ShopItem::OnResize() { ReDraw(); }
 
 std::string ShopItem::Name() { return name_; }
 

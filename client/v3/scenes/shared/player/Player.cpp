@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <iostream>
 
-#include "../../../cc/QtDatapackClientLoader.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../ui/LinkedDialog.hpp"
 
 using Scenes::Player;

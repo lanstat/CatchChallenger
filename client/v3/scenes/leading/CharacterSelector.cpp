@@ -9,7 +9,7 @@
 #include "../../FacilityLibClient.hpp"
 #include "../../Globals.hpp"
 #include "../../base/ConnectionManager.hpp"
-#include "../../cc/QtDatapackClientLoader.hpp"
+#include "../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../core/SceneManager.hpp"
 #include "../../core/StackedScene.hpp"
 #include "CharacterItem.hpp"

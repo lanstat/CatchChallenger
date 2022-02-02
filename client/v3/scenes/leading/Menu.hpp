@@ -4,21 +4,21 @@
 
 #include <vector>
 
-#include "../../entities/FeedNews.hpp"
 #include "../../core/Scene.hpp"
 #include "../../core/Sprite.hpp"
+#include "../../entities/FeedNews.hpp"
 #include "../../ui/Button.hpp"
 #include "../../ui/Label.hpp"
 #include "../../ui/ListView.hpp"
-#include "Multi.hpp"
-#include "Solo.hpp"
-#include "Options.hpp"
 #include "Debug.hpp"
+#include "Multi.hpp"
+#include "Options.hpp"
+#include "Solo.hpp"
 
 #ifndef CATCHCHALLENGER_NOAUDIO
   #include <QAudioOutput>
 
-  #include "../../QInfiniteBuffer.hpp"
+  #include "../../../libqtcatchchallenger/QInfiniteBuffer.hpp"
 #endif
 
 namespace Scenes {

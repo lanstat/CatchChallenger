@@ -5,11 +5,11 @@
 
 #include "../../../../general/base/CommonDatapack.hpp"
 #include "../../../../general/base/CommonDatapackServerSpec.hpp"
+#include "../../../../libqtcatchchallenger/QtDatapackClientLoader.hpp"
 #include "../../../FacilityLibClient.hpp"
 #include "../../../Globals.hpp"
 #include "../../../Ultimate.hpp"
 #include "../../../base/ConnectionManager.hpp"
-#include "../../../cc/QtDatapackClientLoader.hpp"
 #include "../../../core/AssetsLoader.hpp"
 #include "../../../core/Sprite.hpp"
 #include "../../../entities/PlayerInfo.hpp"
@@ -149,7 +149,7 @@ void Quests::OnQuestItemChanged() {
               items.at(index).item) !=
           QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
         image = QtDatapackClientLoader::datapackLoader
-                    ->getImageExtra(items.at(index).item)
+                    ->getItemExtra(items.at(index).item)
                     .image;
         name = QtDatapackClientLoader::datapackLoader->itemsExtra
                    .at(items.at(index).item)
@@ -201,7 +201,7 @@ void Quests::OnQuestItemChanged() {
                 items.at(index).item) !=
             QtDatapackClientLoader::datapackLoader->itemsExtra.cend()) {
           image = QtDatapackClientLoader::datapackLoader
-                      ->getImageExtra(items.at(index).item)
+                      ->getItemExtra(items.at(index).item)
                       .image;
           name = QtDatapackClientLoader::datapackLoader->itemsExtra
                      .at(items.at(index).item)
